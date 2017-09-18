@@ -296,11 +296,11 @@ gotm.control<-function(fit.NR = FALSE,
 gotm.design<-function(PWeights = NULL, FWeights = NULL, PSU = NULL){
   tmp <- list(PWeights = PWeights, FWeights = FWeights, PSU = PSU)
   if (sum(sapply(tmp, length))){
-    if(!length(PSU)) stop('"PSU" must be given.')
+    if (!length(PSU) && length(PWeights)) stop('"PSU" must be given.')
+    if (length(PSU) && length(unique(PSU)) == 1) stop('There is only one "PSU". "PWeights" cannot be used.')
     if (!(length(PWeights) + length(FWeights))) stop('P- or F- weights must be given')
     if ((length(PWeights) && length(FWeights))) stop('Please deliver either "Pweights" or "FWeights".')
     if (length(PWeights) && (length(PSU) != length(PWeights))) stop('"PWeights" and "PSU" must have the same length.')
-    if (length(FWeights) && (length(PSU) != length(FWeights))) stop('"FWeights" and "PSU" must have the same length.')
   }
   tmp
 }
@@ -576,7 +576,7 @@ vcov.gotm<-function(object, robust.vcov, control = list(), ...){
     z <- NA*hes
     warning(call. = FALSE, 'Model is probably unidentifiable, vcov cannot be computed. Please try to use a "hopit" model.')
   }
-  if (length(object$design)){
+  if (length(object$design$PSU)){
     if (!missing(robust.vcov)) {
       warning('"robust.vcov" ignored, survey design was detected.')
       robust.vcov <- NA
