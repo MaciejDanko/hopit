@@ -23,7 +23,7 @@ cumsum_row<-function(mat) t(apply(as.matrix(mat), 1L, cumsum))
 #'
 #' For each row of a matrix \code{mat} extracts a value corresponding to a column stored in vector \code{y}.
 #' @param mat a matrix
-#' @param y a vector with column indexes corresponding to each row in the matrix \code{mat}.
+#' @param y a vector with column indices corresponding to each row in the matrix \code{mat}.
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 #' @keywords internal
 col_path<-function(mat, y) mapply(function (x, y) mat[x, y], seq_along(y), y)
@@ -691,26 +691,22 @@ logLik.gotm<-function(object, ...) object$LL
 #' @export
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 AIC.gotm<-function(object, ..., k = 2L) {
-  if (length(list(object, ...)) > 1L) {
-    objects <- list(object, ...)
-    tmp <- deparse(substitute(list(object, ...)))
-    ob.nam <- gsub(' ', '', strsplit(substring(tmp, 6L, nchar(tmp) - 1L), ',', fixed = TRUE)[[1L]])
-  } else {
-    if ((length(object) == 1) && (class(object) == 'gotm')) {
-      objects <- list(object)
-      tmp <- deparse(substitute(list(object)))
-      ob.nam <- gsub(' ', '', substring(tmp, 6L, nchar(tmp) - 1L)[[1L]])
-    } else {
-      ob.nam <- as.character(seq_along(objects))
-    }
-  }
+  objects <- list(object, ...)
+  tmp <- deparse(substitute(list(object, ...)))
+  ob.nam <- gsub(' ', '', strsplit(substring(tmp, 6L, nchar(tmp) - 1L), ',', fixed = TRUE)[[1L]])
   res <- sapply(objects,function(object) -2L*object$LL + k * length(object$coef))
-  rownames(res) <- ob.nam
+  names(res) <- ob.nam
   res
 }
 
-#' Likelihood Ratio Tests
+#' LRT Tables
 #'
+#' Compute likelihood rato test for two or more \code{gotm} objecs.
+#' @param object an object containing the results returned by a \code{gotm}.
+#' @param ...	additional objects of the same type.
+#' @param method the method of model comparison. Choose \code{"sequential"} for 1-2, 2-3, 3-4, ... comparisons or
+#' \code{"with.first"} for 1-2, 1-3, 1-4, ... comparisons.
+#' @param direction determine if complexity of listed models is \code{"increasing"} or \code{"decreasing"} (default).
 #' @keywords internal
 #' @export
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
@@ -721,11 +717,7 @@ anova.gotm<-function(object, ..., method = c('sequential', 'with.first'), direct
     objects <- list(object, ...)
     tmp <- deparse(substitute(list(object, ...)))
     ob.nam <- gsub(' ', '', strsplit(substring(tmp, 6L, nchar(tmp) - 1L), ',', fixed = TRUE)[[1L]])
-  } else {
-    if ((class(object) != 'list') || (length(object)<2L)) stop('At least two objects must be listed.')
-    objects <- object
-    ob.nam <- as.character(seq_along(objects))
-  }
+  } else  stop('At least two objects must be listed.')
   if (length(objects) == 2L){
     if(length(objects[[1L]]$coef)>length(objects[[2L]]$coef)) {
       return(lrt.gotm(objects[[1L]], objects[[2L]]))

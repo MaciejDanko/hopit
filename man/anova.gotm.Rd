@@ -2,13 +2,23 @@
 % Please edit documentation in R/gotm.r
 \name{anova.gotm}
 \alias{anova.gotm}
-\title{Likelihood Ratio Tests}
+\title{LRT Tables}
 \usage{
 \method{anova}{gotm}(object, ..., method = c("sequential", "with.first"),
   direction = c("decreasing", "increasing"))
 }
+\arguments{
+\item{object}{an object containing the results returned by a \code{gotm}.}
+
+\item{...}{additional objects of the same type.}
+
+\item{method}{the method of model comparison. Choose \code{"sequential"} for 1-2, 2-3, 3-4, ... comparisons or
+\code{"with.first"} for 1-2, 1-3, 1-4, ... comparisons.}
+
+\item{direction}{determine if complexity of listed models is \code{"increasing"} or \code{"decreasing"} (default).}
+}
 \description{
-Likelihood Ratio Tests
+Compute likelihood rato test for two or more \code{gotm} objecs.
 }
 \author{
 Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>

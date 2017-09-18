@@ -9,7 +9,7 @@ col_path(mat, y)
 \arguments{
 \item{mat}{a matrix}
 
-\item{y}{a vector with column indexes corresponding to each row in the matrix \code{mat}.}
+\item{y}{a vector with column indices corresponding to each row in the matrix \code{mat}.}
 }
 \description{
 For each row of a matrix \code{mat} extracts a value corresponding to a column stored in vector \code{y}.
