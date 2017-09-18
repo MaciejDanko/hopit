@@ -624,7 +624,7 @@ print.vcov.gotm <- function(x, digits = 3L, ...){
 #' @export
 #' @keywords internal
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
-summary.gotm <- function(object, robust.se, control = list(), ...){
+summary.gotm <- function(object, robust.se = FALSE, control = list(), ...){
   control <- do.call("gotm.control", control)
   varcov <- vcov.gotm(object, robust.se, control)
   SE <- suppressWarnings(sqrt(diag(varcov)))

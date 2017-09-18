@@ -4,7 +4,7 @@
 \alias{summary.gotm}
 \title{Calcualte model summary}
 \usage{
-\method{summary}{gotm}(object, robust.se, control = list(), ...)
+\method{summary}{gotm}(object, robust.se = FALSE, control = list(), ...)
 }
 \arguments{
 \item{object}{\code{gotm} object.}
