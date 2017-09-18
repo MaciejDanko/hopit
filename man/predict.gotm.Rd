@@ -5,7 +5,7 @@
 \title{Model predictions}
 \usage{
 \method{predict}{gotm}(object, type = c("link", "response", "threshold"),
-  standardized = FALSE, strata = NULL)
+  standardized = FALSE, strata = NULL, ...)
 }
 \arguments{
 \item{object}{\code{gotm} object.}
@@ -18,6 +18,8 @@ gives the latent threshold variables for each observation.}
 \item{standardized}{logical indicating if to use a standardization to calculate disability weight. See [1].}
 
 \item{strata}{stratification variable used during standardization.}
+
+\item{...}{further arguments passed to or from other methods.}
 }
 \description{
 Model predictions

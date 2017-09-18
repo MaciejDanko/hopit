@@ -426,7 +426,9 @@ gotm<- function(reg.formula,
   if (sum(sapply(survey, length))){
     model$design <- survey
     if (length(survey$PWeights)) model$weights <- 1L/survey$PWeights else model$weights <- survey$FWeights
-    if (length(model$weights != model$N)) stop('Vector of survey weights should has the same length as data.')
+    if (length(model$weights) != model$N) {
+      stop('Vector of survey weights must be of the same length as data.')
+    }
   } else {
     model$design <- NULL
     model$weights <- rep(1L, model$N)
@@ -815,10 +817,11 @@ print.lrt.gotm <- function(x, ...){
 #' gives the latent threshold variables for each observation.
 #' @param standardized logical indicating if to use a standardization to calculate disability weight. See [1].
 #' @param strata stratification variable used during standardization.
+#' @param ...	further arguments passed to or from other methods.
 #' @export
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 predict.gotm <- function(object, type = c('link', 'response', 'threshold'),
-                         standardized = FALSE, strata = NULL){
+                         standardized = FALSE, strata = NULL, ...){
   type <- tolower(type[1L])
   if (!(type %in% c('link', 'response', 'threshold'))) stop('Unknown type.')
   H <- switch(type,
