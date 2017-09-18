@@ -8,7 +8,7 @@ gotm(reg.formula, thresh.formula = as.formula("~1"), data = NULL,
   reg.offset = NULL, thresh.offset = NULL, survey = list(),
   link = c("probit", "logit"), lambda.est.method = c("multi", "single"),
   gamma.est.method = c("multi", "single"), thresh.method = c("classic",
-  "hopit"), start = NULL, doFit = TRUE, control = gotm.control())
+  "hopit"), start = NULL, doFit = TRUE, control = list())
 }
 \arguments{
 \item{reg.formula}{formula used to model latent process.}

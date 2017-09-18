@@ -64,7 +64,7 @@ gotm_Threshold<-function(thresh.lambda, thresh.gamma, model = NULL, control = li
   } else stop('Unknown threshold metod.')
   a[,J + 1L] <- Inf
   b  <-  a
-  if (J>3L) {
+  if (J>=3L) {
     a[,3L : J]  <-  fn(Lin.Tresh.mat[,2L : (J - 1L)])
     b  <-  a
     a[,2L : J]  <-  cumsum_row(a[,2L : J])
@@ -89,7 +89,7 @@ gotm_GetInitial <- function(model, data = NULL){
   fit0 <- clm(formula = model$reg.formula, data = data, weights = w, link = model$link)
   model$reg.start <- coef(fit0)[-(1L : (model$J - 1L))]
   alphas <- coef(fit0)[(1L : (model$J - 1L))]
-  lambda1 <- c(alphas[1L], log(diff(alphas)))
+  lambda1 <- c(alphas[1L], log(diff(alphas))) #classic
 
   sqf <- function(param){
     cpc <- cumsum(model$parcount[-1L])
@@ -100,7 +100,7 @@ gotm_GetInitial <- function(model, data = NULL){
 
   sqf2 <- function(param){
     thresh.lambda <- rep(param[1L], model$parcount[2L])
-    if (model$parcount[3L]) thresh.gamma <- rep(param[2], model$parcount[3]) else thresh.gamma <- 0L
+    if (model$parcount[3L]) thresh.gamma <- rep(param[2L], model$parcount[3L]) else thresh.gamma <- 0L
     sum((t(gotm_Threshold(thresh.lambda, thresh.gamma, model)[,-1L][,1L : length(alphas)]) - alphas)^2L, na.rm = T)
   }
 
@@ -169,7 +169,8 @@ gotm_ExtractParameters <- function(model, parameters){
 #' @keywords internal
 gotm_negLL <- function(parameters, model, collapse = TRUE){
   p <- gotm_ExtractParameters(model, parameters)
-  a <- gotm_Threshold(p$thresh.lambda, p$thresh.gamma, model)
+  a <- gotm_Threshold(thresh.lambda = p$thresh.lambda, thresh.gamma = p$thresh.gamma,
+                      model = model)
   b <- gotm_Latent(p$reg.params, model)
   y <- as.numeric(unclass(model$y_i))
   A2 <- pmax(col_path(a, y) - b, -20L)
@@ -177,7 +178,7 @@ gotm_negLL <- function(parameters, model, collapse = TRUE){
   P <- model$link.func(A1)-model$link.func(A2)
   cond <- all(P > 0L)
   if(collapse) {
-    if (cond) -sum(log(P)) else Inf
+    if (cond) -sum(model$weights * log(P)) else Inf
   } else -log(P)
 }
 
@@ -283,6 +284,7 @@ gotm.control<-function(fit.NR = FALSE,
        max.reiter = max.reiter, tol.reiter = tol.reiter)
 }
 
+#frequency weight potraktowac jak w  clm czyli bez PSU
 #' Auxiliary for setting a simple survey design for \code{gotm}
 #'
 #' @param PWeights Probability weights (the inverse of \code{FWeights})
@@ -350,7 +352,7 @@ gotm<- function(reg.formula,
                 thresh.method = c('classic', 'hopit'),
                 start = NULL,
                 doFit = TRUE,
-                control = gotm.control()){
+                control = list()){
 
   control <- do.call("gotm.control", control)
   survey <- do.call("gotm.design", survey)
@@ -439,9 +441,9 @@ gotm<- function(reg.formula,
   if (model$thresh.no.cov) Ct <- 0L
   metho <- paste(lambda.est.method, gamma.est.method, sep = '')
   model$parcount = switch (metho,
-                           multiplemultiple = c(Cr, model$J - 1L, Ct*(model$J - 1L)),
-                           multiplesingle = c(Cr, model$J - 1L, Ct),
-                           singlemultiple = c(Cr, 1L, Ct*(model$J - 1L)),
+                           multimulti = c(Cr, model$J - 1L, Ct*(model$J - 1L)),
+                           multisingle = c(Cr, model$J - 1L, Ct),
+                           singlemulti = c(Cr, 1L, Ct*(model$J - 1L)),
                            singlesingle = c(Cr, 1L, Ct))
   model$parcount[3L] <- model$parcount[3L]*(model$thresh.no.cov == FALSE)
   interce <- paste(1L : (model$J - 1L), 2L : (model$J), sep = '|')
@@ -453,17 +455,18 @@ gotm<- function(reg.formula,
     tmp <- paste('(G)', apply(tmp, 1L, paste, sep = '', collapse = '.'), sep = '.')
     tmp2 <- paste('(G)', thresh.names, sep = '.')
   }
+
   coefnames <- switch (metho,
-                       multiplemultiple = c(reg.names, paste('(L)', interce, sep = '.'), tmp),
-                       multiplesingle = c(reg.names, paste('(L)', interce, sep = '.'), tmp2),
-                       singlemultiple = c(reg.names, '(L)', tmp),
+                       multimulti = c(reg.names, paste('(L)', interce, sep = '.'), tmp),
+                       multisingle = c(reg.names, paste('(L)', interce, sep = '.'), tmp2),
+                       singlemulti = c(reg.names, '(L)', tmp),
                        singlesingle = c(reg.names, '(L)', tmp2))
 
-  model$weights <- as.vector(matrix(weights, 1L, model$N))
+  model$weights <- as.vector(matrix(model$weights, 1L, model$N))
 
   if (!length(start)) {
     if (!doFit) stop('Starting values must be given for "doFit" == TRUE.')
-    if (!control$forced.DEoptim) z <- try({model <- gotm_GetInitial(model, data)}, silent = FALSE) else z <- NULL
+    if (!control$forced.DEoptim) z <- try({gotm_GetInitial(model, data)}, silent = FALSE) else z <- NULL
     if (control$forced.DEoptim||(class(z) == "try-error")) {
       message('Initial values failed, using DEoptim to find them.')
       DEfit <- DEoptim(fn = gotm_negLL, #DEoptim::
@@ -471,14 +474,14 @@ gotm<- function(reg.formula,
                        upper = rep(10L, sum(model$parcount)),
                        model = model, control = list(itermax = 500L, trace = TRUE))
       model$start <- DEfit$optim$bestmem
-    }
+    } else model$start <- z$start
   } else model$start <- start
 
   if (doFit){
     model <- gotm_fitter(model, start = model$start, model$control)
   } else {
     model$coef <- model$start
-    model$LL <- gotm_negLL(model$start, model)
+    model$LL <- gotm_negLL(parameters = model$start, model)
   }
   names(model$coef) <- coefnames
   colnames(model$thresh.mm) <- thresh.names
@@ -889,4 +892,4 @@ predict.gotm <- function(object, type = c('link', 'response', 'threshold'),
 #'   list(data = data, a = thresh.alpha, par = params)
 #' }
 
-#
+
