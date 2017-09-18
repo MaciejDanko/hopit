@@ -691,8 +691,22 @@ logLik.gotm<-function(object, ...) object$LL
 #' @export
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 AIC.gotm<-function(object, ..., k = 2L) {
-  if (length(list(object, ...)) > 1L) objects <- list(object, ...) else objects <- list(object)
-  sapply(objects,function(object) -2L*object$LL + k * length(object$coef))
+  if (length(list(object, ...)) > 1L) {
+    objects <- list(object, ...)
+    tmp <- deparse(substitute(list(object, ...)))
+    ob.nam <- gsub(' ', '', strsplit(substring(tmp, 6L, nchar(tmp) - 1L), ',', fixed = TRUE)[[1L]])
+  } else {
+    if ((length(object) == 1) && (class(object) == 'gotm')) {
+      objects <- list(object)
+      tmp <- deparse(substitute(list(object)))
+      ob.nam <- gsub(' ', '', substring(tmp, 6L, nchar(tmp) - 1L)[[1L]])
+    } else {
+      ob.nam <- as.character(seq_along(objects))
+    }
+  }
+  res <- sapply(objects,function(object) -2L*object$LL + k * length(object$coef))
+  rownames(res) <- ob.nam
+  res
 }
 
 #' Likelihood Ratio Tests
