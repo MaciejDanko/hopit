@@ -405,8 +405,8 @@ gotm<- function(reg.formula,
   model$lambda.est.method <- lambda.est.method
   model$gamma.est.method <- gamma.est.method
 
-  if (any(thresh.names %in% reg.names) && (thresh.method == 'classic'))
-    warning(call. = FALSE, 'The defined model is probably unidentifiable. Please use "hopit" method.')
+  # if (any(thresh.names %in% reg.names) && (thresh.method == 'classic'))
+  #   warning(call. = FALSE, 'The defined model is probably unidentifiable. Please use "hopit" method.')
 
   model$y_i <- model.frame(reg.formula, data = data)[,all.vars(reg.formula[[2]])]
   if (!is.factor(model$y_i)) stop('Response must be a factor with ordered levels.')
