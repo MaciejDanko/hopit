@@ -690,7 +690,10 @@ logLik.gotm<-function(object, ...) object$LL
 #' @keywords internal
 #' @export
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
-AIC.gotm<-function(object, ..., k = 2L) -2L*object$LL + length(object$coef)
+AIC.gotm<-function(object, ..., k = 2L) {
+  if (length(list(object, ...)) > 1L) objects <- list(object, ...) else objects <- list(object)
+  sapply(objects,function(object) -2L*object$LL + k * length(object$coef))
+}
 
 #' Likelihood Ratio Tests
 #'
