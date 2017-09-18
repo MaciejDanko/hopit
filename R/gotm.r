@@ -533,10 +533,10 @@ print.gotm<-function(x, ...){
   cat('Response levels:', toString(levels(x$y_i)), fill = TRUE)
   cat('Number of thresholds:', x$J - 1, fill = TRUE)
   cat('Method of threshold calculation: "', x$thresh.method, '"\n', fill = TRUE, sep = '')
-  if (x$lambda.est.method == "multiple") cat('Assumption: Lambdas differ for different thresholds\n')
+  if (x$lambda.est.method == "multi") cat('Assumption: Lambdas differ for different thresholds\n')
   if (x$lambda.est.method == "single") cat('Assumption: Lambdas are the same for each thresholds\n')
   if(length(p$thresh.gamma)){
-    if (x$gamma.est.method == "multiple") cat('Assumption: Gammas differ between for different thresholds\n')
+    if (x$gamma.est.method == "multi") cat('Assumption: Gammas differ between for different thresholds\n')
     if (x$gamma.est.method == "single") cat('Assumption: Gammas are the same for each thresholds\n')
   } else cat('Assumption: Thresholds are independent of covariates\n')
   cat('\nCoefficients (latent variables):\n')
@@ -661,10 +661,10 @@ print.summary.gotm <- function(x, ...){
   cat('Response levels:', toString(levels(model$y_i)), fill = TRUE)
   cat('Number of thresholds:', model$J - 1, fill = TRUE)
   cat('Method of threshold calcualation: "', model$thresh.method, '"\n', fill = TRUE, sep = '')
-  if (model$lambda.est.method == "multiple") cat('Assumption: (L)ambdas differ for different thresholds\n')
+  if (model$lambda.est.method == "multi") cat('Assumption: (L)ambdas differ for different thresholds\n')
   if (model$lambda.est.method == "single") cat('Assumption: (L)ambdas are the same for each thresholds\n')
   if(length(p$thresh.gamma)){
-    if (model$gamma.est.method == "multiple") cat('Assumption: (G)ammas differ for different thresholds\n')
+    if (model$gamma.est.method == "multi") cat('Assumption: (G)ammas differ for different thresholds\n')
     if (model$gamma.est.method == "single") cat('Assumption: (G)ammas are the same for each thresholds\n')
   } else cat('Assumption: Thresholds are independent of any covariate\n')
   if(x$robust.se) cat('\nRobust SE were used (sandwich estimator of varcov).\n')
@@ -769,16 +769,16 @@ lrt.gotm <- function(full, nested){
   if (length(full$coef) <= length(nested$coef)) stop('The "full" model must have more parameters than the "nested" one.')
   if (full$LL - nested$LL < 0L) warning(call. = FALSE, 'The "nested" model has the higher likelihood than the "full" model. Try to improve the fit of the models.')
   if (ncol(full$reg.mm) < ncol(nested$reg.mm)) {
-    cat('full model:\n')
+    cat('Full model:\n')
     cat("-- Formula (latent variables):", deparse(full$reg.formula), fill = TRUE)
-    cat('\nnested model:\n')
+    cat('\nNested model:\n')
     cat("-- Formula (latent variables):", deparse(nested$reg.formula), fill = TRUE)
     stop('The latent formulas are not nested.')
   }
   if (ncol(full$thresh.mm) < ncol(nested$thresh.mm)) {
-    cat('full model:\n')
+    cat('Full model:\n')
     cat("-- Formula (threshold variables):", deparse(full$thresh.formula), fill = TRUE)
-    cat('\nnested model:\n')
+    cat('\nNested model:\n')
     cat("-- Formula (threshold variables):", deparse(nested$thresh.formula), fill = TRUE)
     stop('The threshold formulas are not nested.')
   }
@@ -786,8 +786,8 @@ lrt.gotm <- function(full, nested){
     if (!(all(colnames(nested$reg.mm) %in% colnames(full$reg.mm)))) warning(call. = FALSE, 'Models use probably different (non-nested) data sets (latent variable formula).')
   if ((ncol(full$thresh.mm)) &&  (ncol(nested$thresh.mm)))
     if (!(all(colnames(nested$thresh.mm) %in% colnames(full$thresh.mm)))) warning(call. = FALSE, 'Models use probably different (non-nested) data sets (latent variable formula).')
-  if ((full$lambda.est.method == 'single') && (nested$lambda.est.method == 'multiple')) stop('Threshold models are not nested.')
-  if ((full$gamma.est.method == 'single') && (nested$gamma.est.method == 'multiple')) stop('Threshold models are not nested.')
+  if ((full$lambda.est.method == 'single') && (nested$lambda.est.method == 'multi')) stop('Threshold models are not nested.')
+  if ((full$gamma.est.method == 'single') && (nested$gamma.est.method == 'multi')) stop('Threshold models are not nested.')
   if (full$thresh.method != nested$thresh.method) stop('Methods of calcultion of thresholds are different.')
 
   stat <- 2L*(logLik.gotm(full) - logLik.gotm(nested))
