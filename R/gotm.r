@@ -281,7 +281,7 @@ gotm.control<-function(fit.NR = FALSE,
     } else stop('Unknown "thresh.fun".')
   }
   list(fit.NR = fit.NR, thresh.fun = thresh.fun, forced.DEoptim = forced.DEoptim,
-       max.reiter = max.reiter, tol.reiter = tol.reiter)
+       max.reiter = max.reiter, tol.reiter = tol.reiter, grad.eps = grad.eps)
 }
 
 #frequency weight potraktowac jak w  clm czyli bez PSU
@@ -515,7 +515,7 @@ coef.gotm <- function(object, standardized = FALSE, aslist = FALSE, ...){
   #stand only for probit
   params <- object$coef
   if (standardized) params <- params/HealthIndex.gotm(object)
-  ifelse(aslist, gotm_ExtractParameters(object, params), params)
+  if (aslist) gotm_ExtractParameters(object, params) else  params
 }
 
 #' Printing basic information about fitted gotm
