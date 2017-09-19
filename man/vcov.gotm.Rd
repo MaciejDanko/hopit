@@ -5,7 +5,7 @@
 \title{Extracting variance-covariance matrix from the fitted gotm}
 \usage{
 \method{vcov}{gotm}(object, robust.vcov, control = list(),
-  robust.method = 1, ...)
+  robust.method = c("grad", "working"), ...)
 }
 \arguments{
 \item{object}{\code{gotm} object.}
@@ -15,7 +15,10 @@ If survey deign is detected than this option is ignored.}
 
 \item{control}{a list with control parameters. See \code{\link{gotm.control}}.}
 
-\item{robust.method}{experimental}
+\item{robust.method}{method of calculation of log-likelihood gradient. 
+Set \code{"grad"} (default) for numerical gradient or \code{"working"} 
+for the method based on working residuals. 
+The latter one is an experimental method so warning will apear.}
 
 \item{...}{further arguments passed to or from other methods.}
 }

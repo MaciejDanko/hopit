@@ -569,7 +569,7 @@ print.gotm<-function(x, ...){
 #' @keywords internal
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 resid.gotm<-function(object, type = c("working", "response"), ...){
-  warning("This is an experimentaly function. Please check it's code before running.")
+  warning("resid.gotm() is an experimentaly function, proceed with caution.")
   res <- unclass(object$y_i) - unclass(object$Ey_i)
   type <- tolower(type[1])
   if (!(type %in%  c("working", "response"))) stop('Unknown type.')
@@ -583,13 +583,16 @@ resid.gotm<-function(object, type = c("working", "response"), ...){
 #' @param robust.vcov logical indicating if to use sandwich estimator to calculate variance-covariance matrix.
 #' If survey deign is detected than this option is ignored.
 #' @param control a list with control parameters. See \code{\link{gotm.control}}.
-#' @param robust.method experimental
+#' @param robust.method method of calculation of log-likelihood gradient. 
+#' Set \code{"grad"} (default) for numerical gradient or \code{"working"} 
+#' for the method based on working residuals. 
+#' The latter one is an experimental method so warning will apear.
 #' @param ...	further arguments passed to or from other methods.
 #' @importFrom numDeriv hessian
 #' @importFrom survey svyrecvar
 #' @export
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
-vcov.gotm<-function(object, robust.vcov, control = list(), robust.method = 1, ...){
+vcov.gotm<-function(object, robust.vcov, control = list(), robust.method = c("grad","working"), ...){
   my.grad <- function(fn, par, eps, ...){
     sapply(1L : length(par), function(k){
       epsi <- rep(0L, length(par))
@@ -597,6 +600,7 @@ vcov.gotm<-function(object, robust.vcov, control = list(), robust.method = 1, ..
       (fn(par + epsi, ...) - fn(par - epsi, ...))/2/eps
     })
   }
+  robust.method <- tolower(robust.method[1])
   control <- do.call("gotm.control", control)
   hes <- numDeriv::hessian(gotm_negLL, object$coef, model = object) #numDeriv::
   z <- try(solve(hes), silent = T)
@@ -653,12 +657,16 @@ print.vcov.gotm <- function(x, digits = 3L, ...){
 #' @param robust.se logical indicating if to use robust standard errors based on the sandwich estimator.
 #' If survey deign is detected than this option is ignored.
 #' @param control a list with control parameters. See \code{\link{gotm.control}}.
+#' @param robust.method method of calculation of log-likelihood gradient. 
+#' Set \code{"grad"} (default) for numerical gradient or \code{"working"} 
+#' for the method based on working residuals. 
+#' The latter one is an experimental method so warning will apear.
 #' @param ...	further arguments passed to or from other methods.
 #' @export
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
-summary.gotm <- function(object, robust.se = FALSE, control = list(), ...){
+summary.gotm <- function(object, robust.se = FALSE, control = list(), robust.method = c("grad","working"), ...){
   control <- do.call("gotm.control", control)
-  varcov <- vcov.gotm(object, robust.se, control, ...)
+  varcov <- vcov.gotm(object, robust.se, control, robust.method, ...)
   SE <- suppressWarnings(sqrt(diag(varcov)))
   if (length(object$design)){
     cat('Survey weights detected. Standard errors was adjusted for survey design.\n')
