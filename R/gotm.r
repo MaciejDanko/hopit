@@ -260,6 +260,8 @@ gotm_fitter <- function(model, start = model$start, control = list()){
 #' It can be either a user defined function or character string.
 #' The default value is \code{'exp'}.
 #' Other accepable character strings include \code{'identity' (or 'id')}, \code{'abs'}, and \code{'sqr' (or '^2')}.
+#' @param DEoptim.itermax maximum number of iterations for DEoptim algorithm.
+#' @param DEoptim.trace logical if to trace DEoptim algorithm.
 #' @seealso \code{\link{gotm}}
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 #' @export
@@ -268,7 +270,9 @@ gotm.control<-function(fit.NR = FALSE,
                        max.reiter = 75L,
                        tol.reiter = 1e-8,
                        grad.eps = 1e-8,
-                       thresh.fun = 'exp'){
+                       thresh.fun = 'exp',
+                       DEoptim.itermax = 500L,
+                       DEoptim.trace = FALSE){
   if (class(thresh.fun) == 'character') {
     if (tolower(thresh.fun) == 'exp') {
       thresh.fun <- exp
@@ -472,7 +476,7 @@ gotm<- function(reg.formula,
       DEfit <- DEoptim(fn = gotm_negLL, #DEoptim::
                        lower = rep(-10L, sum(model$parcount)),
                        upper = rep(10L, sum(model$parcount)),
-                       model = model, control = list(itermax = 500L, trace = TRUE))
+                       model = model, control = list(itermax = control$DEoptim.itermax, trace = control$DEoptim.trace))
       model$start <- DEfit$optim$bestmem
     } else model$start <- z$start
   } else model$start <- start
@@ -488,7 +492,9 @@ gotm<- function(reg.formula,
   p <- gotm_ExtractParameters(model)
   model$alpha <- gotm_Threshold(p$thresh.lambda, p$thresh.gamma, model)
   model$y_latent_i <- gotm_Latent(p$reg.params, model)
-  model$Ey_i <- levels(model$y_i)[colSums(sapply(1L : model$N, function(k) model$alpha[k,]<model$y_latent_i[k]))]
+  model$Ey_i <- colSums(sapply(1L : model$N, function(k) model$alpha[k,]<model$y_latent_i[k]))
+  model$Ey_i <- as.factor(model$Ey_i)
+  levels(model$Ey_i) <- levels(model$y_i)
   class(model) <- 'gotm'
   return(model)
 }
@@ -824,26 +830,32 @@ print.lrt.gotm <- function(x, ...){
 #' @param type the type of prediction required. The default \code{"link"}
 #' is on the scale of linear predictors (latent variable). The alternative \code{"response"}
 #' is on the scale of categorical response variable. The \code{"threshold"}
-#' gives the latent threshold variables for each observation.
+#' gives the thresholds for each observation, whereas the \code{"threshold_link"} gives meaningful thresholds
+#' together with latent variable for each observation (a data.frame with fields \code{$left.boundary},
+#' \code{$latent.variable}, and \code{$right.boundary}).
 #' @param standardized logical indicating if to use a standardization to calculate disability weight. See [1].
 #' @param strata stratification variable used during standardization.
 #' @param ...	further arguments passed to or from other methods.
 #' @export
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
-predict.gotm <- function(object, type = c('link', 'response', 'threshold'),
+predict.gotm <- function(object, type = c('link', 'response', 'threshold', 'threshold_link'),
                          standardized = FALSE, strata = NULL, ...){
   type <- tolower(type[1L])
-  if (!(type %in% c('link', 'response', 'threshold'))) stop('Unknown type.')
+  if (type == 'latent') type <- 'link'
+  if (!(type %in% c('link', 'response', 'threshold', 'threshold_link'))) stop('Unknown type.')
   H <- switch(type,
               link = object$y_latent_i,
               response = object$Ey_i,
-              threshold = object$alpha)
+              threshold = object$alpha,
+              threshold_link = data.frame(left.boundary=col_path(object$alpha, unclass(object$Ey_i)),
+                                          latent.variable=object$y_latent_i,
+                                          right.boundary=col_path(object$alpha, unclass(object$Ey_i)+1)))
 
   standardized <- standardized[1L]
-  if (standardized && object$link != 'probit') {
+  if (standardized && (object$link != 'probit')) {
     standardized <- FALSE
     warning(call. = FALSE, 'Standardization omitted. It makes sense only for probit models.')
-  } else if (standardized && type != 'link') {
+  } else if (standardized && (type == 'response')) {
     standardized <- FALSE
     warning(call. = FALSE, 'Standardization omitted. It makes sense only for latent variable scale.')
   }
@@ -852,20 +864,29 @@ predict.gotm <- function(object, type = c('link', 'response', 'threshold'),
     if (length(strata) != 0) warning(call. = FALSE, 'The "strata" ignored. It makes only sense for "standardized" == TRUE.')
     return(H)
   } else {
-    HealthIndex = function(H) (H - min(H)) / (max(H) - min(H))
+    L <- object$y_latent_i
+    HealthIndex <- function(H, L) (H - min(L)) / (max(L) - min(L))
     if (!length(strata)) {
-      return(HealthIndex(H))
+      if (NCOL(H)>1) cH <- apply(H,2,function(k) HealthIndex(k,L)) else cH <- HealthIndex(H,L)
     } else {
       cH <- H*NA
       strata <- as.character(strata)
       U <- unique(strata)
       for(k in seq_along(U)){
-        cH[strata == U[k]] <- HealthIndex(H[strata == U[k]])
+        ind <- strata == U[k]
+        if (NCOL(H)>1) {
+          cH[ind,] <- apply(H[ind,],2,function(k) HealthIndex(k,L[ind]))
+        } else {
+          cH[ind] <- HealthIndex(H[ind],L[ind])
+        }
       }
-      return(cH)
     }
+    cH[cH < 0] <- 0
+    cH[cH > 1] <- 1
+    cH
   }
 }
+
 
 #' #' Simulation model output
 #' #'
