@@ -559,7 +559,6 @@ print.gotm<-function(x, ...){
 #' @importFrom numDeriv hessian
 #' @importFrom survey svyrecvar
 #' @export
-#' @keywords internal
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 vcov.gotm<-function(object, robust.vcov, control = list(), ...){
   my.grad <- function(fn, par, eps, ...){
@@ -622,7 +621,6 @@ print.vcov.gotm <- function(x, digits = 3L, ...){
 #' If survey deign is detected than this option is ignored.
 #' @param control a list with control parameters. See \code{\link{gotm.control}}.
 #' @export
-#' @keywords internal
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 summary.gotm <- function(object, robust.se = FALSE, control = list(), ...){
   control <- do.call("gotm.control", control)
