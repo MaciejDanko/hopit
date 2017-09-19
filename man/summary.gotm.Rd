@@ -2,7 +2,7 @@
 % Please edit documentation in R/gotm.r
 \name{summary.gotm}
 \alias{summary.gotm}
-\title{Calcualte model summary}
+\title{Calculate model summary}
 \usage{
 \method{summary}{gotm}(object, robust.se = FALSE, control = list(), ...)
 }
@@ -13,9 +13,11 @@
 If survey deign is detected than this option is ignored.}
 
 \item{control}{a list with control parameters. See \code{\link{gotm.control}}.}
+
+\item{...}{further arguments passed to or from other methods.}
 }
 \description{
-Calcualte model summary
+Calculate model summary
 }
 \author{
 Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>

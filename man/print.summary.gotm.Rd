@@ -8,6 +8,8 @@
 }
 \arguments{
 \item{x}{object created with \code{\link{summary.gotm}}}
+
+\item{...}{further arguments passed to or from other methods.}
 }
 \description{
 Print object calculated by \code{\link{summary.gotm}}

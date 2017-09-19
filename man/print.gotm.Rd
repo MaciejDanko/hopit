@@ -8,6 +8,8 @@
 }
 \arguments{
 \item{x}{\code{gotm} object.}
+
+\item{...}{further arguments passed to or from other methods.}
 }
 \description{
 Printing basic information about fitted gotm

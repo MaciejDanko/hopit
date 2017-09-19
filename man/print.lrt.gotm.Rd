@@ -8,6 +8,8 @@
 }
 \arguments{
 \item{x}{object obtained from \code{\link{lrt.gotm}}}
+
+\item{...}{further arguments passed to or from other methods.}
 }
 \description{
 Print object calculated by \code{\link{lrt.gotm}}

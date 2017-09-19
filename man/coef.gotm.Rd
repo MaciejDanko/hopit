@@ -14,6 +14,8 @@
 
 \item{aslist}{logical indicating if model coefficients should be returned as a list of three vectors
 related to latent variable, threshold lambdas, and threshold gammas.}
+
+\item{...}{further arguments passed to or from other methods.}
 }
 \description{
 Extracting coefficients of fitted \code{gotm} object

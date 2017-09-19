@@ -8,6 +8,8 @@
 }
 \arguments{
 \item{object}{\code{gotm} object.}
+
+\item{...}{additional objects of the same type.}
 }
 \description{
 Extracts log likelihood of the fitted model

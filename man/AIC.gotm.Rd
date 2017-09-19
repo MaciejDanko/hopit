@@ -9,6 +9,8 @@
 \arguments{
 \item{object}{\code{gotm} object.}
 
+\item{...}{additional objects of the same type.}
+
 \item{k}{numeric, the penalty per parameter to be used; the default k = 2 is the classical AIC.}
 }
 \description{
