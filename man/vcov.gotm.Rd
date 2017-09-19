@@ -20,5 +20,4 @@ Extracting variance-covariance matrix from the fitted gotm
 \author{
 Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 }
-\keyword{internal}
 

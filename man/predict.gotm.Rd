@@ -4,8 +4,8 @@
 \alias{predict.gotm}
 \title{Model predictions}
 \usage{
-\method{predict}{gotm}(object, type = c("link", "response", "threshold"),
-  standardized = FALSE, strata = NULL, ...)
+\method{predict}{gotm}(object, type = c("link", "response", "threshold",
+  "threshold_link"), standardized = FALSE, strata = NULL, ...)
 }
 \arguments{
 \item{object}{\code{gotm} object.}
@@ -13,7 +13,9 @@
 \item{type}{the type of prediction required. The default \code{"link"}
 is on the scale of linear predictors (latent variable). The alternative \code{"response"}
 is on the scale of categorical response variable. The \code{"threshold"}
-gives the latent threshold variables for each observation.}
+gives the thresholds for each observation, whereas the \code{"threshold_link"} gives meaningful thresholds
+together with latent variable for each observation (a data.frame with fields \code{$left.boundary},
+\code{$latent.variable}, and \code{$right.boundary}).}
 
 \item{standardized}{logical indicating if to use a standardization to calculate disability weight. See [1].}
 

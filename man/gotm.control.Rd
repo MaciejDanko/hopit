@@ -5,7 +5,8 @@
 \title{Auxiliary for controlling \code{gotm} fitting}
 \usage{
 gotm.control(fit.NR = FALSE, forced.DEoptim = FALSE, max.reiter = 75L,
-  tol.reiter = 1e-08, grad.eps = 1e-08, thresh.fun = "exp")
+  tol.reiter = 1e-08, grad.eps = 1e-08, thresh.fun = "exp",
+  DEoptim.itermax = 500L, DEoptim.trace = FALSE)
 }
 \arguments{
 \item{fit.NR}{logical indicating if to use Newton-Raphson algorithm after main optimization.
@@ -24,6 +25,10 @@ consequtive runs of standard optimization.}
 It can be either a user defined function or character string.
 The default value is \code{'exp'}.
 Other accepable character strings include \code{'identity' (or 'id')}, \code{'abs'}, and \code{'sqr' (or '^2')}.}
+
+\item{DEoptim.itermax}{maximum number of iterations for DEoptim algorithm.}
+
+\item{DEoptim.trace}{logical if to trace DEoptim algorithm.}
 }
 \description{
 Auxiliary function for controlling \code{gotm} fitting. Use this function to set control

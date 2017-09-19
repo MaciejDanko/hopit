@@ -499,13 +499,13 @@ gotm<- function(reg.formula,
   return(model)
 }
 
-#' Calculate health index from the fitted \code{gotm} object
-#'
-#' @param model fitted \code{gotm} object.
-HealthIndex.gotm <- function(model) {
-  H <- model$y_latent_i
-  (H - min(H)) / (max(H) - min(H))
-}
+# #' Calculate health index from the fitted \code{gotm} object
+# #'
+# #' @param model fitted \code{gotm} object.
+# HealthIndex.gotm <- function(model) {
+#   H <- model$y_latent_i
+#   (H - min(H)) / (max(H) - min(H))
+# }
 
 #' Extracting coefficients of fitted \code{gotm} object
 #'
@@ -520,7 +520,7 @@ HealthIndex.gotm <- function(model) {
 coef.gotm <- function(object, standardized = FALSE, aslist = FALSE, ...){
   #stand only for probit
   params <- object$coef
-  if (standardized) params <- params/HealthIndex.gotm(object)
+  if (standardized) params <- params/(max(object$y_latent_i) - min(object$y_latent_i))
   if (aslist) gotm_ExtractParameters(object, params) else  params
 }
 
