@@ -4,8 +4,7 @@
 \alias{summary.gotm}
 \title{Calculate model summary}
 \usage{
-\method{summary}{gotm}(object, robust.se = FALSE, control = list(),
-  robust.method = c("grad", "working"), ...)
+\method{summary}{gotm}(object, robust.se = FALSE, control = list(), ...)
 }
 \arguments{
 \item{object}{\code{gotm} object.}
@@ -14,11 +13,6 @@
 If survey deign is detected than this option is ignored.}
 
 \item{control}{a list with control parameters. See \code{\link{gotm.control}}.}
-
-\item{robust.method}{method of calculation of log-likelihood gradient. 
-Set \code{"grad"} (default) for numerical gradient or \code{"working"} 
-for the method based on working residuals. 
-The latter one is an experimental method so warning will apear.}
 
 \item{...}{further arguments passed to or from other methods.}
 }

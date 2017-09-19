@@ -559,23 +559,30 @@ print.gotm<-function(x, ...){
   invisible(NULL)
 }
 
-#' Extracting residuals from the fitted gotm
-#'
-#' @param object \code{gotm} object.
-#' @param type type of residuals
-#' @param ...	further arguments passed to or from other methods.
-#' @aliases residuals
-#' @export
-#' @keywords internal
-#' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
-resid.gotm<-function(object, type = c("working", "response"), ...){
-  warning("resid.gotm() is an experimentaly function, proceed with caution.")
-  res <- unclass(object$y_i) - unclass(object$Ey_i)
-  type <- tolower(type[1])
-  if (!(type %in%  c("working", "response"))) stop('Unknown type.')
-  if (type == 'working') res <- res / unclass(object$Ey_i)
-  res
-}
+#' #' Extracting residuals from the fitted gotm
+#' #'
+#' #' @param object \code{gotm} object.
+#' #' @param type type of residuals
+#' #' @param ...	further arguments passed to or from other methods.
+#' #' @aliases residuals
+#' #' @keywords internal
+#' #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
+#' #' @export
+#' resid.gotm<-function(object, type = c("working", "response"), ...){
+#'   warning("resid.gotm() is an experimentaly function, proceed with caution.")
+#'   Y <- unclass(object$y_i)
+#'   Yhat <- unclass(object$Ey_i)
+#'   res <- Y - Yhat
+#'   type <- tolower(type[1])
+#'   if (!(type %in%  c("working", "response"))) stop('Unknown type.')
+#'   if (type == 'working') {
+#'     stop('Don't know how to calculate)
+#'     #cate <- predict(object, type = 'threshold_link')
+#'     Ygrad <- dnorm(object$y_latent_i)
+#'     res <- res / Ygrad
+#'   }
+#'   res
+#' }
 
 #' Extracting variance-covariance matrix from the fitted gotm
 #'
@@ -583,16 +590,17 @@ resid.gotm<-function(object, type = c("working", "response"), ...){
 #' @param robust.vcov logical indicating if to use sandwich estimator to calculate variance-covariance matrix.
 #' If survey deign is detected than this option is ignored.
 #' @param control a list with control parameters. See \code{\link{gotm.control}}.
-#' @param robust.method method of calculation of log-likelihood gradient. 
-#' Set \code{"grad"} (default) for numerical gradient or \code{"working"} 
-#' for the method based on working residuals. 
-#' The latter one is an experimental method so warning will apear.
+# @param robust.method method of calculation of log-likelihood gradient. 
+# Set \code{"grad"} (default) for numerical gradient or \code{"working"} 
+# for the method based on working residuals. 
+# The latter one is an experimental method so warning will apear.
+# robust.method = c("grad","working")
 #' @param ...	further arguments passed to or from other methods.
 #' @importFrom numDeriv hessian
 #' @importFrom survey svyrecvar
 #' @export
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
-vcov.gotm<-function(object, robust.vcov, control = list(), robust.method = c("grad","working"), ...){
+vcov.gotm<-function(object, robust.vcov, control = list(), ...){
   my.grad <- function(fn, par, eps, ...){
     sapply(1L : length(par), function(k){
       epsi <- rep(0L, length(par))
@@ -600,8 +608,8 @@ vcov.gotm<-function(object, robust.vcov, control = list(), robust.method = c("gr
       (fn(par + epsi, ...) - fn(par - epsi, ...))/2/eps
     })
   }
-  robust.method <- tolower(robust.method[1])
-  if (!(robust.method %in% c("grad","working"))) stop('Unknown method.')
+  #robust.method <- tolower(robust.method[1])
+  #if (!(robust.method %in% c("grad","working"))) stop('Unknown method.')
   control <- do.call("gotm.control", control)
   hes <- numDeriv::hessian(gotm_negLL, object$coef, model = object) #numDeriv::
   z <- try(solve(hes), silent = T)
@@ -627,7 +635,7 @@ vcov.gotm<-function(object, robust.vcov, control = list(), robust.method = c("gr
     } else {
       
       gra <- my.grad(fn = gotm_negLL, par = object$coef, eps = control$grad.eps, model = object, collapse = FALSE)
-      if (robust.method != 'grad') gra <- 1*(gra != 0) * resid(object, "working") * object$weights
+      #if (robust.method != 'grad') gra <- 1*(gra != 0) * gotm:::resid.gotm(object, "working") * object$weights
       z <- abs(z %*% crossprod(as.matrix(gra)) %*% z)
       if (length(object$design$FWeights)) warning('Robust vcov is experimentaly fo this kind of design.')
     }
@@ -658,16 +666,17 @@ print.vcov.gotm <- function(x, digits = 3L, ...){
 #' @param robust.se logical indicating if to use robust standard errors based on the sandwich estimator.
 #' If survey deign is detected than this option is ignored.
 #' @param control a list with control parameters. See \code{\link{gotm.control}}.
-#' @param robust.method method of calculation of log-likelihood gradient. 
-#' Set \code{"grad"} (default) for numerical gradient or \code{"working"} 
-#' for the method based on working residuals. 
-#' The latter one is an experimental method so warning will apear.
+# @param robust.method method of calculation of log-likelihood gradient. 
+# Set \code{"grad"} (default) for numerical gradient or \code{"working"} 
+# for the method based on working residuals. 
+# The latter one is an experimental method so warning will apear.
+# robust.method = c("grad","working")
 #' @param ...	further arguments passed to or from other methods.
 #' @export
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
-summary.gotm <- function(object, robust.se = FALSE, control = list(), robust.method = c("grad","working"), ...){
+summary.gotm <- function(object, robust.se = FALSE, control = list(), ...){
   control <- do.call("gotm.control", control)
-  varcov <- vcov(object, robust.se, control, robust.method, ...)
+  varcov <- vcov(object, robust.se, control, ...)
   SE <- suppressWarnings(sqrt(diag(varcov)))
   if (length(object$design)){
     cat('Survey weights detected. Standard errors was adjusted for survey design.\n')
@@ -895,9 +904,9 @@ predict.gotm <- function(object, type = c('link', 'response', 'threshold', 'thre
               link = object$y_latent_i,
               response = object$Ey_i,
               threshold = object$alpha,
-              threshold_link = data.frame(left.boundary=col_path(object$alpha, unclass(object$Ey_i)),
+              threshold_link = data.frame(left.boundary=col_path(object$alpha, unclass(object$Ey_i)+1),
                                           latent.variable=object$y_latent_i,
-                                          right.boundary=col_path(object$alpha, unclass(object$Ey_i)+1)))
+                                          right.boundary=col_path(object$alpha, unclass(object$Ey_i)+2)))
 
   standardized <- standardized[1L]
   if (standardized && (object$link != 'probit')) {
