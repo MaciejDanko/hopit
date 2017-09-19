@@ -4,7 +4,8 @@
 \alias{vcov.gotm}
 \title{Extracting variance-covariance matrix from the fitted gotm}
 \usage{
-\method{vcov}{gotm}(object, robust.vcov, control = list(), ...)
+\method{vcov}{gotm}(object, robust.vcov, control = list(),
+  robust.method = 1, ...)
 }
 \arguments{
 \item{object}{\code{gotm} object.}
@@ -13,6 +14,8 @@
 If survey deign is detected than this option is ignored.}
 
 \item{control}{a list with control parameters. See \code{\link{gotm.control}}.}
+
+\item{robust.method}{experimental}
 
 \item{...}{further arguments passed to or from other methods.}
 }

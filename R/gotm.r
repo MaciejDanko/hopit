@@ -167,19 +167,20 @@ gotm_ExtractParameters <- function(model, parameters){
 #' INTERNAL: The log likelihood function
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 #' @keywords internal
-gotm_negLL <- function(parameters, model, collapse = TRUE){
+gotm_negLL <- function(parameters, model, collapse = TRUE, include.weights = TRUE){
   p <- gotm_ExtractParameters(model, parameters)
   a <- gotm_Threshold(thresh.lambda = p$thresh.lambda, thresh.gamma = p$thresh.gamma,
                       model = model)
   b <- gotm_Latent(p$reg.params, model)
   y <- as.numeric(unclass(model$y_i))
   A2 <- pmax(col_path(a, y) - b, -20L)
-  A1 <- pmin(col_path(a, y + 1) - b, 20L)
+  A1 <- pmin(col_path(a, y + 1L) - b, 20L)
   P <- model$link.func(A1)-model$link.func(A2)
   cond <- all(P > 0L)
+  if (include.weights) w <- model$weights else w <- 1L
   if(collapse) {
-    if (cond) -sum(model$weights * log(P)) else Inf
-  } else -log(P)
+    if (cond) -sum(w * log(P)) else Inf
+  } else -log(P) * w
 }
 
 #' INTERNAL: Fit \code{gotm}
@@ -558,18 +559,37 @@ print.gotm<-function(x, ...){
   invisible(NULL)
 }
 
+#' Extracting residuals from the fitted gotm
+#'
+#' @param object \code{gotm} object.
+#' @param type type of residuals
+#' @param ...	further arguments passed to or from other methods.
+#' @aliases residuals
+#' @export
+#' @keywords internal
+#' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
+resid.gotm<-function(object, type = c("working", "response"), ...){
+  warning("This is an experimentaly function. Please check it's code before running.")
+  res <- unclass(object$y_i) - unclass(object$Ey_i)
+  type <- tolower(type[1])
+  if (!(type %in%  c("working", "response"))) stop('Unknown type.')
+  if (type == 'working') res <- res / unclass(object$Ey_i)
+  res
+}
+
 #' Extracting variance-covariance matrix from the fitted gotm
 #'
 #' @param object \code{gotm} object.
 #' @param robust.vcov logical indicating if to use sandwich estimator to calculate variance-covariance matrix.
 #' If survey deign is detected than this option is ignored.
 #' @param control a list with control parameters. See \code{\link{gotm.control}}.
+#' @param robust.method experimental
 #' @param ...	further arguments passed to or from other methods.
 #' @importFrom numDeriv hessian
 #' @importFrom survey svyrecvar
 #' @export
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
-vcov.gotm<-function(object, robust.vcov, control = list(), ...){
+vcov.gotm<-function(object, robust.vcov, control = list(), robust.method = 1, ...){
   my.grad <- function(fn, par, eps, ...){
     sapply(1L : length(par), function(k){
       epsi <- rep(0L, length(par))
@@ -578,7 +598,7 @@ vcov.gotm<-function(object, robust.vcov, control = list(), ...){
     })
   }
   control <- do.call("gotm.control", control)
-  hes <- hessian(gotm_negLL, object$coef, model = object) #numDeriv::
+  hes <- numDeriv::hessian(gotm_negLL, object$coef, model = object) #numDeriv::
   z <- try(solve(hes), silent = T)
   if (class(z) == 'try-error') {
     z <- NA*hes
@@ -600,8 +620,11 @@ vcov.gotm<-function(object, robust.vcov, control = list(), ...){
     if (missing(robust.vcov)) robust.vcov <- FALSE
     if(!robust.vcov){
     } else {
+      
       gra <- my.grad(fn = gotm_negLL, par = object$coef, eps = control$grad.eps, model = object, collapse = FALSE)
+      if (robust.method != 1) gra <- 1*(gra != 0) * resid(object, "working") * object$weights
       z <- abs(z %*% crossprod(as.matrix(gra)) %*% z)
+      if (length(object$design$FWeights)) warning('Robust vcov is experimentaly fo this kind of design.')
     }
   }
   attr(z, 'survey.design') <- (length(object$design) > 0L)
@@ -635,7 +658,7 @@ print.vcov.gotm <- function(x, digits = 3L, ...){
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 summary.gotm <- function(object, robust.se = FALSE, control = list(), ...){
   control <- do.call("gotm.control", control)
-  varcov <- vcov.gotm(object, robust.se, control)
+  varcov <- vcov.gotm(object, robust.se, control, ...)
   SE <- suppressWarnings(sqrt(diag(varcov)))
   if (length(object$design)){
     cat('Survey weights detected. Standard errors was adjusted for survey design.\n')

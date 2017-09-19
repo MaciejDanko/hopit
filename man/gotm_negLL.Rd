@@ -4,7 +4,7 @@
 \alias{gotm_negLL}
 \title{INTERNAL: The log likelihood function}
 \usage{
-gotm_negLL(parameters, model, collapse = TRUE)
+gotm_negLL(parameters, model, collapse = TRUE, include.weights = TRUE)
 }
 \description{
 INTERNAL: The log likelihood function
