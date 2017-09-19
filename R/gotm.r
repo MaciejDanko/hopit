@@ -601,6 +601,7 @@ vcov.gotm<-function(object, robust.vcov, control = list(), robust.method = c("gr
     })
   }
   robust.method <- tolower(robust.method[1])
+  if (!(robust.method %in% c("grad","working"))) stop('Unknown method.')
   control <- do.call("gotm.control", control)
   hes <- numDeriv::hessian(gotm_negLL, object$coef, model = object) #numDeriv::
   z <- try(solve(hes), silent = T)
@@ -626,7 +627,7 @@ vcov.gotm<-function(object, robust.vcov, control = list(), robust.method = c("gr
     } else {
       
       gra <- my.grad(fn = gotm_negLL, par = object$coef, eps = control$grad.eps, model = object, collapse = FALSE)
-      if (robust.method != 1) gra <- 1*(gra != 0) * resid(object, "working") * object$weights
+      if (robust.method != 'grad') gra <- 1*(gra != 0) * resid(object, "working") * object$weights
       z <- abs(z %*% crossprod(as.matrix(gra)) %*% z)
       if (length(object$design$FWeights)) warning('Robust vcov is experimentaly fo this kind of design.')
     }
@@ -666,7 +667,7 @@ print.vcov.gotm <- function(x, digits = 3L, ...){
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 summary.gotm <- function(object, robust.se = FALSE, control = list(), robust.method = c("grad","working"), ...){
   control <- do.call("gotm.control", control)
-  varcov <- vcov.gotm(object, robust.se, control, robust.method, ...)
+  varcov <- vcov(object, robust.se, control, robust.method, ...)
   SE <- suppressWarnings(sqrt(diag(varcov)))
   if (length(object$design)){
     cat('Survey weights detected. Standard errors was adjusted for survey design.\n')
