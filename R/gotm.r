@@ -304,7 +304,7 @@ gotm.design<-function(PWeights = NULL, FWeights = NULL, PSU = NULL){
     if (!length(PSU) && length(PWeights)) stop('"PSU" must be given.')
     if (length(PSU) && length(unique(PSU)) == 1) stop('There is only one "PSU". "PWeights" cannot be used.')
     if (!(length(PWeights) + length(FWeights))) stop('P- or F- weights must be given')
-    if ((length(PWeights) && length(FWeights))) stop('Please deliver either "Pweights" or "FWeights".')
+    # if ((length(PWeights) && length(FWeights))) stop('Please deliver either "Pweights" or "FWeights".')
     if (length(PWeights) && (length(PSU) != length(PWeights))) stop('"PWeights" and "PSU" must have the same length.')
   }
   tmp
@@ -432,7 +432,13 @@ gotm<- function(reg.formula,
 
   if (sum(sapply(survey, length))){
     model$design <- survey
-    if (length(survey$PWeights)) model$weights <- 1L/survey$PWeights else model$weights <- survey$FWeights
+    if (length(survey$PWeights) && (length(survey$FWeights))) {
+      model$weights <- survey$FWeights/survey$PWeights 
+    } else if (length(survey$PWeights)) {
+      model$weights <- 1L/survey$PWeights 
+    } else if (length(survey$FWeights)){
+      model$weights <- survey$FWeights
+    } else stop('This should not happen.')
     if (length(model$weights) != model$N) {
       stop('Vector of survey weights must be of the same length as data.')
     }
@@ -639,7 +645,7 @@ vcov.gotm<-function(object, robust.vcov, control = list(), ...){
       #sqrt(abs(z %*% crossprod(as.matrix(gra)) %*% z))
       #z <- abs(z %*% crossprod(as.matrix(gra2/(object$weights))) %*% z)
       z <- abs(z %*% t(gra) %*% (gra/object$weights) %*% (z)) #wywalic abs
-      if (length(object$design$FWeights)) warning('Robust vcov is experimentaly fo this kind of design.')
+      # if (length(object$design$FWeights)) warning('Robust vcov is experimentaly fo this kind of design.')
     }
   }
   attr(z, 'survey.design') <- (length(object$design) > 0L)
