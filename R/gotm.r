@@ -618,7 +618,7 @@ vcov.gotm<-function(object, robust.vcov, control = list(), ...){
     warning(call. = FALSE, 'Model is probably unidentifiable, vcov cannot be computed. Please try to use a "hopit" model.')
   }
   if (length(object$design$PSU)){
-    if (!missing(robust.vcov)) {
+    if (!missing(robust.vcov) && (robust.vcov)) {
       warning('"robust.vcov" ignored, survey design was detected.')
       robust.vcov <- NA
     }
@@ -631,12 +631,14 @@ vcov.gotm<-function(object, robust.vcov, control = list(), ...){
                         sampsize = matrix(length(unique(object$design$PSU)), object$N, 1L)))
   } else {
     if (missing(robust.vcov)) robust.vcov <- FALSE
-    if(!robust.vcov){
-    } else {
-      
+    if(robust.vcov) {
       gra <- my.grad(fn = gotm_negLL, par = object$coef, eps = control$grad.eps, model = object, collapse = FALSE)
+      #gra2 <- my.grad(fn = gotm_negLL, par = object$coef, eps = control$grad.eps, model = object, collapse = FALSE, include.weights = FALSE)
       #if (robust.method != 'grad') gra <- 1*(gra != 0) * gotm:::resid.gotm(object, "working") * object$weights
-      z <- abs(z %*% crossprod(as.matrix(gra)) %*% z)
+      #diag(sqrt(abs(z %*% t(gra) %*% gra2 %*% z)))
+      #sqrt(abs(z %*% crossprod(as.matrix(gra)) %*% z))
+      #z <- abs(z %*% crossprod(as.matrix(gra2/(object$weights))) %*% z)
+      z <- abs(z %*% t(gra) %*% (gra/object$weights) %*% (z)) #wywalic abs
       if (length(object$design$FWeights)) warning('Robust vcov is experimentaly fo this kind of design.')
     }
   }
