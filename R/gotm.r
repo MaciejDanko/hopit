@@ -629,7 +629,13 @@ vcov.gotm<-function(object, robust.vcov, control = list(), ...){
       robust.vcov <- NA
     }
     gra <- my.grad(fn = gotm_negLL, par = object$coef, eps = control$grad.eps, model = object, collapse = FALSE)
-    estfun <- gra # * object$weights : these weights are already included in gotm_negLL
+    
+    if (length(object$design$FWeights)) {
+      estfun <- gra / object$design$FWeights
+    } else {
+      estfun <- gra # * object$weights : these weights are already included in gotm_negLL
+    }
+    
     z <- svyrecvar(estfun %*% z, #survey::
                    data.frame(PSU = object$design$PSU),
                    data.frame(rep(1, object$N)),
@@ -644,7 +650,7 @@ vcov.gotm<-function(object, robust.vcov, control = list(), ...){
       #diag(sqrt(abs(z %*% t(gra) %*% gra2 %*% z)))
       #sqrt(abs(z %*% crossprod(as.matrix(gra)) %*% z))
       #z <- abs(z %*% crossprod(as.matrix(gra2/(object$weights))) %*% z)
-      z <- abs(z %*% t(gra) %*% (gra/object$weights) %*% (z)) #wywalic abs
+      z <- abs(z %*% t(gra) %*% (gra/object$design$FWeights) %*% (z)) #wywalic abs
       # if (length(object$design$FWeights)) warning('Robust vcov is experimentaly fo this kind of design.')
     }
   }
