@@ -628,13 +628,13 @@ vcov.gotm<-function(object, robust.vcov, control = list(), ...){
       warning('"robust.vcov" ignored, survey design was detected.')
       robust.vcov <- NA
     }
-    gra <- my.grad(fn = gotm_negLL, par = object$coef, eps = control$grad.eps, model = object, collapse = FALSE)
+    estfun <- my.grad(fn = gotm_negLL, par = object$coef, eps = control$grad.eps, model = object, collapse = FALSE)
     
-    if (length(object$design$FWeights)) {
-      estfun <- gra / object$design$FWeights
-    } else {
-      estfun <- gra # * object$weights : these weights are already included in gotm_negLL
-    }
+    # if (length(object$design$FWeights)) {
+    #   estfun <-  gra#/object$design$FWeights
+    # } else {
+    #   estfun <- gra # * object$weights : these weights are already included in gotm_negLL
+    # }
     
     z <- svyrecvar(estfun %*% z, #survey::
                    data.frame(PSU = object$design$PSU),
