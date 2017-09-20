@@ -298,13 +298,13 @@ gotm.control<-function(fit.NR = FALSE,
 #' @param PSU Identificator of the PSU unit. Each P- and F- weight should correspond to exactly one PSU.
 #' @export
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
+# if ((length(PWeights) && length(FWeights))) stop('Please deliver either "PWeights" or "FWeights".')
 gotm.design<-function(PWeights = NULL, FWeights = NULL, PSU = NULL){
   tmp <- list(PWeights = PWeights, FWeights = FWeights, PSU = PSU)
   if (sum(sapply(tmp, length))){
     if (!length(PSU) && length(PWeights)) stop('"PSU" must be given.')
     if (length(PSU) && length(unique(PSU)) == 1) stop('There is only one "PSU". "PWeights" cannot be used.')
     if (!(length(PWeights) + length(FWeights))) stop('P- or F- weights must be given')
-    # if ((length(PWeights) && length(FWeights))) stop('Please deliver either "Pweights" or "FWeights".')
     if (length(PWeights) && (length(PSU) != length(PWeights))) stop('"PWeights" and "PSU" must have the same length.')
   }
   tmp
