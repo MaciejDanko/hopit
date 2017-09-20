@@ -292,9 +292,9 @@ gotm.control<-function(fit.NR = FALSE,
 #frequency weight potraktowac jak w  clm czyli bez PSU
 #' Auxiliary for setting a simple survey design for \code{gotm}
 #'
-#' @param PWeights Probability weights (the inverse of \code{FWeights})
-#' @param FWeights Probability of an observation being selected into the sample.
-#' Either \code{PWeight} or \code{FWeight} can be delivered (but not both simultaneously)
+#' @param PWeights Probability weights (the inverse of Probability of an observation being selected into the sample)
+#' @param FWeights Frequency weights. 
+# Either \code{PWeight} or \code{FWeight} can be delivered (but not both simultaneously)
 #' @param PSU Identificator of the PSU unit. Each P- and F- weight should correspond to exactly one PSU.
 #' @export
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>

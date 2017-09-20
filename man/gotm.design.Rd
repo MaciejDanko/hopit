@@ -7,10 +7,9 @@
 gotm.design(PWeights = NULL, FWeights = NULL, PSU = NULL)
 }
 \arguments{
-\item{PWeights}{Probability weights (the inverse of \code{FWeights})}
+\item{PWeights}{Probability weights (the inverse of Probability of an observation being selected into the sample)}
 
-\item{FWeights}{Probability of an observation being selected into the sample.
-Either \code{PWeight} or \code{FWeight} can be delivered (but not both simultaneously)}
+\item{FWeights}{Frequency weights.}
 
 \item{PSU}{Identificator of the PSU unit. Each P- and F- weight should correspond to exactly one PSU.}
 }
