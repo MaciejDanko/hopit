@@ -625,7 +625,7 @@ vcov.gotm<-function(object, robust.vcov, control = list(), ...){
   }
   if (length(object$design$PSU)){
     if (!missing(robust.vcov) && (robust.vcov)) {
-      warning('"robust.vcov" ignored, survey design was detected.')
+      warning(call. = FALSE, '"robust.vcov" ignored, survey design was detected.')
       robust.vcov <- NA
     }
     estfun <- my.grad(fn = gotm_negLL, par = object$coef, eps = control$grad.eps, model = object, collapse = FALSE)
@@ -699,7 +699,7 @@ summary.gotm <- function(object, robust.se = FALSE, control = list(), ...){
     warning(call. = FALSE, 'Problem with some standard errors, please try option "robust.se" == TRUE, nd consider to use the "hopit" model.')
   testse <- abs(SE/object$coef)
   testse <- testse[!is.na(testse)]
-  if (any(testse > 50L)) warning(call. = FALSE, 'Huge standard errors may suggest a problem with object identifiability. Please try tu use "hopit" model.')
+  if (any((testse > 50L)&(SE > 20L))) warning(call. = FALSE, 'Huge standard errors may suggest a problem with object identifiability. Please try tu use "hopit" model.')
 
   tstat <-  object$coef/SE
   pvalue <- pnorm(-abs(tstat))  * 2L
