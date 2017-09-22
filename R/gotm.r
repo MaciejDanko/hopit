@@ -326,7 +326,7 @@ gotm.design<-function(PWeights = NULL, FWeights = NULL, PSU = NULL){
 '%<=>%' <- function(x, y) identical(x,y)
 
 #' @export
-rep.row <- function(mat, times) t(matrix(t(mat), NCOL(mat), NROW(mat) * times))
+rep_row <- function(mat, times) t(matrix(t(mat), NCOL(mat), NROW(mat) * times))
 
 #' @export
 get.start.gotm <- function(object, reg.formula, thresh.formula, data, asList = FALSE){
@@ -358,7 +358,7 @@ get.start.gotm <- function(object, reg.formula, thresh.formula, data, asList = F
     tmp <- pr.new$reg.params[rm.ind]
     pr.new$reg.params <- pr.new$reg.params[-rm.ind]
     pr.new$thresh.lambda[1] <- pr.new$thresh.lambda[1] - 
-      mean(object$reg.mm[,rm.ind] * rep.row(tmp, NROW(reg.mm))) * length(tmp)
+      mean(object$reg.mm[,rm.ind] * rep_row(tmp, NROW(reg.mm))) * length(tmp)
   }
   if ((old.tt %c% new.tt) && (new.tt %!c% old.tt)){
     thresh.mm <- model.matrix(thresh.formula,data)[,-1]
@@ -375,7 +375,7 @@ get.start.gotm <- function(object, reg.formula, thresh.formula, data, asList = F
     tmp <- pr.new$thresh.gamma[rm.ind]
     pr.new$thresh.gamma <- pr.new$thresh.gamma[-rm.ind]
     pr.new$thresh.lambda[1] <- pr.new$thresh.lambda[1] - 
-      mean(object$thresh.mm[,rm.ind] * rep.row(tmp, NROW(thresh.mm))) * length(tmp)
+      mean(object$thresh.mm[,rm.ind] * rep_row(tmp, NROW(thresh.mm))) * length(tmp)
   }
   if (asList) return(pr.new) else 
     return(c(pr.new$reg.params, pr.new$thresh.lambda, pr.new$thresh.gamma))
@@ -616,7 +616,7 @@ gotm<- function(reg.formula,
 coef.gotm <- function(object, standardized = FALSE, aslist = FALSE, ...){
   #stand only for probit
   params <- object$coef
-  if (standardized) params <- params/(max(object$y_latent_i) - min(object$y_latent_i))
+  if (standardized) params <- -params/(max(object$y_latent_i) - min(object$y_latent_i))
   if (aslist) gotm_ExtractParameters(object, params) else  params
 }
 
@@ -983,21 +983,30 @@ print.lrt.gotm <- function(x, ...){
 #' \code{$latent.variable}, and \code{$right.boundary}).
 #' @param standardized logical indicating if to use a standardization to calculate disability weight. See [1].
 #' @param strata stratification variable used during standardization.
+#' @param unravelFreq logical indicating if to represent results on individual scale if FWeights were used.
 #' @param ...	further arguments passed to or from other methods.
 #' @export
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 predict.gotm <- function(object, type = c('link', 'response', 'threshold', 'threshold_link'),
-                         standardized = FALSE, strata = NULL, ...){
+                         standardized = FALSE, strata = NULL, unravelFreq = TRUE, ...){
+  unravel <-function(mat, freq)  {
+    mat <- cbind(mat, freq)
+    FreqInd <- NCOL(mat)
+    ls <- apply(mat,1,function(k) ((rep_row(as.matrix(k[-FreqInd]),k[FreqInd]))))
+    do.call('rbind', ls)
+  }  
+  
+  if (length(object$design$FWeights) && unravelFreq) conv<-function(x) unravel(x,freq=object$design$FWeights) else conv<-identity
   type <- tolower(type[1L])
   if (type == 'latent') type <- 'link'
   if (!(type %in% c('link', 'response', 'threshold', 'threshold_link'))) stop('Unknown type.')
   H <- switch(type,
-              link = object$y_latent_i,
-              response = object$Ey_i,
-              threshold = object$alpha,
-              threshold_link = data.frame(left.boundary=col_path(object$alpha, unclass(object$Ey_i)+1),
+              link = conv(object$y_latent_i),
+              response = conv(object$Ey_i),
+              threshold = conv(object$alpha),
+              threshold_link = conv(data.frame(left.boundary=col_path(object$alpha, unclass(object$Ey_i)+1),
                                           latent.variable=object$y_latent_i,
-                                          right.boundary=col_path(object$alpha, unclass(object$Ey_i)+2)))
+                                          right.boundary=col_path(object$alpha, unclass(object$Ey_i)+2))))
 
   standardized <- standardized[1L]
   if (standardized && (object$link != 'probit')) {
@@ -1012,13 +1021,13 @@ predict.gotm <- function(object, type = c('link', 'response', 'threshold', 'thre
     if (length(strata) != 0) warning(call. = FALSE, 'The "strata" ignored. It makes only sense for "standardized" == TRUE.')
     return(H)
   } else {
-    L <- object$y_latent_i
+    L <- conv(object$y_latent_i)
     HealthIndex <- function(H, L) (H - min(L)) / (max(L) - min(L))
     if (!length(strata)) {
       if (NCOL(H)>1) cH <- apply(H,2,function(k) HealthIndex(k,L)) else cH <- HealthIndex(H,L)
     } else {
       cH <- H*NA
-      strata <- as.character(strata)
+      strata <- as.character(conv(strata))
       U <- unique(strata)
       for(k in seq_along(U)){
         ind <- strata == U[k]
@@ -1055,6 +1064,7 @@ data2freq<-function(formula, data, FreqNam='Freq'){
   colnames(newd)[NCOL(newd)] <- FreqNam
   newd
 }
+
 
 
 #' #' Simulation model output
