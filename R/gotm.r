@@ -437,7 +437,7 @@ gotm<- function(reg.formula,
       start <- NULL
     } else {
       tmp <- deparse(substitute(start))
-      start <- get.start(object = start, reg.formula = reg.formula, 
+      start <- get.start.gotm(object = start, reg.formula = reg.formula, 
                          thresh.formula = thresh.formula, 
                          data = data, asList = FALSE)
       cat('Model',tmp,'was used to get starting values.\n')
