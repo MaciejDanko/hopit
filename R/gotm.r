@@ -56,10 +56,10 @@ gotm_Threshold<-function(thresh.lambda, thresh.gamma, model = NULL, control = li
 
   a <- matrix(NA, N, J + 1L)
   if (method == 'classic') {
-    a[,1L] <- -Inf
+    a[,1L] <- if (control$alpha_0 == 'auto') -Inf else control$alpha_0
     a[,2L] <- Lin.Tresh.mat[,1L]
   } else if (method == 'hopit') {
-    a[,1L] <- 0L
+    a[,1L] <- if (control$alpha_0 == 'auto') 0L else control$alpha_0
     a[,2L] <- fn(Lin.Tresh.mat[,1L])
   } else stop('Unknown threshold metod.')
   a[,J + 1L] <- Inf
@@ -261,6 +261,8 @@ gotm_fitter <- function(model, start = model$start, control = list()){
 #' It can be either a user defined function or character string.
 #' The default value is \code{'exp'}.
 #' Other accepable character strings include \code{'identity' (or 'id')}, \code{'abs'}, and \code{'sqr' (or '^2')}.
+#' @param alpha_0 value for "zero" threshold. If 'auto' then alpha_0 is set specificaly 
+#' to the 'classic' or 'hopit' model. See \code{\link{gotm}}.
 #' @param DEoptim.itermax maximum number of iterations for DEoptim algorithm.
 #' @param DEoptim.trace logical if to trace DEoptim algorithm.
 #' @seealso \code{\link{gotm}}
@@ -272,8 +274,12 @@ gotm.control<-function(fit.NR = FALSE,
                        tol.reiter = 1e-8,
                        grad.eps = 1e-8,
                        thresh.fun = 'exp',
+                       alpha_0 = 'auto',
                        DEoptim.itermax = 500L,
                        DEoptim.trace = FALSE){
+  if (tolower(alpha_0) != 'auto'){
+    if (!is.numeric(alpha_0)) stop('"alpha_0" must be a numeric or equal "auto".')
+  } else alpha_0 <- tolower(alpha_0)
   if (class(thresh.fun) == 'character') {
     if (tolower(thresh.fun) == 'exp') {
       thresh.fun <- exp
