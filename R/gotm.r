@@ -310,6 +310,72 @@ gotm.design<-function(PWeights = NULL, FWeights = NULL, PSU = NULL){
   tmp
 }
 
+#' @export
+'%!in%' <-function(x, table) match(x, table, nomatch = 0L) == 0L
+#' @export
+'%c%' <-function(x, table) all(match(x, table, nomatch = 0L))
+#' @export
+'%!c%' <- function(x, table) !all(match(x, table, nomatch = 0L))
+#' @export
+'%<=>%' <- function(x, y) identical(x,y)
+
+#' @export
+rep.row <- function(mat, times) t(matrix(t(mat), NCOL(mat), NROW(mat) * times))
+
+#' @export
+get.start.gotm <- function(object, reg.formula, thresh.formula, data, asList = FALSE){
+  old.rf <- object$reg.formula
+  old.tf <- object$thresh.formula
+  if (deparse(object$reg.formula[[2]])!=deparse(reg.formula[[2]])) stop('Models have different dependent variables')
+  if (length(thresh.formula)>2L){
+    warning(call. = FALSE, 'The treshold formula should be given without te dependent variable.')
+    thresh.formula[[2]] <- NULL
+  }
+  old.rt<-attr(terms(old.rf),"term.labels")
+  old.tt<-attr(terms(old.tf),"term.labels")
+  new.rt<-attr(terms(as.formula(reg.formula)),"term.labels")
+  new.tt<-attr(terms(as.formula(thresh.formula)),"term.labels")
+  pr <- gotm_ExtractParameters(object) 
+  pr.new <-pr
+  if ((old.rt %c% new.rt) && (new.rt %!c% old.rt)) {
+    reg.mm <- model.matrix(reg.formula,data)[,-1]
+    pr.new$reg.params <- rep(0, NCOL(reg.mm))
+    old.ind <- which(colnames(reg.mm)%in%colnames(object$reg.mm))
+    pr.new$reg.params[old.ind] <- pr$reg.params
+    names(pr.new$reg.params)[old.ind] <- names(pr$reg.params) 
+    new.ind <- which(colnames(reg.mm)%!in%colnames(object$reg.mm))
+    nnam <- colnames(reg.mm)[new.ind]
+    names(pr.new$reg.params)[new.ind] <- nnam
+  } else if ((new.rt %c% old.rt) && (old.rt %!c% new.rt)) {
+    reg.mm <- model.matrix(reg.formula,data)[,-1]
+    rm.ind <- which(colnames(object$reg.mm)%!in%colnames(reg.mm))
+    tmp <- pr.new$reg.params[rm.ind]
+    pr.new$reg.params <- pr.new$reg.params[-rm.ind]
+    pr.new$thresh.lambda[1] <- pr.new$thresh.lambda[1] - 
+      mean(reg.mm[,rm.ind] * rep.row(tmp, NROW(reg.mm))) * length(tmp)
+  }
+  if ((old.tt %c% new.tt) && (new.tt %!c% old.tt)){
+    thresh.mm <- model.matrix(thresh.formula,data)[,-1]
+    pr.new$thresh.params <- rep(0, NCOL(thresh.mm))
+    old.ind <- which(colnames(thresh.mm)%in%colnames(object$thresh.mm))
+    pr.new$thresh.gamma[old.ind] <- pr$thresh.gamma
+    names(pr.new$thresh.gamma)[old.ind] <- names(pr$thresh.gamma) 
+    new.ind <- which(colnames(thresh.mm)%!in%colnames(object$thresh.mm))
+    nnam <- colnames(thresh.mm)[new.ind]
+    names(pr.new$thresh.gamma)[new.ind] <- nnam
+  } else if ((new.tt %c% old.tt) && (old.tt %!c% new.tt)) {
+    thresh.mm <- model.matrix(thresh.formula,data)[,-1]
+    rm.ind <- which(colnames(object$thresh.mm)%!in%colnames(thresh.mm))
+    tmp <- pr.new$thresh.gamma[rm.ind]
+    pr.new$thresh.gamma <- pr.new$thresh.gamma[-rm.ind]
+    pr.new$thresh.lambda[1] <- pr.new$thresh.lambda[1] - 
+      mean(thresh.mm[,rm.ind] * rep.row(tmp, NROW(thresh.mm))) * length(tmp)
+  }
+  if (asList) return(pr.new) else 
+    return(c(pr.new$reg.params, pr.new$thresh.lambda, pr.new$thresh.gamma))
+}
+
+
 #' Fit Generelaized Ordered Choice Threshold Model
 #'
 #' @param reg.formula formula used to model latent process.
@@ -358,10 +424,24 @@ gotm<- function(reg.formula,
                 start = NULL,
                 doFit = TRUE,
                 control = list()){
-
+  
   control <- do.call("gotm.control", control)
   survey <- do.call("gotm.design", survey)
 
+  if (length(start) && class(start == 'gotm')){
+    if ((thresh.method != start$thresh.method) || 
+        (link != start$link) || 
+        (lambda.est.method != start$lambda.est.method) ||
+        (gamma.est.method != start$gamma.est.method)) {
+      warning ('Model in "start" is not compatible and will be not used.')
+      start <- NULL
+    } else {
+      tmp <- deparse(substitute(start))
+      start <- get.start(start, reg.formula, thresh.formula, data)
+      cat('Model',tmp,'was used to get starting values.\n')
+    } 
+  }
+  
   model <- NULL
   model$control <- control
 
@@ -379,7 +459,7 @@ gotm<- function(reg.formula,
     model$distr.func <- function (x) exp(-x)/((1L + exp(-x))^2L)
   } else stop('Unknown link function.')
   if (length(thresh.formula)>2L){
-    warning(call. = FALSE, 'The treshold formula should be in the form "~ threshold variables ( +/- 1)".')
+    warning(call. = FALSE, 'The treshold formula should be given without te dependent variable.')
     thresh.formula[[2]] <- NULL
   }
 
@@ -859,6 +939,8 @@ lrt.gotm <- function(full, nested){
   z
 }
 
+'%lrt%' <- lrt.gotm
+
 #' Print object calculated by \code{\link{lrt.gotm}}
 #'
 #' @param x object obtained from \code{\link{lrt.gotm}}
@@ -945,7 +1027,6 @@ predict.gotm <- function(object, type = c('link', 'response', 'threshold', 'thre
   }
 }
 
-
 #' #' Simulation model output
 #' #'
 #' #' Given a data and model parameters simulate the categorical response.
@@ -977,5 +1058,4 @@ predict.gotm <- function(object, type = c('link', 'response', 'threshold', 'thre
 #'   params <- c(reg.params, th.lambda, th.gamma)
 #'   list(data = data, a = thresh.alpha, par = params)
 #' }
-
 

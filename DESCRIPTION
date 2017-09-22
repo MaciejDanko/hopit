@@ -3,7 +3,7 @@ Type: Package
 Title: Generalized Ordered Choice Threshold Models
 Version: 2017.9.18
 Depends: R (>= 2.10), survey (>= 3.30-3), DEoptim (>= 2.2-3), numDeriv (>= 2014.2-1), maxLik (>= 1.2-4), ordinal (>= 2015.6-28)
-Author: Who wrote it
+Author: Maciej J. Danko <Maciej.Danko@gmail.com>
 Maintainer: Maciej J. Danko <Maciej.Danko@gmail.com>
 Description: Generalized Ordered Choice Threshold Models with application to health reporting styles.
 License: GPL-2
