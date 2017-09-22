@@ -1029,6 +1029,21 @@ predict.gotm <- function(object, type = c('link', 'response', 'threshold', 'thre
   }
 }
 
+collapsedata<-function(formula, data, FreqNam='Freq'){
+  what <- c(deparse(formula[[2]]),attr(terms(formula),"term.labels"))
+  tmp <- data[,which(names(data)%in%what)]
+  V <- as.numeric(as.factor(apply(tmp,1,paste,collapse='',sep='')))
+  tmp <- cbind(tmp,V)
+  tmp <- tmp[order(V),]
+  V <- V[order(V)]
+  V2 <- sapply(unique(V),function(k) sum(V==k))
+  newd <- tmp[match(unique(V), V),]
+  newd[,NCOL(newd)] <- V2
+  colnames(newd)[NCOL(newd)] <- FreqNam
+  newd
+}
+
+
 #' #' Simulation model output
 #' #'
 #' #' Given a data and model parameters simulate the categorical response.
