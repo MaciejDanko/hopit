@@ -442,7 +442,7 @@ gotm<- function(reg.formula,
                          data = data, asList = FALSE)
       cat('Model',tmp,'was used to get starting values.\n')
     } 
-  }
+  } else if (length(start) && !is.double(start)) stop('Wrong format of "start".')
   
   model <- NULL
   model$control <- control
