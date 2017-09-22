@@ -328,7 +328,7 @@ get.start.gotm <- function(object, reg.formula, thresh.formula, data, asList = F
   old.tf <- object$thresh.formula
   if (deparse(object$reg.formula[[2]])!=deparse(reg.formula[[2]])) stop('Models have different dependent variables')
   if (length(thresh.formula)>2L){
-    warning(call. = FALSE, 'The treshold formula should be given without te dependent variable.')
+    warning(call. = FALSE, 'The treshold formula should be given without dependent variable.')
     thresh.formula[[2]] <- NULL
   }
   old.rt<-attr(terms(old.rf),"term.labels")
@@ -352,7 +352,7 @@ get.start.gotm <- function(object, reg.formula, thresh.formula, data, asList = F
     tmp <- pr.new$reg.params[rm.ind]
     pr.new$reg.params <- pr.new$reg.params[-rm.ind]
     pr.new$thresh.lambda[1] <- pr.new$thresh.lambda[1] - 
-      mean(reg.mm[,rm.ind] * rep.row(tmp, NROW(reg.mm))) * length(tmp)
+      mean(object$reg.mm[,rm.ind] * rep.row(tmp, NROW(reg.mm))) * length(tmp)
   }
   if ((old.tt %c% new.tt) && (new.tt %!c% old.tt)){
     thresh.mm <- model.matrix(thresh.formula,data)[,-1]
@@ -369,7 +369,7 @@ get.start.gotm <- function(object, reg.formula, thresh.formula, data, asList = F
     tmp <- pr.new$thresh.gamma[rm.ind]
     pr.new$thresh.gamma <- pr.new$thresh.gamma[-rm.ind]
     pr.new$thresh.lambda[1] <- pr.new$thresh.lambda[1] - 
-      mean(thresh.mm[,rm.ind] * rep.row(tmp, NROW(thresh.mm))) * length(tmp)
+      mean(object$thresh.mm[,rm.ind] * rep.row(tmp, NROW(thresh.mm))) * length(tmp)
   }
   if (asList) return(pr.new) else 
     return(c(pr.new$reg.params, pr.new$thresh.lambda, pr.new$thresh.gamma))
@@ -461,7 +461,7 @@ gotm<- function(reg.formula,
     model$distr.func <- function (x) exp(-x)/((1L + exp(-x))^2L)
   } else stop('Unknown link function.')
   if (length(thresh.formula)>2L){
-    warning(call. = FALSE, 'The treshold formula should be given without te dependent variable.')
+    warning(call. = FALSE, 'The treshold formula should be given without dependent variable.')
     thresh.formula[[2]] <- NULL
   }
 
