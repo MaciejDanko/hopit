@@ -428,7 +428,7 @@ gotm<- function(reg.formula,
   control <- do.call("gotm.control", control)
   survey <- do.call("gotm.design", survey)
 
-  if (length(start) && class(start == 'gotm')){
+  if (length(start) && class(start) == 'gotm'){
     if ((thresh.method != start$thresh.method) || 
         (link != start$link) || 
         (lambda.est.method != start$lambda.est.method) ||
@@ -440,7 +440,7 @@ gotm<- function(reg.formula,
       start <- get.start(object = start, reg.formula = reg.formula, 
                          thresh.formula = thresh.formula, 
                          data = data, asList = FALSE)
-      cat('Model',tmp,'was used to get starting values.\n',start,'\n')
+      cat('Model',tmp,'was used to get starting values.\n')
     } 
   }
   
