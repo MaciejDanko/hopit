@@ -1029,6 +1029,7 @@ predict.gotm <- function(object, type = c('link', 'response', 'threshold', 'thre
   }
 }
 
+#' @export
 collapsedata<-function(formula, data, FreqNam='Freq'){
   what <- c(deparse(formula[[2]]),attr(terms(formula),"term.labels"))
   tmp <- data[,which(names(data)%in%what)]
