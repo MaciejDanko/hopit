@@ -440,7 +440,7 @@ gotm<- function(reg.formula,
       start <- get.start.gotm(object = start, reg.formula = reg.formula, 
                          thresh.formula = thresh.formula, 
                          data = data, asList = FALSE)
-      cat('Model',tmp,'was used to get starting values.\n')
+      cat('Model "',tmp,'" was used to get starting values.\n',sep='')
     } 
   } else if (length(start) && !is.double(start)) stop('Wrong format of "start".')
   
@@ -910,7 +910,7 @@ print.anova.gotm <- function(x, ...){
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 lrt.gotm <- function(full, nested){
   if (length(full$coef) <= length(nested$coef)) stop('The "full" model must have more parameters than the "nested" one.')
-  if (full$LL - nested$LL < 0L) warning(call. = FALSE, 'The "nested" model has the higher likelihood than the "full" model. Try to improve the fit of the models.')
+  if (full$LL - nested$LL < -.Machine$double.eps) warning(call. = FALSE, 'The "nested" model has the higher likelihood than the "full" model. Try to improve the fit of the models.')
   if (ncol(full$reg.mm) < ncol(nested$reg.mm)) {
     cat('Full model:\n')
     cat("-- Formula (latent variables):", deparse(full$reg.formula), fill = TRUE)
@@ -1029,8 +1029,14 @@ predict.gotm <- function(object, type = c('link', 'response', 'threshold', 'thre
   }
 }
 
+#' Convert individual data to frequency table of unique combination of dependent and independent variables
+#' 
+#' @param formula formula indicating, which variables will be used to construct new database.
+#' @param data data.frame including all variables listed in formula.
+#' @param FreqNam name of the column with frequencies.
+#' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 #' @export
-collapsedata<-function(formula, data, FreqNam='Freq'){
+data2freq<-function(formula, data, FreqNam='Freq'){
   what <- c(deparse(formula[[2]]),attr(terms(formula),"term.labels"))
   tmp <- data[,which(names(data)%in%what)]
   V <- as.numeric(as.factor(apply(tmp,1,paste,collapse='',sep='')))
