@@ -5,7 +5,8 @@
 \title{Model predictions}
 \usage{
 \method{predict}{gotm}(object, type = c("link", "response", "threshold",
-  "threshold_link"), standardized = FALSE, strata = NULL, ...)
+  "threshold_link"), standardized = FALSE, strata = NULL,
+  unravelFreq = TRUE, ...)
 }
 \arguments{
 \item{object}{\code{gotm} object.}
@@ -20,6 +21,8 @@ together with latent variable for each observation (a data.frame with fields \co
 \item{standardized}{logical indicating if to use a standardization to calculate disability weight. See [1].}
 
 \item{strata}{stratification variable used during standardization.}
+
+\item{unravelFreq}{logical indicating if to represent results on individual scale if FWeights were used.}
 
 \item{...}{further arguments passed to or from other methods.}
 }

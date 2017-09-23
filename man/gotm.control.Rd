@@ -6,7 +6,7 @@
 \usage{
 gotm.control(fit.NR = FALSE, forced.DEoptim = FALSE, max.reiter = 75L,
   tol.reiter = 1e-08, grad.eps = 1e-08, thresh.fun = "exp",
-  DEoptim.itermax = 500L, DEoptim.trace = FALSE)
+  alpha_0 = "auto", DEoptim.itermax = 500L, DEoptim.trace = FALSE)
 }
 \arguments{
 \item{fit.NR}{logical indicating if to use Newton-Raphson algorithm after main optimization.
@@ -25,6 +25,9 @@ consequtive runs of standard optimization.}
 It can be either a user defined function or character string.
 The default value is \code{'exp'}.
 Other accepable character strings include \code{'identity' (or 'id')}, \code{'abs'}, and \code{'sqr' (or '^2')}.}
+
+\item{alpha_0}{value for "zero" threshold. If 'auto' then alpha_0 is set specificaly 
+to the 'classic' or 'hopit' model. See \code{\link{gotm}}.}
 
 \item{DEoptim.itermax}{maximum number of iterations for DEoptim algorithm.}
 

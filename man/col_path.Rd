@@ -17,5 +17,4 @@ For each row of a matrix \code{mat} extracts a value corresponding to a column s
 \author{
 Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 }
-\keyword{internal}
 

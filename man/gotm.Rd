@@ -4,7 +4,7 @@
 \alias{gotm}
 \title{Fit Generelaized Ordered Choice Threshold Model}
 \usage{
-gotm(reg.formula, thresh.formula = as.formula("~1"), data = NULL,
+gotm(reg.formula, thresh.formula = as.formula("~1"), data,
   reg.offset = NULL, thresh.offset = NULL, survey = list(),
   link = c("probit", "logit"), lambda.est.method = c("multi", "single"),
   gamma.est.method = c("multi", "single"), thresh.method = c("classic",
