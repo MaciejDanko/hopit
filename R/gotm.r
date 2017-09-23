@@ -493,7 +493,7 @@ gotm<- function(reg.formula,
   model$reg.offset <- reg.offset
 
   thresh.formula <- update.formula(thresh.formula, '~.+1')
-  if (any(grepl('offset(',as.character(thresh.formula[[3]]),fixed=TRUE))) stop('Please specify offset as gotm() parameter.')
+  if (any(grepl('offset(',as.character(thresh.formula[[2]]),fixed=TRUE))) stop('Please specify offset as gotm() parameter.')
   model$thresh.formula <- thresh.formula
   model$thresh.mm <- as.matrix(model.matrix(thresh.formula, data = data))
   model$thresh.lev <- lapply(model.frame(model$thresh.formula, data = data), function(k) levels(as.factor(k)))
