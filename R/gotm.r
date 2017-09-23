@@ -438,6 +438,15 @@ gotm<- function(reg.formula,
                 start = NULL,
                 doFit = TRUE,
                 control = list()){
+  
+  my.grad <- function(fn, par, eps, ...){
+    sapply(1L : length(par), function(k){
+      epsi <- rep(0L, length(par))
+      epsi[k] <- eps
+      (fn(par + epsi, ...) - fn(par - epsi, ...))/2/eps
+    })
+  }
+  
   if (missing(data)) data <- environment(reg.formula)
   contrasts(data$g.sex)<-contr.treatment(length(levels(data$g.sex)))
   
@@ -485,7 +494,7 @@ gotm<- function(reg.formula,
   if (any(grepl('offset(',as.character(reg.formula[[3]]),fixed=TRUE))) stop('Please specify offset as gotm() parameter.')
   model$reg.formula <- reg.formula
   model$reg.mm <- as.matrix(model.matrix(reg.formula, data = data))
-  model$reg.lev<-lapply(model.frame(model$reg.formula, data = data), function(k) if (is.factor(k)) table(k) else 'Not a facor')
+  model$reg.lev<-lapply(model.frame(model$reg.formula, data = data), function(k) if (is.factor(k)) as.matrix(table(k)) else 'Not a facor')
   reg.names <- colnames(model$reg.mm)
   grpi <- grepl('(Intercept)', colnames(model$reg.mm), fixed = TRUE)
   model$reg.mm <- as.matrix(model$reg.mm[,!grpi])
@@ -496,7 +505,7 @@ gotm<- function(reg.formula,
   if (any(grepl('offset(',as.character(thresh.formula[[2]]),fixed=TRUE))) stop('Please specify offset as gotm() parameter.')
   model$thresh.formula <- thresh.formula
   model$thresh.mm <- as.matrix(model.matrix(thresh.formula, data = data))
-  model$thresh.lev <- lapply(model.frame(model$thresh.formula, data = data), function(k) if (is.factor(k)) table(k) else 'Not a facor')
+  model$thresh.lev <- lapply(model.frame(model$thresh.formula, data = data), function(k) if (is.factor(k)) as.matrix(table(k)) else 'Not a facor')
   thresh.names <- colnames(model$thresh.mm)
   grpi <- grepl('(Intercept)', colnames(model$thresh.mm), fixed = TRUE)
   model$thresh.mm <- as.matrix(model$thresh.mm[,!grpi])
@@ -604,6 +613,15 @@ gotm<- function(reg.formula,
   model$Ey_i <- colSums(sapply(1L : model$N, function(k) model$alpha[k,]<model$y_latent_i[k]))
   model$Ey_i <- as.factor(model$Ey_i)
   levels(model$Ey_i) <- levels(model$y_i)
+  
+  hes <- numDeriv::hessian(gotm_negLL, object$coef, model = object) #numDeriv::
+  model$vcov <- try(solve(hes), silent = T)
+  if (class(z) == 'try-error') {
+    z <- NA*hes
+    warning(call. = FALSE, 'Model is probably unidentifiable, vcov cannot be computed. Please try to use a "hopit" model.')
+  }
+  
+  model$estfun <- my.grad(fn = gotm_negLL, par = model$coef, eps = control$grad.eps, model = object, collapse = FALSE)
   class(model) <- 'gotm'
   return(model)
 }
@@ -709,39 +727,23 @@ print.gotm<-function(x, ...){
 #' @export
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 vcov.gotm<-function(object, robust.vcov, control = list(), ...){
-  my.grad <- function(fn, par, eps, ...){
-    sapply(1L : length(par), function(k){
-      epsi <- rep(0L, length(par))
-      epsi[k] <- eps
-      (fn(par + epsi, ...) - fn(par - epsi, ...))/2/eps
-    })
-  }
   #robust.method <- tolower(robust.method[1])
   #if (!(robust.method %in% c("grad","working"))) stop('Unknown method.')
   control <- do.call("gotm.control", control)
-  hes <- numDeriv::hessian(gotm_negLL, object$coef, model = object) #numDeriv::
-  z <- try(solve(hes), silent = T)
-  if (class(z) == 'try-error') {
-    z <- NA*hes
-    warning(call. = FALSE, 'Model is probably unidentifiable, vcov cannot be computed. Please try to use a "hopit" model.')
-  }
+  z <- object$vcov 
   if (length(object$design$PSU)){
     if (!missing(robust.vcov) && (robust.vcov)) {
       warning(call. = FALSE, '"robust.vcov" ignored, survey design was detected.')
       robust.vcov <- NA
     }
-    estfun <- my.grad(fn = gotm_negLL, par = object$coef, eps = control$grad.eps, model = object, collapse = FALSE)
-    z <- svyrecvar(estfun %*% z, #survey::
+    z <- svyrecvar(object$estfun %*% z, #survey::
                    data.frame(PSU = object$design$PSU),
                    data.frame(rep(1, object$N)),
                    list(popsize = NULL,
                         sampsize = matrix(length(unique(object$design$PSU)), object$N, 1L)))
   } else {
     if (missing(robust.vcov)) robust.vcov <- FALSE
-    if (robust.vcov) {
-      gra <- my.grad(fn = gotm_negLL, par = object$coef, eps = control$grad.eps, model = object, collapse = FALSE)
-      z <- (z %*% t(gra) %*% (gra/object$design$FWeights) %*% (z)) 
-    }
+    if (robust.vcov) z <- (z %*% t(object$estfun) %*% (object$estfun/object$design$FWeights) %*% (z)) 
   }
   attr(z, 'survey.design') <- (length(object$design) > 0L)
   attr(z, 'robust.vcov') <- robust.vcov
