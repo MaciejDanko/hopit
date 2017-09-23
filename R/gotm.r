@@ -485,7 +485,7 @@ gotm<- function(reg.formula,
   if (any(grepl('offset(',as.character(reg.formula[[3]]),fixed=TRUE))) stop('Please specify offset as gotm() parameter.')
   model$reg.formula <- reg.formula
   model$reg.mm <- as.matrix(model.matrix(reg.formula, data = data))
-  model$reg.lev<-lapply(model.frame(model$reg.formula, data = data), function(k) levels(as.factor(k)))
+  model$reg.lev<-lapply(model.frame(model$reg.formula, data = data), function(k) if (is.factor(k)) table(k) else 'Not a facor')
   reg.names <- colnames(model$reg.mm)
   grpi <- grepl('(Intercept)', colnames(model$reg.mm), fixed = TRUE)
   model$reg.mm <- as.matrix(model$reg.mm[,!grpi])
@@ -496,7 +496,7 @@ gotm<- function(reg.formula,
   if (any(grepl('offset(',as.character(thresh.formula[[2]]),fixed=TRUE))) stop('Please specify offset as gotm() parameter.')
   model$thresh.formula <- thresh.formula
   model$thresh.mm <- as.matrix(model.matrix(thresh.formula, data = data))
-  model$thresh.lev <- lapply(model.frame(model$thresh.formula, data = data), function(k) levels(as.factor(k)))
+  model$thresh.lev <- lapply(model.frame(model$thresh.formula, data = data), function(k) if (is.factor(k)) table(k) else 'Not a facor')
   thresh.names <- colnames(model$thresh.mm)
   grpi <- grepl('(Intercept)', colnames(model$thresh.mm), fixed = TRUE)
   model$thresh.mm <- as.matrix(model$thresh.mm[,!grpi])
