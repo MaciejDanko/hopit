@@ -300,7 +300,7 @@ gotm.control<-function(fit.NR = FALSE,
     } else stop('Unknown "thresh.fun".')
   }
   list(fit.NR = fit.NR, thresh.fun = thresh.fun, forced.DEoptim = forced.DEoptim,
-       max.reiter = max.reiter, tol.reiter = tol.reiter, grad.eps = grad.eps)
+       max.reiter = max.reiter, tol.reiter = tol.reiter, grad.eps = grad.eps, alpha_0 = alpha_0)
 }
 
 #frequency weight potraktowac jak w  clm czyli bez PSU
