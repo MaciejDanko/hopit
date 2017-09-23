@@ -25,8 +25,16 @@ cumsum_row<-function(mat) t(apply(as.matrix(mat), 1L, cumsum))
 #' @param mat a matrix
 #' @param y a vector with column indices corresponding to each row in the matrix \code{mat}.
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
-#' @keywords internal
+#' @export
 col_path<-function(mat, y) mapply(function (x, y) mat[x, y], seq_along(y), y)
+
+#' @export
+unravel <-function(mat, freq)  {
+  mat <- cbind(mat, freq)
+  FreqInd <- NCOL(mat)
+  ls <- apply(mat,1,function(k) ((rep_row(as.matrix(k[-FreqInd]),k[FreqInd]))))
+  do.call('rbind', ls)
+}  
 
 #' INTERNAL: Calculation of cut-points (threshold)
 #'
@@ -419,7 +427,7 @@ get.start.gotm <- function(object, reg.formula, thresh.formula, data, asList = F
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 gotm<- function(reg.formula,
                 thresh.formula = as.formula('~1'),
-                data = NULL,
+                data,
                 reg.offset = NULL,
                 thresh.offset = NULL,
                 survey = list(),
@@ -430,6 +438,8 @@ gotm<- function(reg.formula,
                 start = NULL,
                 doFit = TRUE,
                 control = list()){
+  if (missing(data)) data <- environment(reg.formula)
+  contrasts(data$g.sex)<-contr.treatment(length(levels(data$g.sex)))
   
   control <- do.call("gotm.control", control)
   survey <- do.call("gotm.design", survey)
@@ -472,8 +482,10 @@ gotm<- function(reg.formula,
   }
 
   reg.formula <- update.formula(reg.formula, '~.+1')
+  if (any(grepl('offset(',as.character(reg.formula[[3]]),fixed=TRUE))) stop('Please specify offset as gotm() parameter.')
   model$reg.formula <- reg.formula
   model$reg.mm <- as.matrix(model.matrix(reg.formula, data = data))
+  model$reg.lev<-lapply(model.frame(model$reg.formula, data = data), function(k) levels(as.factor(k)))
   reg.names <- colnames(model$reg.mm)
   grpi <- grepl('(Intercept)', colnames(model$reg.mm), fixed = TRUE)
   model$reg.mm <- as.matrix(model$reg.mm[,!grpi])
@@ -481,8 +493,10 @@ gotm<- function(reg.formula,
   model$reg.offset <- reg.offset
 
   thresh.formula <- update.formula(thresh.formula, '~.+1')
+  if (any(grepl('offset(',as.character(thresh.formula[[3]]),fixed=TRUE))) stop('Please specify offset as gotm() parameter.')
   model$thresh.formula <- thresh.formula
   model$thresh.mm <- as.matrix(model.matrix(thresh.formula, data = data))
+  model$thresh.lev <- lapply(model.frame(model$thresh.formula, data = data), function(k) levels(as.factor(k)))
   thresh.names <- colnames(model$thresh.mm)
   grpi <- grepl('(Intercept)', colnames(model$thresh.mm), fixed = TRUE)
   model$thresh.mm <- as.matrix(model$thresh.mm[,!grpi])
@@ -989,12 +1003,6 @@ print.lrt.gotm <- function(x, ...){
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 predict.gotm <- function(object, type = c('link', 'response', 'threshold', 'threshold_link'),
                          standardized = FALSE, strata = NULL, unravelFreq = TRUE, ...){
-  unravel <-function(mat, freq)  {
-    mat <- cbind(mat, freq)
-    FreqInd <- NCOL(mat)
-    ls <- apply(mat,1,function(k) ((rep_row(as.matrix(k[-FreqInd]),k[FreqInd]))))
-    do.call('rbind', ls)
-  }  
   
   if (length(object$design$FWeights) && unravelFreq) conv<-function(x) unravel(x,freq=object$design$FWeights) else conv<-identity
   type <- tolower(type[1L])
