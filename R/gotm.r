@@ -36,6 +36,27 @@ unravel <-function(mat, freq)  {
   do.call('rbind', ls)
 }  
 
+#' Convert individual data to frequency table of unique combination of dependent and independent variables
+#' 
+#' @param formula formula indicating, which variables will be used to construct new database.
+#' @param data data.frame including all variables listed in formula.
+#' @param FreqNam name of the column with frequencies.
+#' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
+#' @export
+data2freq<-function(formula, data, FreqNam='Freq'){
+  what <- c(deparse(formula[[2]]),attr(terms(formula),"term.labels"))
+  tmp <- data[,which(names(data)%in%what)]
+  V <- as.numeric(as.factor(apply(tmp,1,paste,collapse='',sep='')))
+  tmp <- cbind(tmp,V)
+  tmp <- tmp[order(V),]
+  V <- V[order(V)]
+  V2 <- sapply(unique(V),function(k) sum(V==k))
+  newd <- tmp[match(unique(V), V),]
+  newd[,NCOL(newd)] <- V2
+  colnames(newd)[NCOL(newd)] <- FreqNam
+  newd
+}
+
 #' INTERNAL: Calculation of cut-points (threshold)
 #'
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
@@ -621,7 +642,8 @@ gotm<- function(reg.formula,
     warning(call. = FALSE, 'Model is probably unidentifiable, vcov cannot be computed. Please try to use a "hopit" model.')
   }
   
-  model$estfun <- my.grad(fn = gotm_negLL, par = model$coef, eps = control$grad.eps, model = object, collapse = FALSE)
+  model$estfun <- my.grad(fn = gotm_negLL, par = model$coef, 
+                          eps = control$grad.eps, model = model, collapse = FALSE)
   class(model) <- 'gotm'
   return(model)
 }
@@ -1053,29 +1075,6 @@ predict.gotm <- function(object, type = c('link', 'response', 'threshold', 'thre
     cH
   }
 }
-
-#' Convert individual data to frequency table of unique combination of dependent and independent variables
-#' 
-#' @param formula formula indicating, which variables will be used to construct new database.
-#' @param data data.frame including all variables listed in formula.
-#' @param FreqNam name of the column with frequencies.
-#' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
-#' @export
-data2freq<-function(formula, data, FreqNam='Freq'){
-  what <- c(deparse(formula[[2]]),attr(terms(formula),"term.labels"))
-  tmp <- data[,which(names(data)%in%what)]
-  V <- as.numeric(as.factor(apply(tmp,1,paste,collapse='',sep='')))
-  tmp <- cbind(tmp,V)
-  tmp <- tmp[order(V),]
-  V <- V[order(V)]
-  V2 <- sapply(unique(V),function(k) sum(V==k))
-  newd <- tmp[match(unique(V), V),]
-  newd[,NCOL(newd)] <- V2
-  colnames(newd)[NCOL(newd)] <- FreqNam
-  newd
-}
-
-
 
 #' #' Simulation model output
 #' #'
