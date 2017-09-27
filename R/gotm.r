@@ -311,7 +311,7 @@ gotm.control<-function(fit.NR = FALSE,
                        grad.eps = 1e-8,
                        thresh.fun = c('exp','identity','id'),
                        alpha_0 = 'auto'){
-  thresh.fun <- match.arg(as.character(substitute(thresh.fun)))
+  thresh.fun <- match.arg(thresh.fun)
   if (tolower(alpha_0) != 'auto'){
     if (!is.numeric(alpha_0)) stop('"alpha_0" must be a numeric or equal "auto".')
   } else alpha_0 <- tolower(alpha_0)
@@ -475,7 +475,7 @@ gotm<- function(reg.formula,
   model <- NULL
   model$control <- control
 
-  thresh.method <- match.arg(tolower(thresh.method))
+  thresh.method <- match.arg(thresh.method)
 
   link <- match.arg(link)
   model$link <- link
@@ -829,8 +829,8 @@ AIC.gotm<-function(object, ..., k = 2L) {
 #' @export
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 anova.gotm<-function(object, ..., method = c('sequential', 'with.first'), direction = c('decreasing', 'increasing')){
-  method <- match.arg(tolower(method))
-  direction <- match.arg(tolower(direction))
+  method <- match.arg(method)
+  direction <- match.arg(direction)
   if (length(list(object, ...)) > 1L) {
     objects <- list(object, ...)
     tmp <- deparse(substitute(list(object, ...)))
@@ -959,7 +959,7 @@ predict.gotm <- function(object, type = c('link', 'response', 'threshold', 'thre
                          standardized = FALSE, strata = NULL, unravelFreq = TRUE, ...){
   
   if (length(object$design$FWeights) && unravelFreq) conv<-function(x) unravel(x,freq=object$design$FWeights) else conv<-identity
-  type <- match.arg(tolower(type))
+  type <- match.arg(type)
   if (type == 'latent') type <- 'link'
   H <- switch(type,
               link = conv(object$y_latent_i),
