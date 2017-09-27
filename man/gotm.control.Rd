@@ -5,7 +5,7 @@
 \title{Auxiliary for controlling \code{gotm} fitting}
 \usage{
 gotm.control(fit.NR = FALSE, forced.DEoptim = FALSE, max.reiter = 75L,
-  tol.reiter = 1e-08, grad.eps = 1e-08, thresh.fun = "exp",
+  tol.reiter = 1e-06, grad.eps = 1e-08, thresh.fun = "id",
   alpha_0 = "auto", DEoptim.itermax = 500L, DEoptim.trace = FALSE)
 }
 \arguments{

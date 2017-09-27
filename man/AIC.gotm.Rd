@@ -4,7 +4,7 @@
 \alias{AIC.gotm}
 \title{Extracts Akaike Information Criterion from the fitted model}
 \usage{
-\method{AIC}{gotm}(object, ..., k = 2L)
+AIC.gotm(object, ..., k = 2L)
 }
 \arguments{
 \item{object}{\code{gotm} object.}

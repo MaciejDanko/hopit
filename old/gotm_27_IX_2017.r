@@ -87,7 +87,7 @@ gotm_Threshold<-function(thresh.lambda, thresh.gamma, model = NULL,
     a[,2L] <- Lin.Tresh.mat[,1L]
   } else if (model$thresh.method == 'hopit') {
     a[,1L] <- if (control$alpha_0 == 'auto') 0L else control$alpha_0
-    a[,2L] <- fn(Lin.Tresh.mat[,1L]) + a[,1L]
+    a[,2L] <- fn(Lin.Tresh.mat[,1L])
   } else stop('Unknown threshold metod.')
   a[,J + 1L] <- Inf
   b  <-  a
@@ -103,71 +103,60 @@ gotm_Threshold<-function(thresh.lambda, thresh.gamma, model = NULL,
   }
 }
 
-#' INTERNAL: Fit vglm to get parameters of the model
+#' INTERNAL: Anticipate initial values of the model
 #'
 #' @param model \code{gotm} object.
 #' @param data data.frame with data used to fit the model.
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
-#' @importFrom VGAM vglm
+#' @importFrom ordinal clm
 #' @keywords internal
-get.vglm.start<-function(model, data){
-  subs <- function (a, k, z) {a[k] <- z; a}
-  reg.formula <- model$reg.formula
-  thresh.formula <- model$thresh.formula
-  thresh.method <- model$thresh.method
-  if (length(thresh.formula)>2) thresh.formula[[2]] <- NULL
-  big.formula <- update(reg.formula, paste('~ ', thresh.formula[[2]],' + . + 1'))
-  Y <<- Vector2DummyMat(data[,paste(reg.formula[[2]])])
-  big.formula[[2]] <- as.name('Y')
-  small.formula <- as.formula(paste('FALSE ~', thresh.formula[[2]]))
-  mv2<-switch(model$link,
-              probit = vglm(big.formula, weights = model$weights, data = data,
-                            family = cumulative(parallel = small.formula, link = 'probit')), #direct substitution of link doesn't work
-              logit = vglm(big.formula, weights = model$weights, data = data,
-                           family = cumulative(parallel = small.formula, link = 'logit')))
-  rm(Y, envir = .GlobalEnv)
-  mv2.par <- c(coef(mv2)[-(1:sum(model$parcount[2:3]))], coef(mv2)[(1:sum(model$parcount[2:3]))])
-  par.ls <- gotm_ExtractParameters(model, mv2.par)
-  alpha.thresh<-t(matrix(par.ls$thresh.lambda, model$J - 1L, model$N)) + model$thresh.mm %*% par.ls$thresh.gamma
-  par.ls$thresh.lambda <- c(par.ls$thresh.lambda[1], diff(par.ls$thresh.lambda))
-  ini.gamma<-par.ls$thresh.gamma
-  if (length(par.ls$thresh.gamma)) par.ls$thresh.gamma <- c(par.ls$thresh.gamma[1], diff(par.ls$thresh.gamma))  
-  if (paste(deparse(model$control$thresh.fun),collapse = '', sep = '') == deparse(exp)) {
-    if (thresh.method == 'classic'){
-      par.ls$thresh.lambda <- c(par.ls$thresh.lambda[1],log(par.ls$thresh.lambda[2:length(par.ls$thresh.lambda)]))
-      if (length(par.ls$thresh.gamma)) {
-        for (k in 2:(model$J-1)){  # probably analitical solution also exists
-          fn <- function(x) sum((alpha.thresh[,k]-gotm_Threshold(subs(par.ls$thresh.lambda,k,x[1]),
-                                                                 subs(par.ls$thresh.gamma,k,x[2]), model)[,k+1])^2)
-          oo<-optim(par=c(par.ls$thresh.lambda[k],par.ls$thresh.gamma[k]),fn=fn)
-          oo<-optim(par=c(oo$par[1],oo$par[2]),fn=fn) # one more time
-          par.ls$thresh.lambda[k]<-oo$par[1]
-          par.ls$thresh.gamma[k]<-oo$par[2]
-        }
-      }                      
-    } else if (thresh.method == 'hopit'){
-      par.ls$thresh.lambda <- log(par.ls$thresh.lambda[1:length(par.ls$thresh.lambda)])
-      if (length(par.ls$thresh.gamma)) {
-        for (k in 1:(model$J-1)){
-          fn <- function(x) sum((alpha.thresh[,k]-gotm_Threshold(subs(par.ls$thresh.lambda,k,x[1]),
-                                                                 subs(par.ls$thresh.gamma,k,x[2]), model)[,k+1])^2)
-          oo<-optim(par=c(par.ls$thresh.lambda[k],par.ls$thresh.gamma[k]),fn=fn)
-          par.ls$thresh.lambda[k]<-oo$par[1]
-          par.ls$thresh.gamma[k]<-oo$par[2]
-        }
-      }
-    }
+gotm_GetInitial <- function(model, data = NULL){
+  w <- as.numeric(as.vector(model$weights))
+  control <- model$control
+  data$w <- w
+  fit0 <- clm(formula = model$reg.formula, data = data, weights = w, link = model$link)
+  model$reg.start <- coef(fit0)[-(1L : (model$J - 1L))]
+  alphas <- coef(fit0)[(1L : (model$J - 1L))]
+  if (deparse(control$thresh.fun)==deparse(exp)) {
+    inv.=log 
+  } else if (deparse(control$thresh.fun)==deparse(identity)) {
+    inv.=identity
+  } else inv.=identity
+  lambda1 <- c(alphas[1L], inv.(diff(alphas))) #classic
+
+  sqf <- function(param){
+    cpc <- cumsum(model$parcount[-1L])
+    thresh.lambda <- param[1L : cpc[1L]]
+    if (model$parcount[3L]) thresh.gamma <- param[(cpc[1L] + 1L) : cpc[2L]] else thresh.gamma <- 0L
+    sum((t(gotm_Threshold(thresh.lambda, thresh.gamma, model)[,-1L][,1L : length(alphas)]) - alphas)^2L, na.rm = T)
   }
-  model$vglm.start <- mv2.par
-  model$reg.start <- par.ls$reg.params
-  model$lambda.start <- par.ls$thresh.lambda
-  model$gamma.start <-par.ls$thresh.gamma
+
+  sqf2 <- function(param){
+    thresh.lambda <- rep(param[1L], model$parcount[2L])
+    if (model$parcount[3L]) thresh.gamma <- rep(param[2L], model$parcount[3L]) else thresh.gamma <- 0L
+    sum((t(gotm_Threshold(thresh.lambda, thresh.gamma, model)[,-1L][,1L : length(alphas)]) - alphas)^2L, na.rm = T)
+  }
+
+  param <- optim(par = rep(mean(lambda1), 2L), fn = sqf2)$par
+  param <- c(lambda1, rep(param[2L], model$parcount[3L]))
+  oldv <- 0L
+  for (j in 1L : 10L){
+    smodel <- optim(par = param, fn = sqf)
+    if (abs(oldv - smodel$value) < 1e-12) break
+    param <- smodel$par
+    oldv <- smodel$value
+  }
+
+  cpc <- cumsum(model$parcount[-1L])
+  thresh.lambda <- param[1L : cpc[1L]]
+  if (model$parcount[3L]) thresh.gamma <- param[(cpc[1L] + 1L) : cpc[2L]] else thresh.gamma <- NULL
+
+  model$lambda.start <- thresh.lambda
+  model$gamma.start <- thresh.gamma
   model$start <- c(model$reg.start, model$lambda.start, model$gamma.start)
   model
 }
 
-#as.matrix(coef(model.simple.exp))
-#as.matrix(par.ls$thresh.gamma)
 #' INTERNAL: Calculate a latent variable
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 #' @keywords internal
@@ -246,7 +235,7 @@ gotm_fitter <- function(model, start = model$start){
   refit <- function(fit, model){
     oldfit <- fit$value
     for (k in 1L : control$max.reiter) {
-      if (k>3) try({fit <- optim(par = fit$par, fn = gotm_negLL, gr = gotm_derivLL, model = model, method = 'BFGS')}, silent = TRUE)
+      try({fit <- optim(par = fit$par, fn = gotm_negLL, gr = gotm_derivLL, model = model, method = 'BFGS')}, silent = TRUE)
       fit <- optim(par = fit$par, fn = gotm_negLL, gr = gotm_derivLL, model = model)
       if (abs(fit$value - oldfit)<control$tol.reiter) break
       oldfit <- fit$value
@@ -316,7 +305,7 @@ gotm_fitter <- function(model, start = model$start){
 gotm.control<-function(fit.NR = FALSE,
                        forced.DEoptim = FALSE,
                        max.reiter = 75L,
-                       tol.reiter = 1e-6,
+                       tol.reiter = 1e-8,
                        grad.eps = 1e-8,
                        thresh.fun = 'id',
                        alpha_0 = 'auto',
@@ -427,12 +416,6 @@ get.start.gotm <- function(object, reg.formula, thresh.formula, data, asList = F
   if (asList) return(pr.new) else 
     return(c(pr.new$reg.params, pr.new$thresh.lambda, pr.new$thresh.gamma))
 }
-
-
-
-# refit vglm with vglm starting values
-# option to use only vglm starting values (no fitting)
-# remove gamma.est.method and lambda.est.method
 
 
 #' Fit Generelaized Ordered Choice Threshold Model
@@ -632,7 +615,7 @@ gotm<- function(reg.formula,
 
   if (!length(start)) {
     if (!doFit) stop('Starting values must be given for "doFit" == TRUE.')
-    if (!control$forced.DEoptim) z <- try({get.vglm.start(model, data)}, silent = FALSE) else z <- NULL
+    if (!control$forced.DEoptim) z <- try({gotm_GetInitial(model, data)}, silent = FALSE) else z <- NULL
     if (control$forced.DEoptim||(class(z) == "try-error")) {
       message('Initial values failed, using DEoptim to find them.')
       DEfit <- DEoptim(fn = gotm_negLL, #DEoptim::

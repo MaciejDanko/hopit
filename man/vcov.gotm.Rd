@@ -28,7 +28,7 @@ resid.gotm<-function(object, type = c("working", "response"), ...){
 }
 Extracting variance-covariance matrix from the fitted gotm}
 \usage{
-\method{vcov}{gotm}(object, robust.vcov, control = list(), ...)
+vcov.gotm(object, robust.vcov, control = list(), ...)
 }
 \arguments{
 \item{object}{\code{gotm} object.}

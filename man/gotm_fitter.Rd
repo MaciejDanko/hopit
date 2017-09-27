@@ -4,7 +4,7 @@
 \alias{gotm_fitter}
 \title{INTERNAL: Fit \code{gotm}}
 \usage{
-gotm_fitter(model, start = model$start, control = list())
+gotm_fitter(model, start = model$start)
 }
 \arguments{
 \item{model}{\code{gotm} object}
