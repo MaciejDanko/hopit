@@ -137,7 +137,7 @@ get.vglm.start<-function(model, data, start = NULL){
                             family = cumulative(parallel = small.formula, link = 'probit')), #direct substitution of link doesn't work
               logit = vglm(big.formula, weights = model$weights, data = data, coefstart = start,
                            family = cumulative(parallel = small.formula, link = 'logit')))
-  cat(' done\nRecalculaing parameters...')
+  cat(' done\nRecalculating parameters...')
   rm(Y, envir = .GlobalEnv)
   mv2.par <- c(coef(mv2)[-(1:sum(model$parcount[2:3]))], coef(mv2)[(1:sum(model$parcount[2:3]))])
   par.ls <- gotm_ExtractParameters(model, mv2.par)
@@ -332,7 +332,8 @@ gotm.control<-function(fit.NR = FALSE,
                        grad.eps = 1e-8,
                        thresh.fun = c('exp','identity','id'),
                        alpha_0 = 'auto'){
-  thresh.fun <- match.arg(thresh.fun)
+  
+  thresh.fun <- as.character(substitute(thresh.fun))[1]
   if (tolower(alpha_0) != 'auto'){
     if (!is.numeric(alpha_0)) stop('"alpha_0" must be a numeric or equal "auto".')
   } else alpha_0 <- tolower(alpha_0)
@@ -452,6 +453,7 @@ get.start.gotm <- function(object, reg.formula, thresh.formula, data, asList = F
 #' }
 #' @param start starting values in the form \code{c(latent_parameters, threshold_lambdas, threshold_gammas)}
 #' @param doFit character string, \code{'full'} perform the full fit, \code{'vglm'} use starting values obteined from vglm, 
+#' @param hessain logical indicating if to calculate hessian matrix
 #' but will not improve the fit, and \code{'no'} use external starting values, which must be delivered.
 #' @param control a list with control parameters. See \code{\link{gotm.control}}.
 #' @export
@@ -464,6 +466,7 @@ gotm<- function(reg.formula,
                 thresh.method = c('classic', 'hopit'),
                 start = NULL,
                 doFit = c('full','vglm','no'),
+                hessian = TRUE,
                 control = list()){
   
   my.grad <- function(fn, par, eps, ...){
@@ -603,14 +606,17 @@ gotm<- function(reg.formula,
   model$y_latent_i <- gotm_Latent(p$reg.params, model)
   model$Ey_i <- factor(colSums(sapply(1L : model$N, function(k) model$alpha[k,]<model$y_latent_i[k])),levels=1L:model$J)
   levels(model$Ey_i) <- levels(model$y_i)
-  cat('Calcualting hessaian...')
-  hes <- numDeriv::hessian(gotm_negLL, model$coef, model = model) #numDeriv::
-  model$vcov <- try(solve(hes), silent = T)
-  if (class(z) == 'try-error') {
-    z <- NA*hes
-    warning(call. = FALSE, 'Model is probably unidentifiable, vcov cannot be computed. Please try to use a "hopit" model.')
+  if (hessian) {
+    cat('Calculating hessian...')
+    hes <- numDeriv::hessian(gotm_negLL, model$coef, model = model) #numDeriv::
+    model$vcov <- try(solve(hes), silent = T)
+    if (class(z) == 'try-error') {
+      z <- NA*hes
+      warning(call. = FALSE, 'Model is probably unidentifiable, vcov cannot be computed. Please try to use a "hopit" model.')
+    }
+    cat(' done\n')
   }
-  cat(' done\nCalcualting estfun...')
+  cat('Calculating estfun...')
   
   model$estfun <- my.grad(fn = gotm_negLL, par = model$coef,
                           eps = control$grad.eps, model = model, collapse = FALSE)
@@ -766,7 +772,7 @@ print.vcov.gotm <- function(x, digits = 3L, ...){
 #' @param ...	further arguments passed to or from other methods.
 #' @export
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
-summary.gotm <- function(object, robust.se = FALSE, control = list(), ...){
+summary.gotm <- function(object, robust.se = FALSE, control = object$control, ...){
   control <- do.call("gotm.control", control)
   varcov <- vcov(object, robust.se, control, ...)
   SE <- suppressWarnings(sqrt(diag(varcov)))

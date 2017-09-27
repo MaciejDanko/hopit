@@ -6,7 +6,8 @@
 \usage{
 gotm(reg.formula, thresh.formula = as.formula("~ 1"), data, survey = list(),
   link = c("probit", "logit"), thresh.method = c("classic", "hopit"),
-  start = NULL, doFit = c("full", "vglm", "no"), control = list())
+  start = NULL, doFit = c("full", "vglm", "no"), hessian = TRUE,
+  control = list())
 }
 \arguments{
 \item{reg.formula}{formula used to model latent process.}
@@ -30,10 +31,12 @@ and \code{alpha(J) = Inf}. See also [2].}
 
 \item{start}{starting values in the form \code{c(latent_parameters, threshold_lambdas, threshold_gammas)}}
 
-\item{doFit}{character string, \code{'full'} perform the full fit, \code{'vglm'} use starting values obteined from vglm, 
-but will not improve the fit, and \code{'no'} use external starting values, which must be delivered.}
+\item{doFit}{character string, \code{'full'} perform the full fit, \code{'vglm'} use starting values obteined from vglm,}
 
 \item{control}{a list with control parameters. See \code{\link{gotm.control}}.}
+
+\item{hessain}{logical indicating if to calculate hessian matrix
+but will not improve the fit, and \code{'no'} use external starting values, which must be delivered.}
 }
 \description{
 Fit Generelaized Ordered Choice Threshold Model

@@ -13,3 +13,4 @@
 #   potem jest to odpowiednio przeliczane
 
 # sprawdzic czy nazwy zgadzaja sie z parametrami - PARTIALY
+# omit calcualtion of hessian and gradient, coorect spelling
