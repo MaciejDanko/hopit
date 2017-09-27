@@ -61,6 +61,17 @@ data2freq<-function(formula, data, FreqNam='Freq'){
 #'
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 #' @keywords internal
+gotm_reg_thresh<-function(thresh.lambda,thresh.gamma, model){
+  tmp <- t(matrix(thresh.lambda, model$J - 1L, model$N)) 
+  for (k in seq_len(NCOL(model$thresh.mm))) tmp <- tmp + 
+      model$thresh.mm[, k, drop=FALSE] %*% thresh.gamma[(2:model$J)-1+ (k-1)*(model$J-1)] 
+  tmp
+}
+
+#' INTERNAL: Calculation of cut-points (threshold)
+#'
+#' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
+#' @keywords internal
 gotm_Threshold<-function(thresh.lambda, thresh.gamma, model = NULL, 
                          extended.output = FALSE){
 
@@ -73,10 +84,11 @@ gotm_Threshold<-function(thresh.lambda, thresh.gamma, model = NULL,
   if (model$thresh.no.cov){
     Lin.Tresh.mat <- t(matrix(thresh.lambda, J - 1L, N)) 
   } else {
-    C <- dim(model$thresh.mm)[2L]
-    thresh.gamma <- matrix(as.matrix(thresh.gamma), C, J - 1L)
-    Lin.Tresh.mat <- t(matrix(thresh.lambda, J - 1L, N)) +
-      model$thresh.mm %*% thresh.gamma 
+    # C <- dim(model$thresh.mm)[2L]
+    # thresh.gamma <- t(matrix(as.matrix(thresh.gamma),  J - 1L, C))
+    # Lin.Tresh.mat <- t(matrix(thresh.lambda, J - 1L, N)) +
+    #   model$thresh.mm %*% thresh.gamma 
+    Lin.Tresh.mat <- gotm_reg_thresh(thresh.lambda, thresh.gamma, model)
   }
 
   a <- matrix(NA, N, J + 1L)
@@ -114,19 +126,26 @@ get.vglm.start<-function(model, data, start = NULL){
   thresh.formula <- model$thresh.formula
   thresh.method <- model$thresh.method
   if (length(thresh.formula)>2) thresh.formula[[2]] <- NULL
-  big.formula <- update(reg.formula, paste('~ ', thresh.formula[[2]],' + . + 1'))
+  thrf <- deparse(thresh.formula[[2]])
+  big.formula <- update(reg.formula, paste('~ ', thrf,' + . + 1'))
   Y <<- Vector2DummyMat(data[,paste(reg.formula[[2]])])
   big.formula[[2]] <- as.name('Y')
-  small.formula <- as.formula(paste('FALSE ~', thresh.formula[[2]]))
+  small.formula <- formula(paste('FALSE ~', thrf))
+  cat('Running vglm...')
   mv2<-switch(model$link,
               probit = vglm(big.formula, weights = model$weights, data = data, coefstart = start,
                             family = cumulative(parallel = small.formula, link = 'probit')), #direct substitution of link doesn't work
               logit = vglm(big.formula, weights = model$weights, data = data, coefstart = start,
                            family = cumulative(parallel = small.formula, link = 'logit')))
+  cat(' done\nRecalculaing parameters...')
   rm(Y, envir = .GlobalEnv)
   mv2.par <- c(coef(mv2)[-(1:sum(model$parcount[2:3]))], coef(mv2)[(1:sum(model$parcount[2:3]))])
   par.ls <- gotm_ExtractParameters(model, mv2.par)
-  alpha.thresh<-t(matrix(par.ls$thresh.lambda, model$J - 1L, model$N)) + model$thresh.mm %*% par.ls$thresh.gamma
+  if (length(par.ls$thresh.gamma))
+    alpha.thresh <- gotm_reg_thresh(thresh.lambda = par.ls$thresh.lambda, 
+                                    thresh.gamma = par.ls$thresh.gamma, 
+                                    model = model)
+    #alpha.thresh<-t(matrix(par.ls$thresh.lambda, model$J - 1L, model$N)) + model$thresh.mm %*% par.ls$thresh.gamma
   par.ls$thresh.lambda <- c(par.ls$thresh.lambda[1], diff(par.ls$thresh.lambda))
   ini.gamma<-par.ls$thresh.gamma
   if (length(par.ls$thresh.gamma)) par.ls$thresh.gamma <- c(par.ls$thresh.gamma[1], diff(par.ls$thresh.gamma))  
@@ -156,7 +175,9 @@ get.vglm.start<-function(model, data, start = NULL){
       }
     }
   }
+  cat(' done\n')
   model$vglm.start <- mv2.par
+  model$vglm.summary <- summary(mv2)
   model$reg.start <- par.ls$reg.params
   model$lambda.start <- par.ls$thresh.lambda
   model$gamma.start <-par.ls$thresh.gamma
@@ -454,7 +475,10 @@ gotm<- function(reg.formula,
   }
   
   if (missing(data)) data <- environment(reg.formula)
+  
   doFit <- match.arg(doFit)
+  thresh.method <- match.arg(thresh.method)
+  link <- match.arg(link)
   control <- do.call("gotm.control", control)
   survey <- do.call("gotm.design", survey)
 
@@ -474,11 +498,8 @@ gotm<- function(reg.formula,
   
   model <- NULL
   model$control <- control
-
-  thresh.method <- match.arg(thresh.method)
-
-  link <- match.arg(link)
   model$link <- link
+  
   if (tolower(link) == 'probit') {
     model$link.func <- pnorm
     model$distr.func <- dnorm
@@ -486,6 +507,7 @@ gotm<- function(reg.formula,
     model$link.func <- function(x) exp(x)/(1L + exp(x))
     model$distr.func <- function (x) exp(-x)/((1L + exp(-x))^2L)
   } 
+  
   if (length(thresh.formula)>2L){
     warning(call. = FALSE, 'The treshold formula should be given without dependent variable.')
     thresh.formula[[2]] <- NULL
@@ -550,7 +572,8 @@ gotm<- function(reg.formula,
   if (model$thresh.no.cov){
     tmp <- NULL
   } else {
-    tmp <- as.matrix(expand.grid(thresh.names, interce, KEEP.OUT.ATTRS = FALSE))
+    tmp <- as.matrix(expand.grid(interce, thresh.names, KEEP.OUT.ATTRS = FALSE))
+    tmp <- tmp[,c(2,1)]
     tmp <- paste('(G)', apply(tmp, 1L, paste, sep = '', collapse = '.'), sep = '.')
   }
 
@@ -566,7 +589,9 @@ gotm<- function(reg.formula,
   } else model$start <- start
 
   if (doFit == 'full'){
+    cat('Improving fit...')
     model <- gotm_fitter(model, start = model$start)
+    cat(' done\n')
   } else {
     model$coef <- model$start
     model$LL <- gotm_negLL(parameters = model$start, model)
@@ -578,16 +603,18 @@ gotm<- function(reg.formula,
   model$y_latent_i <- gotm_Latent(p$reg.params, model)
   model$Ey_i <- factor(colSums(sapply(1L : model$N, function(k) model$alpha[k,]<model$y_latent_i[k])),levels=1L:model$J)
   levels(model$Ey_i) <- levels(model$y_i)
-  
+  cat('Calcualting hessaian...')
   hes <- numDeriv::hessian(gotm_negLL, model$coef, model = model) #numDeriv::
   model$vcov <- try(solve(hes), silent = T)
   if (class(z) == 'try-error') {
     z <- NA*hes
     warning(call. = FALSE, 'Model is probably unidentifiable, vcov cannot be computed. Please try to use a "hopit" model.')
   }
+  cat(' done\nCalcualting estfun...')
   
   model$estfun <- my.grad(fn = gotm_negLL, par = model$coef,
                           eps = control$grad.eps, model = model, collapse = FALSE)
+  cat(' done\n')
   class(model) <- 'gotm'
   return(model)
 }

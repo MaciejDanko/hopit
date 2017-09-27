@@ -9,3 +9,7 @@
 # analitical gradient
 # repair unravel
 # more complicated survey designs
+# OPCJA effect signle gamma modelowany przez vglm tak, ze single gamma nie idzie do FALSE~ tylko do glownego
+#   potem jest to odpowiednio przeliczane
+
+# sprawdzic czy nazwy zgadzaja sie z parametrami - PARTIALY
