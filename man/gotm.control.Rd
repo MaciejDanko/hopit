@@ -4,15 +4,13 @@
 \alias{gotm.control}
 \title{Auxiliary for controlling \code{gotm} fitting}
 \usage{
-gotm.control(fit.NR = FALSE, forced.DEoptim = FALSE, max.reiter = 75L,
-  tol.reiter = 1e-06, grad.eps = 1e-08, thresh.fun = "id",
-  alpha_0 = "auto", DEoptim.itermax = 500L, DEoptim.trace = FALSE)
+gotm.control(fit.NR = FALSE, max.reiter = 75L, tol.reiter = 1e-06,
+  grad.eps = 1e-08, thresh.fun = c("exp", "identity", "id"),
+  alpha_0 = "auto")
 }
 \arguments{
 \item{fit.NR}{logical indicating if to use Newton-Raphson algorithm after main optimization.
 The Newton-Raphson algorithm is used anyway if the convergence for standard optimization was not found.}
-
-\item{forced.DEoptim}{logical indicating if use DEoptim to find initial parameters.}
 
 \item{max.reiter}{maximum number of repeats of the standard optimization procedure if optimum was not found.}
 
@@ -23,15 +21,11 @@ consequtive runs of standard optimization.}
 
 \item{thresh.fun}{one parameter function used to calculate thresholds.
 It can be either a user defined function or character string.
-The default value is \code{'exp'}.
-Other accepable character strings include \code{'identity' (or 'id')}, \code{'abs'}, and \code{'sqr' (or '^2')}.}
+The default value is \code{'exp'} for exponential function.
+Other accepable character strings include \code{'identity'} or \code{'id'} for identity function.}
 
 \item{alpha_0}{value for "zero" threshold. If 'auto' then alpha_0 is set specificaly 
 to the 'classic' or 'hopit' model. See \code{\link{gotm}}.}
-
-\item{DEoptim.itermax}{maximum number of iterations for DEoptim algorithm.}
-
-\item{DEoptim.trace}{logical if to trace DEoptim algorithm.}
 }
 \description{
 Auxiliary function for controlling \code{gotm} fitting. Use this function to set control

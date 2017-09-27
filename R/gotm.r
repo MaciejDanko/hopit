@@ -69,16 +69,14 @@ gotm_Threshold<-function(thresh.lambda, thresh.gamma, model = NULL,
   J <- model$J
   N <- model$N
   thresh.lambda <- t(as.matrix(thresh.lambda))
-  thresh.offset <- matrix(model$thresh.offset, N, J - 1L)
 
   if (model$thresh.no.cov){
-    Lin.Tresh.mat <- t(matrix(thresh.lambda, J - 1L, N)) +
-      thresh.offset
+    Lin.Tresh.mat <- t(matrix(thresh.lambda, J - 1L, N)) 
   } else {
     C <- dim(model$thresh.mm)[2L]
     thresh.gamma <- matrix(as.matrix(thresh.gamma), C, J - 1L)
     Lin.Tresh.mat <- t(matrix(thresh.lambda, J - 1L, N)) +
-      model$thresh.mm %*% thresh.gamma + thresh.offset
+      model$thresh.mm %*% thresh.gamma 
   }
 
   a <- matrix(NA, N, J + 1L)
@@ -97,7 +95,7 @@ gotm_Threshold<-function(thresh.lambda, thresh.gamma, model = NULL,
     a[,2L : J]  <-  cumsum_row(a[,2L : J])
   }
   if (extended.output){
-    list(a = a, b = b, thresh.lambda = thresh.lambda, thresh.offset = thresh.offset, Lin.Tresh.mat = Lin.Tresh.mat)
+    list(a = a, b = b, thresh.lambda = thresh.lambda, Lin.Tresh.mat = Lin.Tresh.mat)
   } else {
     a
   }
@@ -110,7 +108,7 @@ gotm_Threshold<-function(thresh.lambda, thresh.gamma, model = NULL,
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 #' @importFrom VGAM vglm
 #' @keywords internal
-get.vglm.start<-function(model, data){
+get.vglm.start<-function(model, data, start = NULL){
   subs <- function (a, k, z) {a[k] <- z; a}
   reg.formula <- model$reg.formula
   thresh.formula <- model$thresh.formula
@@ -121,9 +119,9 @@ get.vglm.start<-function(model, data){
   big.formula[[2]] <- as.name('Y')
   small.formula <- as.formula(paste('FALSE ~', thresh.formula[[2]]))
   mv2<-switch(model$link,
-              probit = vglm(big.formula, weights = model$weights, data = data,
+              probit = vglm(big.formula, weights = model$weights, data = data, coefstart = start,
                             family = cumulative(parallel = small.formula, link = 'probit')), #direct substitution of link doesn't work
-              logit = vglm(big.formula, weights = model$weights, data = data,
+              logit = vglm(big.formula, weights = model$weights, data = data, coefstart = start,
                            family = cumulative(parallel = small.formula, link = 'logit')))
   rm(Y, envir = .GlobalEnv)
   mv2.par <- c(coef(mv2)[-(1:sum(model$parcount[2:3]))], coef(mv2)[(1:sum(model$parcount[2:3]))])
@@ -132,7 +130,7 @@ get.vglm.start<-function(model, data){
   par.ls$thresh.lambda <- c(par.ls$thresh.lambda[1], diff(par.ls$thresh.lambda))
   ini.gamma<-par.ls$thresh.gamma
   if (length(par.ls$thresh.gamma)) par.ls$thresh.gamma <- c(par.ls$thresh.gamma[1], diff(par.ls$thresh.gamma))  
-  if (paste(deparse(model$control$thresh.fun),collapse = '', sep = '') == deparse(exp)) {
+  if (!identical(deparse(model$control$thresh.fun), deparse(identity))) {
     if (thresh.method == 'classic'){
       par.ls$thresh.lambda <- c(par.ls$thresh.lambda[1],log(par.ls$thresh.lambda[2:length(par.ls$thresh.lambda)]))
       if (length(par.ls$thresh.gamma)) {
@@ -171,10 +169,7 @@ get.vglm.start<-function(model, data){
 #' INTERNAL: Calculate a latent variable
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 #' @keywords internal
-gotm_Latent <- function(reg.params, model = NULL, mod.mat = model$reg.mm, N = model$N, 
-                        offset = model$reg.offset)
-  mod.mat %*% (as.matrix(reg.params)) +
-  matrix(offset, N, 1L)
+gotm_Latent <- function(reg.params, model = NULL) model$reg.mm %*% (as.matrix(reg.params)) 
 
 #' INTERNAL: Extract model parameters in a form of list
 #'
@@ -297,47 +292,37 @@ gotm_fitter <- function(model, start = model$start){
 #'
 #' @param fit.NR logical indicating if to use Newton-Raphson algorithm after main optimization.
 #' The Newton-Raphson algorithm is used anyway if the convergence for standard optimization was not found.
-#' @param forced.DEoptim logical indicating if use DEoptim to find initial parameters.
 #' @param max.reiter maximum number of repeats of the standard optimization procedure if optimum was not found.
 #' @param tol.reiter the maximal tolerated difference between log-likelihoods of two
 #' consequtive runs of standard optimization.
 #' @param grad.eps epsilon for gradient function.
 #' @param thresh.fun one parameter function used to calculate thresholds.
 #' It can be either a user defined function or character string.
-#' The default value is \code{'exp'}.
-#' Other accepable character strings include \code{'identity' (or 'id')}, \code{'abs'}, and \code{'sqr' (or '^2')}.
+#' The default value is \code{'exp'} for exponential function.
+#' Other accepable character strings include \code{'identity'} or \code{'id'} for identity function.
 #' @param alpha_0 value for "zero" threshold. If 'auto' then alpha_0 is set specificaly 
 #' to the 'classic' or 'hopit' model. See \code{\link{gotm}}.
-#' @param DEoptim.itermax maximum number of iterations for DEoptim algorithm.
-#' @param DEoptim.trace logical if to trace DEoptim algorithm.
 #' @seealso \code{\link{gotm}}
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 #' @export
 gotm.control<-function(fit.NR = FALSE,
-                       forced.DEoptim = FALSE,
                        max.reiter = 75L,
                        tol.reiter = 1e-6,
                        grad.eps = 1e-8,
-                       thresh.fun = 'id',
-                       alpha_0 = 'auto',
-                       DEoptim.itermax = 500L,
-                       DEoptim.trace = FALSE){
+                       thresh.fun = c('exp','identity','id'),
+                       alpha_0 = 'auto'){
+  thresh.fun <- match.arg(as.character(substitute(thresh.fun)))
   if (tolower(alpha_0) != 'auto'){
     if (!is.numeric(alpha_0)) stop('"alpha_0" must be a numeric or equal "auto".')
   } else alpha_0 <- tolower(alpha_0)
-  if (class(thresh.fun) == 'character') {
-    if (tolower(thresh.fun) == 'exp') {
-      thresh.fun <- exp
-    } else if (tolower(thresh.fun) %in% c('identity', 'id')) {
-      thresh.fun <- identity
-    } else if (tolower(thresh.fun) == 'abs') {
-      thresh.fun <- abs
-    } else if (tolower(thresh.fun) %in% c('sqr', '^2')) {
-      thresh.fun <- function(x) x^2L
-    } else stop('Unknown "thresh.fun".')
-  }
-  list(fit.NR = fit.NR, thresh.fun = thresh.fun, forced.DEoptim = forced.DEoptim,
-       max.reiter = max.reiter, tol.reiter = tol.reiter, grad.eps = grad.eps, alpha_0 = alpha_0)
+  if (tolower(thresh.fun) == 'exp') {
+    thresh.fun <- exp
+  } else if (tolower(thresh.fun) %in% c('identity', 'id')) {
+    thresh.fun <- identity
+  } 
+  list(fit.NR = fit.NR, thresh.fun = thresh.fun, 
+       max.reiter = max.reiter, tol.reiter = tol.reiter, 
+       grad.eps = grad.eps, alpha_0 = alpha_0)
 }
 
 #frequency weight potraktowac jak w  clm czyli bez PSU
@@ -428,34 +413,14 @@ get.start.gotm <- function(object, reg.formula, thresh.formula, data, asList = F
     return(c(pr.new$reg.params, pr.new$thresh.lambda, pr.new$thresh.gamma))
 }
 
-
-
-# refit vglm with vglm starting values
-# option to use only vglm starting values (no fitting)
-# remove gamma.est.method and lambda.est.method
-
-
 #' Fit Generelaized Ordered Choice Threshold Model
 #'
 #' @param reg.formula formula used to model latent process.
 #' @param thresh.formula formula used to model threshold variable.
 #' Any dependent variable (left side of "~") will be ignored.
 #' @param data a data frame including all modeled variables.
-#' @param reg.offset an offset for the latent variable. A vector with length equals the number of observations.
-#' @param thresh.offset an offset for the threshold variable. A matrix of the size N x (J-1),
-#' where N is the number of observations and J is the number of categorical responses.
 #' @param survey an optional survey a survey design. Empty list indicates no survey design. See \code{\link{gotm.design}}.
 #' @param link the link function. The possible values are \code{"probit"} (default) and \code{"logit"}.
-#' @param lambda.est.method
-#' \itemize{ an assumption about \code{lambda} parameter:
-#' \item{\code{"multi"} - each of J-1 modeled thresholds depends on different \code{lambda}. Default option.}
-#' \item{\code{"single"} - \code{lambda} is the same for each threshold.}
-#' }
-#' @param gamma.est.method
-#' \itemize{ an assumption about \code{gamma} parameter:
-#' \item{\code{"multi"} - each of J-1 modeled thresholds depends on different \code{gamma}. Default option.}
-#' \item{\code{"single"} - \code{gamma} is the same for each threshold.}
-#' }
 #' @param thresh.method
 #' \itemize{ Define how the threshold is calculated:
 #' \item{\code{"classic"} - Assumes that: \code{alpha(0) = -Inf}, \code{alpha(1)} is a
@@ -465,23 +430,19 @@ get.start.gotm <- function(object, reg.formula, thresh.formula, data, asList = F
 #' and \code{alpha(J) = Inf}. See also [2].}
 #' }
 #' @param start starting values in the form \code{c(latent_parameters, threshold_lambdas, threshold_gammas)}
-#' @param doFit logical indicating if to run the optimizationa algorithm. If \code{FALSE} starting values must be delivered.
+#' @param doFit character string, \code{'full'} perform the full fit, \code{'vglm'} use starting values obteined from vglm, 
+#' but will not improve the fit, and \code{'no'} use external starting values, which must be delivered.
 #' @param control a list with control parameters. See \code{\link{gotm.control}}.
-#' @importFrom DEoptim DEoptim
 #' @export
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 gotm<- function(reg.formula,
-                thresh.formula = as.formula('~1'),
+                thresh.formula = as.formula('~ 1'),
                 data,
-                reg.offset = NULL,
-                thresh.offset = NULL,
                 survey = list(),
                 link = c('probit', 'logit'),
-                lambda.est.method = c('multi', 'single'),
-                gamma.est.method = c('multi', 'single'),
                 thresh.method = c('classic', 'hopit'),
                 start = NULL,
-                doFit = TRUE,
+                doFit = c('full','vglm','no'),
                 control = list()){
   
   my.grad <- function(fn, par, eps, ...){
@@ -493,15 +454,13 @@ gotm<- function(reg.formula,
   }
   
   if (missing(data)) data <- environment(reg.formula)
-  
+  doFit <- match.arg(doFit)
   control <- do.call("gotm.control", control)
   survey <- do.call("gotm.design", survey)
 
   if (length(start) && class(start) == 'gotm'){
     if ((thresh.method != start$thresh.method) || 
-        (link != start$link) || 
-        (lambda.est.method != start$lambda.est.method) ||
-        (gamma.est.method != start$gamma.est.method)) {
+        (link != start$link)) {
       warning ('Model in "start" is not compatible and will be not used.')
       start <- NULL
     } else {
@@ -516,11 +475,9 @@ gotm<- function(reg.formula,
   model <- NULL
   model$control <- control
 
-  lambda.est.method <- tolower(lambda.est.method[1L])
-  gamma.est.method <- tolower(gamma.est.method[1L])
-  thresh.method <- tolower(thresh.method[1L])
+  thresh.method <- match.arg(tolower(thresh.method))
 
-  link <- link[1L]
+  link <- match.arg(link)
   model$link <- link
   if (tolower(link) == 'probit') {
     model$link.func <- pnorm
@@ -528,14 +485,14 @@ gotm<- function(reg.formula,
   } else if (tolower(link) == 'logit'){
     model$link.func <- function(x) exp(x)/(1L + exp(x))
     model$distr.func <- function (x) exp(-x)/((1L + exp(-x))^2L)
-  } else stop('Unknown link function.')
+  } 
   if (length(thresh.formula)>2L){
     warning(call. = FALSE, 'The treshold formula should be given without dependent variable.')
     thresh.formula[[2]] <- NULL
   }
 
   reg.formula <- update.formula(reg.formula, '~.+1')
-  if (any(grepl('offset(',as.character(reg.formula[[3]]),fixed=TRUE))) stop('Please specify offset as gotm() parameter.')
+  if (any(grepl('offset(',as.character(reg.formula[[3]]),fixed=TRUE))) stop('Offset not supported.')
   model$reg.formula <- reg.formula
   model$reg.mm <- as.matrix(model.matrix(reg.formula, data = data))
   model$reg.lev<-lapply(model.frame(model$reg.formula, data = data), function(k) if (is.factor(k)) as.matrix(table(k)) else 'Not a facor')
@@ -543,10 +500,9 @@ gotm<- function(reg.formula,
   grpi <- grepl('(Intercept)', colnames(model$reg.mm), fixed = TRUE)
   model$reg.mm <- as.matrix(model$reg.mm[,!grpi])
   reg.names <- reg.names[!grpi]
-  model$reg.offset <- reg.offset
 
   thresh.formula <- update.formula(thresh.formula, '~.+1')
-  if (any(grepl('offset(',as.character(thresh.formula[[2]]),fixed=TRUE))) stop('Please specify offset as gotm() parameter.')
+  if (any(grepl('offset(',as.character(thresh.formula[[2]]),fixed=TRUE))) stop('Offset not supprted.')
   model$thresh.formula <- thresh.formula
   model$thresh.mm <- as.matrix(model.matrix(thresh.formula, data = data))
   model$thresh.lev <- lapply(model.frame(model$thresh.formula, data = data), function(k) if (is.factor(k)) as.matrix(table(k)) else 'Not a facor')
@@ -555,19 +511,11 @@ gotm<- function(reg.formula,
   model$thresh.mm <- as.matrix(model$thresh.mm[,!grpi])
   thresh.names <- thresh.names[!grpi]
   if (any(dim(model$thresh.mm) == 0L)) {
-    gamma.est.method <- 'single'
     model$thresh.no.cov <- TRUE
   } else {
     model$thresh.no.cov <- FALSE
   }
   model$thresh.method <- thresh.method
-  model$thresh.offset <- thresh.offset
-  model$lambda.est.method <- lambda.est.method
-  model$gamma.est.method <- gamma.est.method
-
-  # if (any(thresh.names %in% reg.names) && (thresh.method == 'classic'))
-  #   warning(call. = FALSE, 'The defined model is probably unidentifiable. Please use "hopit" method.')
-
   model$y_i <- model.frame(reg.formula, data = data)[,all.vars(reg.formula[[2]])]
   if (!is.factor(model$y_i)) stop('Response must be a factor with ordered levels.')
   model$y_latent_i <- NA# latent
@@ -575,15 +523,6 @@ gotm<- function(reg.formula,
   model$J <- length(levels(model$y_i))
   model$N <- length(model$y_i)
   if (model$J<3L) stop ('Response must have 3 or more levels.')
-
-  if (!length(model$reg.offset)) model$reg.offset <- 0L
-  if (!(length(model$reg.offset) %in% c(1L, model$N))) stop('Wrong "reg.offset" length.')
-  model$reg.offset <- matrix(model$reg.offset, model$N, 1L)
-  if (!length(model$thresh.offset)) {
-    model$thresh.offset <- matrix(0L, model$N, model$J - 1L)
-  } else if ((length(model$thresh.offset) == 1L) || (length(model$thresh.offset) == model$N)) {
-    model$thresh.offset <- matrix(model$thresh.offset, model$N, model$J - 1L)
-  } else if (length(model$thresh.offset) != (model$N*(model$J - 1L))) stop('Wrong "thresh.offset" length.')
 
   if (sum(sapply(survey, length))){
     model$design <- survey
@@ -605,45 +544,28 @@ gotm<- function(reg.formula,
   Cr <- dim(model$reg.mm)[2L]
   Ct <- dim(model$thresh.mm)[2L]
   if (model$thresh.no.cov) Ct <- 0L
-  metho <- paste(lambda.est.method, gamma.est.method, sep = '')
-  model$parcount = switch (metho,
-                           multimulti = c(Cr, model$J - 1L, Ct*(model$J - 1L)),
-                           multisingle = c(Cr, model$J - 1L, Ct),
-                           singlemulti = c(Cr, 1L, Ct*(model$J - 1L)),
-                           singlesingle = c(Cr, 1L, Ct))
+  model$parcount <- c(Cr, model$J - 1L, Ct*(model$J - 1L))
   model$parcount[3L] <- model$parcount[3L]*(model$thresh.no.cov == FALSE)
   interce <- paste(1L : (model$J - 1L), 2L : (model$J), sep = '|')
   if (model$thresh.no.cov){
     tmp <- NULL
-    tmp2 <- NULL
   } else {
     tmp <- as.matrix(expand.grid(thresh.names, interce, KEEP.OUT.ATTRS = FALSE))
     tmp <- paste('(G)', apply(tmp, 1L, paste, sep = '', collapse = '.'), sep = '.')
-    tmp2 <- paste('(G)', thresh.names, sep = '.')
   }
 
-  coefnames <- switch (metho,
-                       multimulti = c(reg.names, paste('(L)', interce, sep = '.'), tmp),
-                       multisingle = c(reg.names, paste('(L)', interce, sep = '.'), tmp2),
-                       singlemulti = c(reg.names, '(L)', tmp),
-                       singlesingle = c(reg.names, '(L)', tmp2))
+  coefnames <-  c(reg.names, paste('(L)', interce, sep = '.'), tmp)
 
   model$weights <- as.vector(matrix(model$weights, 1L, model$N))
 
-  if (!length(start)) {
-    if (!doFit) stop('Starting values must be given for "doFit" == TRUE.')
-    if (!control$forced.DEoptim) z <- try({get.vglm.start(model, data)}, silent = FALSE) else z <- NULL
-    if (control$forced.DEoptim||(class(z) == "try-error")) {
-      message('Initial values failed, using DEoptim to find them.')
-      DEfit <- DEoptim(fn = gotm_negLL, #DEoptim::
-                       lower = rep(-10L, sum(model$parcount)),
-                       upper = rep(10L, sum(model$parcount)),
-                       model = model, control = list(itermax = control$DEoptim.itermax, trace = control$DEoptim.trace))
-      model$start <- DEfit$optim$bestmem
-    } else model$start <- z$start
+  if (!length(start) || (doFit == 'vglm')) {
+    if (doFit == 'no') stop('Starting values must be given.')
+    z <- try({get.vglm.start(model, data)}, silent = FALSE)
+    if (class(z) == "try-error") stop('Initial values failed.')
+    model$start <- z$start
   } else model$start <- start
 
-  if (doFit){
+  if (doFit == 'full'){
     model <- gotm_fitter(model, start = model$start)
   } else {
     model$coef <- model$start
@@ -712,12 +634,6 @@ print.gotm<-function(x, ...){
   cat('Response levels:', toString(levels(x$y_i)), fill = TRUE)
   cat('Number of thresholds:', x$J - 1, fill = TRUE)
   cat('Method of threshold calculation: "', x$thresh.method, '"\n', fill = TRUE, sep = '')
-  if (x$lambda.est.method == "multi") cat('Assumption: Lambdas differ for different thresholds\n')
-  if (x$lambda.est.method == "single") cat('Assumption: Lambdas are the same for each thresholds\n')
-  if(length(p$thresh.gamma)){
-    if (x$gamma.est.method == "multi") cat('Assumption: Gammas differ between for different thresholds\n')
-    if (x$gamma.est.method == "single") cat('Assumption: Gammas are the same for each thresholds\n')
-  } else cat('Assumption: Thresholds are independent of covariates\n')
   cat('\nCoefficients (latent variables):\n')
   print(p$reg.params)
   cat('\nThreshold coefficents (Lambda):\n')
@@ -861,12 +777,6 @@ print.summary.gotm <- function(x, ...){
   cat('Response levels:', toString(levels(model$y_i)), fill = TRUE)
   cat('Number of thresholds:', model$J - 1, fill = TRUE)
   cat('Method of threshold calcualation: "', model$thresh.method, '"\n', fill = TRUE, sep = '')
-  if (model$lambda.est.method == "multi") cat('Assumption: (L)ambdas differ for different thresholds\n')
-  if (model$lambda.est.method == "single") cat('Assumption: (L)ambdas are the same for each thresholds\n')
-  if(length(p$thresh.gamma)){
-    if (model$gamma.est.method == "multi") cat('Assumption: (G)ammas differ for different thresholds\n')
-    if (model$gamma.est.method == "single") cat('Assumption: (G)ammas are the same for each thresholds\n')
-  } else cat('Assumption: Thresholds are independent of any covariate\n')
   if(x$robust.se) cat('\nRobust SE were used (sandwich estimator of varcov).\n')
   cat('\n')
   printCoefmat(x = x$table, P.values = TRUE, has.Pvalue = TRUE, digits = 4L, dig.tst = 2L)
@@ -919,8 +829,8 @@ AIC.gotm<-function(object, ..., k = 2L) {
 #' @export
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 anova.gotm<-function(object, ..., method = c('sequential', 'with.first'), direction = c('decreasing', 'increasing')){
-  method <- tolower(method[1L])
-  direction <- tolower(direction[1L])
+  method <- match.arg(tolower(method))
+  direction <- match.arg(tolower(direction))
   if (length(list(object, ...)) > 1L) {
     objects <- list(object, ...)
     tmp <- deparse(substitute(list(object, ...)))
@@ -943,7 +853,7 @@ anova.gotm<-function(object, ..., method = c('sequential', 'with.first'), direct
       } else if (tolower(method) == 'with.first') {
         tmp <- lrt.gotm(objects[[1L]], objects[[k + 1L]]) # the first model must be the most complex,  silent = F
         rna <- c(rna, paste(ob.nam[1L], 'vs', ob.nam[k + 1L], sep = ''))
-      } else stop('Unknown method.')
+      } else 
       out <- rbind(out, c('Chi^2' = tmp$chisq, df = tmp$df, 'Pr(>Chi^2)' = tmp$pval))
     }
     rownames(out) <- rna
@@ -995,8 +905,6 @@ lrt.gotm <- function(full, nested){
     if (!(all(colnames(nested$reg.mm) %in% colnames(full$reg.mm)))) warning(call. = FALSE, 'Models use probably different (non-nested) data sets (latent variable formula).')
   if ((ncol(full$thresh.mm)) &&  (ncol(nested$thresh.mm)))
     if (!(all(colnames(nested$thresh.mm) %in% colnames(full$thresh.mm)))) warning(call. = FALSE, 'Models use probably different (non-nested) data sets (latent variable formula).')
-  if ((full$lambda.est.method == 'single') && (nested$lambda.est.method == 'multi')) stop('Threshold models are not nested.')
-  if ((full$gamma.est.method == 'single') && (nested$gamma.est.method == 'multi')) stop('Threshold models are not nested.')
   if (full$thresh.method != nested$thresh.method) stop('Methods of calcultion of thresholds are different.')
 
   stat <- 2L*(logLik.gotm(full) - logLik.gotm(nested))
@@ -1051,9 +959,8 @@ predict.gotm <- function(object, type = c('link', 'response', 'threshold', 'thre
                          standardized = FALSE, strata = NULL, unravelFreq = TRUE, ...){
   
   if (length(object$design$FWeights) && unravelFreq) conv<-function(x) unravel(x,freq=object$design$FWeights) else conv<-identity
-  type <- tolower(type[1L])
+  type <- match.arg(tolower(type))
   if (type == 'latent') type <- 'link'
-  if (!(type %in% c('link', 'response', 'threshold', 'threshold_link'))) stop('Unknown type.')
   H <- switch(type,
               link = conv(object$y_latent_i),
               response = conv(object$Ey_i),

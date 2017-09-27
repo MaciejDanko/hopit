@@ -4,8 +4,7 @@
 \alias{gotm_Latent}
 \title{INTERNAL: Calculate a latent variable}
 \usage{
-gotm_Latent(reg.params, model = NULL, mod.mat = model$reg.mm, N = model$N,
-  offset = model$reg.offset)
+gotm_Latent(reg.params, model = NULL)
 }
 \description{
 INTERNAL: Calculate a latent variable

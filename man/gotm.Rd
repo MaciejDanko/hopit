@@ -4,11 +4,9 @@
 \alias{gotm}
 \title{Fit Generelaized Ordered Choice Threshold Model}
 \usage{
-gotm(reg.formula, thresh.formula = as.formula("~1"), data,
-  reg.offset = NULL, thresh.offset = NULL, survey = list(),
-  link = c("probit", "logit"), lambda.est.method = c("multi", "single"),
-  gamma.est.method = c("multi", "single"), thresh.method = c("classic",
-  "hopit"), start = NULL, doFit = TRUE, control = list())
+gotm(reg.formula, thresh.formula = as.formula("~ 1"), data, survey = list(),
+  link = c("probit", "logit"), thresh.method = c("classic", "hopit"),
+  start = NULL, doFit = c("full", "vglm", "no"), control = list())
 }
 \arguments{
 \item{reg.formula}{formula used to model latent process.}
@@ -18,24 +16,9 @@ Any dependent variable (left side of "~") will be ignored.}
 
 \item{data}{a data frame including all modeled variables.}
 
-\item{reg.offset}{an offset for the latent variable. A vector with length equals the number of observations.}
-
-\item{thresh.offset}{an offset for the threshold variable. A matrix of the size N x (J-1),
-where N is the number of observations and J is the number of categorical responses.}
-
 \item{survey}{an optional survey a survey design. Empty list indicates no survey design. See \code{\link{gotm.design}}.}
 
 \item{link}{the link function. The possible values are \code{"probit"} (default) and \code{"logit"}.}
-
-\item{lambda.est.method}{\itemize{ an assumption about \code{lambda} parameter:
-\item{\code{"multi"} - each of J-1 modeled thresholds depends on different \code{lambda}. Default option.}
-\item{\code{"single"} - \code{lambda} is the same for each threshold.}
-}}
-
-\item{gamma.est.method}{\itemize{ an assumption about \code{gamma} parameter:
-\item{\code{"multi"} - each of J-1 modeled thresholds depends on different \code{gamma}. Default option.}
-\item{\code{"single"} - \code{gamma} is the same for each threshold.}
-}}
 
 \item{thresh.method}{\itemize{ Define how the threshold is calculated:
 \item{\code{"classic"} - Assumes that: \code{alpha(0) = -Inf}, \code{alpha(1)} is a
@@ -47,7 +30,8 @@ and \code{alpha(J) = Inf}. See also [2].}
 
 \item{start}{starting values in the form \code{c(latent_parameters, threshold_lambdas, threshold_gammas)}}
 
-\item{doFit}{logical indicating if to run the optimizationa algorithm. If \code{FALSE} starting values must be delivered.}
+\item{doFit}{character string, \code{'full'} perform the full fit, \code{'vglm'} use starting values obteined from vglm, 
+but will not improve the fit, and \code{'no'} use external starting values, which must be delivered.}
 
 \item{control}{a list with control parameters. See \code{\link{gotm.control}}.}
 }
