@@ -4,8 +4,8 @@
 \alias{gotm.control}
 \title{Auxiliary for controlling \code{gotm} fitting}
 \usage{
-gotm.control(fit.NR = FALSE, max.reiter = 75L, tol.reiter = 1e-06,
-  grad.eps = 1e-08, thresh.fun = c("exp", "identity", "id"),
+gotm.control(fit.NR = FALSE, max.reiter = 10L, tol.reiter = 5e-05,
+  grad.eps = 1e-07, thresh.fun = c("exp", "identity", "id"),
   alpha_0 = "auto")
 }
 \arguments{

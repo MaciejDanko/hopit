@@ -655,7 +655,7 @@ gotm<- function(reg.formula,
   model$Ey_i <- factor(colSums(sapply(1L : model$N, function(k) model$alpha[k,]<model$y_latent_i[k])),levels=1L:model$J)
   levels(model$Ey_i) <- levels(model$y_i)
   if (hessian) {
-    cat('Calculating hessian...')
+    cat('Calculating hessian (can take some time)...')
     hes <- numDeriv::hessian(gotm_negLL, model$coef, model = model) #numDeriv::
     model$vcov <- try(solve(hes), silent = T)
     if (class(z) == 'try-error') {
