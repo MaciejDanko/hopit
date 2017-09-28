@@ -300,11 +300,12 @@ gotm_fitter <- function(model, start = model$start){
     for (k in 1L : control$max.reiter) {
       if (k>0) try({fit <- optim(par = fit$par, fn = gotm_negLL, gr = gotm_derivLL, model = model, method = 'BFGS')}, silent = TRUE)
       fit <- optim(par = fit$par, fn = gotm_negLL, gr = gotm_derivLL, model = model)
-      if (abs(fit$value - oldfit)<control$tol.reiter) break
+      lldiff <- abs(fit$value - oldfit)
+      if (lldiff < control$tol.reiter) break
       oldfit <- fit$value
-      cat(fit$value,'\n')
+      if (k > 1L) cat(', ')
+      cat(-fit$value,'(',lldiff,')',sep='')
     }
-    cat('\n')
     list(fit = fit, converged = (k<control$max.reiter))
   }
 
@@ -314,7 +315,7 @@ gotm_fitter <- function(model, start = model$start){
     nmFit <- tmp$fit
     fit <- nmFit
     if(!tmp$converged) {
-      message('Convergence has not been reached yet, changing the method ...')
+      message('\nConvergence has not been reached yet (try to increase control$max.reiter), changing the method ...')
       control$fit.NR <- TRUE
     }
   }, silent = FALSE)
@@ -326,7 +327,7 @@ gotm_fitter <- function(model, start = model$start){
     nrFit <- refit(nrFit, model)
     if (!nrFit$converged)
       warning(call. = FALSE,
-              'The model probably did not converge. Try to increase "max.reiter" and/or set "forced.DEoptim" == TRUE.')
+              '\nThe model probably did not converge. Try to increase "max.reiter" and/or set "forced.DEoptim" == TRUE.')
     nrFit <- nrFit$fit
     fit <- nrFit
   } else nrFit <- NULL
@@ -363,9 +364,9 @@ gotm_fitter <- function(model, start = model$start){
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 #' @export
 gotm.control<-function(fit.NR = FALSE,
-                       max.reiter = 75L,
-                       tol.reiter = 1e-6,
-                       grad.eps = 1e-8,
+                       max.reiter = 10L, #increase if faster optimizaton is developed
+                       tol.reiter = 5e-5,
+                       grad.eps = 1e-7,
                        thresh.fun = c('exp','identity','id'),
                        alpha_0 = 'auto'){
   
@@ -632,7 +633,7 @@ gotm<- function(reg.formula,
     z <- get.vglm.start(model, data)
     z$start
     cat('VGLM logLik:',z$vglm.LL,'\n')
-    cat('VGLM on gotm logLik:',-gotm_negLL(parameters = z$start, model=z),'\n')
+    cat('Recalculated VGLM (gotm start) logLik:',-gotm_negLL(parameters = z$start, model=z),'\n')
     # z <- try({get.vglm.start(model, data)}, silent = FALSE)
     # if (class(z) == "try-error") stop('Initial values failed.')
     model <- z
