@@ -1,7 +1,7 @@
 Package: gotm
 Type: Package
 Title: Generalized Ordered Choice Threshold Models
-Version: 2017.9.27
+Version: 2017.9.28
 Depends: R (>= 2.10), survey (>= 3.30-3), maxLik (>= 1.2-4), numDeriv (>= 2014.2-1), VGAM (>= 1.0.1)
 Author: Maciej J. Danko <Maciej.Danko@gmail.com>
 Maintainer: Maciej J. Danko <Maciej.Danko@gmail.com>
