@@ -122,6 +122,23 @@ gotm_Threshold<-function(thresh.lambda, thresh.gamma, model = NULL,
 #' @keywords internal
 get.vglm.start<-function(model, data, start = NULL){
   subs <- function (a, k, z) {a[k] <- z; a}
+  gmat <- function (x) matrix(x, model$J-1L, as.integer(round(length(x) / (model$J-1L))))
+  subsgmat <- function (a, k, z) {
+    an <- names(a)
+    a <- gmat(a)
+    a[k,] <- z
+    a <- as.vector(a)
+    names(a) <- an
+    a
+  }
+  extrgmat<-function (a, k){
+    an <- names(a)
+    a <- gmat(a)
+    an <- gmat(an)
+    z <- as.vector(a[k,])
+    names(z) <- as.vector(an[k,])
+    z
+  }
   reg.formula <- model$reg.formula
   thresh.formula <- model$thresh.formula
   thresh.method <- model$thresh.method
@@ -129,18 +146,23 @@ get.vglm.start<-function(model, data, start = NULL){
   thrf <- deparse(thresh.formula[[2]])
   big.formula <- update(reg.formula, paste('~ ', thrf,' + . + 1'))
   Y <<- Vector2DummyMat(data[,paste(reg.formula[[2]])])
+  w <- model$weights
+  data$w <- w
   big.formula[[2]] <- as.name('Y')
   small.formula <- formula(paste('FALSE ~', thrf))
   cat('Running vglm...')
   mv2<-switch(model$link,
-              probit = vglm(big.formula, weights = model$weights, data = data, coefstart = start,
+              probit = vglm(big.formula, weights = w, data = data, coefstart = start,
                             family = cumulative(parallel = small.formula, link = 'probit')), #direct substitution of link doesn't work
-              logit = vglm(big.formula, weights = model$weights, data = data, coefstart = start,
+              logit = vglm(big.formula, weights = w, data = data, coefstart = start,
                            family = cumulative(parallel = small.formula, link = 'logit')))
   cat(' done\nRecalculating parameters...')
   rm(Y, envir = .GlobalEnv)
   mv2.par <- c(coef(mv2)[-(1:sum(model$parcount[2:3]))], coef(mv2)[(1:sum(model$parcount[2:3]))])
+  model$vglm.LL<-logLik(mv2)
   par.ls <- gotm_ExtractParameters(model, mv2.par)
+  par.ls$reg.params <- -par.ls$reg.params
+  
   if (length(par.ls$thresh.gamma))
     alpha.thresh <- gotm_reg_thresh(thresh.lambda = par.ls$thresh.lambda, 
                                     thresh.gamma = par.ls$thresh.gamma, 
@@ -148,26 +170,38 @@ get.vglm.start<-function(model, data, start = NULL){
     #alpha.thresh<-t(matrix(par.ls$thresh.lambda, model$J - 1L, model$N)) + model$thresh.mm %*% par.ls$thresh.gamma
   par.ls$thresh.lambda <- c(par.ls$thresh.lambda[1], diff(par.ls$thresh.lambda))
   ini.gamma<-par.ls$thresh.gamma
-  if (length(par.ls$thresh.gamma)) par.ls$thresh.gamma <- c(par.ls$thresh.gamma[1], diff(par.ls$thresh.gamma))  
+  if (length(par.ls$thresh.gamma)) {
+    tmpg <- gmat(par.ls$thresh.gamma)
+    tmpg2 <- apply(tmpg,2,diff)
+    tmpg3 <- as.vector(rbind(tmpg[1,],tmpg2))
+    names(tmpg3)<-names(par.ls$thresh.gamma)
+    par.ls$thresh.gamma <- tmpg3
+  }
   if (!identical(deparse(model$control$thresh.fun), deparse(identity))) {
     if (thresh.method == 'classic'){
       par.ls$thresh.lambda <- c(par.ls$thresh.lambda[1],log(par.ls$thresh.lambda[2:length(par.ls$thresh.lambda)]))
       if (length(par.ls$thresh.gamma)) {
+        
+        for (rep in 1:3)
         for (k in 2:(model$J-1)){  # probably analitical solution also exists
-          fn <- function(x) sum((alpha.thresh[,k]-gotm_Threshold(subs(par.ls$thresh.lambda,k,x[1]),
-                                                                 subs(par.ls$thresh.gamma,k,x[2]), model)[,k+1])^2)
-          oo<-optim(par=c(par.ls$thresh.lambda[k],par.ls$thresh.gamma[k]),fn=fn)
-          oo<-optim(par=c(oo$par[1],oo$par[2]),fn=fn) # one more time
+          fn <- function(x) sum((alpha.thresh[,k] - 
+                  gotm_Threshold(subs(par.ls$thresh.lambda,k,x[1]),
+                  subsgmat(par.ls$thresh.gamma,k,x[-1]), model)[,k+1])^2)
+          
+          oo<-optim(par=c(par.ls$thresh.lambda[k],extrgmat(ini.gamma,k)),fn=fn)
+          oo<-optim(par=c(oo$par[1],oo$par[-1]),fn=fn) # one more time
           par.ls$thresh.lambda[k]<-oo$par[1]
-          par.ls$thresh.gamma[k]<-oo$par[2]
+          par.ls$thresh.gamma<-subsgmat(par.ls$thresh.gamma,k,oo$par[-1])
+          ini.gamma <- par.ls$thresh.gamma
         }
+        
       }                      
     } else if (thresh.method == 'hopit'){
       par.ls$thresh.lambda <- log(par.ls$thresh.lambda[1:length(par.ls$thresh.lambda)])
       if (length(par.ls$thresh.gamma)) {
         for (k in 1:(model$J-1)){
-          fn <- function(x) sum((alpha.thresh[,k]-gotm_Threshold(subs(par.ls$thresh.lambda,k,x[1]),
-                                                                 subs(par.ls$thresh.gamma,k,x[2]), model)[,k+1])^2)
+          fn <- function(x) sum(abs(alpha.thresh[,k]-gotm_Threshold(subs(par.ls$thresh.lambda,k,x[1]),
+                                                                 subs(par.ls$thresh.gamma,k,x[2]), model)[,k+1]))
           oo<-optim(par=c(par.ls$thresh.lambda[k],par.ls$thresh.gamma[k]),fn=fn)
           par.ls$thresh.lambda[k]<-oo$par[1]
           par.ls$thresh.gamma[k]<-oo$par[2]
@@ -182,6 +216,8 @@ get.vglm.start<-function(model, data, start = NULL){
   model$lambda.start <- par.ls$thresh.lambda
   model$gamma.start <-par.ls$thresh.gamma
   model$start <- c(model$reg.start, model$lambda.start, model$gamma.start)
+  #gotm_Threshold(par.ls$thresh.lambda, par.ls$thresh.gamma, model)
+  model$start.LL <- -gotm_negLL(model$start, model)
   model
 }
 
@@ -262,11 +298,11 @@ gotm_fitter <- function(model, start = model$start){
   refit <- function(fit, model){
     oldfit <- fit$value
     for (k in 1L : control$max.reiter) {
-      if (k>3) try({fit <- optim(par = fit$par, fn = gotm_negLL, gr = gotm_derivLL, model = model, method = 'BFGS')}, silent = TRUE)
+      if (k>0) try({fit <- optim(par = fit$par, fn = gotm_negLL, gr = gotm_derivLL, model = model, method = 'BFGS')}, silent = TRUE)
       fit <- optim(par = fit$par, fn = gotm_negLL, gr = gotm_derivLL, model = model)
       if (abs(fit$value - oldfit)<control$tol.reiter) break
       oldfit <- fit$value
-      cat('.')
+      cat(fit$value,'\n')
     }
     cat('\n')
     list(fit = fit, converged = (k<control$max.reiter))
@@ -333,15 +369,22 @@ gotm.control<-function(fit.NR = FALSE,
                        thresh.fun = c('exp','identity','id'),
                        alpha_0 = 'auto'){
   
-  thresh.fun <- as.character(substitute(thresh.fun))[1]
+  if (class(thresh.fun)=='character') {
+    thresh.fun <- thresh.fun[1] 
+    if (tolower(thresh.fun) == 'exp') {
+      thresh.fun <- exp
+    } else if (tolower(thresh.fun) %in% c('identity', 'id')) {
+      thresh.fun <- identity
+    } else stop('Unknown threshold function.')
+  } else {
+    if (!(identical(deparse(thresh.fun), deparse(exp)) || identical(deparse(thresh.fun), deparse(identity))))
+      stop('Unknown threshold function.')
+  }
+  
   if (tolower(alpha_0) != 'auto'){
     if (!is.numeric(alpha_0)) stop('"alpha_0" must be a numeric or equal "auto".')
   } else alpha_0 <- tolower(alpha_0)
-  if (tolower(thresh.fun) == 'exp') {
-    thresh.fun <- exp
-  } else if (tolower(thresh.fun) %in% c('identity', 'id')) {
-    thresh.fun <- identity
-  } 
+ 
   list(fit.NR = fit.NR, thresh.fun = thresh.fun, 
        max.reiter = max.reiter, tol.reiter = tol.reiter, 
        grad.eps = grad.eps, alpha_0 = alpha_0)
@@ -586,9 +629,13 @@ gotm<- function(reg.formula,
 
   if (!length(start) || (doFit == 'vglm')) {
     if (doFit == 'no') stop('Starting values must be given.')
-    z <- try({get.vglm.start(model, data)}, silent = FALSE)
-    if (class(z) == "try-error") stop('Initial values failed.')
-    model$start <- z$start
+    z <- get.vglm.start(model, data)
+    z$start
+    cat('VGLM logLik:',z$vglm.LL,'\n')
+    cat('VGLM on gotm logLik:',-gotm_negLL(parameters = z$start, model=z),'\n')
+    # z <- try({get.vglm.start(model, data)}, silent = FALSE)
+    # if (class(z) == "try-error") stop('Initial values failed.')
+    model <- z
   } else model$start <- start
 
   if (doFit == 'full'){
@@ -615,23 +662,15 @@ gotm<- function(reg.formula,
       warning(call. = FALSE, 'Model is probably unidentifiable, vcov cannot be computed. Please try to use a "hopit" model.')
     }
     cat(' done\n')
+    cat('Calculating estfun...')
+    
+    model$estfun <- my.grad(fn = gotm_negLL, par = model$coef,
+                            eps = control$grad.eps, model = model, collapse = FALSE)
+    cat(' done\n')
   }
-  cat('Calculating estfun...')
-  
-  model$estfun <- my.grad(fn = gotm_negLL, par = model$coef,
-                          eps = control$grad.eps, model = model, collapse = FALSE)
-  cat(' done\n')
   class(model) <- 'gotm'
   return(model)
 }
-
-# #' Calculate health index from the fitted \code{gotm} object
-# #'
-# #' @param model fitted \code{gotm} object.
-# HealthIndex.gotm <- function(model) {
-#   H <- model$y_latent_i
-#   (H - min(H)) / (max(H) - min(H))
-# }
 
 #' Extracting coefficients of fitted \code{gotm} object
 #'
@@ -724,6 +763,7 @@ vcov.gotm<-function(object, robust.vcov, control = list(), ...){
   #if (!(robust.method %in% c("grad","working"))) stop('Unknown method.')
   control <- do.call("gotm.control", control)
   z <- object$vcov 
+  if (!length(z)) stop('Hessian was not calculated.')
   if (length(object$design$PSU)){
     if (!missing(robust.vcov) && (robust.vcov)) {
       warning(call. = FALSE, '"robust.vcov" ignored, survey design was detected.')
@@ -1092,4 +1132,23 @@ factor.mat.gotm<-function(object, by.formula = object$thresh.formula){
   fullmat<-cbind(vari,miss.col)
   fullmat<-fullmat[,order(colnames(fullmat))]
   fullmat
+}
+
+#' @export
+plot.gotm<-function(x,...){
+  tmp1<-predict.gotm(x,standardized=FALSE, type='link',unravelFreq = FALSE)
+  tmp2<-unclass(predict.gotm(x,standardized=FALSE, type='response',unravelFreq = FALSE))
+  tmp<-predict.gotm(x,standardized=FALSE, type='threshold',unravelFreq = FALSE)
+  K<-range(tmp,na.rm=TRUE,finite=TRUE)
+  oo<-order(apply(cbind(tmp[,-c(1,x$J+1)])-K[1]+1,1,sum))
+  #oo<-order(tmp2*tmp1)
+  tmp<-tmp[oo,]
+  tmp1<-tmp1[oo,]
+  tmp2<-tmp2[oo]
+  plot(NA,NA,xlim=c(0,NROW(tmp)),ylim=K,xlab='observation',ylab='latent variable')
+  lines(tmp1,type='p',cex=0.2,col=adjustcolor(tmp2,alpha.f=0.5))
+  for (k in 1:NCOL(tmp)) {
+    lines(tmp[,k],col=k,lwd=2)
+  }
+  
 }
