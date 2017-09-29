@@ -708,7 +708,7 @@ gotm<- function(reg.formula,
   if (doFit == 'full'){
     cat('Improving fit...')
     model <- gotm_fitter(model, start = model$start)
-    cat(' done\n')
+    cat(' done\nGotm logLik:', gotm_negLL(parameters = model$coef, model))
   } else {
     model$coef <- model$start
     model$LL <- gotm_negLL(parameters = model$start, model)
@@ -721,9 +721,22 @@ gotm<- function(reg.formula,
   model$Ey_i <- factor(colSums(sapply(1L : model$N, function(k) model$alpha[k,]<model$y_latent_i[k])),levels=1L:model$J)
   levels(model$Ey_i) <- levels(model$y_i)
   if (hessian) {
-    cat('Calculating hessian (can take some time)...')
-    hes <- numDeriv::hessian(gotm_negLL, model$coef, model = model) #numDeriv::
-    model$vcov <- try(solve(hes), silent = T)
+    cat('Calculating hessian (it can take some time)...')
+    # system.time(hes <- numDeriv::hessian(gotm_negLL, model$coef, model = model)) #numDeriv::)
+    # system.time(hes2 <- my.grad(fn = gotm_derivLL, par = model$coef, model=model, eps = model$control$grad.eps, collapse = TRUE))
+    # system.time(hes3 <- numDeriv::jacobian(func = gotm_derivLL, x = model$coef, model=model))
+    # system.time(hes4 <- numDeriv::jacobian(func = gotm_derivLL, x = model$coef, 
+    #                                        model=model, method='simple',
+    #                                        method.args=list(eps=model$control$grad.eps/2)))
+    # dim(hes)
+    # dim(hes2)
+    # dim(hes3)
+    # sum(abs(hes+hes4))
+    # sum(abs(hes+hes2))
+    # sum(hes+hes3)
+    # sum(abs(hes2-hes4))
+    hes <- my.grad(fn = gotm_derivLL, par = model$coef, model=model, eps = model$control$grad.eps, collapse = TRUE)
+    model$vcov <- try(solve(-hes), silent = T)
     if (class(z) == 'try-error') {
       z <- NA*hes
       warning(call. = FALSE, 'Model is probably unidentifiable, vcov cannot be computed. Please try to use a "hopit" model.')
