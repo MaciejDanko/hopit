@@ -280,6 +280,71 @@ gotm_negLL <- function(parameters, model, collapse = TRUE, include.weights = TRU
   } else -log(P) * w
 }
 
+#' INTERNAL: The gradient of the log likelihood function
+#' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
+#' @keywords internal
+gotm_derivLL <- function(parameters, model, collapse = TRUE, negative = FALSE){
+  p <- gotm_ExtractParameters(model, parameters)
+  a <- gotm_Threshold(p$thresh.lambda, p$thresh.gamma, model)
+  b <- gotm_Latent(p$reg.params, model)
+  y <- as.numeric(unclass(model$y_i))
+  A2 <- pmax(col_path(a, y) - b, -20L)
+  A1 <- pmin(col_path(a, y + 1) - b, 20L)
+  
+  lLam <-length(p$thresh.lambda)
+  
+  P1 <- model$link.func(A1)
+  P2 <- model$link.func(A2)
+  D1 <- model$distr.func(A1)
+  D2 <- model$distr.func(A2)
+  D <- D1 - D2
+  P <- P1 - P2
+  
+  dlnLL_dX <- 1/P
+  
+  dY <- Vector2DummyMat(y)
+  YY2 <- (1-cumsum_row(dY))
+  YY1 <- YY2 + dY
+  YY2 <- YY2 + dY * (y == NCOL(YY1))
+  YY1 <- YY1[, -NCOL(YY1)]
+  YY2 <- YY2[, -NCOL(YY1)]
+  YY1bound <- matrix(1 * (y!=max(y)), model$N, lLam)
+  YY2bound <- matrix(1 * (y!=1), model$N, lLam)
+  
+  dlnLL_dbeta <- - matrix(D * dlnLL_dX, length(D), length(p$reg.params)) * model$reg.mm
+  
+  if (identical(deparse(model$control$thresh.fun), deparse(identity))){
+    da <- 1
+  } else {
+    if (model$thresh.method == 'classic') dm <- rep(1,model$N) else dm <- a[,1]
+    da <- cbind(dm, t(apply(as.matrix(a[, -c(1, NCOL(a))]), 1, diff)))
+  }
+  da1 <- da * YY1 * YY1bound
+  da2 <- da * YY2 * YY2bound
+  D1_ <- matrix(D1, model$N, lLam)
+  D2_ <- matrix(D2, model$N, lLam)
+  dlnLL_Lambda <- (D1_ * da1 - D2_ * da2) * matrix(dlnLL_dX, model$N, lLam)
+  
+  if (NCOL(model$thresh.mm)){
+    dlnLL_Gamma <- t(rep_row(t(dlnLL_Lambda), NCOL(model$thresh.mm))) * model$thresh.extd
+    cC <- colSums(dlnLL_Gamma)
+  } else {
+    dlnLL_Gamma <- NULL
+    cC <- NULL
+  }
+  
+  if (collapse) {
+    res <- c(colSums(dlnLL_dbeta), colSums(dlnLL_Lambda), cC)
+    names(res)<-names(model$coef)
+  } else {
+    res <- cbind(dlnLL_dbeta, dlnLL_Lambda, dlnLL_Gamma)
+    colnames(res) <- names(model$coef)
+  }
+  
+  if (negative) res <- res * (-1)
+  res
+}
+
 #' INTERNAL: Fit \code{gotm}
 #'
 #' @param model \code{gotm} object
@@ -293,12 +358,11 @@ gotm_fitter <- function(model, start = model$start){
 
   control <- model$control
 
-  gotm_derivLL <- function(parameters = model$coef, model) grad(gotm_negLL, x = parameters, model = model) #numDeriv::
-
   refit <- function(fit, model){
     oldfit <- fit$value
     for (k in 1L : control$max.reiter) {
-      if (k>0) try({fit <- optim(par = fit$par, fn = gotm_negLL, gr = gotm_derivLL, model = model, method = 'BFGS')}, silent = TRUE)
+      if (k>0) try({fit <- optim(par = fit$par, fn = gotm_negLL, gr = gotm_derivLL, negative = TRUE,
+                                 model = model, method = 'BFGS')}, silent = TRUE)
       fit <- optim(par = fit$par, fn = gotm_negLL, gr = gotm_derivLL, model = model)
       lldiff <- abs(fit$value - oldfit)
       if (lldiff < control$tol.reiter) break
@@ -593,6 +657,8 @@ gotm<- function(reg.formula,
   model$N <- length(model$y_i)
   if (model$J<3L) stop ('Response must have 3 or more levels.')
 
+  model$thresh.extd <- matrix(rep_row(model$thresh.mm, model$J-1),model$N, NCOL(model$thresh.mm)*(model$J-1))
+  
   if (sum(sapply(survey, length))){
     model$design <- survey
     if (length(survey$PWeights) && (length(survey$FWeights))) {
@@ -665,8 +731,12 @@ gotm<- function(reg.formula,
     cat(' done\n')
     cat('Calculating estfun...')
     
-    model$estfun <- my.grad(fn = gotm_negLL, par = model$coef,
-                            eps = control$grad.eps, model = model, collapse = FALSE)
+    # model$estfun <- -my.grad(fn = gotm_negLL, par = model$coef,
+    #                         eps = control$grad.eps, model = model, collapse = FALSE)
+    
+    model$estfun <- gotm_derivLL(model$coef, model, collapse = FALSE)
+    
+    #sum(model$estfun2-model$estfun)
     cat(' done\n')
   }
   class(model) <- 'gotm'

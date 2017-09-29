@@ -6,11 +6,11 @@
 # . remove offset - DONE
 # remove unimporant fields in output model oject
 # . use match.arg - DONE
-# analitical gradient
+# . analitical gradient - DONE
 # repair unravel
 # . omit calcualtion of hessian and gradient, coorect spelling - DONE
 # more complicated survey designs
 # add subset
-# "vglm" fit by default with warning message, or "full" by defaul with message that "vglm" is faster, but may be not precise. add "fasterfull" for control maxiter=1, check in reiter to no to repeat 
+# "vglm" fit by default with warning message, or "full" by defaul with message that "vglm" is faster, but may be not precise. add "fasterfull" for control maxiter=1, check in reiter to no to repeat
 # predict "class" as "alias" to response
 
