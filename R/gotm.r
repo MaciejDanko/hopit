@@ -708,7 +708,7 @@ gotm<- function(reg.formula,
   if (doFit == 'full'){
     cat('Improving fit...')
     model <- gotm_fitter(model, start = model$start)
-    cat(' done\nGotm logLik:', gotm_negLL(parameters = model$coef, model))
+    cat(' done\nGotm logLik:', gotm_negLL(parameters = model$coef, model),'\n')
   } else {
     model$coef <- model$start
     model$LL <- gotm_negLL(parameters = model$start, model)
