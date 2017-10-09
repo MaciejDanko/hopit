@@ -9,7 +9,7 @@ gethealthlevels(model, formula = model$thresh.formula,
   sep = "_", mar = c(7, 2, 1.5, 0.5), oma = c(0, 3, 0, 0))
 }
 \arguments{
-\item{model}{fitted gotm model.}
+\item{model}{a fitted \code{gotm} model.}
 
 \item{formula}{a formula containing the variables. It is by default set to threshold formula.}
 
@@ -21,9 +21,9 @@ gethealthlevels(model, formula = model$thresh.formula,
 
 \item{sep}{separator for levels names.}
 
-\item{mar}{see \code{\link{par}}}
+\item{mar}{see \code{\link{par}}.}
 
-\item{oma}{see \code{\link{par}}}
+\item{oma}{see \code{\link{par}}.}
 }
 \description{
 Calcualte adjusted health levels according to th Jurges' method.

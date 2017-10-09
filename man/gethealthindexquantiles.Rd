@@ -9,7 +9,7 @@ gethealthindexquantiles(model, formula = model$thresh.formula,
   mar = c(4, 8, 1.5, 0.5), oma = c(0, 0, 0, 0))
 }
 \arguments{
-\item{model}{fitted gotm model.}
+\item{model}{a fitted \code{gotm} model.}
 
 \item{formula}{a formula containing the variables. It is by default set to threshold formula.}
 
@@ -19,9 +19,9 @@ gethealthindexquantiles(model, formula = model$thresh.formula,
 
 \item{sep}{separator for levls names.}
 
-\item{mar}{see \code{\link{par}}}
+\item{mar}{see \code{\link{par}}.}
 
-\item{oma}{see \code{\link{par}}}
+\item{oma}{see \code{\link{par}}.}
 }
 \description{
 Get health index quantiles with respect to specified vaiables.

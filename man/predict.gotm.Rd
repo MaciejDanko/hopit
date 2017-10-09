@@ -5,8 +5,7 @@
 \title{Model predictions}
 \usage{
 predict.gotm(object, type = c("link", "response", "threshold",
-  "threshold_link"), standardized = FALSE, strata = NULL,
-  unravelFreq = TRUE, ...)
+  "threshold_link"), unravelFreq = TRUE, ...)
 }
 \arguments{
 \item{object}{\code{gotm} object.}
@@ -17,10 +16,6 @@ is on the scale of categorical response variable. The \code{"threshold"}
 gives the thresholds for each observation, whereas the \code{"threshold_link"} gives meaningful thresholds
 together with latent variable for each observation (a data.frame with fields \code{$left.boundary},
 \code{$latent.variable}, and \code{$right.boundary}).}
-
-\item{standardized}{logical indicating if to use a standardization to calculate disability weight. See [1].}
-
-\item{strata}{stratification variable used during standardization.}
 
 \item{unravelFreq}{logical indicating if to represent results on individual scale if FWeights were used.}
 

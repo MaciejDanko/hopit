@@ -5,12 +5,10 @@
 \alias{coefficients.gotm}
 \title{Extracting coefficients of fitted \code{gotm} object}
 \usage{
-coef.gotm(object, standardized = FALSE, aslist = FALSE, ...)
+coef.gotm(object, aslist = FALSE, ...)
 }
 \arguments{
 \item{object}{\code{gotm} object.}
-
-\item{standardized}{logical indicating if to standardize the coefficients to get disability weights.}
 
 \item{aslist}{logical indicating if model coefficients should be returned as a list of three vectors
 related to latent variable, threshold lambdas, and threshold gammas.}

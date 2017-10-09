@@ -759,6 +759,7 @@ gotm<- function(reg.formula,
 #' Extracting coefficients of fitted \code{gotm} object
 #'
 #' @param object \code{gotm} object.
+#' @param standardized logical indicating if to standardize the coefficients to get disability weights.
 #' @param aslist logical indicating if model coefficients should be returned as a list of three vectors
 #' related to latent variable, threshold lambdas, and threshold gammas.
 #' @param ...	further arguments passed to or from other methods.
@@ -766,9 +767,11 @@ gotm<- function(reg.formula,
 #' @keywords internal
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 #' @aliases coefficients.gotm
-coef.gotm <- function(object, aslist = FALSE, ...){
+coef.gotm <- function(object, standardized = FALSE, aslist = FALSE, ...){
+  #stand only for probit
   params <- object$coef
-  if (aslist) gotm_ExtractParameters(object, params) else params
+  if (standardized) params <- -params/(max(object$y_latent_i) - min(object$y_latent_i))
+  if (aslist) gotm_ExtractParameters(object, params) else  params
 }
 
 #' Printing basic information about fitted gotm
@@ -1103,12 +1106,14 @@ print.lrt.gotm <- function(x, ...){
 #' gives the thresholds for each observation, whereas the \code{"threshold_link"} gives meaningful thresholds
 #' together with latent variable for each observation (a data.frame with fields \code{$left.boundary},
 #' \code{$latent.variable}, and \code{$right.boundary}).
+#' @param standardized logical indicating if to use a standardization to calculate disability weight. See [1].
+#' @param strata stratification variable used during standardization.
 #' @param unravelFreq logical indicating if to represent results on individual scale if FWeights were used.
 #' @param ...	further arguments passed to or from other methods.
 #' @export
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 predict.gotm <- function(object, type = c('link', 'response', 'threshold', 'threshold_link'),
-                         unravelFreq = TRUE, ...){
+                         standardized = FALSE, strata = NULL, unravelFreq = TRUE, ...){
   
   if (length(object$design$FWeights) && unravelFreq) conv<-function(x) unravel(x,freq=object$design$FWeights) else conv<-identity
   type <- match.arg(type)
@@ -1120,7 +1125,41 @@ predict.gotm <- function(object, type = c('link', 'response', 'threshold', 'thre
               threshold_link = data.frame(left.boundary=conv(col_path(object$alpha, unclass(object$Ey_i)+1)),
                                           latent.variable=conv(object$y_latent_i),
                                           right.boundary=conv(col_path(object$alpha, unclass(object$Ey_i)+2))))
-  return(H)
+
+  standardized <- standardized[1L]
+  if (standardized && (object$link != 'probit')) {
+    standardized <- FALSE
+    warning(call. = FALSE, 'Standardization omitted. It makes sense only for probit models.')
+  } else if (standardized && (type == 'response')) {
+    standardized <- FALSE
+    warning(call. = FALSE, 'Standardization omitted. It makes sense only for latent variable scale.')
+  }
+
+  if (!standardized) {
+    if (length(strata) != 0) warning(call. = FALSE, 'The "strata" ignored. It makes only sense for "standardized" == TRUE.')
+    return(H)
+  } else {
+    L <- conv(object$y_latent_i)
+    HealthIndex <- function(H, L) (H - min(L)) / (max(L) - min(L))
+    if (!length(strata)) {
+      if (NCOL(H)>1) cH <- apply(H,2,function(k) HealthIndex(k,L)) else cH <- HealthIndex(H,L)
+    } else {
+      cH <- H*NA
+      strata <- as.character(conv(strata))
+      U <- unique(strata)
+      for(k in seq_along(U)){
+        ind <- strata == U[k]
+        if (NCOL(H)>1) {
+          cH[ind,] <- apply(H[ind,],2,function(k) HealthIndex(k,L[ind]))
+        } else {
+          cH[ind] <- HealthIndex(H[ind],L[ind])
+        }
+      }
+    }
+    cH[cH < 0] <- 0
+    cH[cH > 1] <- 1
+    cH
+  }
 }
 
 #' #' Simulation model output
@@ -1181,9 +1220,9 @@ factor.mat.gotm<-function(object, by.formula = object$thresh.formula){
 
 #' @export
 plot.gotm<-function(x,...){
-  tmp1<-predict.gotm(x, type='link',unravelFreq = FALSE)
-  tmp2<-unclass(predict.gotm(x, type='response',unravelFreq = FALSE))
-  tmp<-predict.gotm(x, type='threshold',unravelFreq = FALSE)
+  tmp1<-predict.gotm(x,standardized=FALSE, type='link',unravelFreq = FALSE)
+  tmp2<-unclass(predict.gotm(x,standardized=FALSE, type='response',unravelFreq = FALSE))
+  tmp<-predict.gotm(x,standardized=FALSE, type='threshold',unravelFreq = FALSE)
   K<-range(tmp,na.rm=TRUE,finite=TRUE)
   oo<-order(apply(cbind(tmp[,-c(1,x$J+1)])-K[1]+1,1,sum))
   #oo<-order(tmp2*tmp1)

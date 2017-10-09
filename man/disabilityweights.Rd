@@ -8,13 +8,13 @@ disabilityweights(model, plotf = TRUE, mar = c(15, 4, 1, 1), oma = c(0, 0,
   0, 0))
 }
 \arguments{
-\item{plotf}{logical indicating if to plot results}
+\item{model}{a fitted \code{gotm} model.}
 
-\item{mar}{see \code{\link{par}}}
+\item{plotf}{logical indicating if to plot results.}
 
-\item{oma}{see \code{\link{par}}}
+\item{mar}{see \code{\link{par}}.}
 
-\item{a}{fitted gotm model}
+\item{oma}{see \code{\link{par}}.}
 }
 \description{
 Calculate disability weights.

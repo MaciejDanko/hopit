@@ -7,11 +7,11 @@
 healthindex(model, subset = NULL, plotf = FALSE)
 }
 \arguments{
-\item{model}{fitted gotm model}
+\item{model}{a fitted \code{gotm} model.}
 
-\item{subset}{an optional vector specifying a subset of observations}
+\item{subset}{an optional vector specifying a subset of observations.}
 
-\item{plotf}{logical indicating if to plot summary figure}
+\item{plotf}{logical indicating if to plot summary figure.}
 }
 \description{
 Calcualte halth index from the latent variable. It takes values from 0 (the worse possible health) to
