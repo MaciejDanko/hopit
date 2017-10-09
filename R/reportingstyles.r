@@ -1,10 +1,17 @@
+#' Calculate health index 
+#' @description 
+#' Calcualte halth index from the latent variable. It takes values from 0 (the worse possible health) to
+#' 1 (the best possible health). 
+#' @param model fitted gotm model
+#' @param subset an optional vector specifying a subset of observations
+#' @param plotf logical indicating if to plot summary figure
 #' @export
 healthindex<-function(model, subset=NULL, plotf = FALSE) {
   #0 is the worse possible health, 1 is the best possible health
   if (length(subset)==0) subset=seq_along(model$y_i)
-  hi <- (1 - (model$y_latent_i/sum(coef(model)[1:model$parcount[1]])))[subset]
+  hi <- (1 - (model$y_latent_i/sum((coef(model)*(coef(model)>0))[1:model$parcount[1]])))[subset]
   if (plotf) plot(model$y_i[subset], hi,las=3, ylab='Health index')
-  hi
+  if (plotf) invisible(hi) else return(hi)
 }
 
 #' @keywords internal
@@ -42,27 +49,50 @@ formula2classes<-function(formula, data, sep='_'){
   tmp
 }
 
+#' Get health index quantiles with respect to specified vaiables
+#' @description 
+#' Get health index quantiles with respect to specified vaiables. 
+#' @param model fitted gotm model.
+#' @param formula a formula containing the variables. It is by default set to threshold formula.
+#' @param data used to fit the model.
+#' @param plotf logical indicating if to plot the results.
+#' @param sep separator for levls names.
+#' @param mar see \code{\link(par)}
+#' @param oma see \code{\link(par)}
 #' @export
-gethealthindexquantiles<-function(model, x=model$thresh.formula, data, plotf = TRUE, sep='_',
+gethealthindexquantiles<-function(model, formula=model$thresh.formula, data=environment(model$thresh.formula), 
+                                  plotf = TRUE, sep='_',
                                   mar=c(4,8,1.5,0.5),oma=c(0,0,0,0)){
-  if (class(x)=='formula') tmp <- formula2classes(x, data, sep=sep) else stop('Not implemented.')
+  if (class(formula)=='formula') tmp <- formula2classes(formula, data, sep=sep) else stop('Not implemented.')
   D <- t(sapply(levels(tmp),function(k) quantile(healthindex(model, tmp==k))))
   D0 <- quantile(healthindex(model))
   if (plotf){
+    opar <- par(c('mar','oma'))
     par(mar=mar,oma=oma)
     rowplot(D[NROW(D):1,-c(1,model$J)], pch=c(21,19,21), col=1)
     abline(v=D0[-c(1,model$J)])
     mtext('Health index',1,cex=1.5,line = 2.5)
+    suppressWarnings(par(opar))
   }
-  list(q.all=D0, q=D)
+  res <- list(q.all=D0, q=D)
+  if (plotf) invisible(res) else return(res)
 }
 
-#' @export
-cutpoints<-function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(0,0,0,0), revf=NULL){
+#' Calcualte threshold cut-points using Jurges' method
+#' @description 
+#' Calcualte threshold cut-points using Jurges' method.
+#' @param model fitted gotm model.
+#' @param subset an optional vector specifying a subset of observations.
+#' @param plotf logical indicating if to plot the results.
+#' @param revf logical indicating if self-reported health classes are ordered in increasing order.
+#' @param mar see \code{\link(par)}
+#' @param oma see \code{\link(par)}
+#' @keywords internal
+basiccutpoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(0,0,0,0), revf=NULL){
   
-  if (length(subset)==0) subset=seq_along(model$y_i)
-  Y=model$y_i[subset]
-  if (length(revf)==0) { 
+  if (length(subset) == 0) subset=seq_along(model$y_i)
+  Y <- model$y_i[subset]
+  if (length(revf) == 0) { 
     message(paste('Are the levels',toString(levels(Y)),'sorted in incresing order?'))
     message('if not please set revf to TRUE.')
     stop('"revf" must be given',call.=FALSE)
@@ -77,8 +107,9 @@ cutpoints<-function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(0,0,0
   Nm <- paste(lv[-length(lv)],lv[-1],sep=' | ')
   Nm <- sapply(Nm, function(k) bquote(bold(.(k))))
   if (plotf) {
+    opar <- par(c('mar','oma'))
     par(mar=mar, oma=oma)
-    z<-hist(h.index,200,xlab='',ylab='' ,
+    z<-hist(h.index, 200,xlab='',ylab='' ,
             main='', yaxs='i', col=grey(0.8, alpha = 0.5),border=grey(0.4, alpha = 0.5))
     for (j in seq_along(Nm)) text(x=R1[j],y=(1.1*max(z$counts))/2,labels=Nm[[j]],
                                   srt=90,pos=2,offset=0.67,col=2)
@@ -86,6 +117,7 @@ cutpoints<-function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(0,0,0
     abline(v=R1,lwd=2,col=2)
     mtext('Health index',1,cex=1.5,line = 2.5)
     mtext('Counts',2,cex=1.5, line=2.5)
+    suppressWarnings(par(opar))
   }
   if (length(h.index)){
     CIN <- c(0,R1,1)
@@ -100,89 +132,155 @@ cutpoints<-function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(0,0,0
     }
     adjused.health.levels<- cut(h.index,CIN,labels= dorev(levels(Y)))
   } else adjused.health.levels <- NA
-  list(cutpoints=R1, adjused.health.levels=adjused.health.levels)
+  res <- list(cutpoints=R1, adjused.health.levels=adjused.health.levels)
+  if (plotf) invisible(res) else return(res)
 }
 
+#' Calcualte threshold cut-points using Jurges' method
+#' @description 
+#' Calcualte threshold cut-points using Jurges' method.
+#' @param model fitted gotm model.
+#' @param formula a formula containing the variables. 
+#' It is by default set to threshold formula. 
+#' If set to \code{NULL} then threshold cut-point are calcualted for the whole population.
+#' @param data data used to fit the model.
+#' @param plotf logical indicating if to plot the results.
+#' @param sep separator for levels names.
+#' @param revf logical indicating if self-reported health classes are ordered in increasing order.
+#' @param mar see \code{\link(par)}
+#' @param oma see \code{\link(par)}
 #' @export
-getcutpoints<-function(model, x=model$thresh.formula, data, plotf = TRUE, sep='_',
-                       revf=NULL, mar=c(4,8,1.5,0.5),oma=c(0,0,0,0)){
-  Y=model$y_i
-  if (length(revf)==0) { 
-    message(paste('Are the levels',toString(levels(Y)),'sorted in incresing order?'))
-    message('if not please set revf to TRUE.')
-    stop('"revf" must be given',call.=FALSE)
+getcutpoints<-function(model, formula=model$thresh.formula, 
+                       data=environment(model$thresh.formula), 
+                       plotf = TRUE, sep='_',
+                       revf=NULL, mar, oma){
+  if (!length(formula)) {
+    if (missing(oma)) oma=c(0,0,0,0)
+    if (missing(mar)) mar=c(4,4,1,1)
+    res <- basiccutpoints(model, subset=NULL, plotf = plotf, mar = mar, oma = oma, revf = revf)
+  } else {
+    if (missing(oma)) oma=c(0,0,0,0)
+    if (missing(mar)) mar=c(4,8,1.5,0.5)
+    Y <- model$y_i
+    if (length(revf) == 0) { 
+      message(paste('Are the levels',toString(levels(Y)),'sorted in incresing order?'))
+      message('if not please set revf to TRUE.')
+      stop('"revf" must be given',call.=FALSE)
+    }
+    if (revf) dorev <- rev else dorev <- identity
+    if (class(formula)=='formula') tmp <- formula2classes(formula, data, sep=sep) else stop('Not implemented.')
+    D <- t(sapply(levels(tmp),function(k) basiccutpoints(model=model, tmp==k, plotf = FALSE, revf = revf)$cutpoints))
+    D0 <- basiccutpoints(model, plotf = FALSE, revf = revf)$cutpoints
+    lv <- dorev(as.character(levels(model$y_i)))
+    Nm <- paste(lv[-length(lv)],lv[-1],sep=' | ')
+    colnames(D) <- Nm
+    Nm <- sapply(Nm, function(k) bquote(bold(.(k))))
+    if (plotf){
+      opar <- par(c('mar','oma'))
+      par(mar=mar, oma=oma)
+      rowplot(D[NROW(D):1,], pch=19, col=1)
+      abline(v=D0, col=2,lwd=2)
+      mtext('Health index cut points',1,cex=1.5,line=2.5)
+      for (j in seq_along(Nm)) text(x=D0[j],y=NROW(D)/4+NROW(D)/2,labels=Nm[[j]],
+                                    srt=90,pos=2,offset=0.9,col=2)
+      par(new = TRUE)
+      rowplot(D[NROW(D):1,], pch=19, col=1:model$J)
+      par(new = TRUE)
+      rowplot(D[NROW(D):1,], pch=21, col=1)
+      suppressWarnings(par(opar))
+    }
+    res <- list(q.all=D0, q=D)
   }
-  if (revf) dorev <- rev else dorev <- identity
-  if (class(x)=='formula') tmp <- formula2classes(x, data, sep=sep) else stop('Not implemented.')
-  D <- t(sapply(levels(tmp),function(k) cutpoints(model=model, tmp==k, plotf = FALSE, revf = revf)$cutpoints))
-  D0 <- cutpoints(model, plotf = FALSE, revf = revf)$cutpoints
-  lv <- dorev(as.character(levels(model$y_i)))
-  Nm <- paste(lv[-length(lv)],lv[-1],sep=' | ')
-  colnames(D) <- Nm
-  Nm <- sapply(Nm, function(k) bquote(bold(.(k))))
-  
-  if (plotf){
-    par(mar=mar, oma=oma)
-    rowplot(D[NROW(D):1,], pch=19, col=1)
-    abline(v=D0, col=2,lwd=2)
-    mtext('Health index cut points',1,cex=1.5,line=2.5)
-    for (j in seq_along(Nm)) text(x=D0[j],y=NROW(D)/4+NROW(D)/2,labels=Nm[[j]],
-                                  srt=90,pos=2,offset=0.9,col=2)
-    par(new = TRUE)
-    rowplot(D[NROW(D):1,], pch=19, col=1:model$J)
-    par(new = TRUE)
-    rowplot(D[NROW(D):1,], pch=21, col=1)
-  }
-  list(q.all=D0, q=D)
+  if (plotf) invisible(res) else return(res)
 }
 
+#' Calcualte adjusted health levels.
+#' @description 
+#' Calcualte adjusted health levels according to th Jurges' method.
+#' @param model fitted gotm model.
+#' @param formula a formula containing the variables. It is by default set to threshold formula.
+#' @param data data used to fit the model.
+#' @param plotf logical indicating if to plot the results.
+#' @param sep separator for levels names.
+#' @param revf logical indicating if self-reported health classes are ordered in increasing order.
+#' @param mar see \code{\link(par)}
+#' @param oma see \code{\link(par)}
 #' @export
-gethealthlevels<-function(model, x=model$thresh.formula, 
-                          data=environment(model$thresh.formula), 
-                          plotf = TRUE, sep='_',mar=c(7,2,1.5,0.5),oma=c(0,3,0,0),
-                          revf = NULL){
-  if (class(x)=='formula') inte <- formula2classes(x, data, sep=sep) else stop('Not implemented.')
-  cpall<-cutpoints(model, plotf = FALSE, revf = revf)
+gethealthlevels<-function(model, formula=model$thresh.formula, 
+                          data=environment(model$thresh.formula), revf = NULL,
+                          plotf = TRUE, sep='_',mar=c(7,2,1.5,0.5),oma=c(0,3,0,0)){
+  if (class(formula)=='formula') inte <- formula2classes(formula, data, sep=sep) else stop('Not implemented.')
+  cpall<-basiccutpoints(model, plotf = FALSE, revf = revf)
   TAB1 <- round(table(original=model$y_i, adjusted=cpall$adjused.health.levels)*100/length(model$y_i),2)
   tmp <- untable(t(table(factor(dta.ch$r.health,levels=levels(cpall$adjused.health.levels)), inte)))
   tmp <-tmp/rowSums(tmp)
   tmp2 <- untable(t(table(cpall$adjused.health.levels, inte)))
   tmp2 <- tmp2/rowSums(tmp2)
   if (plotf) {
+    opar <- par(c('mar','oma'))
     par(mfrow=c(1,2))
     par(mar=mar,oma=oma)
     barplot(t(tmp),las=3,main='Original')
-    barplot(t(tmp2),las=3,main='Adjusted', legend.text=TRUE)
+    barplot(t(tmp2),las=3,main='Adjusted', legend.text=TRUE, 
+            args.legend = listy(x='center', box.col=NA, 
+                                bg=adjustcolor('white',alpha.f=0.4)))
     par(mfrow=c(1,1))
     par(mar=mar,oma=rep(0,4))
     mtext('Fraction [%]',2,cex=1.5)
+    suppressWarnings(par(opar))
   }
-  list(original= tmp, adjusted= tmp2, tab= TAB1)
+  res <- list(original= tmp, adjusted= tmp2, tab= TAB1)
+  class(res) <- 'healthlevels'
+  if (plotf) invisible(res) else return(res)
 }  
 
 #' @keywords internal
-getsq <- function(x,xf=1) c(ceiling(x/ceiling(xf*x/sqrt(x))),ceiling(xf*x/sqrt(x)))
+getsq <- function(x, xf=1) c(ceiling(x/ceiling(xf*x/sqrt(x))),ceiling(xf*x/sqrt(x)))
 
+#' Plot a comparison of original and adjusted health levels
+#' @param object an object generated by \code{\link{gethealthlevels}}
+#' @param pch,xlab,ylab,mar,oma common graphical parameters.
+#' @param ratio an aspect ratio for panels composition.
 #' @export
-comparehealthlevels<-function(model, data, pch=19,xlab='Original',ylab='Adjusted',
-                              revf=NULL,
-                              mar=c(2.5, 1, 1.5, 1), oma=c(4, 4, .1, .1)){
-  sq <- getsq(model$J)
-  d <- gethealthlevels(model, data=data, plotf = FALSE, sep='\n', revf = revf)
+comparehealthlevels<-function(object, pch=19,xlab='Original frequency [%]',ylab='Adjusted frequency [%]',
+                            mar=c(2.5, 1, 1.5, 1), oma=c(4, 4, .1, .1), 
+                            ratio = 1){
+  if (class(object) != 'healthlevels') stop('The object must be of class: "healthlevels".')
+  sq <- getsq(model$J, ratio)
+  opar <- par(c('mar','oma'))
   par(mfrow=sq,oma=oma,mar=mar)
   for(k in seq_len(model$J)){
-    plot(d$original[,k]*100,d$adjusted[,k]*100,pch=pch,xlab='',ylab='',main=colnames(d$adjusted)[k],
+    plot(object$original[,k]*100,object$adjusted[,k]*100,pch=pch,xlab='',ylab='',main=colnames(object$adjusted)[k],
          xaxs='r',yaxs='r')
     lines(-20:120,-20:120)
-    posi <- approx(x=range(d$original[,k]),y=c(4,2),xout=d$original[,k],method="constant")$y
-    text(d$original[,k]*100,d$adjusted[,k]*100,labels=names(d$adjusted[,k]),cex=0.6,pos=posi,offset=0.5)
+    posi <- approx(x=range(object$original[,k]),y=c(4,2),xout=object$original[,k],method="constant")$y
+    text(object$original[,k]*100,object$adjusted[,k]*100,labels=names(object$adjusted[,k]),cex=0.6,pos=posi,offset=0.5)
     legend('topleft','underrated     ',bg=gray(0.8,alpha = 0.5),inset=0.05,xjust=0.5,box.col=NA,y.intersp=0.5)
     legend('bottomright','overrated     ',bg=gray(0.8,alpha = 0.5),inset=0.05,xjust=0.5,box.col=NA,y.intersp=0.5)
   }
   par(mfrow=c(1,1))
   par(oma=c(0,0,0,0),mar=mar)
   mtext(xlab,1,cex=1.5)
-  mtext(ylab,2,cex=1.5)
-  invisible(d)
+  mtext(ylab,2,cex=1.5, line=-0.5)
+  suppressWarnings(par(opar))
+  invisible(object)
 }
 
+#' Calculate disability weights
+#' @description 
+#' Calculate disability weights.
+#' @export
+disabilityweights<-function(model, plotf = TRUE, mar=c(15,4,1,1),oma=c(0,0,0,0)){
+  coeff <- sort(coef(model)[seq_len(model$parcount[1])], decreasing = TRUE)
+  res <- as.matrix(coeff/sum(coeff))
+  if (plotf){
+    opar <- par(c('mar','oma'))
+    par(mar=mar,oma=oma)
+    barplot(t(z),las=3)
+    mtext('Disability weight',2,cex=1.5,line=2.5)
+    suppressWarnings(par(opar))
+  }
+  if (plotf) invisible(res) else return(res)
+}
+
+#Here is the place for OAXACA-Blinder decomposition of self reported helth beween countries, or genders
