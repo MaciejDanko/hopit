@@ -264,7 +264,7 @@ gotm_ExtractParameters <- function(model, parameters){
 #' INTERNAL: The log likelihood function
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 #' @keywords internal
-gotm_negLL <- function(parameters, model, collapse = TRUE, include.weights = TRUE){
+gotm_negLL <- function(parameters, model, collapse = TRUE, include.weights = TRUE, negative = TRUE){
   p <- gotm_ExtractParameters(model, parameters)
   a <- gotm_Threshold(thresh.lambda = p$thresh.lambda, thresh.gamma = p$thresh.gamma,
                       model = model)
@@ -275,9 +275,10 @@ gotm_negLL <- function(parameters, model, collapse = TRUE, include.weights = TRU
   P <- model$link.func(A1)-model$link.func(A2)
   cond <- all(P > 0L)
   if (include.weights) w <- model$weights else w <- 1L
+  if (negative) d <- -1 else d <- 1
   if(collapse) {
-    if (cond) -sum(w * log(P)) else Inf
-  } else -log(P) * w
+    if (cond) d * sum(w * log(P)) else Inf
+  } else d * log(P) * w
 }
 
 #' INTERNAL: The gradient of the log likelihood function
@@ -385,7 +386,9 @@ gotm_fitter <- function(model, start = model$start){
   }, silent = FALSE)
   if (class(z) == "try-error") stop('Impossible to find initial values.')
   if (control$fit.NR){
-    nrFit <- maxNR(fn = function(p, model) -gotm_negLL(p, model), start = fit$par, model = model) #maxLik::
+    #nrFit <- maxNR(fn = function(p, model) -gotm_negLL(p, model), start = fit$par, model = model) #maxLik::
+    nrFit <- maxNR(fn = gotm_negLL, grad = gotm_derivLL, negative = FALSE, 
+                   start = fit$par, model = model) #maxLik::
     nrFit$par <- nrFit$estimate
     nrFit$value <- -nrFit$maximum
     nrFit <- refit(nrFit, model)
@@ -857,7 +860,8 @@ vcov.gotm<-function(object, robust.vcov, control = list(), ...){
                         sampsize = matrix(length(unique(object$design$PSU)), object$N, 1L)))
   } else {
     if (missing(robust.vcov)) robust.vcov <- FALSE
-    if (robust.vcov) z <- (z %*% t(object$estfun) %*% (object$estfun/object$design$FWeights) %*% (z)) 
+    if (length(object$design$FWeights)) divw <- object$design$FWeights else divw <- 1
+    if (robust.vcov) z <- (z %*% t(object$estfun) %*% (object$estfun/divw) %*% (z)) 
   }
   attr(z, 'survey.design') <- (length(object$design) > 0L)
   attr(z, 'robust.vcov') <- robust.vcov
@@ -873,7 +877,7 @@ vcov.gotm<-function(object, robust.vcov, control = list(), ...){
 #' @export
 print.vcov.gotm <- function(x, digits = 3L, ...){
   cat('Variance-covariance matrix:\n')
-  print(round(x, digits))
+  print.default(x)
   if (attr(x, 'survey.design')) cat('\nVariance-covariance matrix adjusted for survey design.\n')
   if (!is.na(attr(x, 'robust.vcov')) && attr(x, 'robust.vcov')) cat('\nVariance-covariance matrix based on sandwich estimmator.\n')
   invisible(NULL)
