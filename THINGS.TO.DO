@@ -11,6 +11,5 @@
 # . omit calcualtion of hessian and gradient, coorect spelling - DONE
 # more complicated survey designs
 # add subset
-# "vglm" fit by default with warning message, or "full" by defaul with message that "vglm" is faster, but may be not precise. add "fasterfull" for control maxiter=1, check in reiter to no to repeat
-# predict "class" as "alias" to response
+# different kinds of plot , by enter, or to file(s), or in 2x2 format
 

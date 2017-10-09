@@ -428,7 +428,7 @@ gotm_fitter <- function(model, start = model$start){
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 #' @export
 gotm.control<-function(fit.NR = FALSE,
-                       max.reiter = 10L, #increase if faster optimizaton is developed
+                       max.reiter = 25L, #increase if faster optimizaton is developed
                        tol.reiter = 5e-5,
                        grad.eps = 1e-7,
                        thresh.fun = c('exp','identity','id'),
@@ -611,10 +611,10 @@ gotm<- function(reg.formula,
   model$control <- control
   model$link <- link
   
-  if (tolower(link) == 'probit') {
+  if (link == 'probit') {
     model$link.func <- pnorm
     model$distr.func <- dnorm
-  } else if (tolower(link) == 'logit'){
+  } else if (link == 'logit'){
     model$link.func <- function(x) exp(x)/(1L + exp(x))
     model$distr.func <- function (x) exp(-x)/((1L + exp(-x))^2L)
   } 
@@ -721,7 +721,7 @@ gotm<- function(reg.formula,
   model$Ey_i <- factor(colSums(sapply(1L : model$N, function(k) model$alpha[k,]<model$y_latent_i[k])),levels=1L:model$J)
   levels(model$Ey_i) <- levels(model$y_i)
   if (hessian) {
-    cat('Calculating hessian (it can take some time)...')
+    cat('Calculating hessian...')
     # system.time(hes <- numDeriv::hessian(gotm_negLL, model$coef, model = model)) #numDeriv::)
     # system.time(hes2 <- my.grad(fn = gotm_derivLL, par = model$coef, model=model, eps = model$control$grad.eps, collapse = TRUE))
     # system.time(hes3 <- numDeriv::jacobian(func = gotm_derivLL, x = model$coef, model=model))
