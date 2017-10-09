@@ -14,9 +14,9 @@ basiccutpoints(model, subset = NULL, plotf = TRUE, mar = c(4, 4, 1, 1),
 
 \item{plotf}{logical indicating if to plot the results.}
 
-\item{mar}{see \code{\link(par)}}
+\item{mar}{see \code{\link{par}}}
 
-\item{oma}{see \code{\link(par)}}
+\item{oma}{see \code{\link{par}}}
 
 \item{revf}{logical indicating if self-reported health classes are ordered in increasing order.}
 }

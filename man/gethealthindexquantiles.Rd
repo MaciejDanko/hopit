@@ -19,9 +19,9 @@ gethealthindexquantiles(model, formula = model$thresh.formula,
 
 \item{sep}{separator for levls names.}
 
-\item{mar}{see \code{\link(par)}}
+\item{mar}{see \code{\link{par}}}
 
-\item{oma}{see \code{\link(par)}}
+\item{oma}{see \code{\link{par}}}
 }
 \description{
 Get health index quantiles with respect to specified vaiables.

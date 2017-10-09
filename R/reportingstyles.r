@@ -1,7 +1,7 @@
-#' Calculate health index 
-#' @description 
+#' Calculate health index
+#' @description
 #' Calcualte halth index from the latent variable. It takes values from 0 (the worse possible health) to
-#' 1 (the best possible health). 
+#' 1 (the best possible health).
 #' @param model fitted gotm model
 #' @param subset an optional vector specifying a subset of observations
 #' @param plotf logical indicating if to plot summary figure
@@ -50,17 +50,17 @@ formula2classes<-function(formula, data, sep='_'){
 }
 
 #' Get health index quantiles with respect to specified vaiables
-#' @description 
-#' Get health index quantiles with respect to specified vaiables. 
+#' @description
+#' Get health index quantiles with respect to specified vaiables.
 #' @param model fitted gotm model.
 #' @param formula a formula containing the variables. It is by default set to threshold formula.
 #' @param data used to fit the model.
 #' @param plotf logical indicating if to plot the results.
 #' @param sep separator for levls names.
-#' @param mar see \code{\link(par)}
-#' @param oma see \code{\link(par)}
+#' @param mar see \code{\link{par}}
+#' @param oma see \code{\link{par}}
 #' @export
-gethealthindexquantiles<-function(model, formula=model$thresh.formula, data=environment(model$thresh.formula), 
+gethealthindexquantiles<-function(model, formula=model$thresh.formula, data=environment(model$thresh.formula),
                                   plotf = TRUE, sep='_',
                                   mar=c(4,8,1.5,0.5),oma=c(0,0,0,0)){
   if (class(formula)=='formula') tmp <- formula2classes(formula, data, sep=sep) else stop('Not implemented.')
@@ -79,20 +79,20 @@ gethealthindexquantiles<-function(model, formula=model$thresh.formula, data=envi
 }
 
 #' Calcualte threshold cut-points using Jurges' method
-#' @description 
+#' @description
 #' Calcualte threshold cut-points using Jurges' method.
 #' @param model fitted gotm model.
 #' @param subset an optional vector specifying a subset of observations.
 #' @param plotf logical indicating if to plot the results.
 #' @param revf logical indicating if self-reported health classes are ordered in increasing order.
-#' @param mar see \code{\link(par)}
-#' @param oma see \code{\link(par)}
+#' @param mar see \code{\link{par}}
+#' @param oma see \code{\link{par}}
 #' @keywords internal
 basiccutpoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(0,0,0,0), revf=NULL){
-  
+
   if (length(subset) == 0) subset=seq_along(model$y_i)
   Y <- model$y_i[subset]
-  if (length(revf) == 0) { 
+  if (length(revf) == 0) {
     message(paste('Are the levels',toString(levels(Y)),'sorted in incresing order?'))
     message('if not please set revf to TRUE.')
     stop('"revf" must be given',call.=FALSE)
@@ -137,21 +137,21 @@ basiccutpoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=
 }
 
 #' Calcualte threshold cut-points using Jurges' method
-#' @description 
+#' @description
 #' Calcualte threshold cut-points using Jurges' method.
 #' @param model fitted gotm model.
-#' @param formula a formula containing the variables. 
-#' It is by default set to threshold formula. 
+#' @param formula a formula containing the variables.
+#' It is by default set to threshold formula.
 #' If set to \code{NULL} then threshold cut-point are calcualted for the whole population.
 #' @param data data used to fit the model.
 #' @param plotf logical indicating if to plot the results.
 #' @param sep separator for levels names.
 #' @param revf logical indicating if self-reported health classes are ordered in increasing order.
-#' @param mar see \code{\link(par)}
-#' @param oma see \code{\link(par)}
+#' @param mar see \code{\link{par}}
+#' @param oma see \code{\link{par}}
 #' @export
-getcutpoints<-function(model, formula=model$thresh.formula, 
-                       data=environment(model$thresh.formula), 
+getcutpoints<-function(model, formula=model$thresh.formula,
+                       data=environment(model$thresh.formula),
                        plotf = TRUE, sep='_',
                        revf=NULL, mar, oma){
   if (!length(formula)) {
@@ -162,7 +162,7 @@ getcutpoints<-function(model, formula=model$thresh.formula,
     if (missing(oma)) oma=c(0,0,0,0)
     if (missing(mar)) mar=c(4,8,1.5,0.5)
     Y <- model$y_i
-    if (length(revf) == 0) { 
+    if (length(revf) == 0) {
       message(paste('Are the levels',toString(levels(Y)),'sorted in incresing order?'))
       message('if not please set revf to TRUE.')
       stop('"revf" must be given',call.=FALSE)
@@ -195,7 +195,7 @@ getcutpoints<-function(model, formula=model$thresh.formula,
 }
 
 #' Calcualte adjusted health levels.
-#' @description 
+#' @description
 #' Calcualte adjusted health levels according to th Jurges' method.
 #' @param model fitted gotm model.
 #' @param formula a formula containing the variables. It is by default set to threshold formula.
@@ -203,10 +203,10 @@ getcutpoints<-function(model, formula=model$thresh.formula,
 #' @param plotf logical indicating if to plot the results.
 #' @param sep separator for levels names.
 #' @param revf logical indicating if self-reported health classes are ordered in increasing order.
-#' @param mar see \code{\link(par)}
-#' @param oma see \code{\link(par)}
+#' @param mar see \code{\link{par}}
+#' @param oma see \code{\link{par}}
 #' @export
-gethealthlevels<-function(model, formula=model$thresh.formula, 
+gethealthlevels<-function(model, formula=model$thresh.formula,
                           data=environment(model$thresh.formula), revf = NULL,
                           plotf = TRUE, sep='_',mar=c(7,2,1.5,0.5),oma=c(0,3,0,0)){
   if (class(formula)=='formula') inte <- formula2classes(formula, data, sep=sep) else stop('Not implemented.')
@@ -221,8 +221,8 @@ gethealthlevels<-function(model, formula=model$thresh.formula,
     par(mfrow=c(1,2))
     par(mar=mar,oma=oma)
     barplot(t(tmp),las=3,main='Original')
-    barplot(t(tmp2),las=3,main='Adjusted', legend.text=TRUE, 
-            args.legend = listy(x='center', box.col=NA, 
+    barplot(t(tmp2),las=3,main='Adjusted', legend.text=TRUE,
+            args.legend = listy(x='center', box.col=NA,
                                 bg=adjustcolor('white',alpha.f=0.4)))
     par(mfrow=c(1,1))
     par(mar=mar,oma=rep(0,4))
@@ -232,7 +232,7 @@ gethealthlevels<-function(model, formula=model$thresh.formula,
   res <- list(original= tmp, adjusted= tmp2, tab= TAB1)
   class(res) <- 'healthlevels'
   if (plotf) invisible(res) else return(res)
-}  
+}
 
 #' @keywords internal
 getsq <- function(x, xf=1) c(ceiling(x/ceiling(xf*x/sqrt(x))),ceiling(xf*x/sqrt(x)))
@@ -243,7 +243,7 @@ getsq <- function(x, xf=1) c(ceiling(x/ceiling(xf*x/sqrt(x))),ceiling(xf*x/sqrt(
 #' @param ratio an aspect ratio for panels composition.
 #' @export
 comparehealthlevels<-function(object, pch=19,xlab='Original frequency [%]',ylab='Adjusted frequency [%]',
-                            mar=c(2.5, 1, 1.5, 1), oma=c(4, 4, .1, .1), 
+                            mar=c(2.5, 1, 1.5, 1), oma=c(4, 4, .1, .1),
                             ratio = 1){
   if (class(object) != 'healthlevels') stop('The object must be of class: "healthlevels".')
   sq <- getsq(model$J, ratio)
@@ -267,8 +267,12 @@ comparehealthlevels<-function(object, pch=19,xlab='Original frequency [%]',ylab=
 }
 
 #' Calculate disability weights
-#' @description 
+#' @description
 #' Calculate disability weights.
+#' @param a fitted gotm model
+#' @param plotf logical indicating if to plot results
+#' @param mar see \code{\link{par}}
+#' @param oma see \code{\link{par}}
 #' @export
 disabilityweights<-function(model, plotf = TRUE, mar=c(15,4,1,1),oma=c(0,0,0,0)){
   coeff <- sort(coef(model)[seq_len(model$parcount[1])], decreasing = TRUE)

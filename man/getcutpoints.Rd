@@ -11,8 +11,8 @@ getcutpoints(model, formula = model$thresh.formula,
 \arguments{
 \item{model}{fitted gotm model.}
 
-\item{formula}{a formula containing the variables. 
-It is by default set to threshold formula. 
+\item{formula}{a formula containing the variables.
+It is by default set to threshold formula.
 If set to \code{NULL} then threshold cut-point are calcualted for the whole population.}
 
 \item{data}{data used to fit the model.}
@@ -23,9 +23,9 @@ If set to \code{NULL} then threshold cut-point are calcualted for the whole popu
 
 \item{revf}{logical indicating if self-reported health classes are ordered in increasing order.}
 
-\item{mar}{see \code{\link(par)}}
+\item{mar}{see \code{\link{par}}}
 
-\item{oma}{see \code{\link(par)}}
+\item{oma}{see \code{\link{par}}}
 }
 \description{
 Calcualte threshold cut-points using Jurges' method.

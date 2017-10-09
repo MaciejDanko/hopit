@@ -21,9 +21,9 @@ gethealthlevels(model, formula = model$thresh.formula,
 
 \item{sep}{separator for levels names.}
 
-\item{mar}{see \code{\link(par)}}
+\item{mar}{see \code{\link{par}}}
 
-\item{oma}{see \code{\link(par)}}
+\item{oma}{see \code{\link{par}}}
 }
 \description{
 Calcualte adjusted health levels according to th Jurges' method.
