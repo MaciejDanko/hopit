@@ -4,8 +4,8 @@
 \alias{predict.gotm}
 \title{Model predictions}
 \usage{
-predict.gotm(object, type = c("link", "response", "threshold",
-  "threshold_link"), unravelFreq = TRUE, ...)
+predict.gotm(object, newdata = NULL, type = c("link", "response",
+  "threshold", "threshold_link"), unravelFreq = TRUE, ...)
 }
 \arguments{
 \item{object}{\code{gotm} object.}

@@ -1,25 +1,29 @@
 #' Calculate health index
 #' @description
-#' Calcualte halth index from the latent variable. It takes values from 0 (the worse possible health) to
-#' 1 (the best possible health).
+#' Calcualte halth index from the latent variable. It takes values from 0 to 1, where 
+#' zero is prescribed to the worse possible health (maximum posible value fo the latent variable; 
+#' all conditions/diseases with negative effects on health are present) and 1 is prescribed 
+#' to the best possible health (calculated analogically).
 #' @param model a fitted \code{gotm} model.
 #' @param subset an optional vector specifying a subset of observations.
 #' @param plotf logical indicating if to plot summary figure.
 #' @export
 healthindex <- function(model, subset=NULL, plotf = FALSE) {
   #0 is the worse possible health, 1 is the best possible health
-  if (length(subset)==0) subset=seq_along(model$y_i)
-  cfm <- coef(model)[seq_len(model$parcount[1])]
-  minc <- min(cfm, 0)
-  Zs <- sum((cfm * (cfm>0))) - minc
-  hi <- (1 - ((model$y_latent_i - minc) / Zs))[subset]
+  if (length(subset) == 0) subset=seq_along(model$y_i)
+  r <- model$maxlatentrange
+  hi <- (1 - ((model$y_latent_i - r[1]) / diff(r)))[subset]
   if (plotf) plot(model$y_i[subset], hi,las=3, ylab='Health index')
   if (plotf) invisible(hi) else return(hi)
 }
 
 #' Calculate disability weights
 #' @description
-#' Calculate disability weights.
+#' Calculate disability weights
+#' computed as the regression parameters from the generalised ordered probit model divided by the maximum possible range
+#' of its linear prediction. The range is calcualted as difference between maximum and minimum possible value of the latent variable 
+#' given estimated parameters. 
+#' @seealso \code{\link{healthindex}}
 #' @param model a fitted \code{gotm} model.
 #' @param plotf logical indicating if to plot results.
 #' @param mar see \code{\link{par}}.
@@ -27,9 +31,8 @@ healthindex <- function(model, subset=NULL, plotf = FALSE) {
 #' @export
 disabilityweights <-function(model, plotf = TRUE, mar=c(15,4,1,1),oma=c(0,0,0,0)){
   cfm <- sort(coef(model)[seq_len(model$parcount[1])], decreasing = TRUE)
-  minc <- min(cfm,0)
-  Zs <- sum((cfm*(cfm>0))) - minc
-  res <- as.matrix((cfm - minc) / Zs)
+  r <- model$maxlatentrange
+  res <- as.matrix((cfm - r[1]) / diff(r))
   if (plotf){
     opar <- par(c('mar','oma'))
     par(mar=mar,oma=oma)
@@ -92,6 +95,7 @@ gethealthindexquantiles<-function(model, formula=model$thresh.formula, data=envi
   if (class(formula)=='formula') tmp <- formula2classes(formula, data, sep=sep) else stop('Not implemented.')
   D <- t(sapply(levels(tmp),function(k) quantile(healthindex(model, tmp==k))))
   D0 <- quantile(healthindex(model))
+  IQR <- D[,4] - D[,2]
   if (plotf){
     opar <- par(c('mar','oma'))
     par(mar=mar,oma=oma)
@@ -100,7 +104,7 @@ gethealthindexquantiles<-function(model, formula=model$thresh.formula, data=envi
     mtext('Health index',1,cex=1.5,line = 2.5)
     suppressWarnings(par(opar))
   }
-  res <- list(q.all=D0, q=D)
+  res <- list(q.all=D0, q=D, IQR=IQR)
   if (plotf) invisible(res) else return(res)
 }
 

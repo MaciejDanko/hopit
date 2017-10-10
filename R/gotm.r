@@ -228,6 +228,24 @@ get.vglm.start<-function(model, data, start = NULL){
 #' @keywords internal
 gotm_Latent <- function(reg.params, model = NULL) model$reg.mm %*% (as.matrix(reg.params)) 
 
+#' INTERNAL: Calculate maximum possible latent range
+#' @param model a fitted \code{gotm} model.
+#' @param data a data used to fit the model
+#' @keywords internal
+gotm_latentrange <- function (model, data) {
+  cfm <- coef(model)[seq_len(model$parcount[1])]
+  ttr <- terms.formula(model$reg.formula)
+  ttr <- delete.response(ttr)
+  tt <- attr(ttr,'variables')
+  ttn <- attr(ttr,'term.labels')
+  li <- lapply(eval(tt, data), function(k) if (class(k) == 'factor') levels(k) else range(k, na.rm=TRUE))
+  names(li) <- ttn
+  new.data <- expand.grid(li)
+  V <- model.matrix(ttr, data = new.data)[,-1] %*% as.matrix(cfm)
+  range(V)
+}
+
+
 #' INTERNAL: Extract model parameters in a form of list
 #'
 #' Extract model parameters in a form of a list
@@ -723,6 +741,9 @@ gotm<- function(reg.formula,
   model$y_latent_i <- gotm_Latent(p$reg.params, model)
   model$Ey_i <- factor(colSums(sapply(1L : model$N, function(k) model$alpha[k,]<model$y_latent_i[k])),levels=1L:model$J)
   levels(model$Ey_i) <- levels(model$y_i)
+  cat('Calculating maximum latent range...')
+  model$maxlatentrange <- gotm_latentrange(model, data)
+  cat(' done\n')
   if (hessian) {
     cat('Calculating hessian...')
     # system.time(hes <- numDeriv::hessian(gotm_negLL, model$coef, model = model)) #numDeriv::)
@@ -1111,9 +1132,9 @@ print.lrt.gotm <- function(x, ...){
 #' @param ...	further arguments passed to or from other methods.
 #' @export
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
-predict.gotm <- function(object, type = c('link', 'response', 'threshold', 'threshold_link'),
+predict.gotm <- function(object, newdata=NULL, type = c('link', 'response', 'threshold', 'threshold_link'),
                          unravelFreq = TRUE, ...){
-  
+  if (length(newdata)) stop('"new data" not implemented.')
   if (length(object$design$FWeights) && unravelFreq) conv<-function(x) unravel(x,freq=object$design$FWeights) else conv<-identity
   type <- match.arg(type)
   if (type == 'latent') type <- 'link'

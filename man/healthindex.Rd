@@ -14,7 +14,9 @@ healthindex(model, subset = NULL, plotf = FALSE)
 \item{plotf}{logical indicating if to plot summary figure.}
 }
 \description{
-Calcualte halth index from the latent variable. It takes values from 0 (the worse possible health) to
-1 (the best possible health).
+Calcualte halth index from the latent variable. It takes values from 0 to 1, where 
+zero is prescribed to the worse possible health (maximum posible value fo the latent variable; 
+all conditions/diseases with negative effects on health are present) and 1 is prescribed 
+to the best possible health (calculated analogically).
 }
 

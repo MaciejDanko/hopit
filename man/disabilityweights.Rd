@@ -17,6 +17,12 @@ disabilityweights(model, plotf = TRUE, mar = c(15, 4, 1, 1), oma = c(0, 0,
 \item{oma}{see \code{\link{par}}.}
 }
 \description{
-Calculate disability weights.
+Calculate disability weights
+computed as the regression parameters from the generalised ordered probit model divided by the maximum possible range
+of its linear prediction. The range is calcualted as difference between maximum and minimum possible value of the latent variable 
+given estimated parameters.
+}
+\seealso{
+\code{\link{healthindex}}
 }
 
