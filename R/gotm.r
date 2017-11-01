@@ -233,7 +233,7 @@ gotm_Latent <- function(reg.params, model = NULL) model$reg.mm %*% (as.matrix(re
 #' @param data a data used to fit the model
 #' @keywords internal
 gotm_latentrange <- function (model, data) {
-  cfm <- coef(model)[seq_len(model$parcount[1])]
+  cfm <- model$coef[seq_len(model$parcount[1])]
   ttr <- terms.formula(model$reg.formula)
   ttr <- delete.response(ttr)
   tt <- attr(ttr,'variables')
@@ -241,7 +241,8 @@ gotm_latentrange <- function (model, data) {
   li <- lapply(eval(tt, data), function(k) if (class(k) == 'factor') levels(k) else range(k, na.rm=TRUE))
   names(li) <- ttn
   new.data <- expand.grid(li)
-  V <- model.matrix(ttr, data = new.data)[,-1] %*% as.matrix(cfm)
+  mm <- stats::model.matrix(ttr, data = new.data)[,-1]
+  V <- mm %*% as.matrix(cfm)
   range(V)
 }
 
@@ -734,6 +735,7 @@ gotm<- function(reg.formula,
     model$coef <- model$start
     model$LL <- gotm_negLL(parameters = model$start, model)
   }
+  class(model) <- 'gotm'
   names(model$coef) <- coefnames
   colnames(model$thresh.mm) <- thresh.names
   p <- gotm_ExtractParameters(model)
@@ -742,7 +744,7 @@ gotm<- function(reg.formula,
   model$Ey_i <- factor(colSums(sapply(1L : model$N, function(k) model$alpha[k,]<model$y_latent_i[k])),levels=1L:model$J)
   levels(model$Ey_i) <- levels(model$y_i)
   cat('Calculating maximum latent range...')
-  model$maxlatentrange <- gotm_latentrange(model, data)
+  model$maxlatentrange <- gotm_latentrange(model=model, data=data)
   cat(' done\n')
   if (hessian) {
     cat('Calculating hessian...')
@@ -776,7 +778,6 @@ gotm<- function(reg.formula,
     #sum(model$estfun2-model$estfun)
     cat(' done\n')
   }
-  class(model) <- 'gotm'
   return(model)
 }
 
