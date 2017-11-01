@@ -1,8 +1,8 @@
 #' Calculate health index
 #' @description
-#' Calcualte halth index from the latent variable. It takes values from 0 to 1, where 
-#' zero is prescribed to the worse possible health (maximum posible value fo the latent variable; 
-#' all conditions/diseases with negative effects on health are present) and 1 is prescribed 
+#' Calcualte halth index from the latent variable. It takes values from 0 to 1, where
+#' zero is prescribed to the worse possible health (maximum posible value fo the latent variable;
+#' all conditions/diseases with negative effects on health are present) and 1 is prescribed
 #' to the best possible health (calculated analogically).
 #' @param model a fitted \code{gotm} model.
 #' @param subset an optional vector specifying a subset of observations.
@@ -21,26 +21,32 @@ healthindex <- function(model, subset=NULL, plotf = FALSE) {
 #' @description
 #' Calculate disability weights
 #' computed as the regression parameters from the generalised ordered probit model divided by the maximum possible range
-#' of its linear prediction. The range is calcualted as difference between maximum and minimum possible value of the latent variable 
-#' given estimated parameters. 
+#' of its linear prediction. The range is calcualted as difference between maximum and minimum possible value of the latent variable
+#' given estimated parameters.
 #' @seealso \code{\link{healthindex}}
 #' @param model a fitted \code{gotm} model.
 #' @param plotf logical indicating if to plot results.
 #' @param mar see \code{\link{par}}.
 #' @param oma see \code{\link{par}}.
 #' @export
-disabilityweights <-function(model, plotf = TRUE, mar=c(15,4,1,1),oma=c(0,0,0,0)){
-  cfm <- sort(coef(model)[seq_len(model$parcount[1])], decreasing = TRUE)
+disabilityweights <- function (model, method=1, plotf = TRUE, mar = c(15, 4, 1, 1), oma = c(0, 0, 0, 0)) {
+  cfm <- sort((model$coef)[seq_len(model$parcount[1])], decreasing = TRUE)
   r <- model$maxlatentrange
-  res <- as.matrix((cfm - r[1]) / diff(r))
-  if (plotf){
-    opar <- par(c('mar','oma'))
-    par(mar=mar,oma=oma)
-    barplot(t(res),las=3)
-    mtext('Disability weight',2,cex=1.5,line=2.5)
+  if (method==2) {
+    res <- as.matrix((cfm - r[1])/diff(r))
+  } else if (method==1) {
+    res <- as.matrix((cfm - max(r[1],0))/min(diff(r),max(r)))
+  } else stop('Unknown method.', call. = FALSE)
+  if (plotf) {
+    opar <- par(c("mar", "oma"))
+    par(mar = mar, oma = oma)
+    barplot(t(res), las = 3)
+    mtext("Disability weight", 2, cex = 1.5, line = 2.5)
     suppressWarnings(par(opar))
   }
-  if (plotf) invisible(res) else return(res)
+  if (plotf)
+    invisible(res)
+  else return(res)
 }
 
 #' @keywords internal
