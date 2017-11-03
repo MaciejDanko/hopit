@@ -248,7 +248,7 @@ gethealthlevels<-function(model, formula=model$thresh.formula,
   if (class(formula)=='formula') inte <- formula2classes(formula, data, sep=sep) else stop('Not implemented.')
   cpall<-basiccutpoints(model, plotf = FALSE, revf = revf)
   TAB1 <- round(table(original=model$y_i, adjusted=cpall$adjused.health.levels)*100/length(model$y_i),2)
-  tmp <- untable(t(table(factor(data$r.health,levels=levels(cpall$adjused.health.levels)), inte)))
+  tmp <- untable(t(table(factor(model$y_i,levels=levels(cpall$adjused.health.levels)), inte)))
   tmp <-tmp/rowSums(tmp)
   tmp2 <- untable(t(table(cpall$adjused.health.levels, inte)))
   tmp2 <- tmp2/rowSums(tmp2)
@@ -286,8 +286,10 @@ comparehealthlevels<-function(object, pch=19,xlab='Original frequency [%]',ylab=
   opar <- par(c('mar','oma'))
   par(mfrow=sq,oma=oma,mar=mar)
   for(k in seq_len(NROW(object$tab))){
-    plot(object$original[,k]*100,object$adjusted[,k]*100,pch=pch,xlab='',ylab='',main=colnames(object$adjusted)[k],
-         xaxs='r',yaxs='r')
+    rr <- range(c(object$original[,k]*100,object$adjusted[,k]*100))
+    plot(object$original[,k]*100,object$adjusted[,k]*100, pch=pch,
+         xlab='', ylab='',main=colnames(object$adjusted)[k],
+         xaxs='r', yaxs='r', xlim=rr, ylim=rr)
     lines(-20:120,-20:120)
     posi <- approx(x=range(object$original[,k]),y=c(4,2),xout=object$original[,k],method="constant")$y
     text(object$original[,k]*100,object$adjusted[,k]*100,labels=names(object$adjusted[,k]),cex=0.6,pos=posi,offset=0.5)
