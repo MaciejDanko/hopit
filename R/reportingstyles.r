@@ -141,7 +141,7 @@ basiccutpoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=
   tmp <- dorev(as.vector(tY))
   invcs <- (cumsum(tmp)/sum(tmp))[-length(tmp)]
   R1 <- quantile(h.index, invcs)
-  
+
   lv <- dorev(as.character(levels(model$y_i)))
   Nm <- paste(lv[-length(lv)],lv[-1],sep=' | ')
   Nm <- sapply(Nm, function(k) bquote(bold(.(k))))
@@ -248,7 +248,7 @@ getcutpoints<-function(model, formula=model$thresh.formula,
 #' @param oma see \code{\link{par}}.
 #' @export
 gethealthlevels<-function(model, formula=model$thresh.formula,
-                          data=environment(model$thresh.formula), revf,
+                          data=environment(model$thresh.formula), revf = NULL,
                           plotf = TRUE, sep='_',mar=c(7,2,1.5,0.5),oma=c(0,3,0,0)){
   if (class(formula)=='formula') inte <- formula2classes(formula, data, sep=sep) else stop('Not implemented.')
   cpall<-basiccutpoints(model, plotf = FALSE, revf = revf)

@@ -34,10 +34,10 @@ unravel <-function(mat, freq)  {
   FreqInd <- NCOL(mat)
   ls <- apply(mat,1,function(k) ((rep_row(as.matrix(k[-FreqInd]),k[FreqInd]))))
   do.call('rbind', ls)
-}  
+}
 
 #' Convert individual data to frequency table of unique combination of dependent and independent variables
-#' 
+#'
 #' @param formula formula indicating, which variables will be used to construct new database.
 #' @param data data.frame including all variables listed in formula.
 #' @param FreqNam name of the column with frequencies.
@@ -62,9 +62,9 @@ data2freq<-function(formula, data, FreqNam='Freq'){
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 #' @keywords internal
 gotm_reg_thresh<-function(thresh.lambda,thresh.gamma, model){
-  tmp <- t(matrix(thresh.lambda, model$J - 1L, model$N)) 
-  for (k in seq_len(NCOL(model$thresh.mm))) tmp <- tmp + 
-      model$thresh.mm[, k, drop=FALSE] %*% thresh.gamma[(2:model$J)-1+ (k-1)*(model$J-1)] 
+  tmp <- t(matrix(thresh.lambda, model$J - 1L, model$N))
+  for (k in seq_len(NCOL(model$thresh.mm))) tmp <- tmp +
+      model$thresh.mm[, k, drop=FALSE] %*% thresh.gamma[(2:model$J)-1+ (k-1)*(model$J-1)]
   tmp
 }
 
@@ -72,7 +72,7 @@ gotm_reg_thresh<-function(thresh.lambda,thresh.gamma, model){
 #'
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 #' @keywords internal
-gotm_Threshold<-function(thresh.lambda, thresh.gamma, model = NULL, 
+gotm_Threshold<-function(thresh.lambda, thresh.gamma, model = NULL,
                          extended.output = FALSE){
 
   control <- model$control
@@ -82,12 +82,12 @@ gotm_Threshold<-function(thresh.lambda, thresh.gamma, model = NULL,
   thresh.lambda <- t(as.matrix(thresh.lambda))
 
   if (model$thresh.no.cov){
-    Lin.Tresh.mat <- t(matrix(thresh.lambda, J - 1L, N)) 
+    Lin.Tresh.mat <- t(matrix(thresh.lambda, J - 1L, N))
   } else {
     # C <- dim(model$thresh.mm)[2L]
     # thresh.gamma <- t(matrix(as.matrix(thresh.gamma),  J - 1L, C))
     # Lin.Tresh.mat <- t(matrix(thresh.lambda, J - 1L, N)) +
-    #   model$thresh.mm %*% thresh.gamma 
+    #   model$thresh.mm %*% thresh.gamma
     Lin.Tresh.mat <- gotm_reg_thresh(thresh.lambda, thresh.gamma, model)
   }
 
@@ -162,10 +162,10 @@ get.vglm.start<-function(model, data, start = NULL){
   model$vglm.LL<-logLik(mv2)
   par.ls <- gotm_ExtractParameters(model, mv2.par)
   par.ls$reg.params <- -par.ls$reg.params
-  
+
   if (length(par.ls$thresh.gamma))
-    alpha.thresh <- gotm_reg_thresh(thresh.lambda = par.ls$thresh.lambda, 
-                                    thresh.gamma = par.ls$thresh.gamma, 
+    alpha.thresh <- gotm_reg_thresh(thresh.lambda = par.ls$thresh.lambda,
+                                    thresh.gamma = par.ls$thresh.gamma,
                                     model = model)
     #alpha.thresh<-t(matrix(par.ls$thresh.lambda, model$J - 1L, model$N)) + model$thresh.mm %*% par.ls$thresh.gamma
   par.ls$thresh.lambda <- c(par.ls$thresh.lambda[1], diff(par.ls$thresh.lambda))
@@ -181,21 +181,21 @@ get.vglm.start<-function(model, data, start = NULL){
     if (thresh.method == 'classic'){
       par.ls$thresh.lambda <- c(par.ls$thresh.lambda[1],log(par.ls$thresh.lambda[2:length(par.ls$thresh.lambda)]))
       if (length(par.ls$thresh.gamma)) {
-        
+
         for (rep in 1:3)
         for (k in 2:(model$J-1)){  # probably analitical solution also exists
-          fn <- function(x) sum((alpha.thresh[,k] - 
+          fn <- function(x) sum((alpha.thresh[,k] -
                   gotm_Threshold(subs(par.ls$thresh.lambda,k,x[1]),
                   subsgmat(par.ls$thresh.gamma,k,x[-1]), model)[,k+1])^2)
-          
+
           oo<-optim(par=c(par.ls$thresh.lambda[k],extrgmat(ini.gamma,k)),fn=fn)
           oo<-optim(par=c(oo$par[1],oo$par[-1]),fn=fn) # one more time
           par.ls$thresh.lambda[k]<-oo$par[1]
           par.ls$thresh.gamma<-subsgmat(par.ls$thresh.gamma,k,oo$par[-1])
           ini.gamma <- par.ls$thresh.gamma
         }
-        
-      }                      
+
+      }
     } else if (thresh.method == 'hopit'){
       par.ls$thresh.lambda <- log(par.ls$thresh.lambda[1:length(par.ls$thresh.lambda)])
       if (length(par.ls$thresh.gamma)) {
@@ -226,7 +226,7 @@ get.vglm.start<-function(model, data, start = NULL){
 #' INTERNAL: Calculate a latent variable
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
 #' @keywords internal
-gotm_Latent <- function(reg.params, model = NULL) model$reg.mm %*% (as.matrix(reg.params)) 
+gotm_Latent <- function(reg.params, model = NULL) model$reg.mm %*% (as.matrix(reg.params))
 
 #' INTERNAL: Calculate maximum possible latent range
 #' @param model a fitted \code{gotm} model.
@@ -234,18 +234,27 @@ gotm_Latent <- function(reg.params, model = NULL) model$reg.mm %*% (as.matrix(re
 #' @keywords internal
 gotm_latentrange <- function (model, data) {
   cfm <- model$coef[seq_len(model$parcount[1])]
+  neg <- cfm < 0
   ttr <- terms.formula(model$reg.formula)
   ttr <- delete.response(ttr)
   tt <- attr(ttr,'variables')
   ttn <- attr(ttr,'term.labels')
   li <- lapply(eval(tt, data), function(k) if (class(k) == 'factor') levels(k) else range(k, na.rm=TRUE))
   names(li) <- ttn
-  new.data <- expand.grid(li)
-  mm <- stats::model.matrix(ttr, data = new.data)[,-1]
-  V <- mm %*% as.matrix(cfm)
-  range(V)
+  # new.data <- expand.grid(li)
+  # mm <- stats::model.matrix(ttr, data = new.data)[,-1]
+  # V <- mm %*% as.matrix(cfm)
+  # range(V)
+  L=sapply(li, length)-1
+  cfm_neg <- cfm * (cfm<0)
+  cfm_pos <- cfm * (cfm>0)
+  pos=c(0,cumsum(L))+1
+  cfm_neg_ls <- lapply(1:(length(pos)-1),function(k) cfm_neg[pos[k]:(pos[k+1]-1)])
+  cfm_pos_ls <- lapply(1:(length(pos)-1),function(k) cfm_pos[pos[k]:(pos[k+1]-1)])
+  c(sum(sapply(cfm_neg_ls, min, na.rm=TRUE)),
+    sum(sapply(cfm_pos_ls, max, na.rm=TRUE)))
+  #must be checked for variables that are not factors
 }
-
 
 #' INTERNAL: Extract model parameters in a form of list
 #'
@@ -310,18 +319,18 @@ gotm_derivLL <- function(parameters, model, collapse = TRUE, negative = FALSE){
   y <- as.numeric(unclass(model$y_i))
   A2 <- pmax(col_path(a, y) - b, -20L)
   A1 <- pmin(col_path(a, y + 1) - b, 20L)
-  
+
   lLam <-length(p$thresh.lambda)
-  
+
   P1 <- model$link.func(A1)
   P2 <- model$link.func(A2)
   D1 <- model$distr.func(A1)
   D2 <- model$distr.func(A2)
   D <- D1 - D2
   P <- P1 - P2
-  
+
   dlnLL_dX <- 1/P
-  
+
   dY <- Vector2DummyMat(y)
   YY2 <- (1-cumsum_row(dY))
   YY1 <- YY2 + dY
@@ -330,9 +339,9 @@ gotm_derivLL <- function(parameters, model, collapse = TRUE, negative = FALSE){
   YY2 <- YY2[, -NCOL(YY1)]
   YY1bound <- matrix(1 * (y!=max(y)), model$N, lLam)
   YY2bound <- matrix(1 * (y!=1), model$N, lLam)
-  
+
   dlnLL_dbeta <- - matrix(D * dlnLL_dX, length(D), length(p$reg.params)) * model$reg.mm
-  
+
   if (identical(deparse(model$control$thresh.fun), deparse(identity))){
     da <- 1
   } else {
@@ -344,7 +353,7 @@ gotm_derivLL <- function(parameters, model, collapse = TRUE, negative = FALSE){
   D1_ <- matrix(D1, model$N, lLam)
   D2_ <- matrix(D2, model$N, lLam)
   dlnLL_Lambda <- (D1_ * da1 - D2_ * da2) * matrix(dlnLL_dX, model$N, lLam)
-  
+
   if (NCOL(model$thresh.mm)){
     dlnLL_Gamma <- t(rep_row(t(dlnLL_Lambda), NCOL(model$thresh.mm))) * model$thresh.extd
     cC <- colSums(dlnLL_Gamma)
@@ -352,7 +361,7 @@ gotm_derivLL <- function(parameters, model, collapse = TRUE, negative = FALSE){
     dlnLL_Gamma <- NULL
     cC <- NULL
   }
-  
+
   if (collapse) {
     res <- c(colSums(dlnLL_dbeta), colSums(dlnLL_Lambda), cC)
     names(res)<-names(model$coef)
@@ -360,7 +369,7 @@ gotm_derivLL <- function(parameters, model, collapse = TRUE, negative = FALSE){
     res <- cbind(dlnLL_dbeta, dlnLL_Lambda, dlnLL_Gamma)
     colnames(res) <- names(model$coef)
   }
-  
+
   if (negative) res <- res * (-1)
   res
 }
@@ -406,7 +415,7 @@ gotm_fitter <- function(model, start = model$start){
   if (class(z) == "try-error") stop('Impossible to find initial values.')
   if (control$fit.NR){
     #nrFit <- maxNR(fn = function(p, model) -gotm_negLL(p, model), start = fit$par, model = model) #maxLik::
-    nrFit <- maxNR(fn = gotm_negLL, grad = gotm_derivLL, negative = FALSE, 
+    nrFit <- maxNR(fn = gotm_negLL, grad = gotm_derivLL, negative = FALSE,
                    start = fit$par, model = model) #maxLik::
     nrFit$par <- nrFit$estimate
     nrFit$value <- -nrFit$maximum
@@ -444,7 +453,7 @@ gotm_fitter <- function(model, start = model$start){
 #' It can be either a user defined function or character string.
 #' The default value is \code{'exp'} for exponential function.
 #' Other accepable character strings include \code{'identity'} or \code{'id'} for identity function.
-#' @param alpha_0 value for "zero" threshold. If 'auto' then alpha_0 is set specificaly 
+#' @param alpha_0 value for "zero" threshold. If 'auto' then alpha_0 is set specificaly
 #' to the 'classic' or 'hopit' model. See \code{\link{gotm}}.
 #' @seealso \code{\link{gotm}}
 #' @author Maciej J. Danko <\email{danko@demogr.mpg.de}> <\email{maciej.danko@gmail.com}>
@@ -455,9 +464,9 @@ gotm.control<-function(fit.NR = FALSE,
                        grad.eps = 1e-7,
                        thresh.fun = c('exp','identity','id'),
                        alpha_0 = 'auto'){
-  
+
   if (class(thresh.fun)=='character') {
-    thresh.fun <- thresh.fun[1] 
+    thresh.fun <- thresh.fun[1]
     if (tolower(thresh.fun) == 'exp') {
       thresh.fun <- exp
     } else if (tolower(thresh.fun) %in% c('identity', 'id')) {
@@ -467,13 +476,13 @@ gotm.control<-function(fit.NR = FALSE,
     if (!(identical(deparse(thresh.fun), deparse(exp)) || identical(deparse(thresh.fun), deparse(identity))))
       stop('Unknown threshold function.')
   }
-  
+
   if (tolower(alpha_0) != 'auto'){
     if (!is.numeric(alpha_0)) stop('"alpha_0" must be a numeric or equal "auto".')
   } else alpha_0 <- tolower(alpha_0)
- 
-  list(fit.NR = fit.NR, thresh.fun = thresh.fun, 
-       max.reiter = max.reiter, tol.reiter = tol.reiter, 
+
+  list(fit.NR = fit.NR, thresh.fun = thresh.fun,
+       max.reiter = max.reiter, tol.reiter = tol.reiter,
        grad.eps = grad.eps, alpha_0 = alpha_0)
 }
 
@@ -481,7 +490,7 @@ gotm.control<-function(fit.NR = FALSE,
 #' Auxiliary for setting a simple survey design for \code{gotm}
 #'
 #' @param PWeights Probability weights (the inverse of Probability of an observation being selected into the sample)
-#' @param FWeights Frequency weights. 
+#' @param FWeights Frequency weights.
 # Either \code{PWeight} or \code{FWeight} can be delivered (but not both simultaneously)
 #' @param PSU Identificator of the PSU unit. Each P- and F- weight should correspond to exactly one PSU.
 #' @export
@@ -511,7 +520,7 @@ gotm.design<-function(PWeights = NULL, FWeights = NULL, PSU = NULL){
 rep_row <- function(mat, times) t(matrix(t(mat), NCOL(mat), NROW(mat) * times))
 
 #' Get starting parameters from less or more complicated hierarchical models
-#' 
+#'
 #' @export
 get.start.gotm <- function(object, reg.formula, thresh.formula, data, asList = FALSE){
   old.rf <- object$reg.formula
@@ -525,14 +534,14 @@ get.start.gotm <- function(object, reg.formula, thresh.formula, data, asList = F
   old.tt<-attr(terms(old.tf),"term.labels")
   new.rt<-attr(terms(as.formula(reg.formula)),"term.labels")
   new.tt<-attr(terms(as.formula(thresh.formula)),"term.labels")
-  pr <- gotm_ExtractParameters(object) 
+  pr <- gotm_ExtractParameters(object)
   pr.new <-pr
   if ((old.rt %c% new.rt) && (new.rt %!c% old.rt)) {
     reg.mm <- model.matrix(reg.formula,data)[,-1]
     pr.new$reg.params <- rep(0, NCOL(reg.mm))
     old.ind <- which(colnames(reg.mm)%in%colnames(object$reg.mm))
     pr.new$reg.params[old.ind] <- pr$reg.params
-    names(pr.new$reg.params)[old.ind] <- names(pr$reg.params) 
+    names(pr.new$reg.params)[old.ind] <- names(pr$reg.params)
     new.ind <- which(colnames(reg.mm)%!in%colnames(object$reg.mm))
     nnam <- colnames(reg.mm)[new.ind]
     names(pr.new$reg.params)[new.ind] <- nnam
@@ -541,7 +550,7 @@ get.start.gotm <- function(object, reg.formula, thresh.formula, data, asList = F
     rm.ind <- which(colnames(object$reg.mm)%!in%colnames(reg.mm))
     tmp <- pr.new$reg.params[rm.ind]
     pr.new$reg.params <- pr.new$reg.params[-rm.ind]
-    pr.new$thresh.lambda[1] <- pr.new$thresh.lambda[1] - 
+    pr.new$thresh.lambda[1] <- pr.new$thresh.lambda[1] -
       mean(object$reg.mm[,rm.ind] * rep_row(tmp, NROW(reg.mm))) * length(tmp)
   }
   if ((old.tt %c% new.tt) && (new.tt %!c% old.tt)){
@@ -549,7 +558,7 @@ get.start.gotm <- function(object, reg.formula, thresh.formula, data, asList = F
     pr.new$thresh.params <- rep(0, NCOL(thresh.mm))
     old.ind <- which(colnames(thresh.mm)%in%colnames(object$thresh.mm))
     pr.new$thresh.gamma[old.ind] <- pr$thresh.gamma
-    names(pr.new$thresh.gamma)[old.ind] <- names(pr$thresh.gamma) 
+    names(pr.new$thresh.gamma)[old.ind] <- names(pr$thresh.gamma)
     new.ind <- which(colnames(thresh.mm)%!in%colnames(object$thresh.mm))
     nnam <- colnames(thresh.mm)[new.ind]
     names(pr.new$thresh.gamma)[new.ind] <- nnam
@@ -558,10 +567,10 @@ get.start.gotm <- function(object, reg.formula, thresh.formula, data, asList = F
     rm.ind <- which(colnames(object$thresh.mm)%!in%colnames(thresh.mm))
     tmp <- pr.new$thresh.gamma[rm.ind]
     pr.new$thresh.gamma <- pr.new$thresh.gamma[-rm.ind]
-    pr.new$thresh.lambda[1] <- pr.new$thresh.lambda[1] - 
+    pr.new$thresh.lambda[1] <- pr.new$thresh.lambda[1] -
       mean(object$thresh.mm[,rm.ind] * rep_row(tmp, NROW(thresh.mm))) * length(tmp)
   }
-  if (asList) return(pr.new) else 
+  if (asList) return(pr.new) else
     return(c(pr.new$reg.params, pr.new$thresh.lambda, pr.new$thresh.gamma))
 }
 
@@ -582,7 +591,7 @@ get.start.gotm <- function(object, reg.formula, thresh.formula, data, asList = F
 #' and \code{alpha(J) = Inf}. See also [2].}
 #' }
 #' @param start starting values in the form \code{c(latent_parameters, threshold_lambdas, threshold_gammas)}
-#' @param doFit character string, \code{'full'} perform the full fit, \code{'vglm'} use starting values obteined from vglm, 
+#' @param doFit character string, \code{'full'} perform the full fit, \code{'vglm'} use starting values obteined from vglm,
 #' @param hessain logical indicating if to calculate hessian matrix
 #' but will not improve the fit, and \code{'no'} use external starting values, which must be delivered.
 #' @param control a list with control parameters. See \code{\link{gotm.control}}.
@@ -598,7 +607,7 @@ gotm<- function(reg.formula,
                 doFit = c('full','vglm','no'),
                 hessian = TRUE,
                 control = list()){
-  
+
   my.grad <- function(fn, par, eps, ...){
     sapply(1L : length(par), function(k){
       epsi <- rep(0L, length(par))
@@ -606,9 +615,9 @@ gotm<- function(reg.formula,
       (fn(par + epsi, ...) - fn(par - epsi, ...))/2/eps
     })
   }
-  
+
   if (missing(data)) data <- environment(reg.formula)
-  
+
   doFit <- match.arg(doFit)
   thresh.method <- match.arg(thresh.method)
   link <- match.arg(link)
@@ -616,31 +625,31 @@ gotm<- function(reg.formula,
   survey <- do.call("gotm.design", survey)
 
   if (length(start) && class(start) == 'gotm'){
-    if ((thresh.method != start$thresh.method) || 
+    if ((thresh.method != start$thresh.method) ||
         (link != start$link)) {
       warning ('Model in "start" is not compatible and will be not used.')
       start <- NULL
     } else {
       tmp <- deparse(substitute(start))
-      start <- get.start.gotm(object = start, reg.formula = reg.formula, 
-                         thresh.formula = thresh.formula, 
+      start <- get.start.gotm(object = start, reg.formula = reg.formula,
+                         thresh.formula = thresh.formula,
                          data = data, asList = FALSE)
       cat('Model "',tmp,'" was used to get starting values.\n',sep='')
-    } 
+    }
   } else if (length(start) && !is.double(start)) stop('Wrong format of "start".')
-  
+
   model <- NULL
   model$control <- control
   model$link <- link
-  
+
   if (link == 'probit') {
     model$link.func <- pnorm
     model$distr.func <- dnorm
   } else if (link == 'logit'){
     model$link.func <- function(x) exp(x)/(1L + exp(x))
     model$distr.func <- function (x) exp(-x)/((1L + exp(-x))^2L)
-  } 
-  
+  }
+
   if (length(thresh.formula)>2L){
     warning(call. = FALSE, 'The treshold formula should be given without dependent variable.')
     thresh.formula[[2]] <- NULL
@@ -680,13 +689,13 @@ gotm<- function(reg.formula,
   if (model$J<3L) stop ('Response must have 3 or more levels.')
 
   model$thresh.extd <- matrix(rep_row(model$thresh.mm, model$J-1),model$N, NCOL(model$thresh.mm)*(model$J-1))
-  
+
   if (sum(sapply(survey, length))){
     model$design <- survey
     if (length(survey$PWeights) && (length(survey$FWeights))) {
-      model$weights <- survey$FWeights/survey$PWeights 
+      model$weights <- survey$FWeights/survey$PWeights
     } else if (length(survey$PWeights)) {
-      model$weights <- 1L/survey$PWeights 
+      model$weights <- 1L/survey$PWeights
     } else if (length(survey$FWeights)){
       model$weights <- survey$FWeights
     } else stop('This should not happen.')
@@ -744,14 +753,15 @@ gotm<- function(reg.formula,
   model$Ey_i <- factor(colSums(sapply(1L : model$N, function(k) model$alpha[k,]<model$y_latent_i[k])),levels=1L:model$J)
   levels(model$Ey_i) <- levels(model$y_i)
   cat('Calculating maximum latent range...')
-  model$maxlatentrange <- gotm_latentrange(model=model, data=data)
+  model$maxlatentrange <- try(gotm_latentrange(model=model, data=data))
+  if (class(model$maxlatentrange) == 'try-error') model$maxlatentrange=
   cat(' done\n')
   if (hessian) {
     cat('Calculating hessian...')
     # system.time(hes <- numDeriv::hessian(gotm_negLL, model$coef, model = model)) #numDeriv::)
     # system.time(hes2 <- my.grad(fn = gotm_derivLL, par = model$coef, model=model, eps = model$control$grad.eps, collapse = TRUE))
     # system.time(hes3 <- numDeriv::jacobian(func = gotm_derivLL, x = model$coef, model=model))
-    # system.time(hes4 <- numDeriv::jacobian(func = gotm_derivLL, x = model$coef, 
+    # system.time(hes4 <- numDeriv::jacobian(func = gotm_derivLL, x = model$coef,
     #                                        model=model, method='simple',
     #                                        method.args=list(eps=model$control$grad.eps/2)))
     # dim(hes)
@@ -769,12 +779,12 @@ gotm<- function(reg.formula,
     }
     cat(' done\n')
     cat('Calculating estfun...')
-    
+
     # model$estfun <- -my.grad(fn = gotm_negLL, par = model$coef,
     #                         eps = control$grad.eps, model = model, collapse = FALSE)
-    
+
     model$estfun <- gotm_derivLL(model$coef, model, collapse = FALSE)
-    
+
     #sum(model$estfun2-model$estfun)
     cat(' done\n')
   }
@@ -854,9 +864,9 @@ print.gotm<-function(x, ...){
 #' @param robust.vcov logical indicating if to use sandwich estimator to calculate variance-covariance matrix.
 #' If survey deign is detected than this option is ignored.
 #' @param control a list with control parameters. See \code{\link{gotm.control}}.
-# @param robust.method method of calculation of log-likelihood gradient. 
-# Set \code{"grad"} (default) for numerical gradient or \code{"working"} 
-# for the method based on working residuals. 
+# @param robust.method method of calculation of log-likelihood gradient.
+# Set \code{"grad"} (default) for numerical gradient or \code{"working"}
+# for the method based on working residuals.
 # The latter one is an experimental method so warning will apear.
 # robust.method = c("grad","working")
 #' @param ...	further arguments passed to or from other methods.
@@ -868,7 +878,7 @@ vcov.gotm<-function(object, robust.vcov, control = list(), ...){
   #robust.method <- tolower(robust.method[1])
   #if (!(robust.method %in% c("grad","working"))) stop('Unknown method.')
   control <- do.call("gotm.control", control)
-  z <- object$vcov 
+  z <- object$vcov
   if (!length(z)) stop('Hessian was not calculated.')
   if (length(object$design$PSU)){
     if (!missing(robust.vcov) && (robust.vcov)) {
@@ -883,7 +893,7 @@ vcov.gotm<-function(object, robust.vcov, control = list(), ...){
   } else {
     if (missing(robust.vcov)) robust.vcov <- FALSE
     if (length(object$design$FWeights)) divw <- object$design$FWeights else divw <- 1
-    if (robust.vcov) z <- (z %*% t(object$estfun) %*% (object$estfun/divw) %*% (z)) 
+    if (robust.vcov) z <- (z %*% t(object$estfun) %*% (object$estfun/divw) %*% (z))
   }
   attr(z, 'survey.design') <- (length(object$design) > 0L)
   attr(z, 'robust.vcov') <- robust.vcov
@@ -911,9 +921,9 @@ print.vcov.gotm <- function(x, digits = 3L, ...){
 #' @param robust.se logical indicating if to use robust standard errors based on the sandwich estimator.
 #' If survey deign is detected than this option is ignored.
 #' @param control a list with control parameters. See \code{\link{gotm.control}}.
-# @param robust.method method of calculation of log-likelihood gradient. 
-# Set \code{"grad"} (default) for numerical gradient or \code{"working"} 
-# for the method based on working residuals. 
+# @param robust.method method of calculation of log-likelihood gradient.
+# Set \code{"grad"} (default) for numerical gradient or \code{"working"}
+# for the method based on working residuals.
 # The latter one is an experimental method so warning will apear.
 # robust.method = c("grad","working")
 #' @param ...	further arguments passed to or from other methods.
@@ -1033,7 +1043,7 @@ anova.gotm<-function(object, ..., method = c('sequential', 'with.first'), direct
       } else if (tolower(method) == 'with.first') {
         tmp <- lrt.gotm(objects[[1L]], objects[[k + 1L]]) # the first model must be the most complex,  silent = F
         rna <- c(rna, paste(ob.nam[1L], 'vs', ob.nam[k + 1L], sep = ''))
-      } else 
+      } else
       out <- rbind(out, c('Chi^2' = tmp$chisq, df = tmp$df, 'Pr(>Chi^2)' = tmp$pval))
     }
     rownames(out) <- rna
@@ -1190,7 +1200,7 @@ factor.mat.gotm<-function(object, by.formula = object$thresh.formula){
   R. <- (object$reg.mm[,unlist(sapply(by.what, grep, x = colnames(object$reg.mm), fixed =TRUE))])
   if(!length(R.)) R. <- NULL
   T. <- object$thresh.mm[,unlist(sapply(by.what, grep, x = colnames(object$thresh.mm), fixed =TRUE))]
-  if (!length(T.)) T. <- NULL        
+  if (!length(T.)) T. <- NULL
   if (any(colnames(T.) %in% colnames(R.))) T. <- T.[,-which(colnames(T.) %in% colnames(R.))]
   vari <- cbind(T., R.)
   get.reg.ref <- sapply(object$reg.lev,function(k) rownames(k)[1])[-1]
@@ -1221,5 +1231,5 @@ plot.gotm<-function(x,...){
   for (k in 1:NCOL(tmp)) {
     lines(tmp[,k],col=k,lwd=2)
   }
-  
+
 }
