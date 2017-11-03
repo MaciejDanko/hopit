@@ -100,6 +100,8 @@ gethealthindexquantiles<-function(model, formula=model$thresh.formula, data=envi
                                   mar=c(4,8,1.5,0.5),oma=c(0,0,0,0)){
   if (class(formula)=='formula') tmp <- formula2classes(formula, data, sep=sep) else stop('Not implemented.')
   D <- t(sapply(levels(tmp),function(k) quantile(healthindex(model, tmp==k))))
+  oD <- order(D[,3], decreasing = TRUE)
+  D <- D[oD, ]
   D0 <- quantile(healthindex(model))
   IQR <- D[,4] - D[,2]
   if (plotf){
@@ -139,6 +141,7 @@ basiccutpoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=
   tmp <- dorev(as.vector(tY))
   invcs <- (cumsum(tmp)/sum(tmp))[-length(tmp)]
   R1 <- quantile(h.index, invcs)
+  
   lv <- dorev(as.character(levels(model$y_i)))
   Nm <- paste(lv[-length(lv)],lv[-1],sep=' | ')
   Nm <- sapply(Nm, function(k) bquote(bold(.(k))))
@@ -166,7 +169,7 @@ basiccutpoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=
       CIN <- CIN + cumsum(duplicated(CIN)*CIN/1e7)
       CIN <- CIN / max(CIN)
     }
-    adjused.health.levels<- cut(h.index,CIN,labels= dorev(levels(Y)))
+    adjused.health.levels<- cut(h.index, CIN,labels= dorev(levels(Y)))
   } else adjused.health.levels <- NA
   res <- list(cutpoints=R1, adjused.health.levels=adjused.health.levels)
   if (plotf) invisible(res) else return(res)
@@ -206,6 +209,8 @@ getcutpoints<-function(model, formula=model$thresh.formula,
     if (revf) dorev <- rev else dorev <- identity
     if (class(formula)=='formula') tmp <- formula2classes(formula, data, sep=sep) else stop('Not implemented.')
     D <- t(sapply(levels(tmp),function(k) basiccutpoints(model=model, tmp==k, plotf = FALSE, revf = revf)$cutpoints))
+    oD <- order(D[,2], decreasing = FALSE)
+    D <- D[oD, ]
     D0 <- basiccutpoints(model, plotf = FALSE, revf = revf)$cutpoints
     lv <- dorev(as.character(levels(model$y_i)))
     Nm <- paste(lv[-length(lv)],lv[-1],sep=' | ')
@@ -243,15 +248,19 @@ getcutpoints<-function(model, formula=model$thresh.formula,
 #' @param oma see \code{\link{par}}.
 #' @export
 gethealthlevels<-function(model, formula=model$thresh.formula,
-                          data=environment(model$thresh.formula), revf = NULL,
+                          data=environment(model$thresh.formula), revf,
                           plotf = TRUE, sep='_',mar=c(7,2,1.5,0.5),oma=c(0,3,0,0)){
   if (class(formula)=='formula') inte <- formula2classes(formula, data, sep=sep) else stop('Not implemented.')
   cpall<-basiccutpoints(model, plotf = FALSE, revf = revf)
   TAB1 <- round(table(original=model$y_i, adjusted=cpall$adjused.health.levels)*100/length(model$y_i),2)
   tmp <- untable(t(table(factor(model$y_i,levels=levels(cpall$adjused.health.levels)), inte)))
   tmp <-tmp/rowSums(tmp)
+  oD1 <- order(tmp[,NCOL(tmp)]+tmp[,NCOL(tmp)-1])
+  tmp <- tmp[oD1,]
   tmp2 <- untable(t(table(cpall$adjused.health.levels, inte)))
   tmp2 <- tmp2/rowSums(tmp2)
+  oD2 <- order(tmp2[,NCOL(tmp2)]+tmp2[,NCOL(tmp2)-1])
+  tmp2 <- tmp2[oD2,]
   if (plotf) {
     opar <- par(c('mar','oma'))
     par(mfrow=c(1,2))
