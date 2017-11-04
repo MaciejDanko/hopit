@@ -234,7 +234,6 @@ gotm_Latent <- function(reg.params, model = NULL) model$reg.mm %*% (as.matrix(re
 #' @keywords internal
 gotm_latentrange <- function (model, data) {
   cfm <- model$coef[seq_len(model$parcount[1])]
-  neg <- cfm < 0
   ttr <- terms.formula(model$reg.formula)
   ttr <- delete.response(ttr)
   tt <- attr(ttr,'variables')
