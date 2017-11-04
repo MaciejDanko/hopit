@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #' INTERNAL: Converts a vector of an categorical variable into a matrix with dummies in columns
 #'
 #' @param V a vector of categories.
@@ -2468,4 +2467,3 @@ plot.gotm<-function(x,...){
   }
 
 }
->>>>>>> aa14d753adbb172bb9397803768fe5e85058a8ac
