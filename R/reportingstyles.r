@@ -268,7 +268,7 @@ gethealthlevels<-function(model, formula=model$thresh.formula,
     barplot(t(tmp),las=3,main='Original')
     barplot(t(tmp2),las=3,main='Adjusted', legend.text=TRUE,
             args.legend = list(x='center', box.col=NA,
-                                bg=adjustcolor('white',alpha.f=0.4)))
+                               bg=adjustcolor('white',alpha.f=0.4)))
     par(mfrow=c(1,1))
     par(mar=mar,oma=rep(0,4))
     mtext('Fraction [%]',2,cex=1.5)
@@ -288,8 +288,8 @@ getsq <- function(x, xf=1) c(ceiling(x/ceiling(xf*x/sqrt(x))),ceiling(xf*x/sqrt(
 #' @param ratio an aspect ratio for panels composition.
 #' @export
 comparehealthlevels<-function(object, pch=19,xlab='Original frequency [%]',ylab='Adjusted frequency [%]',
-                            mar=c(2.5, 1, 1.5, 1), oma=c(4, 4, .1, .1),
-                            ratio = 1){
+                              mar=c(2.5, 1, 1.5, 1), oma=c(4, 4, .1, .1),
+                              ratio = 1){
   if (class(object) != 'healthlevels') stop('The object must be of class: "healthlevels".')
   sq <- getsq(NROW(object$tab), ratio)
   opar <- par(c('mar','oma'))
