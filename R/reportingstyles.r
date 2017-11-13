@@ -7,13 +7,23 @@
 #' @param model a fitted \code{gotm} model.
 #' @param subset an optional vector specifying a subset of observations.
 #' @param plotf logical indicating if to plot summary figure.
+#' @param crude logical indicating if to calculate crude health measure based directly on seld reported health levels.
+#' @param healthlevelsorder order of self-reported healh levels. Possible values are \code{'increasing'} and \code{'decreasing'}
 #' @export
-healthindex <- function(model, subset=NULL, plotf = FALSE) {
+healthindex <- function(model, subset=NULL, plotf = FALSE, crude = FALSE, scaled = TRUE, healthlevelsorder = 'decreasing') {
   #0 is the worse possible health, 1 is the best possible health
   if (length(subset) == 0) subset=seq_along(model$y_i)
-  r <- model$maxlatentrange
-  hi <- (1 - ((model$y_latent_i - r[1]) / diff(r)))[subset]
-  if (plotf) plot(model$y_i[subset], hi,las=3, ylab='Health index')
+  if (crude) {
+    hi <- as.numeric(unclass(model$y_i))
+    hi <- (hi - min(hi))/(diff(range(hi)))
+    if (healthlevelsorder == 'decreasing') hi <- 1-hi else if (healthlevelsorder != 'increasing') stop('Unknown value for healthlevelsorder.')
+    hi <- hi[subset]
+    if (plotf) plot(model$y_i[subset], hi,las=3, ylab='Health index')
+  } else {
+    r <- model$maxlatentrange
+    hi <- (1 - ((model$y_latent_i - r[1]) / diff(r)))[subset]
+    if (plotf) plot(model$y_i[subset], hi,las=3, ylab='Health index')
+  }
   if (plotf) invisible(hi) else return(hi)
 }
 
@@ -70,15 +80,15 @@ untable <- function(x) {
 }
 
 #' @keywords internal
-formula2classes <- function(formula, data, sep='_'){
+formula2classes <- function(formula, data, sep='_', add.var.names = FALSE){
   tmp <- model.frame(formula, data)
   colnames(tmp)
   lv <- lapply(seq_len(NCOL(tmp)),function (k) levels(tmp[,k]))
   names(lv) <-colnames(tmp)
   tmp2 <- expand.grid(lv)
-  tmp2 <- sapply(seq_len(NCOL(tmp2)), function (k) paste(colnames(tmp2)[k],'[',tmp2[,k],']',sep=''))
+  if (add.var.names) tmp2 <- sapply(seq_len(NCOL(tmp2)), function (k) paste(colnames(tmp2)[k],'[',tmp2[,k],']',sep=''))
   nlv <- levels(interaction(as.data.frame(tmp2),sep=sep))
-  tmp <- sapply(seq_len(NCOL(tmp)), function (k) paste(colnames(tmp)[k],'[',tmp[,k],']',sep=''))
+  if (add.var.names) tmp <- sapply(seq_len(NCOL(tmp)), function (k) paste(colnames(tmp)[k],'[',tmp[,k],']',sep=''))
   tmp <- interaction(as.data.frame(tmp),sep=sep)
   tmp <- factor(tmp, levels=nlv)
   tmp
@@ -91,28 +101,50 @@ formula2classes <- function(formula, data, sep='_'){
 #' @param formula a formula containing the variables. It is by default set to threshold formula.
 #' @param data used to fit the model.
 #' @param plotf logical indicating if to plot the results.
+#' @param healthlevelsorder order of self-reported healh levels. Possible values are \code{'increasing'} and \code{'decreasing'}
 #' @param sep separator for levls names.
 #' @param mar see \code{\link{par}}.
 #' @param oma see \code{\link{par}}.
 #' @export
 gethealthindexquantiles<-function(model, formula=model$thresh.formula, data=environment(model$thresh.formula),
-                                  plotf = TRUE, sep='_',
-                                  mar=c(4,8,1.5,0.5),oma=c(0,0,0,0)){
+                                  plotf = TRUE, sep='\n',
+                                  mar=c(4,8,1.5,0.5),oma=c(0,0,0,0), healthlevelsorder = 'decreasing'){
   if (class(formula)=='formula') tmp <- formula2classes(formula, data, sep=sep) else stop('Not implemented.')
   D <- t(sapply(levels(tmp),function(k) quantile(healthindex(model, tmp==k))))
+  Jh <- ceiling(model$J/2)
+  if (healthlevelsorder != 'decreasing') Jh <- model$J - Jh
+
+  M.crude <- t(sapply(levels(tmp),function(k) sum(model$weights[tmp==k]*healthindex(model, tmp==k, crude = TRUE,
+                                                             healthlevelsorder = healthlevelsorder))/sum(model$weights[tmp==k])))
+  M.crude2 <- t(sapply(levels(tmp),function(k) {
+    Hi <- as.numeric(unclass(model$y_i[tmp==k]))
+    Mi <- Hi <= Jh
+    W=model$weights[tmp==k]
+    sum(W*Mi)/sum(model$weights[tmp==k])}
+    ))
+
+  M <- t(sapply(levels(tmp),function(k) sum(model$weights[tmp==k]*healthindex(model, tmp==k, crude = FALSE,
+                                                                                    healthlevelsorder = healthlevelsorder))/sum(model$weights[tmp==k])))
   oD <- order(D[,3], decreasing = TRUE)
   D <- D[oD, ]
+  M.crude <- M.crude[oD]
+  M.crude2 <- M.crude2[oD]
+  M <- M[oD]
   D0 <- quantile(healthindex(model))
   IQR <- D[,4] - D[,2]
   if (plotf){
     opar <- par(c('mar','oma'))
     par(mar=mar,oma=oma)
-    rowplot(D[NROW(D):1,-c(1,model$J)], pch=c(21,19,21), col=1)
+    rowplot(D[NROW(D):1,-c(1,model$J)], pch=c(NA,19,NA), col=1)
+    for (y in seq_len(NROW(D))) lines(c(D[y,2],D[y,4]),NROW(D)-c(y,y)+1,lwd=2)
+    lines(M,rev(seq_along(M)),type='p',pch=4,col='red3',cex=1.5)
+    lines(M.crude2,rev(seq_along(M.crude2)),type='p',pch=15,col='blue3',cex=1.5)
     abline(v=D0[-c(1,model$J)])
+    #text(x=1,y=rev(seq_along(M)),format(M.crude2,digits=3),col='blue3')
     mtext('Health index',1,cex=1.5,line = 2.5)
     suppressWarnings(par(opar))
   }
-  res <- list(q.all=D0, q=D, IQR=IQR)
+  res <- list(q.all=D0, q=D, IQR=IQR, mean = M, mean.crude = M.crude, frac.crude = M.crude2)
   if (plotf) invisible(res) else return(res)
 }
 
@@ -123,6 +155,7 @@ gethealthindexquantiles<-function(model, formula=model$thresh.formula, data=envi
 #' @param subset an optional vector specifying a subset of observations.
 #' @param plotf logical indicating if to plot the results.
 #' @param revf logical indicating if self-reported health classes are ordered in increasing order.
+#' @param healthlevelsorder order of self-reported healh levels. Possible values are \code{'increasing'} and \code{'decreasing'}
 #' @param mar see \code{\link{par}}.
 #' @param oma see \code{\link{par}}.
 #' @keywords internal
@@ -287,23 +320,66 @@ getsq <- function(x, xf=1) c(ceiling(x/ceiling(xf*x/sqrt(x))),ceiling(xf*x/sqrt(
 #' @param pch,xlab,ylab,mar,oma common graphical parameters.
 #' @param ratio an aspect ratio for panels composition.
 #' @export
-comparehealthlevels<-function(object, pch=19,xlab='Original frequency [%]',ylab='Adjusted frequency [%]',
+comparehealthlevels<-function(object,
+                              simplified = TRUE,
+                              pch=19,
+                              xlab='Original frequency [%]',ylab='Adjusted frequency [%]',
                               mar=c(2.5, 1, 1.5, 1), oma=c(4, 4, .1, .1),
                               ratio = 1){
   if (class(object) != 'healthlevels') stop('The object must be of class: "healthlevels".')
-  sq <- getsq(NROW(object$tab), ratio)
+  if (simplified) {
+    if (NCOL(object$adjusted) %% 2) {
+      sq=c(1,3)
+      z <- floor(NCOL(object$adjusted)/2)
+      f1 <- seq_len(z)
+      f2 <- z + 1
+      f3 <- sort(NCOL(object$adjusted) - f1) + 1
+      h <- colnames(object$adjusted)
+      h <- c(paste(h[f1],collapse='&'),h[f2],paste(h[f3],collapse='&'))
+      object$adjusted <- cbind(rowSums(object$adjusted[,f1]),
+                               (object$adjusted[,f2]),
+                               rowSums(object$adjusted[,f3]))
+      object$original <- cbind(rowSums(object$original[,f1]),
+                               (object$original[,f2]),
+                               rowSums(object$original[,f3]))
+      colnames(object$original) <- colnames(object$adjusted) <- h
+    } else {
+      sq=c(1,2)
+      z <- round(NCOL(object$adjusted)/2)
+      f1 <- seq_len(z)
+      f2 <- sort(NCOL(object$adjusted) - f1) + 1
+      h <- colnames(object$adjusted)
+      h <- c(paste(h[f1],collapse='&'),paste(h[f2],collapse='&'))
+      object$adjusted <- cbind(rowSums(object$adjusted[,f1]),
+                               rowSums(object$adjusted[,f2]))
+      object$original <- cbind(rowSums(object$original[,f1]),
+                               rowSums(object$original[,f2]))
+      colnames(object$original) <- colnames(object$adjusted) <- h
+    }
+  } else sq <- getsq(NROW(object$tab), ratio)
   opar <- par(c('mar','oma'))
   par(mfrow=sq,oma=oma,mar=mar)
-  for(k in seq_len(NROW(object$tab))){
+  U_ <- 'underrated     '
+  O_ <- 'overrated     '
+  z <- floor(NCOL(object$adjusted)/2)
+  for(k in seq_len(NCOL(object$adjusted))){
     rr <- range(c(object$original[,k]*100,object$adjusted[,k]*100))
     plot(object$original[,k]*100,object$adjusted[,k]*100, pch=pch,
          xlab='', ylab='',main=colnames(object$adjusted)[k],
          xaxs='r', yaxs='r', xlim=rr, ylim=rr)
     lines(-20:120,-20:120)
-    posi <- approx(x=range(object$original[,k]),y=c(4,2),xout=object$original[,k],method="constant")$y
+    posi <- approx(x=range(object$original[,k]),y=c(4,2),xout=object$original[,k],method="linear")$y
+    posi <- round(posi / 2) * 2
     text(object$original[,k]*100,object$adjusted[,k]*100,labels=names(object$adjusted[,k]),cex=0.6,pos=posi,offset=0.5)
-    legend('topleft','underrated     ',bg=gray(0.8,alpha = 0.5),inset=0.05,xjust=0.5,box.col=NA,y.intersp=0.5)
-    legend('bottomright','overrated     ',bg=gray(0.8,alpha = 0.5),inset=0.05,xjust=0.5,box.col=NA,y.intersp=0.5)
+    if (k <= z) {
+      U <- O_
+      O <- U_
+    } else if (k >= NCOL(object$adjusted)-z +1){
+      U <- U_
+      O <- O_
+    }
+    legend('topleft',U,bg=gray(0.8,alpha = 0.5),inset=0.05,xjust=0.5,box.col=NA,y.intersp=0.5)
+    legend('bottomright',O,bg=gray(0.8,alpha = 0.5),inset=0.05,xjust=0.5,box.col=NA,y.intersp=0.5)
   }
   par(mfrow=c(1,1))
   par(oma=c(0,0,0,0),mar=mar)
