@@ -1,6 +1,6 @@
 # WHAT TO DO:
 
-# 3 methods of fitting vglm, jurges, hopit
+# . 3 methods of fitting vglm, jurges, hopit
 # Correct AIC and LRT for survey data using stats:::extractAIC
 # save summary to a file, file=NULL default
 

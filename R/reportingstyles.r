@@ -9,9 +9,16 @@
 #' @param plotf logical indicating if to plot summary figure.
 #' @param crude logical indicating if to calculate crude health measure based directly on seld reported health levels.
 #' @param healthlevelsorder order of self-reported healh levels. Possible values are \code{'increasing'} and \code{'decreasing'}
+#' @param method the method of calcualtion of of latent range .........
 #' @export
-healthindex <- function(model, subset=NULL, plotf = FALSE, crude = FALSE, scaled = TRUE, healthlevelsorder = 'decreasing') {
+healthindex <- function(model, subset=NULL, plotf = FALSE, crude = FALSE, scaled = TRUE,
+                        healthlevelsorder = 'decreasing', method = c('observed','theoretical')) {
   #0 is the worse possible health, 1 is the best possible health
+  method = method[1]
+  if (model$thresh.method != 'vglm') k <- 1 else k <- -1
+  p <- gotm_ExtractParameters(model)
+  if (!length(model$maxlatentrange)) model$maxlatentrange <- sort(k*gotm_latentrange(model=model, data=data))
+  if (!length(model$maxobservedlatentrange)) model$maxobservedlatentrange <- sort(k*range(gotm_Latent(p$reg.params,model)))
   if (length(subset) == 0) subset=seq_along(model$y_i)
   if (crude) {
     hi <- as.numeric(unclass(model$y_i))
@@ -20,8 +27,8 @@ healthindex <- function(model, subset=NULL, plotf = FALSE, crude = FALSE, scaled
     hi <- hi[subset]
     if (plotf) plot(model$y_i[subset], hi,las=3, ylab='Health index')
   } else {
-    r <- model$maxlatentrange
-    hi <- (1 - ((model$y_latent_i - r[1]) / diff(r)))[subset]
+    if (method=='theoretical') r <- model$maxlatentrange else if (method=='observed') r <- model$maxobservedlatentrange
+    hi <- (1 - ((k * model$y_latent_i - r[1]) / diff(r)))[subset]
     if (plotf) plot(model$y_i[subset], hi,las=3, ylab='Health index')
   }
   if (plotf) invisible(hi) else return(hi)
@@ -39,9 +46,14 @@ healthindex <- function(model, subset=NULL, plotf = FALSE, crude = FALSE, scaled
 #' @param mar see \code{\link{par}}.
 #' @param oma see \code{\link{par}}.
 #' @export
-disabilityweights <- function (model, method=1, plotf = TRUE, mar = c(15, 4, 1, 1), oma = c(0, 0, 0, 0)) {
-  cfm <- sort((model$coef)[seq_len(model$parcount[1])], decreasing = TRUE)
-  r <- model$maxlatentrange
+disabilityweights <- function (model, method=1, latent.method = c('observed','theoretical'), plotf = TRUE, mar = c(15, 4, 1, 1), oma = c(0, 0, 0, 0)) {
+  latent.method <- latent.method[1]
+  if (model$thresh.method != 'vglm') k <- 1 else k <- -1
+  p <- gotm_ExtractParameters(model)
+  if (!length(model$maxlatentrange)) model$maxlatentrange <- sort(k*gotm_latentrange(model=model, data=data))
+  if (!length(model$maxobservedlatentrange)) model$maxobservedlatentrange <- sort(k*range(gotm_Latent(p$reg.params,model)))
+  cfm <- sort((k * model$coef)[seq_len(model$parcount[1])], decreasing = TRUE)
+  if (latent.method=='theoretical') r <- model$maxlatentrange else if (latent.method=='observed') r <- model$maxobservedlatentrange
   if (method==2) {
     res <- as.matrix((cfm - r[1])/diff(r))
   } else if (method==1) {
@@ -80,9 +92,9 @@ untable <- function(x) {
 }
 
 #' @keywords internal
-formula2classes <- function(formula, data, sep='_', add.var.names = FALSE){
+formula2classes <- function(formula, data, sep='_', add.var.names = FALSE, return.matrix = FALSE){
   tmp <- model.frame(formula, data)
-  colnames(tmp)
+  mod.mat <- tmp
   lv <- lapply(seq_len(NCOL(tmp)),function (k) levels(tmp[,k]))
   names(lv) <-colnames(tmp)
   tmp2 <- expand.grid(lv)
@@ -91,7 +103,7 @@ formula2classes <- function(formula, data, sep='_', add.var.names = FALSE){
   if (add.var.names) tmp <- sapply(seq_len(NCOL(tmp)), function (k) paste(colnames(tmp)[k],'[',tmp[,k],']',sep=''))
   tmp <- interaction(as.data.frame(tmp),sep=sep)
   tmp <- factor(tmp, levels=nlv)
-  tmp
+  if (return.matrix) list(x = tmp, mat = mod.mat, class.mat = tmp2) else tmp
 }
 
 #' Get health index quantiles with respect to specified vaiables
@@ -111,7 +123,7 @@ gethealthindexquantiles<-function(model, formula=model$thresh.formula, data=envi
                                   mar=c(4,8,1.5,0.5),oma=c(0,0,0,0), healthlevelsorder = 'decreasing'){
   if (class(formula)=='formula') tmp <- formula2classes(formula, data, sep=sep) else stop('Not implemented.')
   D <- t(sapply(levels(tmp),function(k) quantile(healthindex(model, tmp==k))))
-  Jh <- ceiling(model$J/2)
+  Jh <- floor(model$J/2)
   if (healthlevelsorder != 'decreasing') Jh <- model$J - Jh
 
   M.crude <- t(sapply(levels(tmp),function(k) sum(model$weights[tmp==k]*healthindex(model, tmp==k, crude = TRUE,
@@ -138,9 +150,9 @@ gethealthindexquantiles<-function(model, formula=model$thresh.formula, data=envi
     rowplot(D[NROW(D):1,-c(1,model$J)], pch=c(NA,19,NA), col=1)
     for (y in seq_len(NROW(D))) lines(c(D[y,2],D[y,4]),NROW(D)-c(y,y)+1,lwd=2)
     lines(M,rev(seq_along(M)),type='p',pch=4,col='red3',cex=1.5)
-    lines(M.crude2,rev(seq_along(M.crude2)),type='p',pch=15,col='blue3',cex=1.5)
+    #lines(M.crude2,rev(seq_along(M.crude2)),type='p',pch=15,col='blue3',cex=1.5)
     abline(v=D0[-c(1,model$J)])
-    #text(x=1,y=rev(seq_along(M)),format(M.crude2,digits=3),col='blue3')
+    text(x=1,y=rev(seq_along(M)),format(M.crude2,digits=3),col='blue3')
     mtext('Health index',1,cex=1.5,line = 2.5)
     suppressWarnings(par(opar))
   }
@@ -283,17 +295,25 @@ getcutpoints<-function(model, formula=model$thresh.formula,
 gethealthlevels<-function(model, formula=model$thresh.formula,
                           data=environment(model$thresh.formula), revf = NULL,
                           plotf = TRUE, sep='_',mar=c(7,2,1.5,0.5),oma=c(0,3,0,0)){
-  if (class(formula)=='formula') inte <- formula2classes(formula, data, sep=sep) else stop('Not implemented.')
+  if (class(formula)=='formula') inte_ <- formula2classes(formula, data, sep=sep, return.matrix = TRUE) else stop('Not implemented.')
+  inte <- inte_$x
+  namind <- inte_$class.mat
+  nam <- levels(inte)
   cpall<-basiccutpoints(model, plotf = FALSE, revf = revf)
   TAB1 <- round(table(original=model$y_i, adjusted=cpall$adjused.health.levels)*100/length(model$y_i),2)
   tmp <- untable(t(table(factor(model$y_i,levels=levels(cpall$adjused.health.levels)), inte)))
+  N1 <- tmp
   tmp <-tmp/rowSums(tmp)
   oD1 <- order(tmp[,NCOL(tmp)]+tmp[,NCOL(tmp)-1])
   tmp <- tmp[oD1,]
+  orignalind <- namind[oD1,]
+
   tmp2 <- untable(t(table(cpall$adjused.health.levels, inte)))
+  N2 <- tmp2
   tmp2 <- tmp2/rowSums(tmp2)
   oD2 <- order(tmp2[,NCOL(tmp2)]+tmp2[,NCOL(tmp2)-1])
   tmp2 <- tmp2[oD2,]
+  adjustedind <- namind[oD2,]
   if (plotf) {
     opar <- par(c('mar','oma'))
     par(mfrow=c(1,2))
@@ -307,7 +327,16 @@ gethealthlevels<-function(model, formula=model$thresh.formula,
     mtext('Fraction [%]',2,cex=1.5)
     suppressWarnings(par(opar))
   }
-  res <- list(original= tmp, adjusted= tmp2, tab= TAB1)
+  res <- list(original= tmp,
+              adjusted= tmp2,
+              tab= TAB1,
+              N.original= N1,
+              N.adjusted= N2,
+              I.orignal= orignalind,
+              I.adjusted= adjustedind,
+              mat=cbind(inte_$mat,
+                      original= model$y_i,
+                      adjusted= cpall$adjused.health.levels))
   class(res) <- 'healthlevels'
   if (plotf) invisible(res) else return(res)
 }
@@ -374,12 +403,15 @@ comparehealthlevels<-function(object,
     if (k <= z) {
       U <- O_
       O <- U_
+      legend('topleft',U,bg=gray(0.8,alpha = 0.5),inset=0.05,xjust=0.5,box.col=NA,y.intersp=0.5)
+      legend('bottomright',O,bg=gray(0.8,alpha = 0.5),inset=0.05,xjust=0.5,box.col=NA,y.intersp=0.5)
     } else if (k >= NCOL(object$adjusted)-z +1){
       U <- U_
       O <- O_
+      legend('topleft',U,bg=gray(0.8,alpha = 0.5),inset=0.05,xjust=0.5,box.col=NA,y.intersp=0.5)
+      legend('bottomright',O,bg=gray(0.8,alpha = 0.5),inset=0.05,xjust=0.5,box.col=NA,y.intersp=0.5)
     }
-    legend('topleft',U,bg=gray(0.8,alpha = 0.5),inset=0.05,xjust=0.5,box.col=NA,y.intersp=0.5)
-    legend('bottomright',O,bg=gray(0.8,alpha = 0.5),inset=0.05,xjust=0.5,box.col=NA,y.intersp=0.5)
+
   }
   par(mfrow=c(1,1))
   par(oma=c(0,0,0,0),mar=mar)
