@@ -1,3 +1,53 @@
+update.latent <-function(model, newregcoef, data, hessian=FALSE){
+  coefnames <- names(model$coef)
+  thresh.names <- colnames(model$thresh.mm)
+  model$coef[seq_len(model$parcount[1])]=newregcoef
+  class(model) <- 'gotm'
+  names(model$coef) <- coefnames
+  colnames(model$thresh.mm) <- thresh.names
+  p <- gotm_ExtractParameters(model)
+  if (model$thresh.method != 'vglm') k <- 1 else k <- -1
+  model$maxlatentrange <- sort(k*gotm_latentrange(model=model, data=data))
+  model$maxobservedlatentrange <-  sort(k*range(gotm_Latent(p$reg.params,model)))
+  model$y_latent_i <- gotm_Latent(p$reg.params, model)
+  if (model$thresh.method != 'vglm') {
+    model$Ey_i <- factor(colSums(sapply(1L : model$N, function(k) model$alpha[k,]<model$y_latent_i[k])),levels=1L:model$J)
+    levels(model$Ey_i) <- levels(model$y_i)
+  } else {
+    model$Ey_i <- 'Not implemented'
+  }
+
+  #update fitness + calculate fitness profile
+
+  if (hessian && (model$thresh.method != 'vglm')) {
+
+    my.grad <- function(fn, par, eps, ...){
+      sapply(1L : length(par), function(k){
+        epsi <- rep(0L, length(par))
+        epsi[k] <- eps
+        (fn(par + epsi, ...) - fn(par - epsi, ...))/2/eps
+      })
+    }
+
+    cat('Calculating hessian...')
+    hes <- my.grad(fn = gotm_derivLL, par = model$coef, model=model, eps = model$control$grad.eps, collapse = TRUE)
+    model$vcov <- try(solve(-hes), silent = T)
+    if (class(z) == 'try-error') {
+      z <- NA*hes
+      warning(call. = FALSE, 'Model is probably unidentifiable, vcov cannot be computed. Please try to use a "hopit" model.')
+    }
+    cat(' done\n')
+    cat('Calculating estfun...')
+
+
+    model$estfun <- gotm_derivLL(model$coef, model, collapse = FALSE)
+
+    cat(' done\n')
+  }
+  model
+}
+
+
 #' Calculate health index
 #' @description
 #' Calcualte halth index from the latent variable. It takes values from 0 to 1, where
@@ -34,6 +84,21 @@ healthindex <- function(model, subset=NULL, plotf = FALSE, crude = FALSE, scaled
   if (plotf) invisible(hi) else return(hi)
 }
 
+
+contingencytables <- function(model, formula, data, names.reg=identity){
+  if (class(names.reg)=='function') NN <- names.reg(colnames(model$reg.mm)) else NN <- names.reg
+  if (class(formula)=='formula') tmp <- formula2classes(formula, data, sep=' ', return.matrix = TRUE) else stop('Not implemented.')
+  colnames(model$reg.mm) <- NN
+  M <- tmp$x
+  cTAB <- sapply(levels(M), function(k) colSums(model$reg.mm[k==M,]))
+  cTAB <- cbind(cTAB, ALL=rowSums(cTAB))
+  fTAB.1 <- 100*cTAB / length(M)
+  cTAB <- rbind(cTAB, 'Number of subjects'=c(table(tmp$x),length(M)))
+  #fTAB.2 <- (100 * cTAB / t(matrix(cTAB[dim(cTAB)[1],],dim(cTAB)[2],dim(cTAB)[1])))[-dim(cTAB)[1],]
+  fTAB.2 <- (100 * cTAB / matrix(cTAB[,dim(cTAB)[2]],dim(cTAB)[1],dim(cTAB)[2]))[,-dim(cTAB)[2]]
+  list(countsTAB=cTAB, freqTAB1=fTAB.1, freqTAB2=fTAB.2)
+}
+
 #' Calculate disability weights
 #' @description
 #' Calculate disability weights
@@ -46,23 +111,40 @@ healthindex <- function(model, subset=NULL, plotf = FALSE, crude = FALSE, scaled
 #' @param mar see \code{\link{par}}.
 #' @param oma see \code{\link{par}}.
 #' @export
-disabilityweights <- function (model, method=1, latent.method = c('observed','theoretical'), plotf = TRUE, mar = c(15, 4, 1, 1), oma = c(0, 0, 0, 0)) {
+disabilityweights <- function (model, method=1, latent.method = c('observed','theoretical'),
+                               plotpval = FALSE,
+                               plotf = TRUE, mar = c(15, 4, 1, 1), oma = c(0, 0, 0, 0),
+                               namesf = identity) {
   latent.method <- latent.method[1]
   if (model$thresh.method != 'vglm') k <- 1 else k <- -1
   p <- gotm_ExtractParameters(model)
   if (!length(model$maxlatentrange)) model$maxlatentrange <- sort(k*gotm_latentrange(model=model, data=data))
   if (!length(model$maxobservedlatentrange)) model$maxobservedlatentrange <- sort(k*range(gotm_Latent(p$reg.params,model)))
-  cfm <- sort((k * model$coef)[seq_len(model$parcount[1])], decreasing = TRUE)
+  z <- (k * model$coef)[seq_len(model$parcount[1])]
+
+  if (class(namesf)=='function') names(z) <- namesf(names(z)) else names(z) <- namesf
+  oz <- order(z, decreasing = TRUE)
+  cfm <- z[oz]
   if (latent.method=='theoretical') r <- model$maxlatentrange else if (latent.method=='observed') r <- model$maxobservedlatentrange
   if (method==2) {
     res <- as.matrix((cfm - r[1])/diff(r))
   } else if (method==1) {
     res <- as.matrix((cfm - max(r[1],0))/min(diff(r),max(r)))
   } else stop('Unknown method.', call. = FALSE)
+
   if (plotf) {
+
     opar <- par(c("mar", "oma"))
     par(mar = mar, oma = oma)
-    barplot(t(res), las = 3)
+    rr <- barplot(t(res), las = 3)
+    if(plotpval) {
+      y <- summary(model)
+      pval <- format(round(y$table$`Pr(>|z|)`[seq_len(model$parcount[1])],4),digits=4,scientific=FALSE)[oz]
+      yr <- res/2
+      ind <- yr < max(res)*0.1
+      yr[ind] <- (res+max(res)*0.1)[ind]
+      text(rr,yr,paste('P =',pval),srt=90,col=c('white','black')[1+ind])
+    }
     mtext("Disability weight", 2, cex = 1.5, line = 2.5)
     suppressWarnings(par(opar))
   }
@@ -119,7 +201,7 @@ formula2classes <- function(formula, data, sep='_', add.var.names = FALSE, retur
 #' @param oma see \code{\link{par}}.
 #' @export
 gethealthindexquantiles<-function(model, formula=model$thresh.formula, data=environment(model$thresh.formula),
-                                  plotf = TRUE, sep='\n',
+                                  plotf = TRUE, sep='\n',sort.flag=FALSE,
                                   mar=c(4,8,1.5,0.5),oma=c(0,0,0,0), healthlevelsorder = 'decreasing'){
   if (class(formula)=='formula') tmp <- formula2classes(formula, data, sep=sep) else stop('Not implemented.')
   D <- t(sapply(levels(tmp),function(k) quantile(healthindex(model, tmp==k))))
@@ -137,11 +219,14 @@ gethealthindexquantiles<-function(model, formula=model$thresh.formula, data=envi
 
   M <- t(sapply(levels(tmp),function(k) sum(model$weights[tmp==k]*healthindex(model, tmp==k, crude = FALSE,
                                                                                     healthlevelsorder = healthlevelsorder))/sum(model$weights[tmp==k])))
-  oD <- order(D[,3], decreasing = TRUE)
-  D <- D[oD, ]
-  M.crude <- M.crude[oD]
-  M.crude2 <- M.crude2[oD]
-  M <- M[oD]
+  if (sort.flag) {
+    oD <- order(D[,3], decreasing = TRUE)
+    D <- D[oD, ]
+    M.crude <- M.crude[oD]
+    M.crude2 <- M.crude2[oD]
+    M <- M[oD]
+  }
+
   D0 <- quantile(healthindex(model))
   IQR <- D[,4] - D[,2]
   if (plotf){
@@ -152,7 +237,7 @@ gethealthindexquantiles<-function(model, formula=model$thresh.formula, data=envi
     lines(M,rev(seq_along(M)),type='p',pch=4,col='red3',cex=1.5)
     #lines(M.crude2,rev(seq_along(M.crude2)),type='p',pch=15,col='blue3',cex=1.5)
     abline(v=D0[-c(1,model$J)])
-    text(x=1,y=rev(seq_along(M)),format(M.crude2,digits=3),col='blue3')
+    #text(x=1,y=rev(seq_along(M)),format(M.crude2,digits=3),col='blue3')
     mtext('Health index',1,cex=1.5,line = 2.5)
     suppressWarnings(par(opar))
   }
@@ -171,7 +256,7 @@ gethealthindexquantiles<-function(model, formula=model$thresh.formula, data=envi
 #' @param mar see \code{\link{par}}.
 #' @param oma see \code{\link{par}}.
 #' @keywords internal
-basiccutpoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(0,0,0,0), revf=NULL){
+basiccutpoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(0,0,0,0), revf=NULL, simple.plot=TRUE){
 
   if (length(subset) == 0) subset=seq_along(model$y_i)
   Y <- model$y_i[subset]
@@ -195,8 +280,15 @@ basiccutpoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=
     par(mar=mar, oma=oma)
     z<-hist(h.index, 200,xlab='',ylab='' ,
             main='', yaxs='i', col=grey(0.8, alpha = 0.5),border=grey(0.4, alpha = 0.5))
+    if (!simple.plot) {
     for (j in seq_along(Nm)) text(x=R1[j],y=(1.1*max(z$counts))/2,labels=Nm[[j]],
                                   srt=90,pos=2,offset=0.67,col=2)
+    } else {
+      R11=-diff(c(0,R1,1))/2+c(R1,1)+strheight('S',units='figure')/2
+      for (j in seq_along(lv)) text(x=R11[j],y=(3*1.1*max(z$counts))/4,labels=lv[j],
+                                    srt=90,pos=3,offset=0.67,col=2)
+
+    }
     box()
     abline(v=R1,lwd=2,col=2)
     mtext('Health index',1,cex=1.5,line = 2.5)
@@ -236,8 +328,8 @@ basiccutpoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=
 #' @export
 getcutpoints<-function(model, formula=model$thresh.formula,
                        data=environment(model$thresh.formula),
-                       plotf = TRUE, sep='_',
-                       revf=NULL, mar, oma){
+                       plotf = TRUE, sep='_',sort.flag=FALSE,
+                       revf=NULL, mar, oma, simple.names = TRUE){
   if (!length(formula)) {
     if (missing(oma)) oma=c(0,0,0,0)
     if (missing(mar)) mar=c(4,4,1,1)
@@ -254,8 +346,12 @@ getcutpoints<-function(model, formula=model$thresh.formula,
     if (revf) dorev <- rev else dorev <- identity
     if (class(formula)=='formula') tmp <- formula2classes(formula, data, sep=sep) else stop('Not implemented.')
     D <- t(sapply(levels(tmp),function(k) basiccutpoints(model=model, tmp==k, plotf = FALSE, revf = revf)$cutpoints))
-    oD <- order(D[,2], decreasing = FALSE)
-    D <- D[oD, ]
+
+    if (sort.flag) {
+      oD <- order(D[,2], decreasing = FALSE)
+      D <- D[oD, ]
+    }
+
     D0 <- basiccutpoints(model, plotf = FALSE, revf = revf)$cutpoints
     lv <- dorev(as.character(levels(model$y_i)))
     Nm <- paste(lv[-length(lv)],lv[-1],sep=' | ')
@@ -267,8 +363,14 @@ getcutpoints<-function(model, formula=model$thresh.formula,
       rowplot(D[NROW(D):1,], pch=19, col=1)
       abline(v=D0, col=2,lwd=2)
       mtext('Health index cut points',1,cex=1.5,line=2.5)
-      for (j in seq_along(Nm)) text(x=D0[j],y=NROW(D)/4+NROW(D)/2,labels=Nm[[j]],
+      #if (!simple.names) {
+        for (j in seq_along(Nm)) text(x=D0[j],y=NROW(D)/4+NROW(D)/2,labels=Nm[[j]],
                                     srt=90,pos=2,offset=0.9,col=2)
+      # } else {
+      #   D00=diff(c(0,D0))/2+D0
+      #   for (j in seq_along(Nm)) text(x=D00[j],y=NROW(D)/4+NROW(D)/2,labels=lv[j],
+      #                                 srt=90,pos=2,offset=0.9,col=2)
+      # }
       par(new = TRUE)
       rowplot(D[NROW(D):1,], pch=19, col=1:model$J)
       par(new = TRUE)
@@ -294,6 +396,7 @@ getcutpoints<-function(model, formula=model$thresh.formula,
 #' @export
 gethealthlevels<-function(model, formula=model$thresh.formula,
                           data=environment(model$thresh.formula), revf = NULL,
+                          sort.flag=FALSE,
                           plotf = TRUE, sep='_',mar=c(7,2,1.5,0.5),oma=c(0,3,0,0)){
   if (class(formula)=='formula') inte_ <- formula2classes(formula, data, sep=sep, return.matrix = TRUE) else stop('Not implemented.')
   inte <- inte_$x
@@ -304,16 +407,21 @@ gethealthlevels<-function(model, formula=model$thresh.formula,
   tmp <- untable(t(table(factor(model$y_i,levels=levels(cpall$adjused.health.levels)), inte)))
   N1 <- tmp
   tmp <-tmp/rowSums(tmp)
-  oD1 <- order(tmp[,NCOL(tmp)]+tmp[,NCOL(tmp)-1])
-  tmp <- tmp[oD1,]
-  orignalind <- namind[oD1,]
+  if (sort.flag) {
+    oD1 <- order(tmp[,NCOL(tmp)]+tmp[,NCOL(tmp)-1])
+    tmp <- tmp[oD1,]
+    orignalind <- namind[oD1,]
+  } else orignalind <- namind
 
   tmp2 <- untable(t(table(cpall$adjused.health.levels, inte)))
   N2 <- tmp2
   tmp2 <- tmp2/rowSums(tmp2)
-  oD2 <- order(tmp2[,NCOL(tmp2)]+tmp2[,NCOL(tmp2)-1])
-  tmp2 <- tmp2[oD2,]
-  adjustedind <- namind[oD2,]
+  if (sort.flag) {
+    oD2 <- order(tmp2[,NCOL(tmp2)]+tmp2[,NCOL(tmp2)-1])
+    tmp2 <- tmp2[oD2,]
+    adjustedind <- namind[oD2,]
+  } else adjustedind <- namind
+
   if (plotf) {
     opar <- par(c('mar','oma'))
     par(mfrow=c(1,2))
@@ -340,6 +448,106 @@ gethealthlevels<-function(model, formula=model$thresh.formula,
   class(res) <- 'healthlevels'
   if (plotf) invisible(res) else return(res)
 }
+
+helatlevel.boot.plot<-function(object, model, namefunc = identity,
+                               col=c('red4','blue4'),pch=c(1,0),
+                               symlim = FALSE, pos.method = 2,
+                               legtxt=c('Women','Men'),out1=NULL,out2=NULL,
+                               myposi1 = NULL,
+                               myposi2 = NULL) {
+  par(mfrow=c(1,2),oma=c(3.5,2,0,0),mar=c(1,2.2,1,0.4))
+  incl<-function(x,f) if (f) return (x) else return(NULL)
+  plot(NA,NA,xlim=range(out1,object$org.lo[,1],object$org.hi[,1],incl(c(object$adj.lo[,1],object$adj.hi[,1]),symlim)),
+       ylim=range(object$adj.lo[,1],object$adj.hi[,1],incl(c(out1,object$org.lo[,1],object$org.hi[,1]),symlim)),
+       xlab='',ylab='',
+       main=paste(levels(model$y_i)[model$J-c(0:1)],collapse='&'),xaxs='r',yaxs='r')
+  lines(c(-100,100),c(-100,100),col='gray')
+  lines(object$org.est[,1],object$adj.est[,1],type='p',pch=rep(pch, dim(object$org.est)[1]/2), col=rep(col, dim(object$org.est)[1]/2))
+  for (j in seq_len(dim(object$org.est)[1])) lines(c(object$org.est[j,1],object$org.est[j,1]),c(object$adj.lo[j,1],object$adj.hi[j,1]),lwd=2, col=col[1+(j+1)%%2])
+
+  if (pos.method == 1) {
+    posi <- approx(x=range(object$org.est[,1]),y=c(4,2),xout=object$org.est[,1],method="linear")$y
+    posi <- round(posi / 2) * 2
+  } else if (pos.method == 3) {
+    posi <- rep(0,length(object$org.est[,1]))
+    posi[order(object$org.est[,1])] <- rep(c(2,4),length(object$org.est[,1])/2)
+  } else if (pos.method == 2) {
+    posi <- rep(0,length(object$org.est[,1]))
+    posi[order(object$org.est[,1]*object$adj.est[,1])] <- rep(c(2,4),length(object$org.est[,1])/2)
+  } else if (pos.method == 4) {
+    if (!length(myposi1)) stop ('myposi should be given.')
+    posi <-  myposi1
+  }
+  pos1 = posi
+  text(object$org.est[,1],object$adj.est[,1],labels=namefunc(gsub('_',' ',names(object$adj.est[,1]))),cex=0.65,pos=posi,offset=0.3)
+  if (length(legtxt)) legend('topleft',legtxt, pch=pch, col=col, bty='n')
+
+  plot(NA,NA,xlim=range(out2,object$org.lo[,2],object$org.hi[,2],incl(c(object$adj.lo[,2],object$adj.hi[,2]),symlim)),
+       ylim=range(object$adj.lo[,2],object$adj.hi[,2],incl(c(out2,object$org.lo[,2],object$org.hi[,2]),symlim)),xlab='',ylab='',
+       main=paste(levels(model$y_i)[1:2],collapse='&'),xaxs='r',yaxs='r')
+  lines(c(-100,100),c(-100,100),col='gray')
+  lines(object$org.est[,2],object$adj.est[,2],type='p',pch=rep(pch, dim(object$org.est)[1]/2), col=rep(col, dim(object$org.est)[1]/2))
+  for (j in seq_len(dim(object$org.est)[1])) lines(c(object$org.est[j,2],object$org.est[j,2]),c(object$adj.lo[j,2],object$adj.hi[j,2]),lwd=2, col=col[1+(j+1)%%2])
+
+  if (pos.method == 1) {
+    posi <- approx(x=range(object$org.est[,2]),y=c(4,2),xout=object$org.est[,2],method="linear")$y
+    posi <- round(posi / 2) * 2
+  } else if (pos.method == 3) {
+    posi <- rep(0,length(object$org.est[,2]))
+    posi[order(object$org.est[,2])] <- rep(c(2,4),length(object$org.est[,2])/2)
+  } else if (pos.method == 2) {
+    posi <- rep(0,length(object$org.est[,2]))
+    posi[order(object$org.est[,2]*object$adj.est[,2])] <- rep(c(2,4),length(object$org.est[,2])/2)
+  } else if (pos.method == 4) {
+    if (!length(myposi2)) stop ('myposi should be given.')
+    posi  <- myposi2
+  }
+  pos2 = posi
+
+  text(object$org.est[,2],object$adj.est[,2],labels=namefunc(gsub('_',' ',names(object$adj.est[,2]))),cex=0.65,pos=posi,offset=0.3)
+  par(mfrow=c(1,1),oma=c(0,0,0,0))
+  mtext('Adjusted SRH [%]',2,line=1,cex=1.5)
+  mtext('Original SRH [%]',1,line=-0.25,cex=1.5)
+  list('p1'=pos1, 'p2'=pos2)
+}
+
+gethealthlevels_boot<-function(model, formula=model$thresh.formula,
+                          data=environment(model$thresh.formula), revf = NULL,
+                          nboot=1000, alpha=0.05, plotF= FALSE, namefunc = identity,
+                          col=c('red4','blue4'),pch=c(1,0)){
+
+  N=seq_len(model$parcount[1])
+  bootsample=MASS::mvrnorm(nboot,mu=model$coef[N],Sigma=summary(model)$vcov[N,N])
+  GG0 <- gethealthlevels(model=model,formula=formula,data=data,revf=revf,plotf=FALSE)
+  boots=sapply(seq_len(nboot), function(k) {
+    bmodel <- update.latent(model,bootsample[k,N],data=data)
+    GG <- gethealthlevels(model=bmodel,formula=formula,data=data,revf=revf,plotf=FALSE)
+    tmp <- cbind(L=GG$adjusted[,1]+GG$adjusted[,2],H=GG$adjusted[,model$J-1]+GG$adjusted[,model$J])
+    as.vector(tmp)
+  })
+  adj.est=100*cbind(L=GG0$adjusted[,1]+GG0$adjusted[,2],H=GG0$adjusted[,model$J-1]+GG0$adjusted[,model$J])
+  org.est=100*cbind(L=GG0$original[,1]+GG0$original[,2],H=GG0$original[,model$J-1]+GG0$original[,model$J])
+  orgN=cbind(L=GG0$N.original[,1]+GG0$N.original[,2],H=GG0$N.original[,model$J-1]+GG0$N.original[,model$J])
+  adj.mean=100*matrix(apply(boots,1,mean),dim(org.est)[1],dim(org.est)[2]); dimnames(adj.mean)=dimnames(org.est)
+  adj.lo=100*matrix(apply(boots,1, function(k) quantile(k,c(alpha/2))),dim(org.est)[1],dim(org.est)[2]); dimnames(adj.lo)=dimnames(org.est)
+  adj.hi=100*matrix(apply(boots,1, function(k) quantile(k,1-c(alpha/2))),dim(org.est)[1],dim(org.est)[2]); dimnames(adj.hi)=dimnames(org.est)
+  # orgSE=sqrt(org.est*(1-org.est)/orgN)
+  # org.lo.se=org.est+qnorm(c(alpha/2))*orgSE
+  # org.hi.se=org.est+qnorm(1-c(alpha/2))*orgSE
+  org.tmp=sapply(seq_len(length(org.est)), function(k) {
+    tmp=replicate(nboot,mean(rbinom(n=as.vector(orgN)[k],size=1, prob=as.vector(org.est/100)[k])))
+    quantile(tmp,c(alpha/2,1-c(alpha/2)))
+    })
+  org.lo=matrix(org.tmp[1,]*100,dim(org.est)[1],dim(org.est)[2]); dimnames(org.lo)=dimnames(org.est)
+  org.hi=matrix(org.tmp[2,]*100,dim(org.est)[1],dim(org.est)[2]); dimnames(org.hi)=dimnames(org.est)
+  res=list(org.est=org.est,org.lo=org.lo,org.hi=org.hi,adj.est=adj.est,adj.lo=adj.lo,adj.hi=adj.hi)
+
+  if (plotF) {
+    helatlevel.boot.plot(res, model, namefunc, col, pch)
+  }
+  return(res)
+}
+
 
 #' @keywords internal
 getsq <- function(x, xf=1) c(ceiling(x/ceiling(xf*x/sqrt(x))),ceiling(xf*x/sqrt(x)))

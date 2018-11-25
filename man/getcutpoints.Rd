@@ -6,7 +6,7 @@
 \usage{
 getcutpoints(model, formula = model$thresh.formula,
   data = environment(model$thresh.formula), plotf = TRUE, sep = "_",
-  revf = NULL, mar, oma)
+  sort.flag = FALSE, revf = NULL, mar, oma, simple.names = TRUE)
 }
 \arguments{
 \item{model}{a fitted \code{gotm} model.}
@@ -30,4 +30,3 @@ If set to \code{NULL} then threshold cut-point are calcualted for the whole popu
 \description{
 Calcualte threshold cut-points using Jurges' method.
 }
-
