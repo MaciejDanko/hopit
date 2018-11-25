@@ -4,8 +4,9 @@
 \alias{disabilityweights}
 \title{Calculate disability weights}
 \usage{
-disabilityweights(model, plotf = TRUE, mar = c(15, 4, 1, 1), oma = c(0, 0,
-  0, 0))
+disabilityweights(model, method = 1, latent.method = c("observed",
+  "theoretical"), plotpval = FALSE, plotf = TRUE, mar = c(15, 4, 1, 1),
+  oma = c(0, 0, 0, 0), namesf = identity)
 }
 \arguments{
 \item{model}{a fitted \code{gotm} model.}
@@ -19,10 +20,9 @@ disabilityweights(model, plotf = TRUE, mar = c(15, 4, 1, 1), oma = c(0, 0,
 \description{
 Calculate disability weights
 computed as the regression parameters from the generalised ordered probit model divided by the maximum possible range
-of its linear prediction. The range is calcualted as difference between maximum and minimum possible value of the latent variable 
+of its linear prediction. The range is calcualted as difference between maximum and minimum possible value of the latent variable
 given estimated parameters.
 }
 \seealso{
 \code{\link{healthindex}}
 }
-

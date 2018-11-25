@@ -4,7 +4,9 @@
 \alias{healthindex}
 \title{Calculate health index}
 \usage{
-healthindex(model, subset = NULL, plotf = FALSE)
+healthindex(model, subset = NULL, plotf = FALSE, crude = FALSE,
+  scaled = TRUE, healthlevelsorder = "decreasing", method = c("observed",
+  "theoretical"))
 }
 \arguments{
 \item{model}{a fitted \code{gotm} model.}
@@ -12,11 +14,16 @@ healthindex(model, subset = NULL, plotf = FALSE)
 \item{subset}{an optional vector specifying a subset of observations.}
 
 \item{plotf}{logical indicating if to plot summary figure.}
+
+\item{crude}{logical indicating if to calculate crude health measure based directly on seld reported health levels.}
+
+\item{healthlevelsorder}{order of self-reported healh levels. Possible values are \code{'increasing'} and \code{'decreasing'}}
+
+\item{method}{the method of calcualtion of of latent range .........}
 }
 \description{
-Calcualte halth index from the latent variable. It takes values from 0 to 1, where 
-zero is prescribed to the worse possible health (maximum posible value fo the latent variable; 
-all conditions/diseases with negative effects on health are present) and 1 is prescribed 
+Calcualte halth index from the latent variable. It takes values from 0 to 1, where
+zero is prescribed to the worse possible health (maximum posible value fo the latent variable;
+all conditions/diseases with negative effects on health are present) and 1 is prescribed
 to the best possible health (calculated analogically).
 }
-

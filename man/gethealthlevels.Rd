@@ -5,8 +5,9 @@
 \title{Calcualte adjusted health levels.}
 \usage{
 gethealthlevels(model, formula = model$thresh.formula,
-  data = environment(model$thresh.formula), revf = NULL, plotf = TRUE,
-  sep = "_", mar = c(7, 2, 1.5, 0.5), oma = c(0, 3, 0, 0))
+  data = environment(model$thresh.formula), revf = NULL,
+  sort.flag = FALSE, plotf = TRUE, sep = "_", mar = c(7, 2, 1.5, 0.5),
+  oma = c(0, 3, 0, 0))
 }
 \arguments{
 \item{model}{a fitted \code{gotm} model.}
@@ -28,4 +29,3 @@ gethealthlevels(model, formula = model$thresh.formula,
 \description{
 Calcualte adjusted health levels according to th Jurges' method.
 }
-

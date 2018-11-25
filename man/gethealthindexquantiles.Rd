@@ -5,8 +5,9 @@
 \title{Get health index quantiles with respect to specified vaiables}
 \usage{
 gethealthindexquantiles(model, formula = model$thresh.formula,
-  data = environment(model$thresh.formula), plotf = TRUE, sep = "_",
-  mar = c(4, 8, 1.5, 0.5), oma = c(0, 0, 0, 0))
+  data = environment(model$thresh.formula), plotf = TRUE, sep = "\\n",
+  sort.flag = FALSE, mar = c(4, 8, 1.5, 0.5), oma = c(0, 0, 0, 0),
+  healthlevelsorder = "decreasing")
 }
 \arguments{
 \item{model}{a fitted \code{gotm} model.}
@@ -22,8 +23,9 @@ gethealthindexquantiles(model, formula = model$thresh.formula,
 \item{mar}{see \code{\link{par}}.}
 
 \item{oma}{see \code{\link{par}}.}
+
+\item{healthlevelsorder}{order of self-reported healh levels. Possible values are \code{'increasing'} and \code{'decreasing'}}
 }
 \description{
 Get health index quantiles with respect to specified vaiables.
 }
-
