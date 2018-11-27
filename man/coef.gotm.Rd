@@ -19,6 +19,6 @@ related to latent variable, threshold lambdas, and threshold gammas.}
 Extracting coefficients of fitted \code{gotm} object
 }
 \author{
-Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+Maciej J. Danko
 }
 \keyword{internal}

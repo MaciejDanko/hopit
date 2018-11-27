@@ -17,6 +17,6 @@ AIC.gotm(object, ..., k = 2L)
 Extracts Akaike Information Criterion from the fitted model
 }
 \author{
-Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+Maciej J. Danko
 }
 \keyword{internal}

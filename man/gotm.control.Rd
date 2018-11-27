@@ -23,5 +23,5 @@ parameters of the \code{\link{gotm}} and other related functions.
 \code{\link{gotm}}
 }
 \author{
-Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+Maciej J. Danko
 }

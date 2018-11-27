@@ -15,6 +15,6 @@ logLik.gotm(object, ...)
 Extracts log likelihood of the fitted model
 }
 \author{
-Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+Maciej J. Danko
 }
 \keyword{internal}

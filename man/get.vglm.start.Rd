@@ -15,6 +15,6 @@ get.vglm.start(model, data)
 INTERNAL: Fit vglm to get parameters of the model
 }
 \author{
-Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+Maciej J. Danko
 }
 \keyword{internal}

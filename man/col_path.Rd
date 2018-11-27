@@ -15,6 +15,6 @@ col_path(mat, y, offset = 0)
 For each row of a matrix \code{mat} extracts a value corresponding to a column stored in a vector \code{y}.
 }
 \author{
-Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+Maciej J. Danko
 }
 \keyword{internal}

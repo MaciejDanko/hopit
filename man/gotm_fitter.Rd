@@ -17,6 +17,6 @@ gotm_fitter(model, start = model$start, use_weights = TRUE)
 Fit the model.
 }
 \author{
-Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+Maciej J. Danko
 }
 \keyword{internal}

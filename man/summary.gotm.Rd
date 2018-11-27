@@ -4,7 +4,8 @@
 \alias{summary.gotm}
 \title{Calculate model summary}
 \usage{
-summary.gotm(object, robust.se = FALSE, control = object$control, ...)
+\method{summary}{gotm}(object, robust.se = FALSE, control = object$control,
+  ...)
 }
 \arguments{
 \item{object}{\code{gotm} object.}
@@ -20,5 +21,5 @@ If survey deign is detected than this option is ignored.}
 Calculate model summary
 }
 \author{
-Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+Maciej J. Danko
 }

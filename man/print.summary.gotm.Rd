@@ -4,7 +4,7 @@
 \alias{print.summary.gotm}
 \title{Print object calculated by \code{\link{summary.gotm}}}
 \usage{
-print.summary.gotm(x, ...)
+\method{print}{summary.gotm}(x, ...)
 }
 \arguments{
 \item{x}{object created with \code{\link{summary.gotm}}}
@@ -15,6 +15,6 @@ print.summary.gotm(x, ...)
 Print object calculated by \code{\link{summary.gotm}}
 }
 \author{
-Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+Maciej J. Danko
 }
 \keyword{internal}

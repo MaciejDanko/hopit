@@ -4,7 +4,7 @@
 \alias{print.lrt.gotm}
 \title{Print object calculated by \code{\link{lrt.gotm}}}
 \usage{
-print.lrt.gotm(x, ...)
+\method{print}{lrt.gotm}(x, ...)
 }
 \arguments{
 \item{x}{object obtained from \code{\link{lrt.gotm}}}
@@ -15,6 +15,6 @@ print.lrt.gotm(x, ...)
 Print object calculated by \code{\link{lrt.gotm}}
 }
 \author{
-Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+Maciej J. Danko
 }
 \keyword{internal}

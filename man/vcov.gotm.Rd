@@ -20,5 +20,5 @@ If survey deign is detected than this option is ignored.}
 Extracting variance-covariance matrix from the fitted gotm
 }
 \author{
-Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+Maciej J. Danko
 }

@@ -10,6 +10,6 @@ gotm_Threshold(thresh.lambda, thresh.gamma, model = NULL)
 INTERNAL: Calculation of cut-points (threshold)
 }
 \author{
-Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+Maciej J. Danko
 }
 \keyword{internal}

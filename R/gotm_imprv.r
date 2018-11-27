@@ -1,14 +1,14 @@
 #' INTERNAL: Converts a vector of an categorical variable into a matrix with dummies in columns
 #'
 #' @param V a vector of categories.
-#' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+#' @author Maciej J. Danko
 #' @keywords internal
 Vector2DummyMat<-function(V) sapply(levels(as.factor(V)), function(k) as.factor(V) == k)*1L
 
 #' INTERNAL: Converts a matrix with dummies in columns into categorical vector
 #'
 #' @param D a matrix of dummies.
-#' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+#' @author Maciej J. Danko
 #' @keywords internal
 DummyMat2Vector<-function(D) D %*% ((1L : dim(D)[2L]) -1L)
 
@@ -23,7 +23,7 @@ cumsum_row<-function(mat) t(apply(as.matrix(mat), 1L, cumsum))
 #' For each row of a matrix \code{mat} extracts a value corresponding to a column stored in a vector \code{y}.
 #' @param mat a matrix
 #' @param y a vector with column indices corresponding to each row in the matrix \code{mat}.
-#' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+#' @author Maciej J. Danko
 #' @keywords internal
 col_path<-function(mat, y, offset = 0) colpath(mat, v, offset) # RcppEigen
 
@@ -32,7 +32,7 @@ col_path<-function(mat, y, offset = 0) colpath(mat, v, offset) # RcppEigen
 #' @param formula formula indicating, which variables will be used to construct new database.
 #' @param data data.frame including all variables listed in formula.
 #' @param FreqNam name of the column with frequencies.
-#' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+#' @author Maciej J. Danko
 #' @export
 data2freq<-function(formula, data, FreqNam='Freq'){
   what <- c(deparse(formula[[2]]),attr(terms(formula),"term.labels"))
@@ -50,7 +50,7 @@ data2freq<-function(formula, data, FreqNam='Freq'){
 
 #' INTERNAL: Calculation of cut-points (threshold)
 #'
-#' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+#' @author Maciej J. Danko
 #' @keywords internal
 gotm_reg_thresh<-function(thresh.lambda,thresh.gamma, model)  ind_reg_thresh(model$thresh.mm, thresh.lambda, thresh.gamma) #RcppEigen
 
@@ -65,7 +65,7 @@ gotm_c_link<-function(model){
 
 #' INTERNAL: Calculation of cut-points (threshold)
 #'
-#' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+#' @author Maciej J. Danko
 #' @keywords internal
 gotm_Threshold<-function(thresh.lambda, thresh.gamma, model = NULL){
   getThresholds(model$thresh.mm, thresh.lambda, thresh.gamma, model$thresh.no.cov) #RcppEigen
@@ -73,7 +73,7 @@ gotm_Threshold<-function(thresh.lambda, thresh.gamma, model = NULL){
 
 #' INTERNAL: Fit vglm to get parameters of the model
 #'
-#' @importFrom VGAM vglm
+#' importFrom VGAM vglm
 #' @keywords internal
 fit.vglm <-function(model, data, start=NULL){
   reg.formula <- model$reg.formula
@@ -106,8 +106,7 @@ fit.vglm <-function(model, data, start=NULL){
 #'
 #' @param model \code{gotm} object.
 #' @param data data.frame with data used to fit the model.
-#' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
-#' @importFrom VGAM vglm
+#' @author Maciej J. Danko
 #' @keywords internal
 get.vglm.start<-function(model, data){
 
@@ -132,7 +131,7 @@ get.vglm.start<-function(model, data){
 #as.matrix(coef(model.simple.exp))
 #as.matrix(par.ls$thresh.gamma)
 #' INTERNAL: Calculate a latent variable
-#' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+#' @author Maciej J. Danko
 #' @keywords internal
 gotm_Latent <- function(reg.params, model = NULL) model$reg.mm %*% (as.matrix(reg.params))
 
@@ -165,7 +164,7 @@ gotm_latentrange <- function (model, data) {
 #' Extract model parameters in a form of a list
 #' @param model \code{gotm} object
 #' @param parameters model parameters (optional). If not delivered then taken from \code{model$coef}
-#' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+#' @author Maciej J. Danko
 #' @keywords internal
 gotm_ExtractParameters <- function(model, parameters){
   if (!length(model$parcount)) stop('Missing parcount in model object.')
@@ -194,7 +193,7 @@ gotm_ExtractParameters <- function(model, parameters){
 
 
 #' INTERNAL: The log likelihood function
-#' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+#' @author Maciej J. Danko
 #' @keywords internal
 gotm_negLL <- function(parameters=model$coef, model, collapse = TRUE, use_weights = TRUE, negative = TRUE){
   link = gotm_c_link(model)
@@ -227,7 +226,7 @@ calcYYY<-function(model){
 }
 
 #' INTERNAL: The gradient of the log likelihood function
-#' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+#' @author Maciej J. Danko
 #' @keywords internal
 gotm_derivLL <- function(parameters=model$coef, model, collapse = TRUE, use_weights = TRUE, negative = FALSE){
   link = gotm_c_link(model)
@@ -254,8 +253,7 @@ gotm_derivLL <- function(parameters=model$coef, model, collapse = TRUE, use_weig
 #' @param model \code{gotm} object
 #' @param start starting parameters
 #' @param control a list with control parameters. See \code{\link{gotm.control}}.
-#' @importFrom numDeriv grad
-#' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+#' @author Maciej J. Danko
 #' @keywords internal
 gotm_fitter <- function(model, start = model$start, use_weights = TRUE){
 
@@ -318,7 +316,7 @@ gotm_fitter <- function(model, start = model$start, use_weights = TRUE){
 #' consequtive runs of standard optimization.
 #' @param grad.eps epsilon for gradient function.
 #' @seealso \code{\link{gotm}}
-#' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+#' @author Maciej J. Danko
 #' @export
 gotm.control<-function(max.reiter = 50L,
                        tol.reiter = 5e-5,
@@ -339,7 +337,7 @@ gotm.control<-function(max.reiter = 50L,
 #' @param PSU Identificator of the PSU unit. Each P- and F- weight should correspond to exactly one PSU.
 #' @param CountryID PSU are typically prescribed to only one country.
 #' @export
-#' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+#' @author Maciej J. Danko
 # if ((length(PWeights) && length(FWeights))) stop('Please deliver either "PWeights" or "FWeights".')
 gotm.design<-function(PWeights = NULL, FWeights = NULL, PSU = NULL, CountryID = NULL){
   if (length(PSU) && length(CountryID)) {
@@ -443,7 +441,7 @@ get.start.gotm <- function(object, reg.formula, thresh.formula, data, asList = F
 #' but will not improve the fit, and \code{'no'} use external starting values, which must be delivered.
 #' @param control a list with control parameters. See \code{\link{gotm.control}}.
 #' @export
-#' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+#' @author Maciej J. Danko
 gotm<- function(reg.formula,
                 thresh.formula = as.formula('~ 1'),
                 data,
@@ -615,7 +613,7 @@ gotm<- function(reg.formula,
 #' @param ...	further arguments passed to or from other methods.
 #' @export
 #' @keywords internal
-#' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+#' @author Maciej J. Danko
 #' @aliases coefficients.gotm
 coef.gotm <- function(object, aslist = FALSE, ...){
   params <- object$coef
@@ -628,7 +626,7 @@ coef.gotm <- function(object, aslist = FALSE, ...){
 #' @param ...	further arguments passed to or from other methods.
 #' @export
 #' @keywords internal
-#' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+#' @author Maciej J. Danko
 print.gotm<-function(x, ...){
   p <- gotm_ExtractParameters(x)
   cat("Formula (latent variables):", deparse(x$reg.formula), fill = TRUE)
@@ -660,10 +658,9 @@ print.gotm<-function(x, ...){
 # The latter one is an experimental method so warning will apear.
 # robust.method = c("grad","working")
 #' @param ...	further arguments passed to or from other methods.
-#' @importFrom numDeriv hessian
 #' @importFrom survey svyrecvar
 #' @export
-#' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+#' @author Maciej J. Danko
 vcov.gotm<-function(object, robust.vcov, control = list(), ...){
   #robust.method <- tolower(robust.method[1])
   #if (!(robust.method %in% c("grad","working"))) stop('Unknown method.')
@@ -718,7 +715,7 @@ print.vcov.gotm <- function(x, digits = 3L, ...){
 # robust.method = c("grad","working")
 #' @param ...	further arguments passed to or from other methods.
 #' @export
-#' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+#' @author Maciej J. Danko
 summary.gotm <- function(object, robust.se = FALSE, control = object$control, ...){
   control <- do.call("gotm.control", control)
 
@@ -750,7 +747,7 @@ summary.gotm <- function(object, robust.se = FALSE, control = object$control, ..
 #' @param ...	further arguments passed to or from other methods.
 #' @keywords internal
 #' @export
-#' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+#' @author Maciej J. Danko
 print.summary.gotm <- function(x, ...){
   model <- x$model
   p <- gotm_ExtractParameters(model)
@@ -774,7 +771,7 @@ print.summary.gotm <- function(x, ...){
 #' @param ...	additional objects of the same type.
 #' @keywords internal
 #' @export
-#' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+#' @author Maciej J. Danko
 logLik.gotm<-function(object, ...) {
   objects <- list(object, ...)
   tmp <- deparse(substitute(list(object, ...)))
@@ -790,7 +787,7 @@ logLik.gotm<-function(object, ...) {
 #' @param ...	additional objects of the same type.
 #' @keywords internal
 #' @export
-#' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+#' @author Maciej J. Danko
 AIC.gotm<-function(object, ..., k = 2L) {
   if (length(object$design$PSU)) warning(call. = FALSE, 'The AIC is currently not supported for survey design, the value may be biased.')
   objects <- list(object, ...)
@@ -811,7 +808,7 @@ AIC.gotm<-function(object, ..., k = 2L) {
 #' @param direction determine if complexity of listed models is \code{"increasing"} or \code{"decreasing"} (default).
 #' @keywords internal
 #' @export
-#' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+#' @author Maciej J. Danko
 anova.gotm<-function(object, ..., method = c('sequential', 'with.first'), direction = c('decreasing', 'increasing')){
   method <- match.arg(method)
   direction <- match.arg(direction)
@@ -854,7 +851,7 @@ anova.gotm<-function(object, ..., method = c('sequential', 'with.first'), direct
 #' @param ...	further arguments passed to or from other methods.
 #' @keywords internal
 #' @export
-#' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+#' @author Maciej J. Danko
 print.anova.gotm <- function(x, ...){
   cat('Anova (LRTs):\n')
   cat('Method: "', x$method, '"\n\n', sep = '')
@@ -867,7 +864,7 @@ print.anova.gotm <- function(x, ...){
 #' @param full, nested {Models to be compared.}
 #' @keywords internal
 #' @export
-#' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+#' @author Maciej J. Danko
 lrt.gotm <- function(full, nested){
   if (length(full$design$PSU)) warning(call. = FALSE, 'The LRT is currently not supported for survey design, the value may be biased.')
   if (length(full$coef) <= length(nested$coef)) stop('The "full" model must have more parameters than the "nested" one.')
@@ -906,7 +903,7 @@ lrt.gotm <- function(full, nested){
 #' @param ...	further arguments passed to or from other methods.
 #' @keywords internal
 #' @export
-#' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+#' @author Maciej J. Danko
 print.lrt.gotm <- function(x, ...){
   cat('Likelihood ratio test:\n')
   cat('full model:\n')
@@ -945,7 +942,7 @@ unravel <-function(mat, freq)  {
 #' @param unravelFreq logical indicating if to represent results on individual scale if FWeights were used.
 #' @param ...	further arguments passed to or from other methods.
 #' @export
-#' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+#' @author Maciej J. Danko
 predict.gotm <- function(object, newdata=NULL, type = c('link', 'response', 'threshold', 'threshold_link'),
                          unravelFreq = TRUE, ...){
   if (length(newdata)) stop('"new data" not implemented.')

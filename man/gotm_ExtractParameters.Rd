@@ -15,6 +15,6 @@ gotm_ExtractParameters(model, parameters)
 Extract model parameters in a form of a list
 }
 \author{
-Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+Maciej J. Danko
 }
 \keyword{internal}

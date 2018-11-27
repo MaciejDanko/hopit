@@ -13,6 +13,6 @@ lrt.gotm(full, nested)
 Likelihood ratio test for a pair of models
 }
 \author{
-Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+Maciej J. Danko
 }
 \keyword{internal}

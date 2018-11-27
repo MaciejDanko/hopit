@@ -13,6 +13,6 @@ Vector2DummyMat(V)
 INTERNAL: Converts a vector of an categorical variable into a matrix with dummies in columns
 }
 \author{
-Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+Maciej J. Danko
 }
 \keyword{internal}

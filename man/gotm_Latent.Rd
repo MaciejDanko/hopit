@@ -10,6 +10,6 @@ gotm_Latent(reg.params, model = NULL)
 INTERNAL: Calculate a latent variable
 }
 \author{
-Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+Maciej J. Danko
 }
 \keyword{internal}

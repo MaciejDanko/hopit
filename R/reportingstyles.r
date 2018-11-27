@@ -501,6 +501,11 @@ helatlevel.boot.plot<-function(object, model, namefunc = identity,
   list('p1'=pos1, 'p2'=pos2)
 }
 
+#' Bootstraping health levels
+#'
+#' @export
+#' @author Maciej J. Danko
+#' @importFrom MASS mvrnorm
 gethealthlevels_boot<-function(model, formula=model$thresh.formula,
                           data=environment(model$thresh.formula), revf = NULL,
                           nboot=1000, alpha=0.05, plotF= FALSE, namefunc = identity,

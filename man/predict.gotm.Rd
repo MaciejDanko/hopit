@@ -25,5 +25,5 @@ together with latent variable for each observation (a data.frame with fields \co
 Model predictions
 }
 \author{
-Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+Maciej J. Danko
 }

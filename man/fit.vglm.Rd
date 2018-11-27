@@ -7,6 +7,6 @@
 fit.vglm(model, data, start = NULL)
 }
 \description{
-INTERNAL: Fit vglm to get parameters of the model
+importFrom VGAM vglm
 }
 \keyword{internal}

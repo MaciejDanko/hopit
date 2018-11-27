@@ -1,10 +1,11 @@
 Package: gotm
 Type: Package
-Title: Generalized Ordered Choice Threshold Models
-Version: 2018.11.27.1
-LinkingTo: RcppEigen, Rcpp, survey, numDeriv, VGAM, maxLik
-Depends: R (>= 2.10), survey (>= 3.30-3), maxLik (>= 1.2-4), numDeriv (>= 2014.2-1), VGAM (>= 1.0.1), Rcpp (>= 0.12.17), RcppEigen (>= 0.3.3.3.1) 
-Author: Maciej J. Danko <Maciej.Danko@gmail.com>
+Title: Health reporting styles
+Version: 18.11.27.1
+LinkingTo: RcppEigen, Rcpp
+Depends: R (>= 2.10), VGAM (>= 1.0.1), Rcpp (>= 0.12.17), RcppEigen (>= 0.3.3.3.1) 
+Imports: MASS (>= 7.3-47), survey (>= 3.30-3)
+Author: Maciej J. Danko 
 Maintainer: Maciej J. Danko <Maciej.Danko@gmail.com>
 Description: Generalized Ordered Choice Threshold Models with application to health reporting styles.
 License: GPL-2

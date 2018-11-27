@@ -4,7 +4,7 @@
 \alias{print.gotm}
 \title{Printing basic information about fitted gotm}
 \usage{
-print.gotm(x, ...)
+\method{print}{gotm}(x, ...)
 }
 \arguments{
 \item{x}{\code{gotm} object.}
@@ -15,6 +15,6 @@ print.gotm(x, ...)
 Printing basic information about fitted gotm
 }
 \author{
-Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+Maciej J. Danko
 }
 \keyword{internal}

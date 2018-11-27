@@ -31,5 +31,5 @@ but will not improve the fit, and \code{'no'} use external starting values, whic
 -- use_weights is unused....
 }
 \author{
-Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+Maciej J. Danko
 }

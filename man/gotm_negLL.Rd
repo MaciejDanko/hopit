@@ -11,6 +11,6 @@ gotm_negLL(parameters = model$coef, model, collapse = TRUE,
 INTERNAL: The log likelihood function
 }
 \author{
-Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+Maciej J. Danko
 }
 \keyword{internal}

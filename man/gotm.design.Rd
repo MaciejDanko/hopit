@@ -20,5 +20,5 @@ gotm.design(PWeights = NULL, FWeights = NULL, PSU = NULL,
 Auxiliary for setting a simple survey design for \code{gotm}
 }
 \author{
-Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+Maciej J. Danko
 }

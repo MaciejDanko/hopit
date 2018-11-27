@@ -21,6 +21,6 @@
 Compute likelihood rato test for two or more \code{gotm} objecs.
 }
 \author{
-Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+Maciej J. Danko
 }
 \keyword{internal}

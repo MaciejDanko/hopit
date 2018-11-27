@@ -17,5 +17,5 @@ data2freq(formula, data, FreqNam = "Freq")
 Convert individual data to frequency table of unique combination of dependent and independent variables
 }
 \author{
-Maciej J. Danko  <\email{maciej.danko@gmail.com}>
+Maciej J. Danko
 }
