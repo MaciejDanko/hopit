@@ -54,6 +54,7 @@ data2freq<-function(formula, data, FreqNam='Freq'){
 #' @author Maciej J. Danko
 #' @keywords internal
 #' @useDynLib gotm
+#' @importFrom Rcpp evalCpp
 gotm_reg_thresh<-function(thresh.lambda,thresh.gamma, model)  ind_reg_thresh(model$thresh.mm, thresh.lambda, thresh.gamma) #RcppEigen
 
 #' @keywords internal
@@ -70,6 +71,7 @@ gotm_c_link<-function(model){
 #' @author Maciej J. Danko
 #' @keywords internal
 #' @useDynLib gotm
+#' @importFrom Rcpp evalCpp
 gotm_Threshold<-function(thresh.lambda, thresh.gamma, model = NULL){
   getThresholds(model$thresh.mm, thresh.lambda, thresh.gamma, model$thresh.no.cov) #RcppEigen
 }
@@ -112,6 +114,7 @@ fit.vglm <-function(model, data, start=NULL){
 #' @author Maciej J. Danko
 #' @keywords internal
 #' @useDynLib gotm
+#' @importFrom Rcpp evalCpp
 get.vglm.start<-function(model, data){
 
   model <- suppressWarnings(fit.vglm(model, data))
@@ -200,6 +203,7 @@ gotm_ExtractParameters <- function(model, parameters){
 #' @author Maciej J. Danko
 #' @keywords internal
 #' @useDynLib gotm
+#' @importFrom Rcpp evalCpp
 gotm_negLL <- function(parameters=model$coef, model, collapse = TRUE, use_weights = TRUE, negative = TRUE){
   link = gotm_c_link(model)
   if (collapse) {
@@ -234,6 +238,7 @@ calcYYY<-function(model){
 #' @author Maciej J. Danko
 #' @keywords internal
 #' @useDynLib gotm
+#' @importFrom Rcpp evalCpp
 gotm_derivLL <- function(parameters=model$coef, model, collapse = TRUE, use_weights = TRUE, negative = FALSE){
   link = gotm_c_link(model)
   #be compatible with older versions
@@ -262,6 +267,7 @@ gotm_derivLL <- function(parameters=model$coef, model, collapse = TRUE, use_weig
 #' @author Maciej J. Danko
 #' @keywords internal
 #' @useDynLib gotm
+#' @importFrom Rcpp evalCpp
 gotm_fitter <- function(model, start = model$start, use_weights = TRUE){
 
   #be compatible with older versions
