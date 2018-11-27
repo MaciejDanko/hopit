@@ -1,3 +1,4 @@
+
 #' INTERNAL: Converts a vector of an categorical variable into a matrix with dummies in columns
 #'
 #' @param V a vector of categories.
@@ -52,6 +53,7 @@ data2freq<-function(formula, data, FreqNam='Freq'){
 #'
 #' @author Maciej J. Danko
 #' @keywords internal
+#' @useDynLib gotm
 gotm_reg_thresh<-function(thresh.lambda,thresh.gamma, model)  ind_reg_thresh(model$thresh.mm, thresh.lambda, thresh.gamma) #RcppEigen
 
 #' @keywords internal
@@ -67,6 +69,7 @@ gotm_c_link<-function(model){
 #'
 #' @author Maciej J. Danko
 #' @keywords internal
+#' @useDynLib gotm
 gotm_Threshold<-function(thresh.lambda, thresh.gamma, model = NULL){
   getThresholds(model$thresh.mm, thresh.lambda, thresh.gamma, model$thresh.no.cov) #RcppEigen
 }
@@ -108,6 +111,7 @@ fit.vglm <-function(model, data, start=NULL){
 #' @param data data.frame with data used to fit the model.
 #' @author Maciej J. Danko
 #' @keywords internal
+#' @useDynLib gotm
 get.vglm.start<-function(model, data){
 
   model <- suppressWarnings(fit.vglm(model, data))
@@ -195,6 +199,7 @@ gotm_ExtractParameters <- function(model, parameters){
 #' INTERNAL: The log likelihood function
 #' @author Maciej J. Danko
 #' @keywords internal
+#' @useDynLib gotm
 gotm_negLL <- function(parameters=model$coef, model, collapse = TRUE, use_weights = TRUE, negative = TRUE){
   link = gotm_c_link(model)
   if (collapse) {
@@ -228,6 +233,7 @@ calcYYY<-function(model){
 #' INTERNAL: The gradient of the log likelihood function
 #' @author Maciej J. Danko
 #' @keywords internal
+#' @useDynLib gotm
 gotm_derivLL <- function(parameters=model$coef, model, collapse = TRUE, use_weights = TRUE, negative = FALSE){
   link = gotm_c_link(model)
   #be compatible with older versions
@@ -255,6 +261,7 @@ gotm_derivLL <- function(parameters=model$coef, model, collapse = TRUE, use_weig
 #' @param control a list with control parameters. See \code{\link{gotm.control}}.
 #' @author Maciej J. Danko
 #' @keywords internal
+#' @useDynLib gotm
 gotm_fitter <- function(model, start = model$start, use_weights = TRUE){
 
   #be compatible with older versions
