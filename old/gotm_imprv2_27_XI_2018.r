@@ -55,12 +55,37 @@ data2freq<-function(formula, data, FreqNam='Freq'){
 gotm_reg_thresh<-function(thresh.lambda,thresh.gamma, model)  ind_reg_thresh(model$thresh.mm, thresh.lambda, thresh.gamma) #RcppEigen
 
 #' @keywords internal
-gotm_c_link<-function(model){
+gotm_c_init<-function(model){
   model$link <- tolower(model$link)
+  model$thresh.method <- tolower(model$thresh.method)
+  #model$control$thresh.fun <- tolower(model$control$thresh.fun)
+
+  #CHANGE (identical(deparse(model$control$thresh.fun), deparse(identity))) thresh func only as "exp" "ident"
+
+  # if (model$control$thresh.fun %in% c('exp','identity')){
+  #   if (model$control$thresh.fun=='exp') thresh.fun=0 else thresh.fun=1
+  # } else stop(paste('Unknown threshold function:', model$control$thresh.fun), call. = NULL)
+
   if (model$link %in% c('probit','logit')){
     if (model$link=='probit') link=0 else link=1
   } else stop(paste('Unknown link function:',model$link),call. = NULL)
-  link
+
+  if (model$thresh.method %in% c('jurges','hopit','vglm')){
+    if (model$thresh.method=='vglm') stop('Function works only for "Jurges" and "Hopit models.',call. = NULL)
+    if (model$thresh.method=='jurges') thresh_method <- 0 else thresh_method <-1
+  } else stop(paste('Unknown threshold method:',model$thresh_method),call. = NULL)
+
+  if (model$control$alpha_0 == 'auto') {
+    use_alpha <- 0
+    if (model$thresh.method=='jurges') alpha_0 <- -Inf else alpha_0 <- 0
+    } else {
+    if (is.numeric(model$control$alpha_0)) {
+      use_alpha <- 1
+      alpha_0 <- model$control$alpha_0
+    } else stop(paste('Cannot interpret control$alpha_0 =', model$control$alpha_0),call. = NULL)
+  }
+  list(use_alpha=use_alpha, thresh_method=thresh_method, #thresh_fun=thresh.fun,
+       link=link, alpha_0=alpha_0)
 }
 
 #' INTERNAL: Calculation of cut-points (threshold)
@@ -68,7 +93,11 @@ gotm_c_link<-function(model){
 #' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
 #' @keywords internal
 gotm_Threshold<-function(thresh.lambda, thresh.gamma, model = NULL){
-  getThresholds(model$thresh.mm, thresh.lambda, thresh.gamma, model$thresh.no.cov) #RcppEigen
+  z <- gotm_c_init(model)
+  getThresholds(model$thresh.mm, thresh.lambda, thresh.gamma, model$thresh.no.cov,
+                z$thresh_method, #z$thresh_fun,
+                z$use_alpha, z$alpha_0) #RcppEigen
+
 }
 
 #' INTERNAL: Fit vglm to get parameters of the model
@@ -78,6 +107,8 @@ gotm_Threshold<-function(thresh.lambda, thresh.gamma, model = NULL){
 fit.vglm <-function(model, data, start=NULL){
   reg.formula <- model$reg.formula
   thresh.formula <- model$thresh.formula
+  #thresh.method <- model$thresh.method
+  #thresh.fun <- model$control$thresh.fun
   if (length(thresh.formula)>2) thresh.formula[[2]] <- NULL
   thrf <- deparse(thresh.formula[[2]])
   big.formula <- update(reg.formula, paste('~ ', thrf,' + . + 1'))
@@ -115,17 +146,35 @@ get.vglm.start<-function(model, data){
   mv2.par <- model$vglm.start
   par.ls <- model$vglm.start.ls
   cat(' done\n')
-  cat('Recalculating parameters...')
+  if (model$thresh.method == 'vglm'){
+    model$vglm.start <- mv2.par
+    model$reg.start <- par.ls$reg.params
+    model$lambda.start <- par.ls$thresh.lambda
+    model$gamma.start <-par.ls$thresh.gamma
+    model$start <- c(model$reg.start, model$lambda.start, model$gamma.start)
+    model$start.LL <- model$vglm.LL
+    model$LL <- model$vglm.LL
+    model$coef <- model$start
+  } else {
+    cat('Recalculating parameters...')
 
-  z <- vglm2gotm_jurges_exp(par.ls$reg.params, par.ls$thresh.lambda, par.ls$thresh.gamma)#, (thresh.method != 'jurges')*1)
-
-  model$vglm.start <- mv2.par
-  model$reg.start <- z$reg_params
-  model$lambda.start <- z$thresh_lambda
-  model$gamma.start <-z$thresh_gamma
-  model$start <- z$coef
-  model$start.LL <- gotm_negLL(parameters = model$start, model, negative = FALSE)
-
+    if (model$thresh.method == 'jurges'){
+      z <- vglm2gotm_jurges_exp(par.ls$reg.params, par.ls$thresh.lambda, par.ls$thresh.gamma)#, (thresh.method != 'jurges')*1)
+      if (model$control$alpha_0 == 0) {
+        Z=min(z$thresh_lambda[1],z$reg_params)
+        if (Z<0) {
+          z$thresh_lambda[1] <- z$thresh_lambda[1] - Z
+          z$reg_params <- z$reg_params - Z
+        }
+      }
+      model$vglm.start <- mv2.par
+      model$reg.start <- z$reg_params
+      model$lambda.start <- z$thresh_lambda
+      model$gamma.start <-z$thresh_gamma
+      model$start <- z$coef
+      model$start.LL <- gotm_negLL(parameters = model$start, model, negative = FALSE)
+    } else stop(paste('The thresh.method =',thresh.method,'not implemented yet.'),call. = NULL)
+  }
   model
 }
 
@@ -141,8 +190,6 @@ gotm_Latent <- function(reg.params, model = NULL) model$reg.mm %*% (as.matrix(re
 #' @param data a data used to fit the model
 #' @keywords internal
 gotm_latentrange <- function (model, data) {
-  #Function must be checked for variables that are not factors
-
   cfm <- model$coef[seq_len(model$parcount[1])]
   ttr <- terms.formula(model$reg.formula)
   ttr <- delete.response(ttr)
@@ -150,6 +197,10 @@ gotm_latentrange <- function (model, data) {
   ttn <- attr(ttr,'term.labels')
   li <- lapply(eval(tt, data), function(k) if (class(k) == 'factor') levels(k) else range(k, na.rm=TRUE))
   names(li) <- ttn
+  # new.data <- expand.grid(li)
+  # mm <- stats::model.matrix(ttr, data = new.data)[,-1]
+  # V <- mm %*% as.matrix(cfm)
+  # range(V)
   L=sapply(li, length)-1
   cfm_neg <- cfm * (cfm<0)
   cfm_pos <- cfm * (cfm>0)
@@ -158,6 +209,7 @@ gotm_latentrange <- function (model, data) {
   cfm_pos_ls <- lapply(1:(length(pos)-1),function(k) cfm_pos[pos[k]:(pos[k+1]-1)])
   c(sum(sapply(cfm_neg_ls, min, na.rm=TRUE)),
     sum(sapply(cfm_pos_ls, max, na.rm=TRUE)))
+  #must be checked for variables that are not factors
 }
 
 #' INTERNAL: Extract model parameters in a form of list
@@ -197,14 +249,18 @@ gotm_ExtractParameters <- function(model, parameters){
 #' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
 #' @keywords internal
 gotm_negLL <- function(parameters=model$coef, model, collapse = TRUE, use_weights = TRUE, negative = TRUE){
-  link = gotm_c_link(model)
+  z = gotm_c_init(model)
   if (collapse) {
     LLFunc(parameters, yi=as.numeric(unclass(model$y_i)),reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
-           link=link,thresh_no_cov=model$thresh.no.cov*1, negative=1*negative,
+           link=z$link,thresh_no_cov=model$thresh.no.cov*1,thresh_method=z$thresh_method,
+           #thresh_func=z$thresh_fun,
+           use_alpha = z$use_alpha, alpha_0=z$alpha_0, negative=1*negative,
            weights=model$weights,use_weights = 1*use_weights, out_val = model$control$LL_out_val)
   } else {
     LLFuncIndv(parameters, yi=as.numeric(unclass(model$y_i)),reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
-               link=link,thresh_no_cov=model$thresh.no.cov*1, negative=1*negative,
+               link=z$link,thresh_no_cov=model$thresh.no.cov*1,thresh_method=z$thresh_method,
+               #thresh_func=z$thresh_fun,
+               use_alpha = z$use_alpha, alpha_0=z$alpha_0, negative=1*negative,
                weights=model$weights,use_weights = 1*use_weights)
   }
 }
@@ -230,7 +286,7 @@ calcYYY<-function(model){
 #' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
 #' @keywords internal
 gotm_derivLL <- function(parameters=model$coef, model, collapse = TRUE, use_weights = TRUE, negative = FALSE){
-  link = gotm_c_link(model)
+  z = gotm_c_init(model)
   #be compatible with older versions
   if ((!length(model$YYY1)) || (!length(model$YYY1))){
     model <- calcYYY(model)
@@ -238,22 +294,27 @@ gotm_derivLL <- function(parameters=model$coef, model, collapse = TRUE, use_weig
   if (collapse) {
     LLGradFunc(parameters, yi=as.numeric(unclass(model$y_i)), YYY1=as.matrix(unname(model$YYY1)), YYY2=as.matrix(unname(model$YYY2)),
                reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
-               link=link,thresh_no_cov=model$thresh.no.cov*1,negative=1*negative,
+               link=z$link,thresh_no_cov=model$thresh.no.cov*1,thresh_method=z$thresh_method,
+               #thresh_func=z$thresh_fun,
+               use_alpha = z$use_alpha, alpha_0=z$alpha_0, negative=1*negative,
                weights=model$weights, use_weights = 1*use_weights)
   } else {
     LLGradFuncIndv(parameters, yi=as.numeric(unclass(model$y_i)), YYY1=model$YYY1, YYY2=model$YYY2,
                    reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
-                   link=link,thresh_no_cov=model$thresh.no.cov*1, negative=1*negative,
+                   link=z$link,thresh_no_cov=model$thresh.no.cov*1,thresh_method=z$thresh_method,
+                   #thresh_func=z$thresh_fun,
+                   use_alpha = z$use_alpha, alpha_0=z$alpha_0, negative=1*negative,
                    weights=model$weights, use_weights = 1*use_weights)
   }
 }
 
 #' INTERNAL: Fit \code{gotm}
 #'
-#' Fit the model.
+#' Fitter for Jurges and Hopit models
 #' @param model \code{gotm} object
 #' @param start starting parameters
 #' @param control a list with control parameters. See \code{\link{gotm.control}}.
+#' @importFrom maxLik maxNR
 #' @importFrom numDeriv grad
 #' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
 #' @keywords internal
@@ -265,14 +326,18 @@ gotm_fitter <- function(model, start = model$start, use_weights = TRUE){
   }
   control <- model$control
 
-  link <- gotm_c_link(model)
+  z <- gotm_c_init(model)
 
   LLgr <- function(par, neg=1) LLGradFunc(par, yi=as.numeric(unclass(model$y_i)), YYY1=model$YYY1, YYY2=model$YYY2,
                                    reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
-                                   link=link,thresh_no_cov=model$thresh.no.cov*1, negative=neg,
+                                   link=z$link,thresh_no_cov=model$thresh.no.cov*1,thresh_method=z$thresh_method,
+                                   #thresh_func=z$thresh_fun,
+                                   use_alpha = z$use_alpha, alpha_0=z$alpha_0, negative=neg,
                                    weights=model$weights, use_weights = use_weights*1)
   LLfn <- function(par, neg=1) LLFunc(par, yi=as.numeric(unclass(model$y_i)),reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
-                               link=link, thresh_no_cov=model$thresh.no.cov*1, negative=neg,
+                               link=z$link,thresh_no_cov=model$thresh.no.cov*1,thresh_method=z$thresh_method,
+                               #thresh_func=z$thresh_fun,
+                               use_alpha = z$use_alpha, alpha_0=z$alpha_0, negative=neg,
                                weights=model$weights,use_weights = use_weights*1, out_val = model$control$LL_out_val)
 
   refit <- function(fit, model){
@@ -295,15 +360,34 @@ gotm_fitter <- function(model, start = model$start, use_weights = TRUE){
   z <- try({
     nmfit <- optim(par = start, fn = LLfn)
     tmp <- refit(nmfit, model)
-    fit <- tmp$fit
+    nmFit <- tmp$fit
+    fit <- nmFit
     if(!tmp$converged) {
       message('\nConvergence has not been reached yet (try to increase control$max.reiter), changing the method ...')
+      control$fit.NR <- TRUE
     }
   }, silent = FALSE)
   if (class(z) == "try-error") stop('Impossible to find initial values.')
+  if (control$fit.NR){
 
-  model$coef <- fit$par
-  model$LL <- unname(-fit$value)
+    nrFit <- maxNR(fn = LLfn, grad = LLgr, neg=0, start = fit$par) #maxLik::
+    nrFit$par <- nrFit$estimate
+    nrFit$value <- -nrFit$maximum
+    nrFit <- refit(nrFit, model)
+    if (!nrFit$converged)
+      warning(call. = FALSE,
+              '\nThe model probably did not converge. Try to increase "max.reiter" and/or set "forced.DEoptim" == TRUE.')
+    nrFit <- nrFit$fit
+    fit <- nrFit
+  } else nrFit <- NULL
+
+  params <- rbind(nmFit$par, nrFit$par)
+  test <- c(nm = nmFit$value, nr = nrFit$value)
+  ind <- which.min(test)
+  Popt <- params[ind,]
+  Vmax <- test[ind]
+  model$coef <- Popt
+  model$LL <- unname(-Vmax)
   model
 }
 
@@ -313,21 +397,55 @@ gotm_fitter <- function(model, start = model$start, use_weights = TRUE){
 #' @description
 #' Auxiliary function for controlling \code{gotm} fitting. Use this function to set control
 #' parameters of the \code{\link{gotm}} and other related functions.
+#'
+#' @param fit.NR logical indicating if to use Newton-Raphson algorithm after main optimization.
+#' The Newton-Raphson algorithm is used anyway if the convergence for standard optimization was not found.
 #' @param max.reiter maximum number of repeats of the standard optimization procedure if optimum was not found.
 #' @param tol.reiter the maximal tolerated difference between log-likelihoods of two
 #' consequtive runs of standard optimization.
 #' @param grad.eps epsilon for gradient function.
+# @param thresh.fun function used to calculate thresholds. Possible values are \code{'exp'}(default) and \code{'identity'}.
+#' @param alpha_0 value for "zero" threshold. If 'auto' then alpha_0 is set specificaly
+#' to the 'jurges' or 'hopit' model. See \code{\link{gotm}}.
 #' @seealso \code{\link{gotm}}
 #' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
 #' @export
-gotm.control<-function(max.reiter = 50L,
+gotm.control<-function(fit.NR = FALSE,
+                       max.reiter = 100L, #increase if faster optimizaton is developed
                        tol.reiter = 5e-5,
                        grad.eps = 1e-7,
-                       LL_out_val = -Inf){
+                       LL_out_val = -Inf,
+                       #thresh.fun = c('exp','identity','id','lin','linear'),
+                       alpha_0 = 'auto'){
 
+  # if (class(thresh.fun)=='character') {
+  #   thresh.fun <- thresh.fun[1]
+  #   if (tolower(thresh.fun) == 'exp') {
+  #     thresh.fun <- exp
+  #   } else if (tolower(thresh.fun) %in% c('identity', 'id')) {
+  #     thresh.fun <- identity
+  #   } else stop('Unknown threshold function.')
+  # } else {
+  #   if (!(identical(deparse(thresh.fun), deparse(exp)) || identical(deparse(thresh.fun), deparse(identity))))
+  #     stop('Unknown threshold function.')
+  # }
+  # thresh.fun <- tolower(thresh.fun)[1]
+  # if (thresh.fun %in% c('exp','identity','id','lin','linear')){
+  #   if (thresh.fun %in% c('id','lin','linear','identity')) {
+  #     thresh.fun == 'identity'
+  #     stop('Currently only thresh.fun = "exp" is possible',call. = NULL)
+  #   }
+  # } else stop('Unknown threshold function.', call.=NULL)
 
-  list(max.reiter = max.reiter, tol.reiter = tol.reiter,
-       grad.eps = grad.eps, LL_out_val = LL_out_val)
+  alpha_0 <- alpha_0[1]
+  if (tolower(alpha_0) != 'auto'){
+    #stop('Currently only alpha_0 = "auto" is possible.', call.=NULL)
+    if (!is.numeric(alpha_0)) stop('"alpha_0" must be a numeric (-Inf or 0) or equal "auto".', call.=NULL) else if (alpha_0 %!in% c(-Inf,0)) stop('"alpha_0" can take only -Inf or 0 values.', call.=NULL)
+  } else alpha_0 <- tolower(alpha_0)
+
+  list(fit.NR = fit.NR, # thresh.fun = thresh.fun,
+       max.reiter = max.reiter, tol.reiter = tol.reiter,
+       grad.eps = grad.eps, alpha_0 = alpha_0, LL_out_val = LL_out_val)
 }
 
 #frequency weight potraktowac jak w  clm czyli bez PSU
@@ -431,14 +549,22 @@ get.start.gotm <- function(object, reg.formula, thresh.formula, data, asList = F
 
 #' Fit Generelaized Ordered Choice Threshold Model
 #'
-#'-- use_weights is unused....
 #' @param reg.formula formula used to model latent process.
 #' @param thresh.formula formula used to model threshold variable.
 #' Any dependent variable (left side of "~") will be ignored.
 #' @param data a data frame including all modeled variables.
 #' @param survey an optional survey a survey design. Empty list indicates no survey design. See \code{\link{gotm.design}}.
 #' @param link the link function. The possible values are \code{"probit"} (default) and \code{"logit"}.
+#' @param thresh.method
+#' \itemize{ Define how the threshold is calculated:
+#' \item{\code{"jurges"} - Assumes that: \code{alpha(0) = -Inf}, \code{alpha(1)} is a
+#' linear function of threshold covariates + \code{lambda}, \code{alpha(2..J-1) = thresh.fun(lambda, gamma, threshold covariates)},
+#' and \code{alpha(J) = Inf}. See also [1]. Default option.}
+#' \item{\code{"hopit"} - Assumes that: \code{alpha(0) = 0},  \code{alpha(1..J-1) = thresh.fun(lambda, gamma, threshold covarites)},
+#' and \code{alpha(J) = Inf}. See also [2].}
+#' }
 #' @param start starting values in the form \code{c(latent_parameters, threshold_lambdas, threshold_gammas)}
+#' @param doFit character string, \code{'full'} perform the full fit, \code{'vglm'} use starting values obteined from vglm,
 #' @param hessain logical indicating if to calculate hessian matrix
 #' but will not improve the fit, and \code{'no'} use external starting values, which must be delivered.
 #' @param control a list with control parameters. See \code{\link{gotm.control}}.
@@ -449,7 +575,9 @@ gotm<- function(reg.formula,
                 data,
                 survey = list(),
                 link = c('probit', 'logit'),
+                thresh.method = c('jurges', 'hopit','vglm'),
                 start = NULL,
+                doFit = c('full','vglm','no'),
                 hessian = TRUE,
                 control = list()){
 
@@ -463,12 +591,15 @@ gotm<- function(reg.formula,
 
   if (missing(data)) data <- environment(reg.formula)
 
+  doFit <- match.arg(doFit)
+  thresh.method <- match.arg(thresh.method)
   link <- match.arg(link)
   control <- do.call("gotm.control", control)
   survey <- do.call("gotm.design", survey)
 
   if (length(start) && class(start) == 'gotm'){
-    if (link != start$link) {
+    if ((thresh.method != start$thresh.method) ||
+        (link != start$link)) {
       stop ('Model in "start" is not compatible and will not be used.', call.=NULL)
     } else {
       tmp <- deparse(substitute(start))
@@ -482,6 +613,14 @@ gotm<- function(reg.formula,
   model <- NULL
   model$control <- control
   model$link <- link
+
+  # if (link == 'probit') {  #change to c++ or remove
+  #   model$link.func <- pnorm
+  #   model$distr.func <- dnorm
+  # } else if (link == 'logit'){
+  #   model$link.func <- function(x) exp(x)/(1L + exp(x))
+  #   model$distr.func <- function (x) exp(-x)/((1L + exp(-x))^2L)
+  # }
 
   if (length(thresh.formula)>2L){
     warning(call. = FALSE, 'The treshold formula should be given without dependent variable.')
@@ -512,7 +651,7 @@ gotm<- function(reg.formula,
   } else {
     model$thresh.no.cov <- FALSE
   }
-
+  model$thresh.method <- thresh.method[1]
   model$y_i <- model.frame(reg.formula, data = data)[,all.vars(reg.formula[[2]])]
   if (!is.factor(model$y_i)) stop('Response must be a factor with ordered levels.', call.=NULL)
   model$y_latent_i <- NA# latent
@@ -561,17 +700,28 @@ gotm<- function(reg.formula,
   #calculate special matrices for gradient calaculation
   model <- calcYYY(model)
 
-  if (!length(start)) {
+  if (!length(start) || (doFit == 'vglm') || (model$thresh.method == 'vglm')) {  # was !=
+    if (doFit != 'no') {
       z <- suppressWarnings(get.vglm.start(model, data))
+      #z$start
       cat('VGLM logLik:',z$vglm.LL,'\n')
-      cat('Recalculated VGLM (gotm start) logLik:', gotm_negLL(parameters = z$start, model=z, negative = FALSE),'\n')
+      if (model$thresh.method != 'vglm') cat('Recalculated VGLM (gotm start) logLik:',
+                                             gotm_negLL(parameters = z$start, model=z, negative = FALSE),'\n')
+      # z <- try({get.vglm.start(model, data)}, silent = FALSE)
+      # if (class(z) == "try-error") stop('Initial values failed.')
       model <- z
+    } #else stop('Starting values must be given.', call.=NULL)
   } else model$start <- start
 
-  cat('Improving fit...')
-  model <- gotm_fitter(model, start = model$start)
-  cat(' done\nGotm logLik:', gotm_negLL(parameters = model$coef, model, negative = FALSE),'\n')
-
+  if ((doFit == 'full') && (model$thresh.method != 'vglm')){
+    cat('Improving fit...')
+    model <- gotm_fitter(model, start = model$start)
+    cat(' done\nGotm logLik:', gotm_negLL(parameters = model$coef, model),'\n')
+  } else {
+    model$coef <- model$start
+    if (model$thresh.method != 'vglm' && length(model$start)) model$LL <- gotm_negLL(parameters = model$start, model)
+  }
+  #add class vglm if thr.mth = vglm
   class(model) <- 'gotm'
   colnames(model$thresh.mm) <- thresh.names
 
@@ -579,28 +729,53 @@ gotm<- function(reg.formula,
     names(model$coef) <- coefnames
     p <- gotm_ExtractParameters(model)
 
-    model$alpha <- gotm_Threshold(p$thresh.lambda, p$thresh.gamma, model)
+    # try to calculate this for vglm anyway
+    if (model$thresh.method != 'vglm') model$alpha <- gotm_Threshold(p$thresh.lambda, p$thresh.gamma, model) else model$alpha <- 'Not implemented'
     model$y_latent_i <- gotm_Latent(p$reg.params, model)
-    model$Ey_i <- factor(colSums(sapply(1L : model$N, function(k) model$alpha[k,]<model$y_latent_i[k])),levels=1L:model$J)
-    levels(model$Ey_i) <- levels(model$y_i)
+    if (model$thresh.method != 'vglm') {
+      model$Ey_i <- factor(colSums(sapply(1L : model$N, function(k) model$alpha[k,]<model$y_latent_i[k])),levels=1L:model$J)
+      levels(model$Ey_i) <- levels(model$y_i)
+    } else {
+      model$Ey_i <- 'Not implemented'
+    }
 
     cat('Calculating maximum latent range...')
-    model$maxlatentrange <- sort(gotm_latentrange(model=model, data=data))
-    model$maxobservedlatentrange <-  sort(range(gotm_Latent(p$reg.params,model)))
+    if (model$thresh.method != 'vglm') k <- 1 else k <- -1
+    model$maxlatentrange <- sort(k*gotm_latentrange(model=model, data=data))
+    model$maxobservedlatentrange <-  sort(k*range(gotm_Latent(p$reg.params,model)))
+    #if (class(model$maxlatentrange) == 'try-error') model$maxlatentrange=NA
     cat(' done\n')
 
-    if (hessian) {
+    if (hessian && (model$thresh.method != 'vglm')) {
       cat('Calculating hessian...')
+      # system.time(hes <- numDeriv::hessian(gotm_negLL, model$coef, model = model)) #numDeriv::)
+      # system.time(hes2 <- my.grad(fn = gotm_derivLL, par = model$coef, model=model, eps = model$control$grad.eps, collapse = TRUE))
+      # system.time(hes3 <- numDeriv::jacobian(func = gotm_derivLL, x = model$coef, model=model))
+      # system.time(hes4 <- numDeriv::jacobian(func = gotm_derivLL, x = model$coef,
+      #                                        model=model, method='simple',
+      #                                        method.args=list(eps=model$control$grad.eps/2)))
+      # dim(hes)
+      # dim(hes2)
+      # dim(hes3)
+      # sum(abs(hes+hes4))
+      # sum(abs(hes+hes2))
+      # sum(hes+hes3)
+      # sum(abs(hes2-hes4))
       hes <- my.grad(fn = gotm_derivLL, par = model$coef, model=model, eps = model$control$grad.eps, collapse = TRUE, negative=FALSE)
       model$vcov <- try(solve(-hes), silent = T)
       if (class(z) == 'try-error') {
         z <- NA*hes
-        warning(call. = FALSE, 'Model is probably unidentifiable, vcov cannot be computed.')
+        warning(call. = FALSE, 'Model is probably unidentifiable, vcov cannot be computed. Please try to use a "hopit" model.')
       }
       cat(' done\n')
       cat('Calculating estfun...')
 
+      # model$estfun <- -my.grad(fn = gotm_negLL, par = model$coef,
+      #                         eps = control$grad.eps, model = model, collapse = FALSE)
+
       model$estfun <- gotm_derivLL(model$coef, model, collapse = FALSE)
+
+      #sum(model$estfun2-model$estfun)
       cat(' done\n')
     }
   }
@@ -637,6 +812,7 @@ print.gotm<-function(x, ...){
   cat('Number of cases:', x$N, fill = TRUE)
   cat('Response levels:', toString(levels(x$y_i)), fill = TRUE)
   cat('Number of thresholds:', x$J - 1, fill = TRUE)
+  cat('Method of threshold calculation: "', x$thresh.method, '"\n', fill = TRUE, sep = '')
   cat('\nCoefficients (latent variables):\n')
   print(p$reg.params)
   cat('\nThreshold coefficents (Lambda):\n')
@@ -721,21 +897,26 @@ print.vcov.gotm <- function(x, digits = 3L, ...){
 #' @author Maciej J. Danko  <\email{maciej.danko@gmail.com}>
 summary.gotm <- function(object, robust.se = FALSE, control = object$control, ...){
   control <- do.call("gotm.control", control)
-
-  varcov <- vcov(object, robust.se, control, ...)
-  SE <- suppressWarnings(sqrt(diag(varcov)))
-  if (length(object$design)){
-    cat('Survey weights detected. Standard errors was adjusted for survey design.\n')
+  if (object$thresh.method != 'vglm') {
+    varcov <- vcov(object, robust.se, control, ...)
+    SE <- suppressWarnings(sqrt(diag(varcov)))
+    if (length(object$design)){
+      cat('Survey weights detected. Standard errors was adjusted for survey design.\n')
+    }
+    if ((!robust.se) && (any(is.na(SE))) && !(length(object$design)))
+      warning(call. = FALSE, 'Problem with some standard errors, please try option "robust.se" == TRUE, nd consider to use the "hopit" model.')
+    testse <- abs(SE/object$coef)
+    testse <- testse[!is.na(testse)]
+    if (any((testse > 50L)&(SE > 20L))) warning(call. = FALSE, 'Huge standard errors may suggest a problem with object identifiability. Please try tu use "hopit" model.')
+  } else {
+    if (length(object$design$PSU)) warning(call. = FALSE, 'The vglm method currently does not include survey design (except weights), SE may be biased.')
+    if (robust.se) {
+      warning(call. = FALSE, 'Calcualtion of robust SE is currently not supported for vglm method.')
+      robust.se <- FALSE
+    }
+    varcov <- vcov(object$vglm)
+    SE <- suppressWarnings(sqrt(diag(varcov)))
   }
-  if ((!robust.se) && (any(is.na(SE))) && !(length(object$design)))
-    warning(call. = FALSE, 'Problem with some standard errors, please try option "robust.se" == TRUE, nd consider to use the "hopit" model.')
-  testse <- abs(SE/object$coef)
-  testse <- testse[!is.na(testse)]
-  if (any((testse > 50L)&(SE > 20L))) warning(call. = FALSE, 'Huge standard errors may suggest a problem with object identifiability. Please try tu use "hopit" model.')
-
-  varcov <- vcov(object$vglm)
-  SE <- suppressWarnings(sqrt(diag(varcov)))
-
   tstat <-  object$coef/SE
   pvalue <- pnorm(-abs(tstat))  * 2L
   table1 <- data.frame(Estimate = object$coef, 'Std. Error' = SE, 'z value' = tstat, 'Pr(>|z|)' = pvalue, check.names = FALSE)
@@ -760,6 +941,7 @@ print.summary.gotm <- function(x, ...){
   cat('Number of cases:', model$N, fill = TRUE)
   cat('Response levels:', toString(levels(model$y_i)), fill = TRUE)
   cat('Number of thresholds:', model$J - 1, fill = TRUE)
+  cat('Method of threshold calcualation: "', model$thresh.method, '"\n', fill = TRUE, sep = '')
   if(x$robust.se) cat('\nRobust SE were used (sandwich estimator of varcov).\n')
   cat('\n')
   printCoefmat(x = x$table, P.values = TRUE, has.Pvalue = TRUE, digits = 4L, dig.tst = 2L)
@@ -890,6 +1072,7 @@ lrt.gotm <- function(full, nested){
     if (!(all(colnames(nested$reg.mm) %in% colnames(full$reg.mm)))) warning(call. = FALSE, 'Models use probably different (non-nested) data sets (latent variable formula).')
   if ((ncol(full$thresh.mm)) &&  (ncol(nested$thresh.mm)))
     if (!(all(colnames(nested$thresh.mm) %in% colnames(full$thresh.mm)))) warning(call. = FALSE, 'Models use probably different (non-nested) data sets (latent variable formula).')
+  if (full$thresh.method != nested$thresh.method) stop('Methods of calcultion of thresholds are different.')
 
   stat <- 2L*(logLik.gotm(full) - logLik.gotm(nested))
   df.diff <- length(full$coef) - length(nested$coef)

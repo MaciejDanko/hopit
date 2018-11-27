@@ -5,8 +5,7 @@
 \title{Fit Generelaized Ordered Choice Threshold Model}
 \usage{
 gotm(reg.formula, thresh.formula = as.formula("~ 1"), data, survey = list(),
-  link = c("probit", "logit"), thresh.method = c("jurges", "hopit", "vglm"),
-  start = NULL, doFit = c("full", "vglm", "no"), hessian = TRUE,
+  link = c("probit", "logit"), start = NULL, hessian = TRUE,
   control = list())
 }
 \arguments{
@@ -21,17 +20,7 @@ Any dependent variable (left side of "~") will be ignored.}
 
 \item{link}{the link function. The possible values are \code{"probit"} (default) and \code{"logit"}.}
 
-\item{thresh.method}{\itemize{ Define how the threshold is calculated:
-\item{\code{"jurges"} - Assumes that: \code{alpha(0) = -Inf}, \code{alpha(1)} is a
-linear function of threshold covariates + \code{lambda}, \code{alpha(2..J-1) = thresh.fun(lambda, gamma, threshold covariates)},
-and \code{alpha(J) = Inf}. See also [1]. Default option.}
-\item{\code{"hopit"} - Assumes that: \code{alpha(0) = 0},  \code{alpha(1..J-1) = thresh.fun(lambda, gamma, threshold covarites)},
-and \code{alpha(J) = Inf}. See also [2].}
-}}
-
 \item{start}{starting values in the form \code{c(latent_parameters, threshold_lambdas, threshold_gammas)}}
-
-\item{doFit}{character string, \code{'full'} perform the full fit, \code{'vglm'} use starting values obteined from vglm,}
 
 \item{control}{a list with control parameters. See \code{\link{gotm.control}}.}
 
@@ -39,7 +28,7 @@ and \code{alpha(J) = Inf}. See also [2].}
 but will not improve the fit, and \code{'no'} use external starting values, which must be delivered.}
 }
 \description{
-Fit Generelaized Ordered Choice Threshold Model
+-- use_weights is unused....
 }
 \author{
 Maciej J. Danko  <\email{maciej.danko@gmail.com}>

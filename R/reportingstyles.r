@@ -6,20 +6,15 @@ update.latent <-function(model, newregcoef, data, hessian=FALSE){
   names(model$coef) <- coefnames
   colnames(model$thresh.mm) <- thresh.names
   p <- gotm_ExtractParameters(model)
-  if (model$thresh.method != 'vglm') k <- 1 else k <- -1
-  model$maxlatentrange <- sort(k*gotm_latentrange(model=model, data=data))
-  model$maxobservedlatentrange <-  sort(k*range(gotm_Latent(p$reg.params,model)))
+  model$maxlatentrange <- sort(gotm_latentrange(model=model, data=data))
+  model$maxobservedlatentrange <-  sort(range(gotm_Latent(p$reg.params,model)))
   model$y_latent_i <- gotm_Latent(p$reg.params, model)
-  if (model$thresh.method != 'vglm') {
     model$Ey_i <- factor(colSums(sapply(1L : model$N, function(k) model$alpha[k,]<model$y_latent_i[k])),levels=1L:model$J)
     levels(model$Ey_i) <- levels(model$y_i)
-  } else {
-    model$Ey_i <- 'Not implemented'
-  }
 
   #update fitness + calculate fitness profile
 
-  if (hessian && (model$thresh.method != 'vglm')) {
+  if (hessian) {
 
     my.grad <- function(fn, par, eps, ...){
       sapply(1L : length(par), function(k){
@@ -30,7 +25,7 @@ update.latent <-function(model, newregcoef, data, hessian=FALSE){
     }
 
     cat('Calculating hessian...')
-    hes <- my.grad(fn = gotm_derivLL, par = model$coef, model=model, eps = model$control$grad.eps, collapse = TRUE)
+    hes <- my.grad(fn = gotm_derivLL, par = model$coef, model=model, eps = model$control$grad.eps, collapse = TRUE, negative = FALSE)
     model$vcov <- try(solve(-hes), silent = T)
     if (class(z) == 'try-error') {
       z <- NA*hes
@@ -39,8 +34,7 @@ update.latent <-function(model, newregcoef, data, hessian=FALSE){
     cat(' done\n')
     cat('Calculating estfun...')
 
-
-    model$estfun <- gotm_derivLL(model$coef, model, collapse = FALSE)
+    model$estfun <- gotm_derivLL(model$coef, model, collapse = FALSE, negative = FALSE)
 
     cat(' done\n')
   }
@@ -65,10 +59,9 @@ healthindex <- function(model, subset=NULL, plotf = FALSE, crude = FALSE, scaled
                         healthlevelsorder = 'decreasing', method = c('observed','theoretical')) {
   #0 is the worse possible health, 1 is the best possible health
   method = method[1]
-  if (model$thresh.method != 'vglm') k <- 1 else k <- -1
   p <- gotm_ExtractParameters(model)
-  if (!length(model$maxlatentrange)) model$maxlatentrange <- sort(k*gotm_latentrange(model=model, data=data))
-  if (!length(model$maxobservedlatentrange)) model$maxobservedlatentrange <- sort(k*range(gotm_Latent(p$reg.params,model)))
+  if (!length(model$maxlatentrange)) model$maxlatentrange <- sort(gotm_latentrange(model=model, data=data))
+  if (!length(model$maxobservedlatentrange)) model$maxobservedlatentrange <- sort(range(gotm_Latent(p$reg.params,model)))
   if (length(subset) == 0) subset=seq_along(model$y_i)
   if (crude) {
     hi <- as.numeric(unclass(model$y_i))
@@ -116,7 +109,8 @@ disabilityweights <- function (model, method=1, latent.method = c('observed','th
                                plotf = TRUE, mar = c(15, 4, 1, 1), oma = c(0, 0, 0, 0),
                                namesf = identity) {
   latent.method <- latent.method[1]
-  if (model$thresh.method != 'vglm') k <- 1 else k <- -1
+  #if (model$thresh.method != 'vglm') k <- 1 else k <- -1
+  k=1
   p <- gotm_ExtractParameters(model)
   if (!length(model$maxlatentrange)) model$maxlatentrange <- sort(k*gotm_latentrange(model=model, data=data))
   if (!length(model$maxobservedlatentrange)) model$maxobservedlatentrange <- sort(k*range(gotm_Latent(p$reg.params,model)))
@@ -217,8 +211,10 @@ gethealthindexquantiles<-function(model, formula=model$thresh.formula, data=envi
     sum(W*Mi)/sum(model$weights[tmp==k])}
     ))
 
-  M <- t(sapply(levels(tmp),function(k) sum(model$weights[tmp==k]*healthindex(model, tmp==k, crude = FALSE,
-                                                                                    healthlevelsorder = healthlevelsorder))/sum(model$weights[tmp==k])))
+  M <- t(sapply(levels(tmp),
+                function(k) sum(model$weights[tmp==k]*
+                                  healthindex(model, tmp==k, crude = FALSE,
+                                              healthlevelsorder = healthlevelsorder))/sum(model$weights[tmp==k])))
   if (sort.flag) {
     oD <- order(D[,3], decreasing = TRUE)
     D <- D[oD, ]
@@ -363,14 +359,8 @@ getcutpoints<-function(model, formula=model$thresh.formula,
       rowplot(D[NROW(D):1,], pch=19, col=1)
       abline(v=D0, col=2,lwd=2)
       mtext('Health index cut points',1,cex=1.5,line=2.5)
-      #if (!simple.names) {
-        for (j in seq_along(Nm)) text(x=D0[j],y=NROW(D)/4+NROW(D)/2,labels=Nm[[j]],
+      for (j in seq_along(Nm)) text(x=D0[j],y=NROW(D)/4+NROW(D)/2,labels=Nm[[j]],
                                     srt=90,pos=2,offset=0.9,col=2)
-      # } else {
-      #   D00=diff(c(0,D0))/2+D0
-      #   for (j in seq_along(Nm)) text(x=D00[j],y=NROW(D)/4+NROW(D)/2,labels=lv[j],
-      #                                 srt=90,pos=2,offset=0.9,col=2)
-      # }
       par(new = TRUE)
       rowplot(D[NROW(D):1,], pch=19, col=1:model$J)
       par(new = TRUE)
@@ -531,9 +521,6 @@ gethealthlevels_boot<-function(model, formula=model$thresh.formula,
   adj.mean=100*matrix(apply(boots,1,mean),dim(org.est)[1],dim(org.est)[2]); dimnames(adj.mean)=dimnames(org.est)
   adj.lo=100*matrix(apply(boots,1, function(k) quantile(k,c(alpha/2))),dim(org.est)[1],dim(org.est)[2]); dimnames(adj.lo)=dimnames(org.est)
   adj.hi=100*matrix(apply(boots,1, function(k) quantile(k,1-c(alpha/2))),dim(org.est)[1],dim(org.est)[2]); dimnames(adj.hi)=dimnames(org.est)
-  # orgSE=sqrt(org.est*(1-org.est)/orgN)
-  # org.lo.se=org.est+qnorm(c(alpha/2))*orgSE
-  # org.hi.se=org.est+qnorm(1-c(alpha/2))*orgSE
   org.tmp=sapply(seq_len(length(org.est)), function(k) {
     tmp=replicate(nboot,mean(rbinom(n=as.vector(orgN)[k],size=1, prob=as.vector(org.est/100)[k])))
     quantile(tmp,c(alpha/2,1-c(alpha/2)))
@@ -629,4 +616,3 @@ comparehealthlevels<-function(object,
   invisible(object)
 }
 
-#Here is the place for OAXACA-Blinder decomposition of self reported helth beween countries, or genders

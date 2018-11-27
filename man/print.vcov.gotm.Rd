@@ -4,7 +4,7 @@
 \alias{print.vcov.gotm}
 \title{Print object calculated by \code{\link{vcov.gotm}}}
 \usage{
-\method{print}{vcov.gotm}(x, digits = 3L, ...)
+print.vcov.gotm(x, digits = 3L, ...)
 }
 \arguments{
 \item{x}{\code{gotm} object}

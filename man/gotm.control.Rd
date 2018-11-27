@@ -4,22 +4,16 @@
 \alias{gotm.control}
 \title{Auxiliary for controlling \code{gotm} fitting}
 \usage{
-gotm.control(fit.NR = FALSE, max.reiter = 100L, tol.reiter = 5e-05,
-  grad.eps = 1e-07, LL_out_val = -Inf, alpha_0 = "auto")
+gotm.control(max.reiter = 50L, tol.reiter = 5e-05, grad.eps = 1e-07,
+  LL_out_val = -Inf)
 }
 \arguments{
-\item{fit.NR}{logical indicating if to use Newton-Raphson algorithm after main optimization.
-The Newton-Raphson algorithm is used anyway if the convergence for standard optimization was not found.}
-
 \item{max.reiter}{maximum number of repeats of the standard optimization procedure if optimum was not found.}
 
 \item{tol.reiter}{the maximal tolerated difference between log-likelihoods of two
 consequtive runs of standard optimization.}
 
 \item{grad.eps}{epsilon for gradient function.}
-
-\item{alpha_0}{value for "zero" threshold. If 'auto' then alpha_0 is set specificaly
-to the 'jurges' or 'hopit' model. See \code{\link{gotm}}.}
 }
 \description{
 Auxiliary function for controlling \code{gotm} fitting. Use this function to set control

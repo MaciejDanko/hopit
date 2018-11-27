@@ -68,19 +68,28 @@ Eigen::VectorXd extract_elements(const Eigen::VectorXi x,
 // [[Rcpp::export]]
 SEXP vglm2gotm_jurges_exp(const Eigen::VectorXd reg_params,
                           const Eigen::VectorXd thresh_lambda,
-                          const Eigen::VectorXd thresh_gamma){
+                          const Eigen::VectorXd thresh_gamma){  /// const int thresh_fun
   int J_1 = thresh_lambda.size();
   Eigen::VectorXd reg_params_g = - reg_params;
   Eigen::VectorXd thresh_lambda_g = thresh_lambda;
   Eigen::MatrixXd thresh_gamma_g2 = thresh_gamma;
   thresh_gamma_g2.resize(J_1, thresh_gamma.size()/ J_1);
   Eigen::MatrixXd thresh_gamma_g3 = thresh_gamma_g2;
-  for (int i = 1; i < (J_1); ++i){
-    thresh_lambda_g(i) = std::log(thresh_lambda(i) - thresh_lambda(i-1));
-  }
-  for (int i = 1; i < (J_1); ++i){
-    thresh_gamma_g2.row(i) = thresh_gamma_g3.row(i) - thresh_gamma_g3.row(i-1);
-  }
+  //if (thresh_fun==0) {
+    for (int i = 1; i < (J_1); ++i){
+      thresh_lambda_g(i) = std::log(thresh_lambda(i) - thresh_lambda(i-1));
+    }
+    for (int i = 1; i < (J_1); ++i){
+      thresh_gamma_g2.row(i) = thresh_gamma_g3.row(i) - thresh_gamma_g3.row(i-1);
+    }
+  // } else {
+  //   for (int i = 1; i < (J_1); ++i){
+  //     thresh_lambda_g(i) = std::log(thresh_lambda(i) - thresh_lambda(i-1));
+  //   }
+  //   for (int i = 1; i < (J_1); ++i){
+  //     thresh_gamma_g2.row(i) = (thresh_gamma_g3.row(i) - thresh_gamma_g3.row(i-1)).array().exp().matrix();
+  //   }
+  //}
 
   Eigen::VectorXd thresh_gamma_g(Eigen::Map<Eigen::VectorXd>(thresh_gamma_g2.data(), thresh_gamma.size()));
   Eigen::VectorXd coef(reg_params.size()+thresh_lambda.size()+thresh_gamma.size());
@@ -93,6 +102,12 @@ SEXP vglm2gotm_jurges_exp(const Eigen::VectorXd reg_params,
   );
 }
 
+
+// Eigen::SparseMatrix<double> diff(Eigen::SparseMatrix<double> E) {
+//   Eigen::SparseMatrix<double> E1 = E.block(0, 0, E.rows()-1, E.cols());
+//   Eigen::SparseMatrix<double> E2 = E.block(1, 0, E.rows()-1, E.cols());
+//   return E2 - E1;
+// }
 
 // [[Rcpp::depends(RcppEigen)]]
 // [[Rcpp::export]]
@@ -121,7 +136,10 @@ Eigen::MatrixXd getThresholds(
     const Eigen::MatrixXd thresh_mm,
     const Eigen::VectorXd thresh_lambda,
     const Eigen::VectorXd thresh_gamma,
-    const int thresh_no_cov) {
+    const int thresh_no_cov, /// 0-NO , 1-Yes
+    const int thresh_method, /// 0-Jurges, 1-Hopit  //const int thresh_func, /// 0-exp, 1-lin
+    const int use_alpha, /// 0-auto
+    const double alpha_0 ){ ///
 
   int J_1 = thresh_lambda.size();
   long N = thresh_mm.rows();
@@ -139,10 +157,21 @@ Eigen::MatrixXd getThresholds(
 
   Eigen::MatrixXd a = Eigen::MatrixXd::Zero(N, J_1 + 2L);
   a.col(J_1 + 1L).fill(R_PosInf); /// last column
-  a.col(0L).fill(R_NegInf);
-  a.col(1L) = Lin_Thresh_mat.col(0L);
+  if (thresh_method == 0L){
+    if (use_alpha == 1L)  a.col(0L).fill(alpha_0); else a.col(0L).fill(R_NegInf);
+    a.col(1L) = Lin_Thresh_mat.col(0L);
+  } else {
+    if (use_alpha == 1L) a.col(0L).fill(alpha_0); else  a.col(0L).fill(0L);
+    // if (thresh_func == 1) {
+    //   a.col(1L) = a.col(0L) + Lin_Thresh_mat.col(0L).array().abs().matrix();  // must be abs here
+    // } else {
+      a.col(1L) = a.col(0L) + Lin_Thresh_mat.col(0L).array().exp().matrix(); // use exp1 if does not work
+    //}
+  }
 
-  Lin_Thresh_mat = Lin_Thresh_mat.array().exp().matrix();
+  //if (thresh_func == 0) {
+    Lin_Thresh_mat = Lin_Thresh_mat.array().exp().matrix();
+  //}
 
   for  (int i = 2L; i <= J_1; ++i)  a.col(i) = a.col(i - 1L) + Lin_Thresh_mat.col(i - 1L);
   return(a);
@@ -176,6 +205,14 @@ Eigen::VectorXd exchange(const Eigen::VectorXd x, const double from, const doubl
 }
 
 // [[Rcpp::depends(RcppEigen)]]
+Eigen::VectorXd UpZero(const Eigen::VectorXd v){
+  Eigen::VectorXd res = v;
+  for  (long i = 0; i < v.size(); ++i) {
+    if (v(i)<0) res(i) = 0;
+  }
+}
+
+// [[Rcpp::depends(RcppEigen)]]
 // [[Rcpp::export]]
 double LLFunc(const Eigen::Map<Eigen::VectorXd> parameters,
               const Eigen::VectorXi yi,
@@ -184,16 +221,22 @@ double LLFunc(const Eigen::Map<Eigen::VectorXd> parameters,
               const Eigen::VectorXi parcount,
               const int link, /// 0-probit , 1 - logit
               const int thresh_no_cov, /// 0-NO , 1-Yes
+              const int thresh_method, /// 0-Jurges, 1-Hopit  //const int thresh_func, /// 0-exp, 1-lin
+              const int use_alpha, /// 0-auto
+              const double alpha_0,
               const int negative, ///1 -yes 0 no
               const int use_weights,
               const Eigen::VectorXd weights,
               const double out_val){ /// e.g. -inf
 
   Eigen::VectorXd reg_par = subvec(0, parcount(0) - 1L, parameters);
+  if ((use_alpha==1 && alpha_0 >= 0) || (use_alpha==0 && thresh_method ==1)) reg_par = UpZero(reg_par);
   int p01 = parcount(0) + parcount(1) - 1L;
   Eigen::VectorXd thresh_lambda = subvec(parcount(0), p01, parameters);
   Eigen::VectorXd thresh_gamma = subvec(p01 + 1L, p01 + parcount(2), parameters);
-  Eigen::MatrixXd a = getThresholds(thresh_mm, thresh_lambda, thresh_gamma, thresh_no_cov);
+  Eigen::MatrixXd a = getThresholds(thresh_mm, thresh_lambda, thresh_gamma, thresh_no_cov,
+                                    thresh_method, //thresh_func,
+                                    use_alpha, alpha_0 );
   Eigen::VectorXd b = reg_mm * reg_par;
 
   Eigen::VectorXd LO = colpath(a, yi, 0L) - b;
@@ -202,9 +245,15 @@ double LLFunc(const Eigen::Map<Eigen::VectorXd> parameters,
   HI = exchange(HI, R_PosInf, 20);
 
   Eigen::VectorXd P;
-  if (link == 0)  P = pstdnorm(HI) - pstdnorm(LO); else P = pstdlogit(HI) - pstdlogit(LO);
+  if (link == 0) {
+    P = pstdnorm(HI) - pstdnorm(LO);
+  } else {
+    P = pstdlogit(HI) - pstdlogit(LO);
+  }
   int d;
-  if (negative == 1L) d = -1; else d = 1;
+  if (negative == 1L) {
+    d = -1;
+  }  else d = 1;
 
   double res;
 
@@ -215,7 +264,9 @@ double LLFunc(const Eigen::Map<Eigen::VectorXd> parameters,
   } else {
     if (out_val == R_NegInf) res = out_val * d; else {
       double out_val2 = std::exp(out_val);
-      for (int i=0; i<P.size(); ++i) if (P(i)<=0) P(i) = out_val2;
+      for (int i=0; i<P.size(); ++i){
+        if (P(i)<=0) P(i) = out_val2;
+      }
       P = d * P.array().log().matrix();
       res = P.array().sum();
     }
@@ -232,15 +283,21 @@ Eigen::MatrixXd LLFuncIndv(const Eigen::Map<Eigen::VectorXd> parameters,
                            const Eigen::VectorXi parcount,
                            const int link, /// 0-probit , 1 - logit
                            const int thresh_no_cov, /// 0-NO , 1-Yes
+                           const int thresh_method, /// 0-Jurges, 1-Hopit//             const int thresh_func, /// 0-exp, 1-lin
+                           const int use_alpha, /// 0-auto
+                           const double alpha_0,
                            const int negative, ///1 -yes 0 no
                            const int use_weights,
                            const Eigen::VectorXd weights){ /// 1-yes, 0-no
 
   Eigen::VectorXd reg_par = subvec(0, parcount(0) - 1L, parameters);
+  if ((use_alpha==1 && alpha_0 >= 0) || (use_alpha==0 && thresh_method ==1)) reg_par = UpZero(reg_par);
   int p01 = parcount(0) + parcount(1) - 1L;
   Eigen::VectorXd thresh_lambda = subvec(parcount(0), p01, parameters);
   Eigen::VectorXd thresh_gamma = subvec(p01 + 1L, p01 + parcount(2), parameters);
-  Eigen::MatrixXd a = getThresholds(thresh_mm, thresh_lambda, thresh_gamma, thresh_no_cov);
+  Eigen::MatrixXd a = getThresholds(thresh_mm, thresh_lambda, thresh_gamma, thresh_no_cov,
+                                    thresh_method, //thresh_func,
+                                    use_alpha, alpha_0 );
   Eigen::VectorXd b = reg_mm * reg_par;
 
   Eigen::VectorXd LO = colpath(a, yi, 0L) - b;
@@ -249,9 +306,16 @@ Eigen::MatrixXd LLFuncIndv(const Eigen::Map<Eigen::VectorXd> parameters,
   HI = exchange(HI, R_PosInf, 20);
 
   Eigen::VectorXd P;
-  if (link == 0) P = pstdnorm(HI) - pstdnorm(LO); else  P = pstdlogit(HI) - pstdlogit(LO);
+  if (link == 0) {
+    P = pstdnorm(HI) - pstdnorm(LO);
+  } else {
+    P = pstdlogit(HI) - pstdlogit(LO);
+  }
   int d;
-  if (negative == 1L) d = -1;  else d = 1;
+  if (negative == 1L) {
+    d = -1;
+  }  else d = 1;
+
   P = d * P.array().log().matrix();
   if (use_weights == 1) P = P.cwiseProduct(weights);
   return(P);
@@ -300,6 +364,9 @@ Eigen::MatrixXd LLGradFunc(const Eigen::Map<Eigen::VectorXd> parameters,
                            const Eigen::VectorXi parcount,
                            const int link, /// 0-probit , 1 - logit
                            const int thresh_no_cov, /// 0-NO , 1-Yes
+                           const int thresh_method, /// 0-Jurges, 1-Hopit //   const int thresh_func, /// 0-exp, 1-lin
+                           const int use_alpha, /// 0-auto
+                           const double alpha_0,
                            const int negative, ///1 -yes 0 no
                            const int use_weights, ///1 -yes 0 no
                            const Eigen::VectorXd weights){ /// 1-yes, 0-no
@@ -307,10 +374,13 @@ Eigen::MatrixXd LLGradFunc(const Eigen::Map<Eigen::VectorXd> parameters,
   long N = yi.size();
 
   Eigen::VectorXd reg_par = subvec(0, parcount(0) - 1L, parameters);
+  if ((use_alpha==1 && alpha_0 >= 0) || (use_alpha==0 && thresh_method ==1)) reg_par = UpZero(reg_par);
   int p01 = parcount(0) + parcount(1) - 1L;
   Eigen::VectorXd thresh_lambda = subvec(parcount(0), p01, parameters);
   Eigen::VectorXd thresh_gamma = subvec(p01 + 1L, p01 + parcount(2), parameters);
-  Eigen::MatrixXd a = getThresholds(thresh_mm, thresh_lambda, thresh_gamma, thresh_no_cov);
+  Eigen::MatrixXd a = getThresholds(thresh_mm, thresh_lambda, thresh_gamma, thresh_no_cov,
+                                    thresh_method, //thresh_func,
+                                    use_alpha, alpha_0 );
   Eigen::VectorXd b = reg_mm * reg_par;
 
   Eigen::VectorXd A2 = colpath(a, yi, 0L) - b;
@@ -345,11 +415,16 @@ Eigen::MatrixXd LLGradFunc(const Eigen::Map<Eigen::VectorXd> parameters,
   dlnLL_dbeta = dlnLL_dbeta.cwiseProduct(reg_mm);
 
   Eigen::MatrixXd da = Eigen::MatrixXd::Ones(N, YYY1.cols());
-  da.col(0) = Eigen::VectorXd::Ones(N);
-
-  for (int i = 1; i < (a.cols() - 2); ++i){
-    da.col(i) = a.col(i + 1) - a.col(i);
-  }
+  // if (thresh_func == 0) {
+    if (thresh_method==0) {
+      da.col(0) = Eigen::VectorXd::Ones(N);
+    } else {
+      da.col(0) = a.col(1);
+    }
+    for (int i = 1; i < (a.cols() - 2); ++i){
+      da.col(i) = a.col(i + 1) - a.col(i);
+    }
+  // }
 
   Eigen::MatrixXd D1_(D1.rows(), da.cols()), D2_(D1.rows(), da.cols()), D3_(D1.rows(), da.cols());
   for (int i = 0; i < da.cols(); ++i){
@@ -403,6 +478,9 @@ Eigen::MatrixXd LLGradFuncIndv(const Eigen::Map<Eigen::VectorXd> parameters,
                                const Eigen::VectorXi parcount,
                                const int link, /// 0-probit , 1 - logit
                                const int thresh_no_cov, /// 0-NO , 1-Yes
+                               const int thresh_method, /// 0-Jurges, 1-Hopit  //        const int thresh_func, /// 0-exp, 1-lin
+                               const int use_alpha, /// 0-auto
+                               const double alpha_0,
                                const int negative, ///1 -yes 0 no
                                const int use_weights, ///1 -yes 0 no
                                const Eigen::VectorXd weights){ /// 1-yes, 0-no
@@ -410,10 +488,13 @@ Eigen::MatrixXd LLGradFuncIndv(const Eigen::Map<Eigen::VectorXd> parameters,
   long N = yi.size();
 
   Eigen::VectorXd reg_par = subvec(0, parcount(0) - 1L, parameters);
+  if ((use_alpha==1 && alpha_0 >= 0) || (use_alpha==0 && thresh_method ==1)) reg_par = UpZero(reg_par);
   int p01 = parcount(0) + parcount(1) - 1L;
   Eigen::VectorXd thresh_lambda = subvec(parcount(0), p01, parameters);
   Eigen::VectorXd thresh_gamma = subvec(p01 + 1L, p01 + parcount(2), parameters);
-  Eigen::MatrixXd a = getThresholds(thresh_mm, thresh_lambda, thresh_gamma, thresh_no_cov);
+  Eigen::MatrixXd a = getThresholds(thresh_mm, thresh_lambda, thresh_gamma, thresh_no_cov,
+                                    thresh_method, // thresh_func,
+                                    use_alpha, alpha_0 );
   Eigen::VectorXd b = reg_mm * reg_par;
 
   Eigen::VectorXd A2 = colpath(a, yi, 0L) - b;
@@ -448,10 +529,16 @@ Eigen::MatrixXd LLGradFuncIndv(const Eigen::Map<Eigen::VectorXd> parameters,
   dlnLL_dbeta = dlnLL_dbeta.cwiseProduct(reg_mm);
 
   Eigen::MatrixXd da = Eigen::MatrixXd::Ones(N, YYY1.cols());
-  da.col(0) = Eigen::VectorXd::Ones(N);
-  for (int i = 1; i < (a.cols() - 2); ++i){
-    da.col(i) = a.col(i + 1) - a.col(i);
-  }
+  //if (thresh_func == 0) {
+    if (thresh_method==0) {
+      da.col(0) = Eigen::VectorXd::Ones(N);
+    } else {
+      da.col(0) = a.col(1);
+    }
+    for (int i = 1; i < (a.cols() - 2); ++i){
+      da.col(i) = a.col(i + 1) - a.col(i);
+    }
+  //}
 
   Eigen::MatrixXd D1_(D1.rows(), da.cols()), D2_(D1.rows(), da.cols()), D3_(D1.rows(), da.cols());
   for (int i = 0; i < da.cols(); ++i){
@@ -468,16 +555,20 @@ Eigen::MatrixXd LLGradFuncIndv(const Eigen::Map<Eigen::VectorXd> parameters,
 
   if (use_weights==0){
     if (thresh_no_cov == 1L) {
+      //res.resize(dlnLL_dbeta.rows(), dlnLL_dbeta.cols()+dlnLL_Lambda.cols());
       res << dlnLL_dbeta, dlnLL_Lambda;
     } else {
       Eigen::MatrixXd dlnLL_Gamma = rep_col_c(dlnLL_Lambda, thresh_mm.cols()).cwiseProduct(thresh_extd);
+      //res.resize(dlnLL_dbeta.rows(),dlnLL_dbeta.cols()+dlnLL_Lambda.cols()+dlnLL_Gamma.cols());
       res << dlnLL_dbeta, dlnLL_Lambda, dlnLL_Gamma;
     }
   } else {
     if (thresh_no_cov == 1L) {
+      //res.resize(dlnLL_dbeta.rows(),dlnLL_dbeta.cols()+dlnLL_Lambda.cols());
       res << weight_rows(dlnLL_dbeta, weights), weight_rows(dlnLL_Lambda, weights); // weigth sums by weights
     } else {
       Eigen::MatrixXd dlnLL_Gamma = rep_col_c(dlnLL_Lambda, thresh_mm.cols()).cwiseProduct(thresh_extd);
+      //res.resize(dlnLL_dbeta.rows(),dlnLL_dbeta.cols()+dlnLL_Lambda.cols()+dlnLL_Gamma.cols());
       res << weight_rows(dlnLL_dbeta, weights), weight_rows(dlnLL_Lambda, weights), weight_rows(dlnLL_Gamma, weights);
     }
   }

@@ -14,7 +14,7 @@ gotm_fitter(model, start = model$start, use_weights = TRUE)
 \item{control}{a list with control parameters. See \code{\link{gotm.control}}.}
 }
 \description{
-Fitter for Jurges and Hopit models
+Fit the model.
 }
 \author{
 Maciej J. Danko  <\email{maciej.danko@gmail.com}>
