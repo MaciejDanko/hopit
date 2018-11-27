@@ -1,3 +1,5 @@
+
+
 update.latent <-function(model, newregcoef, data, hessian=FALSE){
   coefnames <- names(model$coef)
   thresh.names <- colnames(model$thresh.mm)

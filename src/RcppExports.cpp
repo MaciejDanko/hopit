@@ -6,39 +6,6 @@
 
 using namespace Rcpp;
 
-// dstdnorm
-Eigen::VectorXd dstdnorm(const Eigen::VectorXd v);
-RcppExport SEXP _gotm_dstdnorm(SEXP vSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::VectorXd >::type v(vSEXP);
-    rcpp_result_gen = Rcpp::wrap(dstdnorm(v));
-    return rcpp_result_gen;
-END_RCPP
-}
-// pstdlogit
-Eigen::VectorXd pstdlogit(const Eigen::VectorXd v);
-RcppExport SEXP _gotm_pstdlogit(SEXP vSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::VectorXd >::type v(vSEXP);
-    rcpp_result_gen = Rcpp::wrap(pstdlogit(v));
-    return rcpp_result_gen;
-END_RCPP
-}
-// dstdlogit
-Eigen::VectorXd dstdlogit(const Eigen::VectorXd v);
-RcppExport SEXP _gotm_dstdlogit(SEXP vSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::VectorXd >::type v(vSEXP);
-    rcpp_result_gen = Rcpp::wrap(dstdlogit(v));
-    return rcpp_result_gen;
-END_RCPP
-}
 // colpath
 Eigen::VectorXd colpath(const Eigen::MatrixXd m, const Eigen::VectorXi v, const int offset);
 RcppExport SEXP _gotm_colpath(SEXP mSEXP, SEXP vSEXP, SEXP offsetSEXP) {
@@ -49,19 +16,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const Eigen::VectorXi >::type v(vSEXP);
     Rcpp::traits::input_parameter< const int >::type offset(offsetSEXP);
     rcpp_result_gen = Rcpp::wrap(colpath(m, v, offset));
-    return rcpp_result_gen;
-END_RCPP
-}
-// extract_elements
-Eigen::VectorXd extract_elements(const Eigen::VectorXi x, const int offset, const Eigen::VectorXd v);
-RcppExport SEXP _gotm_extract_elements(SEXP xSEXP, SEXP offsetSEXP, SEXP vSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::VectorXi >::type x(xSEXP);
-    Rcpp::traits::input_parameter< const int >::type offset(offsetSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd >::type v(vSEXP);
-    rcpp_result_gen = Rcpp::wrap(extract_elements(x, offset, v));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -194,11 +148,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_gotm_dstdnorm", (DL_FUNC) &_gotm_dstdnorm, 1},
-    {"_gotm_pstdlogit", (DL_FUNC) &_gotm_pstdlogit, 1},
-    {"_gotm_dstdlogit", (DL_FUNC) &_gotm_dstdlogit, 1},
     {"_gotm_colpath", (DL_FUNC) &_gotm_colpath, 3},
-    {"_gotm_extract_elements", (DL_FUNC) &_gotm_extract_elements, 3},
     {"_gotm_vglm2gotm_jurges_exp", (DL_FUNC) &_gotm_vglm2gotm_jurges_exp, 3},
     {"_gotm_ind_reg_thresh", (DL_FUNC) &_gotm_ind_reg_thresh, 3},
     {"_gotm_getThresholds", (DL_FUNC) &_gotm_getThresholds, 4},

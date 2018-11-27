@@ -88,14 +88,14 @@ fit.vglm <-function(model, data, start=NULL){
   small.formula <- formula(paste('FALSE ~', thrf))
   cat('Running vglm...')
   mv2<-switch(model$link,
-              probit = vglm(big.formula, weights = w, data = data, coefstart = start,
-                            family = cumulative(parallel = small.formula, link = 'probit')), #direct substitution of link doesn't work
-              logit = vglm(big.formula, weights = w, data = data, coefstart = start,
-                           family = cumulative(parallel = small.formula, link = 'logit')))
+              probit = VGAM::vglm(big.formula, weights = w, data = data, coefstart = start,
+                            family = VGAM::cumulative(parallel = small.formula, link = 'probit')), #direct substitution of link doesn't work
+              logit = VGAM::vglm(big.formula, weights = w, data = data, coefstart = start,
+                           family = VGAM::cumulative(parallel = small.formula, link = 'logit')))
   rm(Y, envir = .GlobalEnv)
-  mv2.par <- c(coef(mv2)[-(1:sum(model$parcount[2:3]))], coef(mv2)[(1:sum(model$parcount[2:3]))])
+  mv2.par <- c(VGAM::coef(mv2)[-(1:sum(model$parcount[2:3]))], VGAM::coef(mv2)[(1:sum(model$parcount[2:3]))])
   model$vglm <- mv2
-  model$vglm.LL<-logLik(mv2)
+  model$vglm.LL<-VGAM::logLik(mv2)
   model$vglm.start.ls <- gotm_ExtractParameters(model, mv2.par)
   model$vglm.start <- mv2.par
   model
@@ -672,7 +672,7 @@ vcov.gotm<-function(object, robust.vcov, control = list(), ...){
       warning(call. = FALSE, '"robust.vcov" ignored, survey design was detected.')
       robust.vcov <- NA
     }
-    z <- svyrecvar(object$estfun %*% z, #survey::
+    z <- survey::svyrecvar(object$estfun %*% z, #survey::
                    data.frame(PSU = object$design$PSU),
                    data.frame(rep(1, object$N)),
                    list(popsize = NULL,

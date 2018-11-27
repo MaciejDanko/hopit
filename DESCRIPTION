@@ -1,14 +1,16 @@
 Package: gotm
 Type: Package
 Title: Health reporting styles
-Version: 18.11.27.1
+Version: 18.11.27.2
+Depends: R (>= 2.10)
+Imports: MASS, survey, VGAM
 LinkingTo: RcppEigen, Rcpp
-Depends: R (>= 2.10), VGAM (>= 1.0.1), Rcpp (>= 0.12.17), RcppEigen (>= 0.3.3.3.1) 
-Imports: MASS (>= 7.3-47), survey (>= 3.30-3)
-Author: Maciej J. Danko 
-Maintainer: Maciej J. Danko <Maciej.Danko@gmail.com>
+Authors@R: person("Maciej J.", "Danko", role = c("aut", "cre"), email = "Maciej.Danko@gmail.com", comment = c(ORCID = "0000-0002-7924-9022"))
 Description: Generalized Ordered Choice Threshold Models with application to health reporting styles.
 License: GPL-2
 Encoding: UTF-8
 LazyData: TRUE
 RoxygenNote: 6.0.1
+SystemRequirements: C++11
+RdMacros: Rdpack
+

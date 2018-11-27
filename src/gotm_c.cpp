@@ -16,7 +16,6 @@ Eigen::VectorXd pstdnorm(const Eigen::VectorXd v){   ///pnorm
 }
 
 // [[Rcpp::depends(RcppEigen)]]
-// [[Rcpp::export]]
 Eigen::VectorXd dstdnorm(const Eigen::VectorXd v){   ///dnorm
   Eigen::VectorXd v2 = - v.cwiseProduct(v) * 0.5;
   Eigen::VectorXd res = 0.5 * M_SQRT1_2 * M_2_SQRTPI * v2.array().exp().matrix();
@@ -24,7 +23,6 @@ Eigen::VectorXd dstdnorm(const Eigen::VectorXd v){   ///dnorm
 }
 
 // [[Rcpp::depends(RcppEigen)]]
-// [[Rcpp::export]]
 Eigen::VectorXd pstdlogit(const Eigen::VectorXd v) {
   Eigen::VectorXd res = v.array().exp().matrix();
   Eigen::VectorXd res1 = res + res.Ones(res.size());
@@ -32,7 +30,6 @@ Eigen::VectorXd pstdlogit(const Eigen::VectorXd v) {
 }
 
 // [[Rcpp::depends(RcppEigen)]]
-// [[Rcpp::export]]
 Eigen::VectorXd dstdlogit(const Eigen::VectorXd v) {
   Eigen::VectorXd res = (-v).array().exp().matrix();
   Eigen::VectorXd res1 = res + res.Ones(res.size());
@@ -52,7 +49,7 @@ Eigen::VectorXd colpath(const Eigen::MatrixXd m,
   return(res);
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::depends(RcppEigen)]]
 Eigen::VectorXd extract_elements(const Eigen::VectorXi x,
                                  const int offset,
                                  const Eigen::VectorXd v){
