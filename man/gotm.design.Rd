@@ -13,6 +13,8 @@ gotm.design(PWeights = NULL, FWeights = NULL, PSU = NULL,
 \item{FWeights}{Frequency weights.}
 
 \item{PSU}{Identificator of the PSU unit. Each P- and F- weight should correspond to exactly one PSU.}
+
+\item{CountryID}{PSU are typically prescribed to only one country.}
 }
 \description{
 Auxiliary for setting a simple survey design for \code{gotm}

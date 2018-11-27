@@ -4,9 +4,8 @@
 \alias{gotm.control}
 \title{Auxiliary for controlling \code{gotm} fitting}
 \usage{
-gotm.control(fit.NR = FALSE, max.reiter = 25L, tol.reiter = 5e-05,
-  grad.eps = 1e-07, thresh.fun = c("exp", "identity", "id"),
-  alpha_0 = "auto")
+gotm.control(fit.NR = FALSE, max.reiter = 100L, tol.reiter = 5e-05,
+  grad.eps = 1e-07, LL_out_val = -Inf, alpha_0 = "auto")
 }
 \arguments{
 \item{fit.NR}{logical indicating if to use Newton-Raphson algorithm after main optimization.
@@ -18,8 +17,6 @@ The Newton-Raphson algorithm is used anyway if the convergence for standard opti
 consequtive runs of standard optimization.}
 
 \item{grad.eps}{epsilon for gradient function.}
-
-\item{thresh.fun}{function used to calculate thresholds. Possible values are \code{'exp'}(default) and \code{'identity'}.}
 
 \item{alpha_0}{value for "zero" threshold. If 'auto' then alpha_0 is set specificaly
 to the 'jurges' or 'hopit' model. See \code{\link{gotm}}.}
