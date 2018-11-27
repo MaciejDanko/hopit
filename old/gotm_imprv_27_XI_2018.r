@@ -77,7 +77,7 @@ gotm_c_init<-function(model){
 
   if (model$control$alpha_0 == 'auto') {
     use_alpha <- 0
-    if (model$thresh.method=='jurges') alpha_0 <- -Inf else alpha_0 <- 0
+    alpha_0 <- 0
     } else {
     if (is.numeric(model$control$alpha_0)) {
       use_alpha <- 1
@@ -141,6 +141,24 @@ fit.vglm <-function(model, data, start=NULL){
 #' @importFrom VGAM vglm
 #' @keywords internal
 get.vglm.start<-function(model, data){
+  # subs <- function (a, k, z) {a[k] <- z; a}
+  # gmat <- function (x) matrix(x, model$J-1L, as.integer(round(length(x) / (model$J-1L))))
+  # subsgmat <- function (a, k, z) {
+  #   an <- names(a)
+  #   a <- gmat(a)
+  #   a[k,] <- z
+  #   a <- as.vector(a)
+  #   names(a) <- an
+  #   a
+  # }
+  # extrgmat<-function (a, k){
+  #   an <- names(a)
+  #   a <- gmat(a)
+  #   an <- gmat(an)
+  #   z <- as.vector(a[k,])
+  #   names(z) <- as.vector(an[k,])
+  #   z
+  # }
 
   model <- suppressWarnings(fit.vglm(model, data))
   mv2.par <- model$vglm.start
@@ -172,8 +190,73 @@ get.vglm.start<-function(model, data){
       model$lambda.start <- z$thresh_lambda
       model$gamma.start <-z$thresh_gamma
       model$start <- z$coef
-      model$start.LL <- gotm_negLL(parameters = model$start, model, negative = FALSE)
+      model$start.LL <- gotm_negLL(model$start, model, negative = FALSE)
     } else stop(paste('The thresh.method =',thresh.method,'not implemented yet.'),call. = NULL)
+    # par.ls$reg.params <- -par.ls$reg.params
+    # #par.ls$thresh.lambda <- c(par.ls$thresh.lambda[1], diff(par.ls$thresh.lambda))
+    #
+    # if (length(par.ls$thresh.gamma))
+    #   alpha.thresh <- gotm_reg_thresh(thresh.lambda = par.ls$thresh.lambda,
+    #                                   thresh.gamma = par.ls$thresh.gamma,
+    #                                   model = model)
+    #
+    # #alpha.thresh<-t(matrix(par.ls$thresh.lambda, model$J - 1L, model$N)) + model$thresh.mm %*% par.ls$thresh.gamma
+    # #get lambda: get intercepts
+    # par.ls$thresh.lambda <- c(par.ls$thresh.lambda[1], diff(par.ls$thresh.lambda)) # moved up does not work
+    #
+    # #get gamma : threshold params
+    # #  get ini 1#
+    # ini.gamma<-par.ls$thresh.gamma
+    # #  get ini 2#
+    # if (length(par.ls$thresh.gamma)) {
+    #   tmpg <- gmat(par.ls$thresh.gamma)
+    #   tmpg2 <- apply(tmpg,2,diff)
+    #   tmpg3 <- as.vector(rbind(tmpg[1,],tmpg2))
+    #   names(tmpg3)<-names(par.ls$thresh.gamma)
+    #   par.ls$thresh.gamma <- tmpg3
+    # }
+    #
+    # if (thresh.fun!='identity') {
+    #   if (thresh.method == 'jurges'){
+    #     # update lambda according to Jurges method
+    #     par.ls$thresh.lambda <- c(par.ls$thresh.lambda[1],log(par.ls$thresh.lambda[2:length(par.ls$thresh.lambda)]))
+    #
+    #     # calculate gamma
+    #
+    #     if (length(par.ls$thresh.gamma)) {
+    #       fn <- function(x) sum((alpha.thresh-gotm_Threshold(x[seq_len(model$J-1)],x[-seq_len(model$J-1)],model)[,-c(1,model$J+1)])^2)
+    #       oo<-optim(par=c(par.ls$thresh.lambda,par.ls$thresh.gamma),fn=fn)
+    #       for (i in 1:50) {
+    #         oldv=oo$value
+    #         oo<-optim(par=c(oo$par),fn=fn)
+    #         cat(oo$value,',')
+    #         if (abs(oo$value-oldv)<1e3) break
+    #       }
+    #       par.ls$thresh.lambda<-oo$par[seq_len(model$J-1)]
+    #       par.ls$thresh.gamma<-oo$par[-seq_len(model$J-1)]
+    #       cat('\n')
+    #     }
+    #   } else if (thresh.method == 'hopit'){
+    #     par.ls$thresh.lambda <- log(par.ls$thresh.lambda[1:length(par.ls$thresh.lambda)])
+    #     if (length(par.ls$thresh.gamma)) {
+    #       for (k in 1:(model$J-1)){
+    #         fn <- function(x) sum(abs(alpha.thresh[,k] - gotm_Threshold(subs(par.ls$thresh.lambda,k,x[1]),
+    #                                                                   subs(par.ls$thresh.gamma,k,x[2]), model)[,k+1]))
+    #         oo<-optim(par=c(par.ls$thresh.lambda[k],par.ls$thresh.gamma[k]),fn=fn)
+    #         par.ls$thresh.lambda[k]<-oo$par[1]
+    #         par.ls$thresh.gamma[k]<-oo$par[2]
+    #       }
+    #     }
+    #   }
+    # }
+    # cat(' done\n')
+    # model$vglm.start <- mv2.par
+    # model$reg.start <- par.ls$reg.params
+    # model$lambda.start <- par.ls$thresh.lambda
+    # model$gamma.start <-par.ls$thresh.gamma
+    # model$start <- c(model$reg.start, model$lambda.start, model$gamma.start)
+    # #gotm_Threshold(par.ls$thresh.lambda, par.ls$thresh.gamma, model)
+    # model$start.LL <- -gotm_negLL(model$start, model)
   }
   model
 }
