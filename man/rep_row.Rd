@@ -2,10 +2,10 @@
 % Please edit documentation in R/gotm_imprv.r
 \name{rep_row}
 \alias{rep_row}
-\title{REMINDER: PUT HERE c++ FUNCTION!!}
+\title{REMINDER: PUT HERE c++ FUNCTION}
 \usage{
 rep_row(mat, times)
 }
 \description{
-REMINDER: PUT HERE c++ FUNCTION!!
+REMINDER: PUT HERE c++ FUNCTION
 }

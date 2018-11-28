@@ -4,8 +4,7 @@
 .RData
 .Ruserdata
 .DS_Store
-ungroup.Rproj
-ungroupJS.Rproj
+gotm.Rproj
 
 # C++ files
 src/*.o

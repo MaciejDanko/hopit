@@ -443,22 +443,24 @@ gotm.design<-function(PWeights = NULL, FWeights = NULL, PSU = NULL, CountryID = 
   tmp
 }
 
-#' Not %in% function
+#' Not \%in\% function
 #'
+#' @usage x \%notin\% y
 #' @export
-'%!in%' <-function(x, table) match(x, table, nomatch = 0L) == 0L
+'%notin%' <-function(x, y) match(x, y, nomatch = 0L) == 0L
 
 #' Check if one set is a subset of an another subset
 #'
+#' @usage x \%c\% y
 #' @export
-'%c%' <-function(x, table) all(match(x, table, nomatch = 0L))
+'%c%' <-function(x, y) all(match(x, y, nomatch = 0L))
 
-#' Not %c% function
-#'
+#' Not \%notc\% function
+#' @usage x \%notc\% y
 #' @export
-'%!c%' <- function(x, table) !all(match(x, table, nomatch = 0L))
+'%notc%' <- function(x, y) !all(match(x, y, nomatch = 0L))
 
-#' REMINDER: PUT HERE c++ FUNCTION!!
+#' REMINDER: PUT HERE c++ FUNCTION
 rep_row <- function(mat, times) t(matrix(t(mat), NCOL(mat), NROW(mat) * times))
 
 #' Get starting parameters from less or more complicated hierarchical models
@@ -478,35 +480,35 @@ get.start.gotm <- function(object, reg.formula, thresh.formula, data, asList = F
   new.tt<-attr(terms(as.formula(thresh.formula)),"term.labels")
   pr <- gotm_ExtractParameters(object)
   pr.new <-pr
-  if ((old.rt %c% new.rt) && (new.rt %!c% old.rt)) {
+  if ((old.rt %c% new.rt) && (new.rt %notc% old.rt)) {
     reg.mm <- model.matrix(reg.formula,data)[,-1]
     pr.new$reg.params <- rep(0, NCOL(reg.mm))
     old.ind <- which(colnames(reg.mm)%in%colnames(object$reg.mm))
     pr.new$reg.params[old.ind] <- pr$reg.params
     names(pr.new$reg.params)[old.ind] <- names(pr$reg.params)
-    new.ind <- which(colnames(reg.mm)%!in%colnames(object$reg.mm))
+    new.ind <- which(colnames(reg.mm)%notin%colnames(object$reg.mm))
     nnam <- colnames(reg.mm)[new.ind]
     names(pr.new$reg.params)[new.ind] <- nnam
-  } else if ((new.rt %c% old.rt) && (old.rt %!c% new.rt)) {
+  } else if ((new.rt %c% old.rt) && (old.rt %notc% new.rt)) {
     reg.mm <- model.matrix(reg.formula,data)[,-1]
-    rm.ind <- which(colnames(object$reg.mm)%!in%colnames(reg.mm))
+    rm.ind <- which(colnames(object$reg.mm)%notin%colnames(reg.mm))
     tmp <- pr.new$reg.params[rm.ind]
     pr.new$reg.params <- pr.new$reg.params[-rm.ind]
     pr.new$thresh.lambda[1] <- pr.new$thresh.lambda[1] -
       mean(object$reg.mm[,rm.ind] * rep_row(tmp, NROW(reg.mm))) * length(tmp)
   }
-  if ((old.tt %c% new.tt) && (new.tt %!c% old.tt)){
+  if ((old.tt %c% new.tt) && (new.tt %notc% old.tt)){
     thresh.mm <- model.matrix(thresh.formula,data)[,-1]
     pr.new$thresh.params <- rep(0, NCOL(thresh.mm))
     old.ind <- which(colnames(thresh.mm)%in%colnames(object$thresh.mm))
     pr.new$thresh.gamma[old.ind] <- pr$thresh.gamma
     names(pr.new$thresh.gamma)[old.ind] <- names(pr$thresh.gamma)
-    new.ind <- which(colnames(thresh.mm)%!in%colnames(object$thresh.mm))
+    new.ind <- which(colnames(thresh.mm)%notin%colnames(object$thresh.mm))
     nnam <- colnames(thresh.mm)[new.ind]
     names(pr.new$thresh.gamma)[new.ind] <- nnam
-  } else if ((new.tt %c% old.tt) && (old.tt %!c% new.tt)) {
+  } else if ((new.tt %c% old.tt) && (old.tt %notc% new.tt)) {
     thresh.mm <- model.matrix(thresh.formula,data)[,-1]
-    rm.ind <- which(colnames(object$thresh.mm)%!in%colnames(thresh.mm))
+    rm.ind <- which(colnames(object$thresh.mm)%notin%colnames(thresh.mm))
     tmp <- pr.new$thresh.gamma[rm.ind]
     pr.new$thresh.gamma <- pr.new$thresh.gamma[-rm.ind]
     pr.new$thresh.lambda[1] <- pr.new$thresh.lambda[1] -
@@ -1055,7 +1057,7 @@ predict.gotm <- function(object, newdata=NULL, type = c('link', 'response', 'thr
 #   by.what<-ex.lb(by.formula)
 #   rm.interaction <- grep(':',by.what,fixed=TRUE)
 #   if (length(rm.interaction)) by.what <- by.what[-rm.interaction]
-#   if (any(by.what %!in% c(ex.lb(object$reg.formula),ex.lb(object$thresh.formula)))) stop('Some elemnts of "by.formula" not present in the data.')
+#   if (any(by.what %notin% c(ex.lb(object$reg.formula),ex.lb(object$thresh.formula)))) stop('Some elemnts of "by.formula" not present in the data.')
 #   R. <- (object$reg.mm[,unlist(sapply(by.what, grep, x = colnames(object$reg.mm), fixed =TRUE))])
 #   if(!length(R.)) R. <- NULL
 #   T. <- object$thresh.mm[,unlist(sapply(by.what, grep, x = colnames(object$thresh.mm), fixed =TRUE))]

@@ -4,7 +4,7 @@
 \alias{\%c\%}
 \title{Check if one set is a subset of an another subset}
 \usage{
-x \%c\% table
+x \%c\% y
 }
 \description{
 Check if one set is a subset of an another subset
