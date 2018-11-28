@@ -1,7 +1,7 @@
 Package: gotm
 Type: Package
 Title: Health reporting styles
-Version: 18.11.27.2
+Version: 18.11.28.3
 Depends: R (>= 2.10)
 Imports: MASS, survey, VGAM, Rcpp, RcppEigen
 LinkingTo: Rcpp, RcppEigen

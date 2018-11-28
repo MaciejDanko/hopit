@@ -49,6 +49,55 @@ data2freq<-function(formula, data, FreqNam='Freq'){
   newd
 }
 
+#' INTERNAL: Calculation of cut-points (threshold), OLD versiom
+#'
+#' @author Maciej J. Danko
+#' @keywords internal
+gotm_reg_thresh_old<-function(thresh.lambda,thresh.gamma, model){
+  tmp <- t(matrix(thresh.lambda, model$J - 1L, model$N))
+  for (k in seq_len(NCOL(model$thresh.mm))) tmp <- tmp +
+      model$thresh.mm[, k, drop=FALSE] %*% thresh.gamma[(2:model$J)-1+ (k-1)*(model$J-1)]
+  tmp
+}
+
+#' INTERNAL: Calculation of cut-points (threshold), OLD versiom
+#'
+#' @author Maciej J. Danko
+#' @keywords internal
+gotm_Threshold_old<-function(thresh.lambda, thresh.gamma, model = NULL,
+                             extended.output = FALSE){
+
+  control <- model$control
+  fn <- control$thresh.fun
+  J <- model$J
+  N <- model$N
+  thresh.lambda <- t(as.matrix(thresh.lambda))
+
+  if (model$thresh.no.cov){
+    Lin.Tresh.mat <- t(matrix(thresh.lambda, J - 1L, N))
+  } else {
+    Lin.Tresh.mat <- gotm_reg_thresh_old(thresh.lambda, thresh.gamma, model)
+  }
+
+  a <- matrix(NA, N, J + 1L)
+  a[,1L] <-  -Inf
+  a[,2L] <- Lin.Tresh.mat[,1L]
+  a[,J + 1L] <- Inf
+  b  <-  a
+  if (J>=3L) {
+    a[,3L : J]  <-  exp(Lin.Tresh.mat[,2L : (J - 1L)])
+    b  <-  a
+    a[,2L : J]  <-  cumsum_row(a[,2L : J])
+  }
+  if (extended.output){
+    list(a = a, b = b, thresh.lambda = thresh.lambda, Lin.Tresh.mat = Lin.Tresh.mat)
+  } else {
+    a
+  }
+}
+
+
+
 #' INTERNAL: Calculation of cut-points (threshold)
 #'
 #' @author Maciej J. Danko
@@ -72,19 +121,30 @@ gotm_c_link<-function(model){
 #' @keywords internal
 #' @useDynLib gotm
 #' @importFrom Rcpp evalCpp
-gotm_Threshold<-function(thresh.lambda, thresh.gamma, model = NULL){
-  getThresholds(model$thresh.mm, thresh.lambda, thresh.gamma, model$thresh.no.cov) #RcppEigen
+gotm_Threshold<-function(thresh.lambda, thresh.gamma, model = NULL, thresh.start = model$thresh.start){
+  getThresholds(model$thresh.mm, thresh.lambda, thresh.gamma, model$thresh.no.cov, thresh_start = thresh.start) #RcppEigen
 }
 
 #' INTERNAL: Fit vglm to get parameters of the model
 #'
 #' importFrom VGAM vglm
 #' @keywords internal
-fit.vglm <-function(model, data, start=NULL){
+fit.vglm <-function(model, data){
   reg.formula <- model$reg.formula
   thresh.formula <- model$thresh.formula
   if (length(thresh.formula)>2) thresh.formula[[2]] <- NULL
   thrf <- deparse(thresh.formula[[2]])
+  tmr <- attr(terms(as.formula(reg.formula)),"term.labels")
+  tmt <-attr(terms(as.formula(thresh.formula)),"term.labels")
+  model$J <- length(levels(as.factor(data[,deparse(model$reg.formula[[2]])]))) #update J if not calculated
+  model$parcount <- c(length(tmr),(model$J-1),length(tmt)*(model$J-1)) #update model parcount if not calculated
+  if (!length(model$weights)) model$weights <- rep(1)
+  incc <- tmr %in% tmt
+  if (any(incc)) {
+    cat('Threshold variable(s) detected in reg.formula. Model may be not identifiable.\n')
+    ignored.var<- tmr[incc]
+    reg.formula <- update(reg.formula, paste('~ . ',paste(' -', ignored.var,collapse='')))
+  } else ignored.var <- NULL
   big.formula <- update(reg.formula, paste('~ ', thrf,' + . + 1'))
   Y <<- Vector2DummyMat(data[,paste(reg.formula[[2]])])
   w <- model$weights
@@ -93,19 +153,20 @@ fit.vglm <-function(model, data, start=NULL){
   small.formula <- formula(paste('FALSE ~', thrf))
   cat('Running vglm...')
   mv2<-switch(model$link,
-              probit = VGAM::vglm(big.formula, weights = w, data = data, coefstart = start,
+              probit = VGAM::vglm(big.formula, weights = w, data = data,
                             family = VGAM::cumulative(parallel = small.formula, link = 'probit')), #direct substitution of link doesn't work
-              logit = VGAM::vglm(big.formula, weights = w, data = data, coefstart = start,
+              logit = VGAM::vglm(big.formula, weights = w, data = data,
                            family = VGAM::cumulative(parallel = small.formula, link = 'logit')))
   rm(Y, envir = .GlobalEnv)
   mv2.par <- c(VGAM::coef(mv2)[-(1:sum(model$parcount[2:3]))], VGAM::coef(mv2)[(1:sum(model$parcount[2:3]))])
   model$vglm <- mv2
   model$vglm.LL<-VGAM::logLik(mv2)
-  model$vglm.start.ls <- gotm_ExtractParameters(model, mv2.par)
+  parcount <- model$parcount
+  parcount[1] <- parcount[1] - length(ignored.var)
+  model$vglm.start.ls <- gotm_ExtractParameters(model, mv2.par, parcount)
   model$vglm.start <- mv2.par
-  model
+  list(vglm.model=model,ignored.reg.var=ignored.var,new.reg.formula=reg.formula)
 }
-
 
 #' INTERNAL: Fit vglm to get parameters of the model
 #'
@@ -115,22 +176,37 @@ fit.vglm <-function(model, data, start=NULL){
 #' @keywords internal
 #' @useDynLib gotm
 #' @importFrom Rcpp evalCpp
-get.vglm.start<-function(model, data){
+get.vglm.start<-function(model, data, thresh.start = model$thresh.start){
+  m <- suppressWarnings(fit.vglm(model, data))
 
-  model <- suppressWarnings(fit.vglm(model, data))
+  model <- m$vglm.model
   mv2.par <- model$vglm.start
   par.ls <- model$vglm.start.ls
   cat(' done\n')
   cat('Recalculating parameters...')
 
+  if (thresh.start == 0) {
+     k <- min(par.ls$thresh.lambda)+1e-4
+     par.ls$thresh.lambda <- par.ls$thresh.lambda + k
+     par.ls$reg.params <- par.ls$reg.params - k
+  }
+
   z <- vglm2gotm_jurges_exp(par.ls$reg.params, par.ls$thresh.lambda, par.ls$thresh.gamma)#, (thresh.method != 'jurges')*1)
+  if (length(m$ignored.reg.var)){
+    ini.mis <- mean(z$reg_params)
+    if (any(class(data[,m$ignored.reg.var])!='factor')) stop('Threshold-Health variables must be a factors',call. = NULL)
+    npar <- sum(sapply(m$ignored.reg.var, function(k) length(levels(data[,k]))-1))
+    model$reg.formula <- update(m$new.reg.formula,paste('~ . + ',paste(m$ignored.reg.var,collapse='',sep=' + ')))
+    z$reg_params <- c(z$reg_params, rep(ini.mis, npar))
+    z$coef <- c(z$reg_params,z$thresh_lambda,z$thresh_gamma)
+  }
 
   model$vglm.start <- mv2.par
   model$reg.start <- z$reg_params
   model$lambda.start <- z$thresh_lambda
   model$gamma.start <-z$thresh_gamma
   model$start <- z$coef
-  model$start.LL <- gotm_negLL(parameters = model$start, model, negative = FALSE)
+  model$start.LL <- gotm_negLL(parameters = model$start, model, thresh.start = thresh.start, negative = FALSE)
 
   model
 }
@@ -173,24 +249,24 @@ gotm_latentrange <- function (model, data) {
 #' @param parameters model parameters (optional). If not delivered then taken from \code{model$coef}
 #' @author Maciej J. Danko
 #' @keywords internal
-gotm_ExtractParameters <- function(model, parameters){
-  if (!length(model$parcount)) stop('Missing parcount in model object.')
+gotm_ExtractParameters <- function(model, parameters, parcount = model$parcount){
+  if (!length(parcount)) stop('Missing parcount in model object.')
   if (missing(parameters)) {
     parameters <- model$coef
-    if (!length(parameters)) stop('Missing estimated parameters.')
+    if (!length(parameters)) stop('Missing (estimated) parameters.')
   }
-  if (length(parameters) != sum(model$parcount)) stop('Wrong number of parameters.')
+  if (length(parameters) != sum(parcount)) stop('Wrong number of parameters.')
 
-  reg.params <- parameters[1L : model$parcount[1L]]
-  cpc <- cumsum(model$parcount)
+  reg.params <- parameters[1L : parcount[1L]]
+  cpc <- cumsum(parcount)
 
-  if (model$parcount[2L]) {
+  if (parcount[2L]) {
     thresh.lambda <- parameters[(cpc[1L] + 1L) : cpc[2L]]
   } else {
     stop('Lambda must be given.')
   }
 
-  if (model$parcount[3L]) {
+  if (parcount[3L]) {
     thresh.gamma <- parameters[(cpc[2L] + 1L) : cpc[3L]]
   } else {
     thresh.gamma <- NULL
@@ -204,16 +280,16 @@ gotm_ExtractParameters <- function(model, parameters){
 #' @keywords internal
 #' @useDynLib gotm
 #' @importFrom Rcpp evalCpp
-gotm_negLL <- function(parameters=model$coef, model, collapse = TRUE, use_weights = TRUE, negative = TRUE){
+gotm_negLL <- function(parameters=model$coef, model, thresh.start = model$thresh.start, collapse = TRUE, use_weights = TRUE, negative = TRUE){
   link = gotm_c_link(model)
   if (collapse) {
     LLFunc(parameters, yi=as.numeric(unclass(model$y_i)),reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
            link=link,thresh_no_cov=model$thresh.no.cov*1, negative=1*negative,
-           weights=model$weights,use_weights = 1*use_weights, out_val = model$control$LL_out_val)
+           weights=model$weights,use_weights = 1*use_weights, thresh_start=thresh.start, out_val = model$control$LL_out_val)
   } else {
     LLFuncIndv(parameters, yi=as.numeric(unclass(model$y_i)),reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
                link=link,thresh_no_cov=model$thresh.no.cov*1, negative=1*negative,
-               weights=model$weights,use_weights = 1*use_weights)
+               weights=model$weights, thresh_start = thresh.start, use_weights = 1*use_weights)
   }
 }
 
@@ -239,7 +315,7 @@ calcYYY<-function(model){
 #' @keywords internal
 #' @useDynLib gotm
 #' @importFrom Rcpp evalCpp
-gotm_derivLL <- function(parameters=model$coef, model, collapse = TRUE, use_weights = TRUE, negative = FALSE){
+gotm_derivLL <- function(parameters=model$coef, model, thresh.start = model$thresh.start, collapse = TRUE, use_weights = TRUE, negative = FALSE){
   link = gotm_c_link(model)
   #be compatible with older versions
   if ((!length(model$YYY1)) || (!length(model$YYY1))){
@@ -249,12 +325,12 @@ gotm_derivLL <- function(parameters=model$coef, model, collapse = TRUE, use_weig
     LLGradFunc(parameters, yi=as.numeric(unclass(model$y_i)), YYY1=as.matrix(unname(model$YYY1)), YYY2=as.matrix(unname(model$YYY2)),
                reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
                link=link,thresh_no_cov=model$thresh.no.cov*1,negative=1*negative,
-               weights=model$weights, use_weights = 1*use_weights)
+               weights=model$weights, thresh_start = thresh.start, use_weights = 1*use_weights)
   } else {
     LLGradFuncIndv(parameters, yi=as.numeric(unclass(model$y_i)), YYY1=model$YYY1, YYY2=model$YYY2,
                    reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
                    link=link,thresh_no_cov=model$thresh.no.cov*1, negative=1*negative,
-                   weights=model$weights, use_weights = 1*use_weights)
+                   weights=model$weights,thresh_start = thresh.start, use_weights = 1*use_weights)
   }
 }
 
@@ -268,7 +344,7 @@ gotm_derivLL <- function(parameters=model$coef, model, collapse = TRUE, use_weig
 #' @keywords internal
 #' @useDynLib gotm
 #' @importFrom Rcpp evalCpp
-gotm_fitter <- function(model, start = model$start, use_weights = TRUE){
+gotm_fitter <- function(model, start = model$start, thresh.start = model$thresh.start, use_weights = TRUE){
 
   #be compatible with older versions
   if ((!length(model$YYY1)) || (!length(model$YYY1))){
@@ -281,10 +357,10 @@ gotm_fitter <- function(model, start = model$start, use_weights = TRUE){
   LLgr <- function(par, neg=1) LLGradFunc(par, yi=as.numeric(unclass(model$y_i)), YYY1=model$YYY1, YYY2=model$YYY2,
                                    reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
                                    link=link,thresh_no_cov=model$thresh.no.cov*1, negative=neg,
-                                   weights=model$weights, use_weights = use_weights*1)
+                                   weights=model$weights, thresh_start=thresh.start, use_weights = use_weights*1)
   LLfn <- function(par, neg=1) LLFunc(par, yi=as.numeric(unclass(model$y_i)),reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
                                link=link, thresh_no_cov=model$thresh.no.cov*1, negative=neg,
-                               weights=model$weights,use_weights = use_weights*1, out_val = model$control$LL_out_val)
+                               weights=model$weights,use_weights = use_weights*1, thresh_start=thresh.start, out_val = model$control$LL_out_val)
 
   refit <- function(fit, model){
     oldfit <- fit$value
@@ -457,6 +533,7 @@ get.start.gotm <- function(object, reg.formula, thresh.formula, data, asList = F
 #' @author Maciej J. Danko
 gotm<- function(reg.formula,
                 thresh.formula = as.formula('~ 1'),
+                thresh.start = -Inf,
                 data,
                 survey = list(),
                 link = c('probit', 'logit'),
@@ -523,6 +600,8 @@ gotm<- function(reg.formula,
   } else {
     model$thresh.no.cov <- FALSE
   }
+
+  model$thresh.start = thresh.start
 
   model$y_i <- model.frame(reg.formula, data = data)[,all.vars(reg.formula[[2]])]
   if (!is.factor(model$y_i)) stop('Response must be a factor with ordered levels.', call.=NULL)
@@ -603,15 +682,12 @@ gotm<- function(reg.formula,
     if (hessian) {
       cat('Calculating hessian...')
       hes <- my.grad(fn = gotm_derivLL, par = model$coef, model=model, eps = model$control$grad.eps, collapse = TRUE, negative=FALSE)
+      model$hessian <- hes
       model$vcov <- try(solve(-hes), silent = T)
-      if (class(z) == 'try-error') {
-        z <- NA*hes
-        warning(call. = FALSE, 'Model is probably unidentifiable, vcov cannot be computed.')
-      }
-      cat(' done\n')
-      cat('Calculating estfun...')
-
-      model$estfun <- gotm_derivLL(model$coef, model, collapse = FALSE)
+      if (class(model$vcov) == 'try-error')
+        warning(call. = FALSE, 'Model is probably unidentifiable, $vcov (variance covariance matrix) cannot be computed.')
+      cat(' done\nCalculating estfun...')
+        model$estfun <- gotm_derivLL(model$coef, model, collapse = FALSE)
       cat(' done\n')
     }
   }
@@ -679,6 +755,7 @@ vcov.gotm<-function(object, robust.vcov, control = list(), ...){
   #if (!(robust.method %in% c("grad","working"))) stop('Unknown method.')
   control <- do.call("gotm.control", control)
   z <- object$vcov
+  if (class(z) == "try-error") stop(paste('Cannot compute variance-covariance matrix:\n',attr(z,"condition"),sep=''),call.=NULL)
   if (!length(z)) stop('Hessian was not calculated.')
   if (length(object$design$PSU)){
     if (!missing(robust.vcov) && (robust.vcov)) {

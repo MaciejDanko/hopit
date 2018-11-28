@@ -13,23 +13,23 @@ ind_reg_thresh <- function(thresh_mm, thresh_lambda, thresh_gamma) {
     .Call('_gotm_ind_reg_thresh', PACKAGE = 'gotm', thresh_mm, thresh_lambda, thresh_gamma)
 }
 
-getThresholds <- function(thresh_mm, thresh_lambda, thresh_gamma, thresh_no_cov) {
-    .Call('_gotm_getThresholds', PACKAGE = 'gotm', thresh_mm, thresh_lambda, thresh_gamma, thresh_no_cov)
+getThresholds <- function(thresh_mm, thresh_lambda, thresh_gamma, thresh_no_cov, thresh_start) {
+    .Call('_gotm_getThresholds', PACKAGE = 'gotm', thresh_mm, thresh_lambda, thresh_gamma, thresh_no_cov, thresh_start)
 }
 
-LLFunc <- function(parameters, yi, reg_mm, thresh_mm, parcount, link, thresh_no_cov, negative, use_weights, weights, out_val) {
-    .Call('_gotm_LLFunc', PACKAGE = 'gotm', parameters, yi, reg_mm, thresh_mm, parcount, link, thresh_no_cov, negative, use_weights, weights, out_val)
+LLFunc <- function(parameters, yi, reg_mm, thresh_mm, parcount, link, thresh_no_cov, negative, use_weights, weights, thresh_start, out_val) {
+    .Call('_gotm_LLFunc', PACKAGE = 'gotm', parameters, yi, reg_mm, thresh_mm, parcount, link, thresh_no_cov, negative, use_weights, weights, thresh_start, out_val)
 }
 
-LLFuncIndv <- function(parameters, yi, reg_mm, thresh_mm, parcount, link, thresh_no_cov, negative, use_weights, weights) {
-    .Call('_gotm_LLFuncIndv', PACKAGE = 'gotm', parameters, yi, reg_mm, thresh_mm, parcount, link, thresh_no_cov, negative, use_weights, weights)
+LLFuncIndv <- function(parameters, yi, reg_mm, thresh_mm, parcount, link, thresh_no_cov, negative, use_weights, thresh_start, weights) {
+    .Call('_gotm_LLFuncIndv', PACKAGE = 'gotm', parameters, yi, reg_mm, thresh_mm, parcount, link, thresh_no_cov, negative, use_weights, thresh_start, weights)
 }
 
-LLGradFunc <- function(parameters, yi, YYY1, YYY2, reg_mm, thresh_mm, thresh_extd, parcount, link, thresh_no_cov, negative, use_weights, weights) {
-    .Call('_gotm_LLGradFunc', PACKAGE = 'gotm', parameters, yi, YYY1, YYY2, reg_mm, thresh_mm, thresh_extd, parcount, link, thresh_no_cov, negative, use_weights, weights)
+LLGradFunc <- function(parameters, yi, YYY1, YYY2, reg_mm, thresh_mm, thresh_extd, parcount, link, thresh_no_cov, negative, use_weights, thresh_start, weights) {
+    .Call('_gotm_LLGradFunc', PACKAGE = 'gotm', parameters, yi, YYY1, YYY2, reg_mm, thresh_mm, thresh_extd, parcount, link, thresh_no_cov, negative, use_weights, thresh_start, weights)
 }
 
-LLGradFuncIndv <- function(parameters, yi, YYY1, YYY2, reg_mm, thresh_mm, thresh_extd, parcount, link, thresh_no_cov, negative, use_weights, weights) {
-    .Call('_gotm_LLGradFuncIndv', PACKAGE = 'gotm', parameters, yi, YYY1, YYY2, reg_mm, thresh_mm, thresh_extd, parcount, link, thresh_no_cov, negative, use_weights, weights)
+LLGradFuncIndv <- function(parameters, yi, YYY1, YYY2, reg_mm, thresh_mm, thresh_extd, parcount, link, thresh_no_cov, negative, use_weights, thresh_start, weights) {
+    .Call('_gotm_LLGradFuncIndv', PACKAGE = 'gotm', parameters, yi, YYY1, YYY2, reg_mm, thresh_mm, thresh_extd, parcount, link, thresh_no_cov, negative, use_weights, thresh_start, weights)
 }
 

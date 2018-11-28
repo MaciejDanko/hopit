@@ -4,7 +4,8 @@
 \alias{gotm_fitter}
 \title{INTERNAL: Fit \code{gotm}}
 \usage{
-gotm_fitter(model, start = model$start, use_weights = TRUE)
+gotm_fitter(model, start = model$start, thresh.start = model$thresh.start,
+  use_weights = TRUE)
 }
 \arguments{
 \item{model}{\code{gotm} object}

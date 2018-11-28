@@ -4,7 +4,7 @@
 \alias{gotm_ExtractParameters}
 \title{INTERNAL: Extract model parameters in a form of list}
 \usage{
-gotm_ExtractParameters(model, parameters)
+gotm_ExtractParameters(model, parameters, parcount = model$parcount)
 }
 \arguments{
 \item{model}{\code{gotm} object}

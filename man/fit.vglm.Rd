@@ -4,7 +4,7 @@
 \alias{fit.vglm}
 \title{INTERNAL: Fit vglm to get parameters of the model}
 \usage{
-fit.vglm(model, data, start = NULL)
+fit.vglm(model, data)
 }
 \description{
 importFrom VGAM vglm

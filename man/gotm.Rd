@@ -4,9 +4,9 @@
 \alias{gotm}
 \title{Fit Generelaized Ordered Choice Threshold Model}
 \usage{
-gotm(reg.formula, thresh.formula = as.formula("~ 1"), data, survey = list(),
-  link = c("probit", "logit"), start = NULL, hessian = TRUE,
-  control = list())
+gotm(reg.formula, thresh.formula = as.formula("~ 1"), thresh.start = -Inf,
+  data, survey = list(), link = c("probit", "logit"), start = NULL,
+  hessian = TRUE, control = list())
 }
 \arguments{
 \item{reg.formula}{formula used to model latent process.}

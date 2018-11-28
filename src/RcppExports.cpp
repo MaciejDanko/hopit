@@ -46,8 +46,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // getThresholds
-Eigen::MatrixXd getThresholds(const Eigen::MatrixXd thresh_mm, const Eigen::VectorXd thresh_lambda, const Eigen::VectorXd thresh_gamma, const int thresh_no_cov);
-RcppExport SEXP _gotm_getThresholds(SEXP thresh_mmSEXP, SEXP thresh_lambdaSEXP, SEXP thresh_gammaSEXP, SEXP thresh_no_covSEXP) {
+Eigen::MatrixXd getThresholds(const Eigen::MatrixXd thresh_mm, const Eigen::VectorXd thresh_lambda, const Eigen::VectorXd thresh_gamma, const int thresh_no_cov, const double thresh_start);
+RcppExport SEXP _gotm_getThresholds(SEXP thresh_mmSEXP, SEXP thresh_lambdaSEXP, SEXP thresh_gammaSEXP, SEXP thresh_no_covSEXP, SEXP thresh_startSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -55,13 +55,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const Eigen::VectorXd >::type thresh_lambda(thresh_lambdaSEXP);
     Rcpp::traits::input_parameter< const Eigen::VectorXd >::type thresh_gamma(thresh_gammaSEXP);
     Rcpp::traits::input_parameter< const int >::type thresh_no_cov(thresh_no_covSEXP);
-    rcpp_result_gen = Rcpp::wrap(getThresholds(thresh_mm, thresh_lambda, thresh_gamma, thresh_no_cov));
+    Rcpp::traits::input_parameter< const double >::type thresh_start(thresh_startSEXP);
+    rcpp_result_gen = Rcpp::wrap(getThresholds(thresh_mm, thresh_lambda, thresh_gamma, thresh_no_cov, thresh_start));
     return rcpp_result_gen;
 END_RCPP
 }
 // LLFunc
-double LLFunc(const Eigen::Map<Eigen::VectorXd> parameters, const Eigen::VectorXi yi, const Eigen::MatrixXd reg_mm, const Eigen::MatrixXd thresh_mm, const Eigen::VectorXi parcount, const int link, const int thresh_no_cov, const int negative, const int use_weights, const Eigen::VectorXd weights, const double out_val);
-RcppExport SEXP _gotm_LLFunc(SEXP parametersSEXP, SEXP yiSEXP, SEXP reg_mmSEXP, SEXP thresh_mmSEXP, SEXP parcountSEXP, SEXP linkSEXP, SEXP thresh_no_covSEXP, SEXP negativeSEXP, SEXP use_weightsSEXP, SEXP weightsSEXP, SEXP out_valSEXP) {
+double LLFunc(const Eigen::Map<Eigen::VectorXd> parameters, const Eigen::VectorXi yi, const Eigen::MatrixXd reg_mm, const Eigen::MatrixXd thresh_mm, const Eigen::VectorXi parcount, const int link, const int thresh_no_cov, const int negative, const int use_weights, const Eigen::VectorXd weights, const double thresh_start, const double out_val);
+RcppExport SEXP _gotm_LLFunc(SEXP parametersSEXP, SEXP yiSEXP, SEXP reg_mmSEXP, SEXP thresh_mmSEXP, SEXP parcountSEXP, SEXP linkSEXP, SEXP thresh_no_covSEXP, SEXP negativeSEXP, SEXP use_weightsSEXP, SEXP weightsSEXP, SEXP thresh_startSEXP, SEXP out_valSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -75,14 +76,15 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int >::type negative(negativeSEXP);
     Rcpp::traits::input_parameter< const int >::type use_weights(use_weightsSEXP);
     Rcpp::traits::input_parameter< const Eigen::VectorXd >::type weights(weightsSEXP);
+    Rcpp::traits::input_parameter< const double >::type thresh_start(thresh_startSEXP);
     Rcpp::traits::input_parameter< const double >::type out_val(out_valSEXP);
-    rcpp_result_gen = Rcpp::wrap(LLFunc(parameters, yi, reg_mm, thresh_mm, parcount, link, thresh_no_cov, negative, use_weights, weights, out_val));
+    rcpp_result_gen = Rcpp::wrap(LLFunc(parameters, yi, reg_mm, thresh_mm, parcount, link, thresh_no_cov, negative, use_weights, weights, thresh_start, out_val));
     return rcpp_result_gen;
 END_RCPP
 }
 // LLFuncIndv
-Eigen::MatrixXd LLFuncIndv(const Eigen::Map<Eigen::VectorXd> parameters, const Eigen::VectorXi yi, const Eigen::MatrixXd reg_mm, const Eigen::MatrixXd thresh_mm, const Eigen::VectorXi parcount, const int link, const int thresh_no_cov, const int negative, const int use_weights, const Eigen::VectorXd weights);
-RcppExport SEXP _gotm_LLFuncIndv(SEXP parametersSEXP, SEXP yiSEXP, SEXP reg_mmSEXP, SEXP thresh_mmSEXP, SEXP parcountSEXP, SEXP linkSEXP, SEXP thresh_no_covSEXP, SEXP negativeSEXP, SEXP use_weightsSEXP, SEXP weightsSEXP) {
+Eigen::MatrixXd LLFuncIndv(const Eigen::Map<Eigen::VectorXd> parameters, const Eigen::VectorXi yi, const Eigen::MatrixXd reg_mm, const Eigen::MatrixXd thresh_mm, const Eigen::VectorXi parcount, const int link, const int thresh_no_cov, const int negative, const int use_weights, const double thresh_start, const Eigen::VectorXd weights);
+RcppExport SEXP _gotm_LLFuncIndv(SEXP parametersSEXP, SEXP yiSEXP, SEXP reg_mmSEXP, SEXP thresh_mmSEXP, SEXP parcountSEXP, SEXP linkSEXP, SEXP thresh_no_covSEXP, SEXP negativeSEXP, SEXP use_weightsSEXP, SEXP thresh_startSEXP, SEXP weightsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -95,14 +97,15 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int >::type thresh_no_cov(thresh_no_covSEXP);
     Rcpp::traits::input_parameter< const int >::type negative(negativeSEXP);
     Rcpp::traits::input_parameter< const int >::type use_weights(use_weightsSEXP);
+    Rcpp::traits::input_parameter< const double >::type thresh_start(thresh_startSEXP);
     Rcpp::traits::input_parameter< const Eigen::VectorXd >::type weights(weightsSEXP);
-    rcpp_result_gen = Rcpp::wrap(LLFuncIndv(parameters, yi, reg_mm, thresh_mm, parcount, link, thresh_no_cov, negative, use_weights, weights));
+    rcpp_result_gen = Rcpp::wrap(LLFuncIndv(parameters, yi, reg_mm, thresh_mm, parcount, link, thresh_no_cov, negative, use_weights, thresh_start, weights));
     return rcpp_result_gen;
 END_RCPP
 }
 // LLGradFunc
-Eigen::MatrixXd LLGradFunc(const Eigen::Map<Eigen::VectorXd> parameters, const Eigen::VectorXi yi, const Eigen::MatrixXd YYY1, const Eigen::MatrixXd YYY2, const Eigen::MatrixXd reg_mm, const Eigen::MatrixXd thresh_mm, const Eigen::MatrixXd thresh_extd, const Eigen::VectorXi parcount, const int link, const int thresh_no_cov, const int negative, const int use_weights, const Eigen::VectorXd weights);
-RcppExport SEXP _gotm_LLGradFunc(SEXP parametersSEXP, SEXP yiSEXP, SEXP YYY1SEXP, SEXP YYY2SEXP, SEXP reg_mmSEXP, SEXP thresh_mmSEXP, SEXP thresh_extdSEXP, SEXP parcountSEXP, SEXP linkSEXP, SEXP thresh_no_covSEXP, SEXP negativeSEXP, SEXP use_weightsSEXP, SEXP weightsSEXP) {
+Eigen::MatrixXd LLGradFunc(const Eigen::Map<Eigen::VectorXd> parameters, const Eigen::VectorXi yi, const Eigen::MatrixXd YYY1, const Eigen::MatrixXd YYY2, const Eigen::MatrixXd reg_mm, const Eigen::MatrixXd thresh_mm, const Eigen::MatrixXd thresh_extd, const Eigen::VectorXi parcount, const int link, const int thresh_no_cov, const int negative, const int use_weights, const double thresh_start, const Eigen::VectorXd weights);
+RcppExport SEXP _gotm_LLGradFunc(SEXP parametersSEXP, SEXP yiSEXP, SEXP YYY1SEXP, SEXP YYY2SEXP, SEXP reg_mmSEXP, SEXP thresh_mmSEXP, SEXP thresh_extdSEXP, SEXP parcountSEXP, SEXP linkSEXP, SEXP thresh_no_covSEXP, SEXP negativeSEXP, SEXP use_weightsSEXP, SEXP thresh_startSEXP, SEXP weightsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -118,14 +121,15 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int >::type thresh_no_cov(thresh_no_covSEXP);
     Rcpp::traits::input_parameter< const int >::type negative(negativeSEXP);
     Rcpp::traits::input_parameter< const int >::type use_weights(use_weightsSEXP);
+    Rcpp::traits::input_parameter< const double >::type thresh_start(thresh_startSEXP);
     Rcpp::traits::input_parameter< const Eigen::VectorXd >::type weights(weightsSEXP);
-    rcpp_result_gen = Rcpp::wrap(LLGradFunc(parameters, yi, YYY1, YYY2, reg_mm, thresh_mm, thresh_extd, parcount, link, thresh_no_cov, negative, use_weights, weights));
+    rcpp_result_gen = Rcpp::wrap(LLGradFunc(parameters, yi, YYY1, YYY2, reg_mm, thresh_mm, thresh_extd, parcount, link, thresh_no_cov, negative, use_weights, thresh_start, weights));
     return rcpp_result_gen;
 END_RCPP
 }
 // LLGradFuncIndv
-Eigen::MatrixXd LLGradFuncIndv(const Eigen::Map<Eigen::VectorXd> parameters, const Eigen::VectorXi yi, const Eigen::MatrixXd YYY1, const Eigen::MatrixXd YYY2, const Eigen::MatrixXd reg_mm, const Eigen::MatrixXd thresh_mm, const Eigen::MatrixXd thresh_extd, const Eigen::VectorXi parcount, const int link, const int thresh_no_cov, const int negative, const int use_weights, const Eigen::VectorXd weights);
-RcppExport SEXP _gotm_LLGradFuncIndv(SEXP parametersSEXP, SEXP yiSEXP, SEXP YYY1SEXP, SEXP YYY2SEXP, SEXP reg_mmSEXP, SEXP thresh_mmSEXP, SEXP thresh_extdSEXP, SEXP parcountSEXP, SEXP linkSEXP, SEXP thresh_no_covSEXP, SEXP negativeSEXP, SEXP use_weightsSEXP, SEXP weightsSEXP) {
+Eigen::MatrixXd LLGradFuncIndv(const Eigen::Map<Eigen::VectorXd> parameters, const Eigen::VectorXi yi, const Eigen::MatrixXd YYY1, const Eigen::MatrixXd YYY2, const Eigen::MatrixXd reg_mm, const Eigen::MatrixXd thresh_mm, const Eigen::MatrixXd thresh_extd, const Eigen::VectorXi parcount, const int link, const int thresh_no_cov, const int negative, const int use_weights, const double thresh_start, const Eigen::VectorXd weights);
+RcppExport SEXP _gotm_LLGradFuncIndv(SEXP parametersSEXP, SEXP yiSEXP, SEXP YYY1SEXP, SEXP YYY2SEXP, SEXP reg_mmSEXP, SEXP thresh_mmSEXP, SEXP thresh_extdSEXP, SEXP parcountSEXP, SEXP linkSEXP, SEXP thresh_no_covSEXP, SEXP negativeSEXP, SEXP use_weightsSEXP, SEXP thresh_startSEXP, SEXP weightsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -141,8 +145,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int >::type thresh_no_cov(thresh_no_covSEXP);
     Rcpp::traits::input_parameter< const int >::type negative(negativeSEXP);
     Rcpp::traits::input_parameter< const int >::type use_weights(use_weightsSEXP);
+    Rcpp::traits::input_parameter< const double >::type thresh_start(thresh_startSEXP);
     Rcpp::traits::input_parameter< const Eigen::VectorXd >::type weights(weightsSEXP);
-    rcpp_result_gen = Rcpp::wrap(LLGradFuncIndv(parameters, yi, YYY1, YYY2, reg_mm, thresh_mm, thresh_extd, parcount, link, thresh_no_cov, negative, use_weights, weights));
+    rcpp_result_gen = Rcpp::wrap(LLGradFuncIndv(parameters, yi, YYY1, YYY2, reg_mm, thresh_mm, thresh_extd, parcount, link, thresh_no_cov, negative, use_weights, thresh_start, weights));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -151,11 +156,11 @@ static const R_CallMethodDef CallEntries[] = {
     {"_gotm_colpath", (DL_FUNC) &_gotm_colpath, 3},
     {"_gotm_vglm2gotm_jurges_exp", (DL_FUNC) &_gotm_vglm2gotm_jurges_exp, 3},
     {"_gotm_ind_reg_thresh", (DL_FUNC) &_gotm_ind_reg_thresh, 3},
-    {"_gotm_getThresholds", (DL_FUNC) &_gotm_getThresholds, 4},
-    {"_gotm_LLFunc", (DL_FUNC) &_gotm_LLFunc, 11},
-    {"_gotm_LLFuncIndv", (DL_FUNC) &_gotm_LLFuncIndv, 10},
-    {"_gotm_LLGradFunc", (DL_FUNC) &_gotm_LLGradFunc, 13},
-    {"_gotm_LLGradFuncIndv", (DL_FUNC) &_gotm_LLGradFuncIndv, 13},
+    {"_gotm_getThresholds", (DL_FUNC) &_gotm_getThresholds, 5},
+    {"_gotm_LLFunc", (DL_FUNC) &_gotm_LLFunc, 12},
+    {"_gotm_LLFuncIndv", (DL_FUNC) &_gotm_LLFuncIndv, 11},
+    {"_gotm_LLGradFunc", (DL_FUNC) &_gotm_LLGradFunc, 14},
+    {"_gotm_LLGradFuncIndv", (DL_FUNC) &_gotm_LLGradFuncIndv, 14},
     {NULL, NULL, 0}
 };
 
