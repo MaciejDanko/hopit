@@ -4,7 +4,7 @@
 \alias{predict.gotm}
 \title{Model predictions}
 \usage{
-\method{predict}{gotm}(object, newdata = NULL, type = c("link", "response",
+predict.gotm(object, newdata = NULL, type = c("link", "response",
   "threshold", "threshold_link"), unravelFreq = TRUE, ...)
 }
 \arguments{

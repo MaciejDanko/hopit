@@ -4,8 +4,7 @@
 \alias{gotm_Threshold}
 \title{INTERNAL: Calculation of cut-points (threshold)}
 \usage{
-gotm_Threshold(thresh.lambda, thresh.gamma, model = NULL,
-  thresh.start = model$thresh.start)
+gotm_Threshold(thresh.lambda, thresh.gamma, model = NULL)
 }
 \description{
 INTERNAL: Calculation of cut-points (threshold)

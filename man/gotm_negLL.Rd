@@ -4,9 +4,8 @@
 \alias{gotm_negLL}
 \title{INTERNAL: The log likelihood function}
 \usage{
-gotm_negLL(parameters = model$coef, model,
-  thresh.start = model$thresh.start, collapse = TRUE, use_weights = TRUE,
-  negative = TRUE)
+gotm_negLL(parameters = model$coef, model, collapse = TRUE,
+  use_weights = TRUE, negative = TRUE)
 }
 \description{
 INTERNAL: The log likelihood function

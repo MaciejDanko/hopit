@@ -1,6 +1,11 @@
-
-
-update.latent <-function(model, newregcoef, data, hessian=FALSE){
+#' INTERNAL: Update model according to new parameters
+#'
+#' @param model a fitted \code{gotm} model.
+#' @param newregcoef new coeficients for health variable deffined in model$reg.formula
+#' @param data data used to fit the model
+#' @param crude logical indicating if to re-calculate hessian, variance-covariance matrix, and estfun.
+#' @keywords internal
+update.latent <-function(model, newregcoef, data, update.hessian=FALSE){
   coefnames <- names(model$coef)
   thresh.names <- colnames(model$thresh.mm)
   model$coef[seq_len(model$parcount[1])]=newregcoef
@@ -11,13 +16,10 @@ update.latent <-function(model, newregcoef, data, hessian=FALSE){
   model$maxlatentrange <- sort(gotm_latentrange(model=model, data=data))
   model$maxobservedlatentrange <-  sort(range(gotm_Latent(p$reg.params,model)))
   model$y_latent_i <- gotm_Latent(p$reg.params, model)
-    model$Ey_i <- factor(colSums(sapply(1L : model$N, function(k) model$alpha[k,]<model$y_latent_i[k])),levels=1L:model$J)
-    levels(model$Ey_i) <- levels(model$y_i)
+  model$Ey_i <- factor(colSums(sapply(1L : model$N, function(k) model$alpha[k,]<model$y_latent_i[k])),levels=1L:model$J)
+  levels(model$Ey_i) <- levels(model$y_i)
 
-  #update fitness + calculate fitness profile
-
-  if (hessian) {
-
+  if (update.hessian) {
     my.grad <- function(fn, par, eps, ...){
       sapply(1L : length(par), function(k){
         epsi <- rep(0L, length(par))
@@ -25,20 +27,12 @@ update.latent <-function(model, newregcoef, data, hessian=FALSE){
         (fn(par + epsi, ...) - fn(par - epsi, ...))/2/eps
       })
     }
-
-    cat('Calculating hessian...')
-    hes <- my.grad(fn = gotm_derivLL, par = model$coef, model=model, eps = model$control$grad.eps, collapse = TRUE, negative = FALSE)
+    hes <- my.grad(fn = gotm_derivLL, par = model$coef, model=model, eps = model$control$grad.eps, collapse = TRUE, negative=FALSE)
+    model$hessian <- hes
     model$vcov <- try(solve(-hes), silent = T)
-    if (class(z) == 'try-error') {
-      z <- NA*hes
-      warning(call. = FALSE, 'Model is probably unidentifiable, vcov cannot be computed. Please try to use a "hopit" model.')
-    }
-    cat(' done\n')
-    cat('Calculating estfun...')
-
-    model$estfun <- gotm_derivLL(model$coef, model, collapse = FALSE, negative = FALSE)
-
-    cat(' done\n')
+    if (class(model$vcov) == 'try-error')
+      warning(call. = FALSE, 'Model is probably unidentifiable, $vcov (variance-covariance matrix) cannot be computed.')
+    model$estfun <- gotm_derivLL(model$coef, model, collapse = FALSE)
   }
   model
 }
@@ -53,11 +47,11 @@ update.latent <-function(model, newregcoef, data, hessian=FALSE){
 #' @param model a fitted \code{gotm} model.
 #' @param subset an optional vector specifying a subset of observations.
 #' @param plotf logical indicating if to plot summary figure.
-#' @param crude logical indicating if to calculate crude health measure based directly on seld reported health levels.
+#' @param crude logical indicating if to calculate crude health measure based directly on self reported health levels.
 #' @param healthlevelsorder order of self-reported healh levels. Possible values are \code{'increasing'} and \code{'decreasing'}
 #' @param method the method of calcualtion of of latent range .........
 #' @export
-healthindex <- function(model, subset=NULL, plotf = FALSE, crude = FALSE, scaled = TRUE,
+healthindex <- function(model, subset=NULL, plotf = FALSE, crude = FALSE, #scaled = TRUE,
                         healthlevelsorder = 'decreasing', method = c('observed','theoretical')) {
   #0 is the worse possible health, 1 is the best possible health
   method = method[1]
@@ -73,7 +67,7 @@ healthindex <- function(model, subset=NULL, plotf = FALSE, crude = FALSE, scaled
     if (plotf) plot(model$y_i[subset], hi,las=3, ylab='Health index')
   } else {
     if (method=='theoretical') r <- model$maxlatentrange else if (method=='observed') r <- model$maxobservedlatentrange
-    hi <- (1 - ((k * model$y_latent_i - r[1]) / diff(r)))[subset]
+    hi <- (1 - ((model$y_latent_i - r[1]) / diff(r)))[subset]
     if (plotf) plot(model$y_i[subset], hi,las=3, ylab='Health index')
   }
   if (plotf) invisible(hi) else return(hi)
@@ -82,7 +76,8 @@ healthindex <- function(model, subset=NULL, plotf = FALSE, crude = FALSE, scaled
 
 contingencytables <- function(model, formula, data, names.reg=identity){
   if (class(names.reg)=='function') NN <- names.reg(colnames(model$reg.mm)) else NN <- names.reg
-  if (class(formula)=='formula') tmp <- formula2classes(formula, data, sep=' ', return.matrix = TRUE) else stop('Not implemented.')
+  if (class(formula)=='formula')
+    tmp <- formula2classes(formula, data, sep=' ', return.matrix = TRUE) else stop('The formula parameter must be of class "formula".')
   colnames(model$reg.mm) <- NN
   M <- tmp$x
   cTAB <- sapply(levels(M), function(k) colSums(model$reg.mm[k==M,]))

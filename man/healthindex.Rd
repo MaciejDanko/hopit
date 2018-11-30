@@ -5,8 +5,7 @@
 \title{Calculate health index}
 \usage{
 healthindex(model, subset = NULL, plotf = FALSE, crude = FALSE,
-  scaled = TRUE, healthlevelsorder = "decreasing", method = c("observed",
-  "theoretical"))
+  healthlevelsorder = "decreasing", method = c("observed", "theoretical"))
 }
 \arguments{
 \item{model}{a fitted \code{gotm} model.}
@@ -15,7 +14,7 @@ healthindex(model, subset = NULL, plotf = FALSE, crude = FALSE,
 
 \item{plotf}{logical indicating if to plot summary figure.}
 
-\item{crude}{logical indicating if to calculate crude health measure based directly on seld reported health levels.}
+\item{crude}{logical indicating if to calculate crude health measure based directly on self reported health levels.}
 
 \item{healthlevelsorder}{order of self-reported healh levels. Possible values are \code{'increasing'} and \code{'decreasing'}}
 

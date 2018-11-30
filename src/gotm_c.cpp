@@ -63,19 +63,27 @@ Eigen::VectorXd extract_elements(const Eigen::VectorXi x,
 
 // [[Rcpp::depends(RcppEigen)]]
 // [[Rcpp::export]]
-SEXP vglm2gotm_jurges_exp(const Eigen::VectorXd reg_params,
+SEXP vglm2gotm(const Eigen::VectorXd reg_params,
                           const Eigen::VectorXd thresh_lambda,
-                          const Eigen::VectorXd thresh_gamma){
+                          const Eigen::VectorXd thresh_gamma,
+                          const int thresh_1_exp){
+
   int J_1 = thresh_lambda.size();
-  Eigen::VectorXd reg_params_g = - reg_params;
+
+  Eigen::VectorXd reg_params_g = - reg_params;  // just negative
+
   Eigen::VectorXd thresh_lambda_g = thresh_lambda;
   Eigen::MatrixXd thresh_gamma_g2 = thresh_gamma;
-  thresh_gamma_g2.resize(J_1, thresh_gamma.size()/ J_1);
+  thresh_gamma_g2.resize(J_1, thresh_gamma.size()/ J_1); // gamma as J_1 x n_thresh_var matrix
   Eigen::MatrixXd thresh_gamma_g3 = thresh_gamma_g2;
-  for (int i = 1; i < (J_1); ++i){
+
+  if (thresh_1_exp == 1) {
+     thresh_lambda_g(0) = 0; //cannnot take log from negative number
+  }
+  for (int i = 1; i < (J_1); ++i){ // in vglm lambda is cumulated
     thresh_lambda_g(i) = std::log(thresh_lambda(i) - thresh_lambda(i-1));
   }
-  for (int i = 1; i < (J_1); ++i){
+  for (int i = 1; i < (J_1); ++i){   // in vglm gamma equvalent is cumulated
     thresh_gamma_g2.row(i) = thresh_gamma_g3.row(i) - thresh_gamma_g3.row(i-1);
   }
 
@@ -119,7 +127,8 @@ Eigen::MatrixXd getThresholds(
     const Eigen::VectorXd thresh_lambda,
     const Eigen::VectorXd thresh_gamma,
     const int thresh_no_cov,
-    const double thresh_start) {
+    const double thresh_start,  // zero threshold , typically -Inf
+    const int thresh_1_exp) {  // if to exponentiate threshold 1
 
   int J_1 = thresh_lambda.size();
   long N = thresh_mm.rows();
@@ -138,7 +147,7 @@ Eigen::MatrixXd getThresholds(
   Eigen::MatrixXd a = Eigen::MatrixXd::Zero(N, J_1 + 2L);
   a.col(J_1 + 1L).fill(R_PosInf);
   a.col(0L).fill(thresh_start);
-  a.col(1L) = Lin_Thresh_mat.col(0L);
+  if (thresh_1_exp == 0L) a.col(1L) = Lin_Thresh_mat.col(0L); else a.col(1L) = Lin_Thresh_mat.col(0L).array().exp().matrix();
 
   Lin_Thresh_mat = Lin_Thresh_mat.array().exp().matrix();
 
@@ -186,13 +195,14 @@ double LLFunc(const Eigen::Map<Eigen::VectorXd> parameters,
               const int use_weights,
               const Eigen::VectorXd weights,
               const double thresh_start,
+              const int thresh_1_exp,
               const double out_val){ /// e.g. -inf
 
   Eigen::VectorXd reg_par = subvec(0, parcount(0) - 1L, parameters);
   int p01 = parcount(0) + parcount(1) - 1L;
   Eigen::VectorXd thresh_lambda = subvec(parcount(0), p01, parameters);
   Eigen::VectorXd thresh_gamma = subvec(p01 + 1L, p01 + parcount(2), parameters);
-  Eigen::MatrixXd a = getThresholds(thresh_mm, thresh_lambda, thresh_gamma, thresh_no_cov, thresh_start);
+  Eigen::MatrixXd a = getThresholds(thresh_mm, thresh_lambda, thresh_gamma, thresh_no_cov, thresh_start, thresh_1_exp);
   Eigen::VectorXd b = reg_mm * reg_par;
 
   Eigen::VectorXd LO = colpath(a, yi, 0L) - b;
@@ -234,13 +244,14 @@ Eigen::MatrixXd LLFuncIndv(const Eigen::Map<Eigen::VectorXd> parameters,
                            const int negative, ///1 -yes 0 no
                            const int use_weights,
                            const double thresh_start,
+                           const int thresh_1_exp,
                            const Eigen::VectorXd weights){ /// 1-yes, 0-no
 
   Eigen::VectorXd reg_par = subvec(0, parcount(0) - 1L, parameters);
   int p01 = parcount(0) + parcount(1) - 1L;
   Eigen::VectorXd thresh_lambda = subvec(parcount(0), p01, parameters);
   Eigen::VectorXd thresh_gamma = subvec(p01 + 1L, p01 + parcount(2), parameters);
-  Eigen::MatrixXd a = getThresholds(thresh_mm, thresh_lambda, thresh_gamma, thresh_no_cov, thresh_start);
+  Eigen::MatrixXd a = getThresholds(thresh_mm, thresh_lambda, thresh_gamma, thresh_no_cov, thresh_start, thresh_1_exp);
   Eigen::VectorXd b = reg_mm * reg_par;
 
   Eigen::VectorXd LO = colpath(a, yi, 0L) - b;
@@ -303,6 +314,7 @@ Eigen::MatrixXd LLGradFunc(const Eigen::Map<Eigen::VectorXd> parameters,
                            const int negative, ///1 -yes 0 no
                            const int use_weights, ///1 -yes 0 no
                            const double thresh_start,
+                           const int thresh_1_exp,
                            const Eigen::VectorXd weights){ /// 1-yes, 0-no
 
   long N = yi.size();
@@ -311,7 +323,7 @@ Eigen::MatrixXd LLGradFunc(const Eigen::Map<Eigen::VectorXd> parameters,
   int p01 = parcount(0) + parcount(1) - 1L;
   Eigen::VectorXd thresh_lambda = subvec(parcount(0), p01, parameters);
   Eigen::VectorXd thresh_gamma = subvec(p01 + 1L, p01 + parcount(2), parameters);
-  Eigen::MatrixXd a = getThresholds(thresh_mm, thresh_lambda, thresh_gamma, thresh_no_cov, thresh_start);
+  Eigen::MatrixXd a = getThresholds(thresh_mm, thresh_lambda, thresh_gamma, thresh_no_cov, thresh_start, thresh_1_exp);
   Eigen::VectorXd b = reg_mm * reg_par;
 
   Eigen::VectorXd A2 = colpath(a, yi, 0L) - b;
@@ -407,6 +419,7 @@ Eigen::MatrixXd LLGradFuncIndv(const Eigen::Map<Eigen::VectorXd> parameters,
                                const int negative, ///1 -yes 0 no
                                const int use_weights, ///1 -yes 0 no
                                const double thresh_start,
+                               const int thresh_1_exp,
                                const Eigen::VectorXd weights){ /// 1-yes, 0-no
 
   long N = yi.size();
@@ -415,7 +428,7 @@ Eigen::MatrixXd LLGradFuncIndv(const Eigen::Map<Eigen::VectorXd> parameters,
   int p01 = parcount(0) + parcount(1) - 1L;
   Eigen::VectorXd thresh_lambda = subvec(parcount(0), p01, parameters);
   Eigen::VectorXd thresh_gamma = subvec(p01 + 1L, p01 + parcount(2), parameters);
-  Eigen::MatrixXd a = getThresholds(thresh_mm, thresh_lambda, thresh_gamma, thresh_no_cov, thresh_start);
+  Eigen::MatrixXd a = getThresholds(thresh_mm, thresh_lambda, thresh_gamma, thresh_no_cov, thresh_start, thresh_1_exp);
   Eigen::VectorXd b = reg_mm * reg_par;
 
   Eigen::VectorXd A2 = colpath(a, yi, 0L) - b;

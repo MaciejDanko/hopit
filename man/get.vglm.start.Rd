@@ -4,7 +4,7 @@
 \alias{get.vglm.start}
 \title{INTERNAL: Fit vglm to get parameters of the model}
 \usage{
-get.vglm.start(model, data, thresh.start = model$thresh.start)
+get.vglm.start(model, data)
 }
 \arguments{
 \item{model}{\code{gotm} object.}

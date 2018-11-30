@@ -4,7 +4,7 @@
 \alias{logLik.gotm}
 \title{Extracts log likelihood of the fitted model}
 \usage{
-\method{logLik}{gotm}(object, ...)
+logLik.gotm(object, ...)
 }
 \arguments{
 \item{object}{\code{gotm} object.}

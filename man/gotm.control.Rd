@@ -5,15 +5,22 @@
 \title{Auxiliary for controlling \code{gotm} fitting}
 \usage{
 gotm.control(max.reiter = 50L, tol.reiter = 5e-05, grad.eps = 1e-07,
-  LL_out_val = -Inf)
+  quick.fit = FALSE, use.NelderMead = FALSE, LL_out_val = -Inf)
 }
 \arguments{
 \item{max.reiter}{maximum number of repeats of the standard optimization procedure if optimum was not found.}
 
 \item{tol.reiter}{the maximal tolerated difference between log-likelihoods of two
-consequtive runs of standard optimization.}
+consequtive runs of the optimization routine.}
 
 \item{grad.eps}{epsilon for gradient function.}
+
+\item{quick.fit}{logical, if TRUE extensive optimization methods are ignored and only BFGS and CG methods are run, without checking if
+optimum is reached. \code{use.NelderMead} is ignored in such a case. NOT RECOMENDET.}
+
+\item{use.NelderMead}{logical indicatinf if to perform Nelder-Mead as additional optimization}
+
+\item{LL_out_val}{internal parameter (LL value returned if LL cannot be computed), do not change}
 }
 \description{
 Auxiliary function for controlling \code{gotm} fitting. Use this function to set control

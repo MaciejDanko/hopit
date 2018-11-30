@@ -96,8 +96,6 @@ gotm_Threshold_old<-function(thresh.lambda, thresh.gamma, model = NULL,
   }
 }
 
-
-
 #' INTERNAL: Calculation of cut-points (threshold)
 #'
 #' @author Maciej J. Danko
@@ -121,8 +119,9 @@ gotm_c_link<-function(model){
 #' @keywords internal
 #' @useDynLib gotm
 #' @importFrom Rcpp evalCpp
-gotm_Threshold<-function(thresh.lambda, thresh.gamma, model = NULL, thresh.start = model$thresh.start){
-  getThresholds(model$thresh.mm, thresh.lambda, thresh.gamma, model$thresh.no.cov, thresh_start = thresh.start) #RcppEigen
+gotm_Threshold<-function(thresh.lambda, thresh.gamma, model = NULL){
+  getThresholds(model$thresh.mm, thresh.lambda, thresh.gamma, model$thresh.no.cov,
+                thresh_start = model$thresh.start, thresh_1_exp = model$thresh.1.exp) #RcppEigen
 }
 
 #' INTERNAL: Fit vglm to get parameters of the model
@@ -137,7 +136,8 @@ fit.vglm <-function(model, data){
   tmr <- attr(terms(as.formula(reg.formula)),"term.labels")
   tmt <-attr(terms(as.formula(thresh.formula)),"term.labels")
   model$J <- length(levels(as.factor(data[,deparse(model$reg.formula[[2]])]))) #update J if not calculated
-  model$parcount <- c(length(tmr),(model$J-1),length(tmt)*(model$J-1)) #update model parcount if not calculated
+  ltmt <- sapply(tmt,function(k) length(levels(as.factor(data[,k]))))-1
+  model$parcount <- c(length(tmr),(model$J-1),sum(ltmt)*(model$J-1)) #update model parcount if not calculated
   if (!length(model$weights)) model$weights <- rep(1)
   incc <- tmr %in% tmt
   if (any(incc)) {
@@ -176,7 +176,7 @@ fit.vglm <-function(model, data){
 #' @keywords internal
 #' @useDynLib gotm
 #' @importFrom Rcpp evalCpp
-get.vglm.start<-function(model, data, thresh.start = model$thresh.start){
+get.vglm.start<-function(model, data){
   m <- suppressWarnings(fit.vglm(model, data))
 
   model <- m$vglm.model
@@ -185,13 +185,13 @@ get.vglm.start<-function(model, data, thresh.start = model$thresh.start){
   cat(' done\n')
   cat('Recalculating parameters...')
 
-  if (thresh.start == 0) {
-     k <- min(par.ls$thresh.lambda)+1e-4
-     par.ls$thresh.lambda <- par.ls$thresh.lambda + k
-     par.ls$reg.params <- par.ls$reg.params - k
-  }
+  # if (model$thresh.start == 0) {
+  #    k <- min(par.ls$thresh.lambda)+1e-4
+  #    par.ls$thresh.lambda <- par.ls$thresh.lambda + k
+  #    par.ls$reg.params <- par.ls$reg.params - k
+  # }
 
-  z <- vglm2gotm_jurges_exp(par.ls$reg.params, par.ls$thresh.lambda, par.ls$thresh.gamma)#, (thresh.method != 'jurges')*1)
+  z <- vglm2gotm(par.ls$reg.params, par.ls$thresh.lambda, par.ls$thresh.gamma, thresh_1_exp = model$thresh.1.exp)#, (thresh.method != 'jurges')*1)
   if (length(m$ignored.reg.var)){
     ini.mis <- mean(z$reg_params)
     if (any(class(data[,m$ignored.reg.var])!='factor')) stop('Threshold-Health variables must be a factors',call. = NULL)
@@ -206,7 +206,7 @@ get.vglm.start<-function(model, data, thresh.start = model$thresh.start){
   model$lambda.start <- z$thresh_lambda
   model$gamma.start <-z$thresh_gamma
   model$start <- z$coef
-  model$start.LL <- gotm_negLL(parameters = model$start, model, thresh.start = thresh.start, negative = FALSE)
+  model$start.LL <- gotm_negLL(parameters = model$start, model, negative = FALSE)
 
   model
 }
@@ -280,16 +280,16 @@ gotm_ExtractParameters <- function(model, parameters, parcount = model$parcount)
 #' @keywords internal
 #' @useDynLib gotm
 #' @importFrom Rcpp evalCpp
-gotm_negLL <- function(parameters=model$coef, model, thresh.start = model$thresh.start, collapse = TRUE, use_weights = TRUE, negative = TRUE){
+gotm_negLL <- function(parameters=model$coef, model, collapse = TRUE, use_weights = TRUE, negative = TRUE){
   link = gotm_c_link(model)
   if (collapse) {
     LLFunc(parameters, yi=as.numeric(unclass(model$y_i)),reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
-           link=link,thresh_no_cov=model$thresh.no.cov*1, negative=1*negative,
-           weights=model$weights,use_weights = 1*use_weights, thresh_start=thresh.start, out_val = model$control$LL_out_val)
+           link=link,thresh_no_cov=model$thresh.no.cov*1, negative=1*negative, thresh_1_exp = model$thresh.1.exp,
+           weights=model$weights,use_weights = 1*use_weights, thresh_start=model$thresh.start, out_val = model$control$LL_out_val)
   } else {
     LLFuncIndv(parameters, yi=as.numeric(unclass(model$y_i)),reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
-               link=link,thresh_no_cov=model$thresh.no.cov*1, negative=1*negative,
-               weights=model$weights, thresh_start = thresh.start, use_weights = 1*use_weights)
+               link=link,thresh_no_cov=model$thresh.no.cov*1, negative=1*negative, thresh_1_exp = model$thresh.1.exp,
+               weights=model$weights, thresh_start = model$thresh.start, use_weights = 1*use_weights)
   }
 }
 
@@ -315,7 +315,8 @@ calcYYY<-function(model){
 #' @keywords internal
 #' @useDynLib gotm
 #' @importFrom Rcpp evalCpp
-gotm_derivLL <- function(parameters=model$coef, model, thresh.start = model$thresh.start, collapse = TRUE, use_weights = TRUE, negative = FALSE){
+gotm_derivLL <- function(parameters=model$coef, model,
+                         collapse = TRUE, use_weights = TRUE, negative = FALSE){
   link = gotm_c_link(model)
   #be compatible with older versions
   if ((!length(model$YYY1)) || (!length(model$YYY1))){
@@ -324,13 +325,13 @@ gotm_derivLL <- function(parameters=model$coef, model, thresh.start = model$thre
   if (collapse) {
     LLGradFunc(parameters, yi=as.numeric(unclass(model$y_i)), YYY1=as.matrix(unname(model$YYY1)), YYY2=as.matrix(unname(model$YYY2)),
                reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
-               link=link,thresh_no_cov=model$thresh.no.cov*1,negative=1*negative,
-               weights=model$weights, thresh_start = thresh.start, use_weights = 1*use_weights)
+               link=link,thresh_no_cov=model$thresh.no.cov*1,negative=1*negative, thresh_1_exp = model$thresh.1.exp,
+               weights=model$weights, thresh_start = model$thresh.start, use_weights = 1*use_weights)
   } else {
     LLGradFuncIndv(parameters, yi=as.numeric(unclass(model$y_i)), YYY1=model$YYY1, YYY2=model$YYY2,
                    reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
-                   link=link,thresh_no_cov=model$thresh.no.cov*1, negative=1*negative,
-                   weights=model$weights,thresh_start = thresh.start, use_weights = 1*use_weights)
+                   link=link,thresh_no_cov=model$thresh.no.cov*1, negative=1*negative, thresh_1_exp = model$thresh.1.exp,
+                   weights=model$weights,thresh_start = model$thresh.start, use_weights = 1*use_weights)
   }
 }
 
@@ -344,7 +345,9 @@ gotm_derivLL <- function(parameters=model$coef, model, thresh.start = model$thre
 #' @keywords internal
 #' @useDynLib gotm
 #' @importFrom Rcpp evalCpp
-gotm_fitter <- function(model, start = model$start, thresh.start = model$thresh.start, use_weights = TRUE){
+# @importFrom optimx optimx
+# #importFrom DEoptim DEoptim
+gotm_fitter <- function(model, start = model$start, use_weights = TRUE){
 
   #be compatible with older versions
   if ((!length(model$YYY1)) || (!length(model$YYY1))){
@@ -356,38 +359,62 @@ gotm_fitter <- function(model, start = model$start, thresh.start = model$thresh.
 
   LLgr <- function(par, neg=1) LLGradFunc(par, yi=as.numeric(unclass(model$y_i)), YYY1=model$YYY1, YYY2=model$YYY2,
                                    reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
-                                   link=link,thresh_no_cov=model$thresh.no.cov*1, negative=neg,
-                                   weights=model$weights, thresh_start=thresh.start, use_weights = use_weights*1)
+                                   link=link,thresh_no_cov=model$thresh.no.cov*1, negative=neg, thresh_1_exp = model$thresh.1.exp,
+                                   weights=model$weights, thresh_start=model$thresh.start, use_weights = use_weights*1)
   LLfn <- function(par, neg=1) LLFunc(par, yi=as.numeric(unclass(model$y_i)),reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
-                               link=link, thresh_no_cov=model$thresh.no.cov*1, negative=neg,
-                               weights=model$weights,use_weights = use_weights*1, thresh_start=thresh.start, out_val = model$control$LL_out_val)
+                               link=link, thresh_no_cov=model$thresh.no.cov*1, negative=neg, thresh_1_exp = model$thresh.1.exp,
+                               weights=model$weights,use_weights = use_weights*1, thresh_start=model$thresh.start, out_val = model$control$LL_out_val)
+
+  #Fast but not sufficient to large problems
+  fastgradfit <- function(fit){
+    #BFGS and CG method
+    try({
+      fit <- optim(par = fit$par, fn = LLfn, gr = LLgr,
+                   method = 'BFGS', hessian = FALSE, control=list(maxit=10000, reltol=1e-10))
+      fit <- optim(par = fit$par, fn = LLfn, gr = LLgr,
+                   method = 'CG', hessian = FALSE, control=list(maxit=10000, reltol=1e-10))
+    }, silent = FALSE)
+  }
 
   refit <- function(fit, model){
     oldfit <- fit$value
     for (k in 1L : control$max.reiter) {
-      if (k>0) try({fit <- optim(par = fit$par, fn = LLFunc, gr = LLgr,
-                                 method = 'BFGS', hessian = FALSE, control=list(maxit=1000))}, silent = TRUE)
 
-      fit <- optim(par = fit$par, fn = LLfn, gr = LLgr, hessian = FALSE, control=list(maxit=1000))
+      #NLM method
+      fit_ <- nlm(f = LLfn, p=fit$par, gradtol = 1e-7, steptol = 1e-7, hessian = FALSE, iterlim=150)
+      fit <- list(par=fit_$estimate, value=fit_$minimum)
+
+      #Nelder-Mead method (if stated in control)
+      if (model$control$use.NelderMead) fit <- optim(par = fit$par, fn = LLfn, method='Nelder-Mead', hessian = FALSE, control=list(maxit=1000, ndeps = 2.5e-4))
+
+      #Can be improved using fast gradient methods?
+      fit <- fastgradfit(fit)
 
       lldiff <- abs(fit$value - oldfit)
       if (lldiff < control$tol.reiter) break
       oldfit <- fit$value
-      if (k > 1L) cat(', ')
-      cat(-fit$value,'(',lldiff,')',sep='')
+      if (k>1) cat(', ',-fit$value,'(',lldiff,')',sep='')
     }
     list(fit = fit, converged = (k<control$max.reiter))
   }
 
   z <- try({
-    nmfit <- optim(par = start, fn = LLfn)
-    tmp <- refit(nmfit, model)
-    fit <- tmp$fit
-    if(!tmp$converged) {
-      message('\nConvergence has not been reached yet (try to increase control$max.reiter), changing the method ...')
+    #deo <- DEoptim::DEoptim(fn = LLfn, lower=rep(-5,length(start)),upper=rep(5,length(start)))
+    #deofit <- optim(par = deo$bestmem, fn = LLfn, gr = LLgr, hessian = FALSE)
+    v0 <- LLfn(start)
+    fit <- list(par = start, value = v0)
+    fit <- fastgradfit(fit)
+    #if (deofit$value<nmfit$value) nmfit=deofit
+    if (! model$control$quick.fit) {
+      cat(-fit$value,'(',fit$value-v0,')',sep='')
+      tmp <- refit(fit, model)
+      if(!tmp$converged) message('\nConvergence has not been reached yet (try to increase control$max.reiter)')
+      fit <- tmp$fit
+    } else {
+      message('Convergence has not been checked');
     }
   }, silent = FALSE)
-  if (class(z) == "try-error") stop('Impossible to find initial values.')
+  if (class(z) == "try-error") stop('Optimization cannot continue.')
 
   model$coef <- fit$par
   model$LL <- unname(-fit$value)
@@ -402,19 +429,25 @@ gotm_fitter <- function(model, start = model$start, thresh.start = model$thresh.
 #' parameters of the \code{\link{gotm}} and other related functions.
 #' @param max.reiter maximum number of repeats of the standard optimization procedure if optimum was not found.
 #' @param tol.reiter the maximal tolerated difference between log-likelihoods of two
-#' consequtive runs of standard optimization.
+#' consequtive runs of the optimization routine.
 #' @param grad.eps epsilon for gradient function.
+#' @param quick.fit logical, if TRUE extensive optimization methods are ignored and only BFGS and CG methods are run, without checking if
+#' optimum is reached. \code{use.NelderMead} is ignored in such a case. NOT RECOMENDET.
+#' @param use.NelderMead logical indicatinf if to perform Nelder-Mead as additional optimization
+#' @param LL_out_val internal parameter (LL value returned if LL cannot be computed), do not change
 #' @seealso \code{\link{gotm}}
 #' @author Maciej J. Danko
 #' @export
 gotm.control<-function(max.reiter = 50L,
                        tol.reiter = 5e-5,
                        grad.eps = 1e-7,
+                       quick.fit = FALSE,
+                       use.NelderMead = FALSE,
                        LL_out_val = -Inf){
 
 
-  list(max.reiter = max.reiter, tol.reiter = tol.reiter,
-       grad.eps = grad.eps, LL_out_val = LL_out_val)
+  list(max.reiter = max.reiter, tol.reiter = tol.reiter, grad.eps = grad.eps,
+       quick.fit=quick.fit, use.NelderMead = use.NelderMead, LL_out_val = LL_out_val)
 }
 
 #frequency weight potraktowac jak w  clm czyli bez PSU
@@ -536,6 +569,7 @@ get.start.gotm <- function(object, reg.formula, thresh.formula, data, asList = F
 gotm<- function(reg.formula,
                 thresh.formula = as.formula('~ 1'),
                 thresh.start = -Inf,
+                thresh.1.exp = FALSE,
                 data,
                 survey = list(),
                 link = c('probit', 'logit'),
@@ -603,7 +637,8 @@ gotm<- function(reg.formula,
     model$thresh.no.cov <- FALSE
   }
 
-  model$thresh.start = thresh.start
+  model$thresh.start <- thresh.start
+  model$thresh.1.exp <- thresh.1.exp
 
   model$y_i <- model.frame(reg.formula, data = data)[,all.vars(reg.formula[[2]])]
   if (!is.factor(model$y_i)) stop('Response must be a factor with ordered levels.', call.=NULL)
@@ -687,7 +722,7 @@ gotm<- function(reg.formula,
       model$hessian <- hes
       model$vcov <- try(solve(-hes), silent = T)
       if (class(model$vcov) == 'try-error')
-        warning(call. = FALSE, 'Model is probably unidentifiable, $vcov (variance covariance matrix) cannot be computed.')
+        warning(call. = FALSE, 'Model is probably unidentifiable, $vcov (variance-covariance matrix) cannot be computed.')
       cat(' done\nCalculating estfun...')
         model$estfun <- gotm_derivLL(model$coef, model, collapse = FALSE)
       cat(' done\n')

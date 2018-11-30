@@ -4,9 +4,8 @@
 \alias{gotm_derivLL}
 \title{INTERNAL: The gradient of the log likelihood function}
 \usage{
-gotm_derivLL(parameters = model$coef, model,
-  thresh.start = model$thresh.start, collapse = TRUE, use_weights = TRUE,
-  negative = FALSE)
+gotm_derivLL(parameters = model$coef, model, collapse = TRUE,
+  use_weights = TRUE, negative = FALSE)
 }
 \description{
 INTERNAL: The gradient of the log likelihood function

@@ -4,7 +4,7 @@
 \alias{print.gotm}
 \title{Printing basic information about fitted gotm}
 \usage{
-\method{print}{gotm}(x, ...)
+print.gotm(x, ...)
 }
 \arguments{
 \item{x}{\code{gotm} object.}
