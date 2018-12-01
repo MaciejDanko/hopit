@@ -381,7 +381,7 @@ gotm_fitter <- function(model, start = model$start, use_weights = TRUE){
     for (k in 1L : control$max.reiter) {
 
       #NLM method
-      fit_ <- nlm(f = LLfn, p=fit$par, gradtol = 1e-7, steptol = 1e-7, hessian = FALSE, iterlim=150)
+      fit_ <- suppressWarnings(nlm(f = LLfn, p=fit$par, gradtol = 1e-7, steptol = 1e-7, hessian = FALSE, iterlim=150))
       fit <- list(par=fit_$estimate, value=fit_$minimum)
 
       #Nelder-Mead method (if stated in control)

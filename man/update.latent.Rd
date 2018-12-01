@@ -4,7 +4,7 @@
 \alias{update.latent}
 \title{INTERNAL: Update model according to new parameters}
 \usage{
-update.latent(model, newregcoef, data, update.hessian = FALSE)
+\method{update}{latent}(model, newregcoef, data, update.hessian = FALSE)
 }
 \arguments{
 \item{model}{a fitted \code{gotm} model.}

@@ -4,7 +4,7 @@
 \alias{print.summary.gotm}
 \title{Print object calculated by \code{\link{summary.gotm}}}
 \usage{
-print.summary.gotm(x, ...)
+\method{print}{summary.gotm}(x, ...)
 }
 \arguments{
 \item{x}{object created with \code{\link{summary.gotm}}}
