@@ -2,7 +2,7 @@
 #'
 #' A dataset containing artificial survey data
 #'
-#' @format A data frame with 10000 rows and 10 variables:
+#' @format A data frame with 10000 rows and 11 variables:
 #' \describe{
 #'   \item{ID}{Personal number}
 #'   \item{health}{reported health, 5 levels}
@@ -13,9 +13,17 @@
 #'   \item{depression}{has depression? Yes or No}
 #'   \item{sex}{sex: woman or man}
 #'   \item{ageclass}{categorized age: [50,60), [60,70), [70,80), [80,120)}
+#'   \item{csw}{cross-sectional survey weights}
+#'   \item{psu}{primary statistical unit}
 #' }
 #'
-#' @source Data was generated using probabilities of occurence of particular
-#' combiantion of diseases, coditions, sex, age, and reported health of SHARE database.
+#' @source Data was randomly generated using probabilities of occurence of particular
+#' combiantion of diseases, coditions, sex, age, and reported health.
+#' These probabilities were obtained from the WAVE1 SHARE database
+#' (DOIs: 10.6103/SHARE.w1.600), see Börsch-Supan et al for methodological details (Börsch-Supan et al. 2013).
+#'
+#' None of the records represent a true individual.
+#'
+#' @references Börsch-Supan A, Brandt M, Hunkler C, et al (2013) Data resource profile: The survey of health, ageing and retirement in europe (share). Int J Epidemiol 42:992–1001. doi: 10.1093/ije/dyt088
 #' @name healthsurvey
 "healthsurvey"
