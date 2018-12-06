@@ -4,8 +4,8 @@
 \alias{gotm}
 \title{Fit Generelaized Ordered Choice Threshold Model}
 \usage{
-gotm(reg.formula, thresh.formula = as.formula("~ 1"), thresh.start = -Inf,
-  thresh.1.exp = FALSE, data, survey = list(), link = c("probit",
+gotm(reg.formula, thresh.formula = as.formula("~ 1"), data,
+  method = c("linear", "exp"), survey = list(), link = c("probit",
   "logit"), start = NULL, hessian = TRUE, control = list())
 }
 \arguments{

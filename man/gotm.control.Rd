@@ -4,23 +4,24 @@
 \alias{gotm.control}
 \title{Auxiliary for controlling \code{gotm} fitting}
 \usage{
-gotm.control(max.reiter = 50L, tol.reiter = 5e-05, grad.eps = 1e-07,
-  quick.fit = FALSE, use.NelderMead = FALSE, LL_out_val = -Inf)
+gotm.control(grad.eps = 3e-05, bgfs.maxit = 10000, cg.maxit = 10000,
+  nlm.maxit = 150, bgfs.reltol = 5e-10, cg.reltol = 5e-10,
+  nlm.gradtol = 1e-07, nlm.steptol = 1e-07, quick.fit = TRUE,
+  trace = TRUE, thresh.start = -Inf, thresh.1.exp = FALSE,
+  LL_out_val = -Inf)
 }
 \arguments{
-\item{max.reiter}{maximum number of repeats of the standard optimization procedure if optimum was not found.}
+\item{grad.eps}{epsilon for hessian function.}
 
-\item{tol.reiter}{the maximal tolerated difference between log-likelihoods of two
-consequtive runs of the optimization routine.}
+\item{quick.fit}{logical, if TRUE extensive optimization methods are ignored and only BFGS and CG methods are run.}
 
-\item{grad.eps}{epsilon for gradient function.}
+\item{trace}{logical, if to trace model fitting}
 
-\item{quick.fit}{logical, if TRUE extensive optimization methods are ignored and only BFGS and CG methods are run, without checking if
-optimum is reached. \code{use.NelderMead} is ignored in such a case. NOT RECOMENDET.}
+\item{thresh.start}{internal parameter (threshold 0), under developement, do not change.}
 
-\item{use.NelderMead}{logical indicatinf if to perform Nelder-Mead as additional optimization}
+\item{thresh.1.exp}{internal parameter (logical if to exponentiate threshold function at threshold 1), under developement, do not change.}
 
-\item{LL_out_val}{internal parameter (LL value returned if LL cannot be computed), do not change}
+\item{LL_out_val}{internal parameter (LL value returned if LL cannot be computed), under developement, do not change.}
 }
 \description{
 Auxiliary function for controlling \code{gotm} fitting. Use this function to set control

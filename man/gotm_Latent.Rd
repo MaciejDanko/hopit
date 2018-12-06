@@ -2,12 +2,12 @@
 % Please edit documentation in R/gotm_imprv.r
 \name{gotm_Latent}
 \alias{gotm_Latent}
-\title{INTERNAL: Calculate a latent variable}
+\title{INTERNAL: Calculate latent variable}
 \usage{
 gotm_Latent(reg.params, model = NULL)
 }
 \description{
-INTERNAL: Calculate a latent variable
+INTERNAL: Calculate latent variable
 }
 \author{
 Maciej J. Danko

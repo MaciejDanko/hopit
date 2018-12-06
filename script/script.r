@@ -4,3 +4,5 @@ roxygen2::roxygenise()
 
 load("~/Documents/R-PRJ/gotm/data/healthsurvey.rda")
 devtools::use_data(healthsurvey, overwrite = TRUE)
+
+healthsurvey$health
