@@ -408,7 +408,7 @@ gotm<- function(reg.formula,
     model$start <- start
   }
 
-  if (model$control$trace && !model$method) cat(' done\nFfitting the model...')
+  if (model$control$trace && !model$method) cat(' done\nFitting the model...')
 
   model <- gotm_fitter(model, start = model$start)
   # if (model$method) {
