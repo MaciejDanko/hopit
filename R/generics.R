@@ -19,7 +19,6 @@ coef.gotm <- function(object, aslist = FALSE, ...)  if (aslist) object$coef.ls e
 #' @keywords internal
 #' @author Maciej J. Danko
 print.gotm<-function(x, ...){
-  p <- gotm_ExtractParameters(x)
   cat("Formula (latent variables):", deparse(x$reg.formula), fill = TRUE)
   cat("Formula (threshold variables):", deparse(x$thresh.formula), fill = TRUE)
   cat('Link:', x$link, fill = TRUE)
@@ -27,12 +26,12 @@ print.gotm<-function(x, ...){
   cat('Response levels:', toString(levels(x$y_i)), fill = TRUE)
   cat('Number of thresholds:', x$J - 1, fill = TRUE)
   cat('\nCoefficients (latent variables):\n')
-  print(p$reg.params)
+  print(model$coef.ls$reg.params)
   cat('\nThreshold coefficents (Lambda):\n')
-  print(p$thresh.lambda)
-  if(length(p$thresh.gamma)){
+  print(model$coef.ls$thresh.lambda)
+  if(length(model$coef.ls$thresh.gamma)){
     cat('\nThreshold coefficients (Gamma):\n')
-    print(p$thresh.gamma)
+    print(model$coef.ls$thresh.gamma)
   }
   invisible(NULL)
 }
@@ -59,19 +58,14 @@ vcov.gotm<-function(object, robust.vcov, ...){
   z <- object$vcov
   if (class(z) == "try-error") stop(paste('Cannot compute variance-covariance matrix:\n',attr(z,"condition"),sep=''),call.=NULL)
   if (!length(z)) stop('Hessian was not calculated.')
-  if (length(object$design$PSU)){
+  if (length(object$design)){
     if (!missing(robust.vcov) && (robust.vcov)) {
       warning(call. = FALSE, '"robust.vcov" ignored, survey design was detected.')
       robust.vcov <- NA
     }
-    z <- survey::svyrecvar(object$estfun %*% z, #survey::
-                           data.frame(PSU = object$design$PSU),
-                           data.frame(rep(1, object$N)),
-                           list(popsize = NULL,
-                                sampsize = matrix(length(unique(object$design$PSU)), object$N, 1L)))
   } else {
     if (missing(robust.vcov)) robust.vcov <- FALSE
-    if (length(object$design$FWeights)) divw <- object$design$FWeights else divw <- 1
+    if (length(object$weights)) divw <- object$weights else divw <- 1
     if (robust.vcov) z <- (z %*% t(object$estfun) %*% (object$estfun/divw) %*% (z))
   }
   attr(z, 'survey.design') <- (length(object$design) > 0L)
@@ -111,7 +105,7 @@ print.vcov.gotm <- function(x, digits = 3L, ...){
 #' @export
 #' @author Maciej J. Danko
 summary.gotm <- function(object, robust.se = FALSE, ...){
-  
+
   varcov <- vcov(object, robust.se, ...)
   SE <- suppressWarnings(sqrt(diag(varcov)))
   if (length(object$design)){
@@ -121,11 +115,11 @@ summary.gotm <- function(object, robust.se = FALSE, ...){
     warning(call. = FALSE, 'Problem with some standard errors, please try option "robust.se" == TRUE, nd consider to use the "hopit" model.')
   testse <- abs(SE/object$coef)
   testse <- testse[!is.na(testse)]
-  if (any((testse > 50L)&(SE > 20L))) warning(call. = FALSE, 'Huge standard errors may suggest a problem with object identifiability. Please try tu use "hopit" model.')
-  
-  varcov <- vcov(object$vglm)
-  SE <- suppressWarnings(sqrt(diag(varcov)))
-  
+  #if (any((testse > 50L)&(SE > 20L))) warning(call. = FALSE, 'Huge standard errors may suggest a problem with model identifiability.')
+
+  #varcov <- vcov(object$vglm)
+  #SE <- suppressWarnings(sqrt(diag(varcov)))
+
   tstat <-  object$coef/SE
   pvalue <- pnorm(-abs(tstat))  * 2L
   table1 <- data.frame(Estimate = object$coef, 'Std. Error' = SE, 'z value' = tstat, 'Pr(>|z|)' = pvalue, check.names = FALSE)
@@ -144,7 +138,6 @@ summary.gotm <- function(object, robust.se = FALSE, ...){
 #' @author Maciej J. Danko
 print.summary.gotm <- function(x, ...){
   model <- x$model
-  p <- gotm_ExtractParameters(model)
   cat("Formula (latent variables):", deparse(model$reg.formula), fill = TRUE)
   cat("Formula (threshold variables):", deparse(model$thresh.formula), fill = TRUE)
   cat('\nLink:', model$link, fill = TRUE)
@@ -155,7 +148,9 @@ print.summary.gotm <- function(x, ...){
   cat('\n')
   printCoefmat(x = x$table, P.values = TRUE, has.Pvalue = TRUE, digits = 4L, dig.tst = 2L)
   cat('\nLog-likelihood:', model$LL, fill = TRUE)
+  cat('\nDeviance:', model$deviance, fill = TRUE)
   cat('AIC:', AIC.gotm(model), fill = TRUE)
+  cat('\n')
   invisible(NULL)
 }
 
@@ -168,7 +163,7 @@ print.summary.gotm <- function(x, ...){
 #' @export
 #' @author Maciej J. Danko
 logLik.gotm<-function(object, ...) {
-  if (length(object$design$PSU)) warning(call. = FALSE, 'The LogLik function is currently not supported for survey design, the value may be biased.')
+  #if (length(object$design$PSU)) warning(call. = FALSE, 'The LogLik function is currently not supported for survey design, the value may be biased.')
   objects <- list(object, ...)
   tmp <- deparse(substitute(list(object, ...)))
   ob.nam <- gsub(' ', '', strsplit(substring(tmp, 6L, nchar(tmp) - 1L), ',', fixed = TRUE)[[1L]])
@@ -186,17 +181,13 @@ logLik.gotm<-function(object, ...) {
 #' @export
 #' @author Maciej J. Danko
 AIC.gotm<-function(object, ..., k = 2L) {
-  if (length(object$design$PSU)) {
-    warning(call. = FALSE, 'The AIC function is currently not supported for survey design.')
-    NA
-  } else {
-    objects <- list(object, ...)
-    tmp <- deparse(substitute(list(object, ...)))
-    ob.nam <- gsub(' ', '', strsplit(substring(tmp, 6L, nchar(tmp) - 1L), ',', fixed = TRUE)[[1L]])
-    res <- sapply(objects,function(object) -2L*object$LL + k * length(object$coef))
-    names(res) <- ob.nam
-    res
-  }
+  objects <- list(object, ...)
+  tmp <- deparse(substitute(list(object, ...)))
+  ob.nam <- gsub(' ', '', strsplit(substring(tmp, 6L, nchar(tmp) - 1L), ',', fixed = TRUE)[[1L]])
+  res <- sapply(objects,function(object) if (!length(object$design)) object$AIC else
+    stop('AIC for models with survey design not implemented yet.', call=NULL))
+  names(res) <- ob.nam
+  res
 }
 
 #' LRT Tables
@@ -211,44 +202,40 @@ AIC.gotm<-function(object, ..., k = 2L) {
 #' @export
 #' @author Maciej J. Danko
 anova.gotm<-function(object, ..., method = c('sequential', 'with.first'), direction = c('decreasing', 'increasing')){
-  if (length(object$design$PSU)) {
-    warning(call. = FALSE, 'The anova function is currently not supported for survey design.')
-    NA
-  } else {
-    method <- match.arg(method)
-    direction <- match.arg(direction)
-    if (length(list(object, ...)) > 1L) {
-      objects <- list(object, ...)
-      tmp <- deparse(substitute(list(object, ...)))
-      ob.nam <- gsub(' ', '', strsplit(substring(tmp, 6L, nchar(tmp) - 1L), ',', fixed = TRUE)[[1L]])
-    } else  stop('At least two objects must be listed.')
-    if (length(objects) == 2L){
-      if(length(objects[[1L]]$coef)>length(objects[[2L]]$coef)) {
-        return(lrt.gotm(objects[[1L]], objects[[2L]]))
-      } else {
-        return(lrt.gotm(objects[[2L]], objects[[1L]]))
-      }
+
+  method <- match.arg(method)
+  direction <- match.arg(direction)
+  if (length(list(object, ...)) > 1L) {
+    objects <- list(object, ...)
+    tmp <- deparse(substitute(list(object, ...)))
+    ob.nam <- gsub(' ', '', strsplit(substring(tmp, 6L, nchar(tmp) - 1L), ',', fixed = TRUE)[[1L]])
+  } else  stop('At least two objects must be listed.')
+  if (length(objects) == 2L){
+    if(length(objects[[1L]]$coef)>length(objects[[2L]]$coef)) {
+      return(lrt.gotm(objects[[1L]], objects[[2L]]))
     } else {
-      out <- NULL
-      rna <- NULL
-      if (direction == 'increasing') objects <- objects[length(objects) : 1L] else if (direction != 'decreasing') stop('Unknown direction.')
-      for (k in 1L : (length(objects) - 1L)) {
-        if (tolower(method) == 'sequential'){
-          tmp <- lrt.gotm(objects[[k]], objects[[k + 1L]]) # try models mut be of decreasing complexity, silent = F
-          rna <- c(rna, paste(ob.nam[k], 'vs.', ob.nam[k + 1L], sep = ' '))
-        } else if (tolower(method) == 'with.first') {
-          tmp <- lrt.gotm(objects[[1L]], objects[[k + 1L]]) # the first model must be the most complex,  silent = F
-          rna <- c(rna, paste(ob.nam[1L], 'vs', ob.nam[k + 1L], sep = ''))
-        } else
-          out <- rbind(out, c('Chi^2' = tmp$chisq, df = tmp$df, 'Pr(>Chi^2)' = tmp$pval))
-      }
-      rownames(out) <- rna
-      if (direction == 'increasing') out <- out[dim(out)[1L] : 1L,]
+      return(lrt.gotm(objects[[2L]], objects[[1L]]))
     }
-    out <- list(table = out, objets = objects, names = ob.nam, method = method)
-    class(out) <- 'anova.gotm'
-    out
+  } else {
+    out <- NULL
+    rna <- NULL
+    if (direction == 'increasing') objects <- objects[length(objects) : 1L] else if (direction != 'decreasing') stop('Unknown direction.')
+    for (k in 1L : (length(objects) - 1L)) {
+      if (tolower(method) == 'sequential'){
+        tmp <- lrt.gotm(objects[[k]], objects[[k + 1L]]) # try models mut be of decreasing complexity, silent = F
+        rna <- c(rna, paste(ob.nam[k], 'vs.', ob.nam[k + 1L], sep = ' '))
+      } else if (tolower(method) == 'with.first') {
+        tmp <- lrt.gotm(objects[[1L]], objects[[k + 1L]]) # the first model must be the most complex,  silent = F
+        rna <- c(rna, paste(ob.nam[1L], 'vs', ob.nam[k + 1L], sep = ''))
+      } else
+        out <- rbind(out, c('Chi^2' = tmp$chisq, df = tmp$df, 'Pr(>Chi^2)' = tmp$pval))
+    }
+    rownames(out) <- rna
+    if (direction == 'increasing') out <- out[dim(out)[1L] : 1L,]
   }
+  out <- list(table = out, objets = objects, names = ob.nam, method = method)
+  class(out) <- 'anova.gotm'
+  out
 }
 
 
@@ -273,39 +260,53 @@ print.anova.gotm <- function(x, ...){
 #' @export
 #' @author Maciej J. Danko
 lrt.gotm <- function(full, nested){
-  if (length(full$design$PSU)) {
-    warning(call. = FALSE, 'The lrt function is currently not supported for survey design.')
-    NA
-  } else {
-    if (length(full$coef) <= length(nested$coef)) stop('The "full" model must have more parameters than the "nested" one.')
-    if (full$LL - nested$LL < -.Machine$double.eps) warning(call. = FALSE, 'The "nested" model has the higher likelihood than the "full" model. Try to improve the fit of the models.')
-    if (ncol(full$reg.mm) < ncol(nested$reg.mm)) {
-      cat('Full model:\n')
-      cat("-- Formula (latent variables):", deparse(full$reg.formula), fill = TRUE)
-      cat('\nNested model:\n')
-      cat("-- Formula (latent variables):", deparse(nested$reg.formula), fill = TRUE)
-      stop('The latent formulas are not nested.')
-    }
-    if (ncol(full$thresh.mm) < ncol(nested$thresh.mm)) {
-      cat('Full model:\n')
-      cat("-- Formula (threshold variables):", deparse(full$thresh.formula), fill = TRUE)
-      cat('\nNested model:\n')
-      cat("-- Formula (threshold variables):", deparse(nested$thresh.formula), fill = TRUE)
-      stop('The threshold formulas are not nested.')
-    }
-    if ((ncol(full$reg.mm)) &&  (ncol(nested$reg.mm)))
-      if (!(all(colnames(nested$reg.mm) %in% colnames(full$reg.mm)))) warning(call. = FALSE, 'Models use probably different (non-nested) data sets (latent variable formula).')
-    if ((ncol(full$thresh.mm)) &&  (ncol(nested$thresh.mm)))
-      if (!(all(colnames(nested$thresh.mm) %in% colnames(full$thresh.mm)))) warning(call. = FALSE, 'Models use probably different (non-nested) data sets (latent variable formula).')
-    
-    stat <- 2L*(logLik.gotm(full) - logLik.gotm(nested))
+
+  if (!identical(full$design, nested$design)) stop('Models have different survey designs.',call. = NULL)
+  if (length(full$coef) <= length(nested$coef)) stop('The "full" model must have more parameters than the "nested" one.',call. = NULL)
+  if (full$LL - nested$LL < -.Machine$double.eps) warning(call. = FALSE, 'The "nested" model has the higher likelihood than the "full" model. Try to improve the fit of the models.')
+  if (ncol(full$reg.mm) < ncol(nested$reg.mm)) {
+    cat('Full model:\n')
+    cat("-- Formula (latent variables):", deparse(full$reg.formula), fill = TRUE)
+    cat('\nNested model:\n')
+    cat("-- Formula (latent variables):", deparse(nested$reg.formula), fill = TRUE)
+    stop('The latent formulas are not nested.')
+  }
+  if (ncol(full$thresh.mm) < ncol(nested$thresh.mm)) {
+    cat('Full model:\n')
+    cat("-- Formula (threshold variables):", deparse(full$thresh.formula), fill = TRUE)
+    cat('\nNested model:\n')
+    cat("-- Formula (threshold variables):", deparse(nested$thresh.formula), fill = TRUE)
+    stop('The threshold formulas are not nested.')
+  }
+  if ((ncol(full$reg.mm)) &&  (ncol(nested$reg.mm)))
+    if (!(all(colnames(nested$reg.mm) %in% colnames(full$reg.mm)))) warning(call. = FALSE, 'Models use probably different (non-nested) data sets (latent variable formula).')
+  if ((ncol(full$thresh.mm)) &&  (ncol(nested$thresh.mm)))
+    if (!(all(colnames(nested$thresh.mm) %in% colnames(full$thresh.mm)))) warning(call. = FALSE, 'Models use probably different (non-nested) data sets (latent variable formula).')
+
+  stat <- 2L*(logLik.gotm(full) - logLik.gotm(nested))
+  df.diff <- length(full$coef) - length(nested$coef)
+
+  if (!length(full$design)) {
     df.diff <- length(full$coef) - length(nested$coef)
     p <- 1L - pchisq(stat, df.diff)
-    z <- list(chisq = stat, df = df.diff, pval = p, full = full, nested = nested)
-    class(z) <- 'lrt.gotm'
-    z
+    scalef <- NULL
+  } else {
+    stop('LRT for models with survey design not implemented yet.', call=NULL)
+    # ....
+    # misspec <- eigen(solve(V0) %*% V, only.values = TRUE)$values
+    #
+    # p <- survey::pchisqsum(stat, rep(1, length(misspec)), misspec,
+    #                        method = "sad", lower.tail = FALSE)
+    # print(c(p1,p2))
+    # df.diff <- NULL
+    # scalef <- full$misspec/mean(full$misspec)
   }
+
+  z <- list(chisq = stat, df = df.diff, pval = p, scalef<-scalef, full = full, nested = nested)
+  class(z) <- 'lrt.gotm'
+  z
 }
+
 
 #' Print object calculated by \code{\link{lrt.gotm}}
 #'
@@ -324,9 +325,16 @@ print.lrt.gotm <- function(x, ...){
   cat("-- Formula (threshold variables):", deparse(x$nested$thresh.formula), fill = TRUE)
   #uzyc signif
   cat('\nLikelihood ratio test:\n')
-  out <- t(as.matrix(c('Chi^2' = unname(x$chisq), df = unname(x$df), 'Pr(>Chi^2)' = unname(x$pval))))
+  if (length(x$df.diff)) {
+    out <- t(as.matrix(c('Chi^2' = unname(x$chisq), df = unname(x$df), 'Pr(>Chi^2)' = unname(x$pval))))
+    out2 <- NULL
+  } else {
+    out <- t(as.matrix(c('Chi^2' = unname(x$chisq), 'Pr(>Chi^2)' = unname(x$pval))))
+    out2 <- x$scalef
+  }
   row.names(out) <- ''
   printCoefmat(out, signif.stars = TRUE, P.values = TRUE, has.Pvalue = TRUE, digits = 5L, dig.tst = 3L, tst.ind = 1L)
+  if (length(out2)) print(paste('Scale factors',out2))
   invisible(NULL)
 }
 
@@ -346,7 +354,7 @@ print.lrt.gotm <- function(x, ...){
 #' @author Maciej J. Danko
 predict.gotm <- function(object, newdata=NULL, type = c('link', 'response', 'threshold', 'threshold_link'),
                          unravelFreq = TRUE, ...){
-  if (length(newdata)) stop('"new data" not implemented.')
+  if (length(newdata)) stop('"new data" not implemented yet.')
   if (length(object$design$FWeights) && unravelFreq) conv<-function(x) unravel(x,freq=object$design$FWeights) else conv<-identity
   type <- match.arg(type)
   if (type == 'latent') type <- 'link'

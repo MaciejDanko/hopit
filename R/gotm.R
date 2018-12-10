@@ -26,23 +26,21 @@ gotm_Latent <- function(reg.params, model = NULL) model$reg.mm %*% (as.matrix(re
 #' @param data a data used to fit the model
 #' @keywords internal
 gotm_latentrange <- function (model, data) {
-  #Function must be checked for variables that are not factors
 
   cfm <- model$coef[seq_len(model$parcount[1])]
-  ttr <- terms.formula(model$reg.formula)
-  ttr <- delete.response(ttr)
-  tt <- attr(ttr,'variables')
-  ttn <- attr(ttr,'term.labels')
-  li <- lapply(eval(tt, data), function(k) if (class(k) == 'factor') levels(k) else range(k, na.rm=TRUE))
-  names(li) <- ttn
-  L=sapply(li, length)-1
-  cfm_neg <- cfm * (cfm<0)
-  cfm_pos <- cfm * (cfm>0)
-  pos=c(0,cumsum(L))+1
-  cfm_neg_ls <- lapply(1:(length(pos)-1),function(k) cfm_neg[pos[k]:(pos[k+1]-1)])
-  cfm_pos_ls <- lapply(1:(length(pos)-1),function(k) cfm_pos[pos[k]:(pos[k+1]-1)])
-  c(sum(sapply(cfm_neg_ls, min, na.rm=TRUE)),
-    sum(sapply(cfm_pos_ls, max, na.rm=TRUE)))
+
+  L <- apply(model$reg.mm,2,function(x)length(unique(x))) -1
+  FACTORS <- as.logical(L==1)
+  if (any(FACTORS)) {
+    d <- cfm[FACTORS]
+    r <- c(sum(d[d<0]), sum(d[d>0]))
+  }
+  if (any(!FACTORS)) {
+    #message('Continous covariate detected, model may not give realistic results.',appendLF = FALSE)
+    d <- matrix(cfm[!FACTORS],length(cfm[!FACTORS]),model$N) * t(model$reg.mm[,!FACTORS])
+    r <- c(min(d[d<0],r), max(r,d[d>0]))
+  }
+  r
 }
 
 
@@ -87,16 +85,20 @@ gotm_ExtractParameters <- function(model, parameters, parcount = model$parcount)
 gotm_negLL <- function(parameters=model$coef, model, collapse = TRUE, use_weights = TRUE, negative = TRUE){
   link = gotm_c_link(model)
   if (collapse) {
-    LLFunc(parameters, yi=as.numeric(unclass(model$y_i)),reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
+    LL <- LLFunc(parameters, yi=as.numeric(unclass(model$y_i)),reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
            link=link,thresh_no_cov=model$thresh.no.cov, negative=negative, thresh_1_exp = model$control$thresh.1.exp,
            weights=model$weights,use_weights = use_weights, thresh_start=model$control$thresh.start, out_val = model$control$LL_out_val,
            method = model$method)
   } else {
-    LLFuncIndv(parameters, yi=as.numeric(unclass(model$y_i)),reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
+    LL <- LLFuncIndv(parameters, yi=as.numeric(unclass(model$y_i)),reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
                link=link,thresh_no_cov=model$thresh.no.cov, negative=negative, thresh_1_exp = model$control$thresh.1.exp,
                weights=model$weights, thresh_start = model$control$thresh.start, use_weights = use_weights,
                method = model$method)
   }
+  if (use_weights) {
+    LL <- LL / sum(model$weights) * model$N #scale likelihood
+  }
+  LL
 }
 
 
@@ -113,19 +115,24 @@ gotm_derivLL <- function(parameters=model$coef, model,
     model <- calcYYY(model)
   }
   if (collapse) {
-    LLGradFunc(parameters, yi=as.numeric(unclass(model$y_i)), YYY1=model$YYY1, YYY2=model$YYY2,
+    LLgr <- LLGradFunc(parameters, yi=as.numeric(unclass(model$y_i)), YYY1=model$YYY1, YYY2=model$YYY2,
                YYY3=model$YYY3[,-model$J],YYY4=model$YYY3[,-1],
                reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
                link=link,thresh_no_cov=model$thresh.no.cov,negative=negative, thresh_1_exp = model$control$thresh.1.exp,
                weights=model$weights, thresh_start = model$control$thresh.start, use_weights = use_weights,
                method = model$method)
   } else {
-    LLGradFuncIndv(parameters, yi=as.numeric(unclass(model$y_i)), YYY1=model$YYY1, YYY2=model$YYY2, YYY3=model$YYY3[,-model$J], YYY4=model$YYY3[,-1],
+    LLgr <- LLGradFuncIndv(parameters, yi=as.numeric(unclass(model$y_i)), YYY1=model$YYY1, YYY2=model$YYY2, YYY3=model$YYY3[,-model$J], YYY4=model$YYY3[,-1],
                    reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
                    link=link,thresh_no_cov=model$thresh.no.cov, negative=negative, thresh_1_exp = model$control$thresh.1.exp,
                    weights=model$weights,thresh_start = model$control$thresh.start, use_weights = use_weights,
                    method = model$method)
   }
+
+  if (use_weights) {
+    LLgr <- LLgr / sum(model$weights) * model$N #scale likelihood
+  }
+  LLgr
 }
 
 
@@ -162,13 +169,16 @@ gotm_fitter <- function(model, start = model$start, use_weights = TRUE){
   if (model$method==0) {
 
     #Two methods one after each othe
-    fastgradfit <- function(fit){
+    fastgradfit <- function(fit, meto){
       #BFGS and CG method
       try({
+        if (meto == 'BFGS') {
         fit <- optim(par = fit$par, fn = LLfn, gr = LLgr,
                      method = 'BFGS', hessian = FALSE, control=list(maxit=model$control$bgfs.maxit, reltol=model$control$bgfs.reltol))
+        } else if (meto == 'CG'){
         fit <- optim(par = fit$par, fn = LLfn, gr = LLgr,
                      method = 'CG', hessian = FALSE, control=list(maxit=model$control$cg.maxit, reltol=model$control$cg.reltol))
+        }
       }, silent = FALSE)
 
       return(fit)
@@ -176,8 +186,11 @@ gotm_fitter <- function(model, start = model$start, use_weights = TRUE){
 
     z <- try({
       fit <- list(par = start)
-      fit <- fastgradfit(fit)
-      if (! model$control$quick.fit) {
+      if ('CG' %in% control$fit.methods) fit <- fastgradfit(fit, meto = 'CG')
+      if ('BFGS' %in% control$fit.methods) fit <- fastgradfit(fit, meto = 'BFGS')
+      if (!model$control$quick.fit || !length(fit$par)) {
+        if (!length(fit$par)) fit$par <- start
+        if (model$control$trace) cat(' done\nImproving fit with nlm...')
         fit <- suppressWarnings(nlm(f = LLfn, p=fit$par, gradtol = model$control$nlm.gradtol, steptol = model$control$nlm.steptol, hessian = FALSE, iterlim=model$control$nlm.maxit))
         fit <- list(par=fit$estimate, value=fit$minimum)
       }
@@ -190,7 +203,102 @@ gotm_fitter <- function(model, start = model$start, use_weights = TRUE){
     model$coef <- start
     model$LL <- LLfn(start)
   }
+  if (use_weights) {
+    LL <- LL / sum(model$weights) * model$N #scale likelihood
+  }
   model
+}
+
+
+#' survey:::htvar.matrix clone
+#' @keywords internal
+#' @author Thomas Lumley
+#' @importFrom Matrix crossprod
+clone.of.htvar.matrix <- function (xcheck, Dcheck) {
+  if (is.null(dim(xcheck)))
+    xcheck <- as.matrix(xcheck)
+  rval <- apply(xcheck, 2, function(xicheck) apply(xcheck, 2, function(xjcheck) as.matrix(Matrix::crossprod(xicheck,
+                                                                                                    Dcheck %*% xjcheck))))
+  if (is.null(dim(rval)))
+    dim(rval) <- c(1, 1)
+  rval
+}
+
+#' survey:::ygvar.matrix clone
+#' @keywords internal
+#' @author Thomas Lumley
+clone.of.ygvar.matrix <-function (xcheck, Dcheck)
+{
+  ht <- clone.of.htvar.matrix(xcheck, Dcheck)
+  if (is.null(dim(xcheck))) {
+    corr <- sum(Dcheck %*% (xcheck * xcheck))
+  }
+  else {
+    corr <- apply(xcheck, 2, function(xicheck) apply(xcheck,
+                                                     2, function(xjcheck) sum(Dcheck %*% (xicheck * xjcheck))))
+  }
+  rval <- ht - corr
+}
+
+#' survey:::ppsvar clone
+#' @keywords internal
+#' @author Thomas Lumley
+clone.of.ppsvar<-function (x, design)
+{
+  postStrata <- design$postStrata
+  est <- design$variance
+  if (!is.null(postStrata)) {
+    for (psvar in postStrata) {
+      if (inherits(psvar, "greg_calibration")) {
+        if (psvar$stage == 0) {
+          y <- qr.resid(psvar$qr, y/psvar$w) * psvar$w
+        }
+        else {
+          stop("calibration within clusters not yet available for PPS designs")
+        }
+      }
+      else {
+        psw <- attr(psvar, "weights")
+        postStrata <- as.factor(psvar)
+        psmeans <- rowsum(y/psw, psvar, reorder = TRUE)/as.vector(table(factor(psvar)))
+        x <- y - psmeans[match(psvar, sort(unique(psvar))),
+                         ] * psw
+      }
+    }
+  }
+  dcheck <- design$dcheck
+  if (length(dcheck) != 1)
+    stop("Multistage not implemented yet")
+  rval <- switch(est, HT = clone.of.htvar.matrix(rowsum(x, dcheck[[1]]$id,
+                                               reorder = FALSE), dcheck[[1]]$dcheck),
+                 YG = clone.of.ygvar.matrix(rowsum(x, dcheck[[1]]$id, reorder = FALSE), dcheck[[1]]$dcheck),
+                 stop("can't happen"))
+  rval
+}
+
+#' Calculation of variance-covariance matrix for specified survey design
+#' @keywords internal
+#' @param object a gotm object
+#' @param design a survey.design object
+#' @author Thomas Lumley, modified by Maciej J. Dańko
+svy.varcoef.gotm <- function (Ainv, estfun, design) {
+  # Ainv <- object$vcov #summary(glm.object)$cov.unscaled
+  # estfun <- object$estfun #model.matrix(glm.object) * resid(glm.object, "working") *
+  if (inherits(design, "survey.design2"))
+    V <- survey::svyrecvar(estfun %*% Ainv, design$cluster, design$strata,
+              design$fpc, postStrata = design$postStrata)
+  else if (inherits(design, "twophase"))
+    V <- survey::twophasevar(estfun %*% Ainv, design)
+  else if (inherits(design, "twophase2"))
+    V <- survey::twophase2var(estfun %*% Ainv, design)
+  else if (inherits(design, "pps"))
+    V <- clone.of.ppsvar(estfun %*% Ainv, design)
+  else V <-survey::svyCprod(estfun %*% Ainv, design$strata, design$cluster[[1]],
+                design$fpc, design$nPSU, design$certainty, design$postStrata)
+  if (inherits(design, "svyrep.design")) {
+    Vtest <- vcov(survey::svymean(estfun %*% Ainv*design$prob, design)) * length(design$prob)^2
+    if (max(abs(Vtest-V)) > 1e-4) warning('Something wrong with survey package.')
+  }
 }
 
 
@@ -216,11 +324,15 @@ gotm.control<-function(grad.eps = 3e-5,
                        cg.reltol = 5e-10,
                        nlm.gradtol = 1e-7,
                        nlm.steptol = 1e-7,
+                       fit.methods = c('CG','BFGS'),
                        quick.fit = TRUE,
                        trace = TRUE,
                        thresh.start = -Inf,
                        thresh.1.exp = FALSE,
                        LL_out_val = -Inf){
+
+  if (!length(fit.methods)) stop('Please specify fit method',call. = NULL) else fit.methods <- toupper(fit.methods)
+  if (any(fit.methods %notin% c('CG','BFGS'))) stop ('Unknown fit method.',call.=NULL)
 
   list(grad.eps = grad.eps,
        bgfs.maxit = bgfs.maxit,
@@ -230,38 +342,12 @@ gotm.control<-function(grad.eps = 3e-5,
        cg.reltol = cg.reltol,
        nlm.gradtol = nlm.gradtol,
        nlm.steptol = nlm.steptol,
+       fit.methods = fit.methods,
        quick.fit = quick.fit,
        trace = trace,
        thresh.start = thresh.start,
        thresh.1.exp = thresh.1.exp,
        LL_out_val = LL_out_val)
-}
-
-
-#frequency weight potraktowac jak w  clm czyli bez PSU
-#' Auxiliary for setting a simple survey design for \code{gotm}
-#'
-#' @param PWeights Probability weights (the inverse of Probability of an observation being selected into the sample)
-#' @param FWeights Frequency weights.
-# Either \code{PWeight} or \code{FWeight} can be delivered (but not both simultaneously)
-#' @param PSU Identificator of the PSU unit. Each P- and F- weight should correspond to exactly one PSU.
-#' @param CountryID PSU are typically prescribed to only one country.
-#' @export
-#' @author Maciej J. Danko
-# if ((length(PWeights) && length(FWeights))) stop('Please deliver either "PWeights" or "FWeights".')
-gotm.design<-function(PWeights = NULL, FWeights = NULL, PSU = NULL, CountryID = NULL){
-  if (length(PSU) && length(CountryID)) {
-    if (length(PSU)!= length(CountryID)) stop('"PSU" and "CountryID" not of equal lengths.',call.=NULL)
-    PSU <- paste(CountryID,PSU,sep='_')
-  }
-  tmp <- list(PWeights = PWeights, FWeights = FWeights, PSU = PSU)
-  if (sum(sapply(tmp, length))){
-    if (!length(PSU) && length(PWeights)) stop('"PSU" must be given.',call.=NULL)
-    if (length(PSU) && length(unique(PSU)) == 1) stop('There is only one "PSU". "PWeights" cannot be used.',call.=NULL) #Correct this!!!!
-    if (!(length(PWeights) + length(FWeights))) stop('P- or F- weights must be given',call.=NULL)
-    if (length(PWeights) && (length(PSU) != length(PWeights))) stop('"PWeights" and "PSU" must have the same length.',call.=NULL)
-  }
-  tmp
 }
 
 
@@ -272,11 +358,10 @@ gotm.design<-function(PWeights = NULL, FWeights = NULL, PSU = NULL, CountryID = 
 #' @param thresh.formula formula used to model threshold variable.
 #' Any dependent variable (left side of "~") will be ignored.
 #' @param data a data frame including all modeled variables.
-#' @param survey an optional survey a survey design. Empty list indicates no survey design. See \code{\link{gotm.design}}.
+#' @param design an optional survey design. Use \code{\link[survey]{svydesign}} function to specify the design.
+#' @param weigts an optional weights. Use design to construct survey weights.
 #' @param link the link function. The possible values are \code{"probit"} (default) and \code{"logit"}.
 #' @param start starting values in the form \code{c(latent_parameters, threshold_lambdas, threshold_gammas)}
-#' @param hessain logical indicating if to calculate hessian matrix
-#' but will not improve the fit, and \code{'no'} use external starting values, which must be delivered.
 #' @param control a list with control parameters. See \code{\link{gotm.control}}.
 #' @export
 #' @author Maciej J. Danko
@@ -285,10 +370,10 @@ gotm<- function(reg.formula,
                 data,
                 method = c('linear','exp'),
                 #overdispersion = FALSE,
-                survey = list(),
+                design = list(),
+                weights = NULL,
                 link = c('probit', 'logit'),
                 start = NULL,
-                hessian = TRUE,
                 control = list()){
 
   my.grad <- function(fn, par, eps, ...){
@@ -302,10 +387,10 @@ gotm<- function(reg.formula,
   if (missing(data)) data <- environment(reg.formula)
 
   method <- tolower(method[1])
-  if (method=='linear') method=1 else if (method=='exp') method=0 else stop('Unknown method')
+  if (method=='linear') method <- 1 else if (method=='exp') method <- 0 else stop('Unknown method')
   link <- match.arg(link)
   control <- do.call("gotm.control", control)
-  survey <- do.call("gotm.design", survey)
+  design <- do.call("gotm.design", design)
 
   if (length(start) && class(start) == 'gotm'){
     if (link != start$link) {
@@ -322,7 +407,7 @@ gotm<- function(reg.formula,
   model <- NULL
   model$control <- control
   model$link <- link
-  model$method <- method
+  model$method <- as.numeric(method)
 
   if (length(thresh.formula)>2L){
     warning(call. = FALSE, 'The treshold formula should be given without dependent variable.')
@@ -334,17 +419,19 @@ gotm<- function(reg.formula,
   model$reg.formula <- reg.formula
   model$reg.mm <- as.matrix(model.matrix(reg.formula, data = data))
   model$reg.lev<-lapply(model.frame(model$reg.formula, data = data), function(k) if (is.factor(k)) as.matrix(table(k)) else 'Not a facor')
+
   reg.names <- colnames(model$reg.mm)
   grpi <- grepl('(Intercept)', colnames(model$reg.mm), fixed = TRUE)
   model$reg.mm <- as.matrix(model$reg.mm[,!grpi])
   reg.names <- reg.names[!grpi]
 
   thresh.formula <- update.formula(thresh.formula, '~.+1')
-  if (any(grepl('offset(',as.character(thresh.formula[[2]]),fixed=TRUE))) stop('Offset not supprted.', call.=NULL)
+  if (any(grepl('offset(',tolower(as.character(thresh.formula[[2]])),fixed=TRUE))) stop('Offset not supprted.', call.=NULL)
   model$thresh.formula <- thresh.formula
   model$thresh.mm <- as.matrix(model.matrix(thresh.formula, data = data))
   model$thresh.lev <- lapply(model.frame(model$thresh.formula, data = data), function(k) if (is.factor(k)) as.matrix(table(k)) else 'Not a facor')
   thresh.names <- colnames(model$thresh.mm)
+
   grpi <- grepl('(Intercept)', colnames(model$thresh.mm), fixed = TRUE)
   model$thresh.mm <- as.matrix(model$thresh.mm[,!grpi])
   thresh.names <- thresh.names[!grpi]
@@ -353,6 +440,9 @@ gotm<- function(reg.formula,
   } else {
     model$thresh.no.cov <- FALSE
   }
+
+  model$reg.terms <- attr(terms(as.formula(reg.formula)),"term.labels")
+  model$thresh.terms <-attr(terms(as.formula(thresh.formula)),"term.labels")
 
   model$y_i <- model.frame(reg.formula, data = data)[,all.vars(reg.formula[[2]])]
   if (!is.factor(model$y_i)) stop('Response must be a factor with ordered levels.', call.=NULL)
@@ -363,23 +453,6 @@ gotm<- function(reg.formula,
   if (model$J<3L) stop ('Response must have 3 or more levels.', call.=NULL)
 
   model$thresh.extd <- matrix(rep_row(model$thresh.mm, model$J-1),model$N, NCOL(model$thresh.mm)*(model$J-1))
-
-  if (sum(sapply(survey, length))){
-    model$design <- survey
-    if (length(survey$PWeights) && (length(survey$FWeights))) {
-      model$weights <- survey$FWeights/survey$PWeights
-    } else if (length(survey$PWeights)) {
-      model$weights <- 1L/survey$PWeights
-    } else if (length(survey$FWeights)){
-      model$weights <- survey$FWeights
-    } else stop('This should not happen.', call.=NULL)
-    if (length(model$weights) != model$N) {
-      stop('Vector of survey weights must be of the same length as data.', call.=NULL)
-    }
-  } else {
-    model$design <- NULL
-    model$weights <- rep(1L, model$N)
-  }
 
   Cr <- dim(model$reg.mm)[2L]
   Ct <- dim(model$thresh.mm)[2L]
@@ -396,7 +469,13 @@ gotm<- function(reg.formula,
   }
 
   coefnames <-  c(reg.names, paste('(L)', interce, sep = '.'), tmp)
+
+  if (length(weights) && length(design)) stop('Multiple weights specification detected. Please use either design or weights parameter.', call.=NULL)
+  if (length(design)) model$weights <- design$prob else if (length(weights)) model$weights <- weights else model$weights < rep(1, model$N)
+  if (length(model$weights) != model$N) stop('Vector of survey weights must be of the same length as data.', call.=NULL)
   model$weights <- as.vector(matrix(model$weights, 1L, model$N))
+  #scaling weights
+  model$weights <- model$N * model$weights / sum(model$weights)
 
   #calculate special matrices for gradient calaculation
   model <- calcYYY(model)
@@ -411,10 +490,7 @@ gotm<- function(reg.formula,
   if (model$control$trace && !model$method) cat(' done\nFitting the model...')
 
   model <- gotm_fitter(model, start = model$start)
-  # if (model$method) {
-  #   model$coef <- model$vglm.start
-  #   model$coef.ls <- model$vglm.start.ls
-  # }
+
   class(model) <- 'gotm'
   colnames(model$thresh.mm) <- thresh.names
   names(model$coef) <- coefnames
@@ -425,22 +501,45 @@ gotm<- function(reg.formula,
   model$y_latent_i <- gotm_Latent(model$coef[seq_len(model$parcount[1])], model)
   p <- gotm_ExtractParameters(model)
   model$coef.ls <- p
-  model$maxlatentrange <- sort(gotm_latentrange(model=model, data=data))
+  model$maxlatentrange <- sort(gotm_latentrange(model=model, data=data)) #waht is the difference in the context of continuous variables
   model$maxobservedlatentrange <-  sort(range(gotm_Latent(p$reg.params,model)))
   if (model$control$trace) cat(' done\n')
+  model$deviance <- -2 * model$LL
+  k <- 2
 
-  if (hessian) {
-    if (model$control$trace) cat('Calculating hessian...')
-    hes <- my.grad(fn = gotm_derivLL, par = model$coef, model=model, eps = model$control$grad.eps, collapse = TRUE, negative=FALSE)
-    model$hessian <- hes
-    model$vcov <- try(solve(-hes), silent = T)
-    if (class(model$vcov) == 'try-error')
-      warning(call. = FALSE, 'Model is probably unidentifiable, $vcov (variance-covariance matrix) cannot be computed.')
-    if (model$control$trace) cat(' done\nCalculating estfun...')
-    model$estfun <- gotm_derivLL(model$coef, model, collapse = FALSE)
-    if (model$control$trace) cat(' done\n')
+  if (model$control$trace) cat('Calculating hessian...')
+  hes <- my.grad(fn = gotm_derivLL, par = model$coef, model=model, eps = model$control$grad.eps, collapse = TRUE, negative=FALSE)
+  model$hessian <- hes
+  model$vcov.basic <- try(base::solve(-hes), silent = TRUE)
+  if (class(model$vcov) == 'try-error') {
+    warning(call. = FALSE, 'Model is probably unidentifiable, $vcov (variance-covariance matrix) cannot be computed.')
+    model$vcov.basic <- NA
   }
+  if (model$control$trace) cat(' done\nCalculating estfun...')
+  model$estfun <- gotm_derivLL(model$coef, model, collapse = FALSE)
+  if (model$control$trace) cat(' done\n')
 
+  if (length(design)) {
+    if (model$control$trace) cat('Including survey design...')
+    model$vcov <- svy.varcoef.gotm(model$vcov.basic, model$estfun, design)
+
+    # model$misspec <- try(base::eigen(base::solve(model$vcov.basic) %*% model$vcov, only.values = TRUE)$values, silent = TRUE)
+    # if (class(model$misspec) == 'try-error' || is.na(model$vcov)) {
+    #   warning(call. = FALSE, 'Cannot estimate AIC using survey design.')
+    #   model$misspec <- model$deltabar <- model$eff.p <- model$AIC <- NA
+    # } else {
+    #   # model$deltabar <- mean(model$misspec)
+    #   # model$eff.p <- sum(model$misspec)
+    #   # model$AIC <- model$deviance + k * sum(model$misspec)
+    # }
+    #model$df.residual <- survey::degf(design) + 1 - length(model$coef[!is.na(model$coef)])
+    model$misspec <- model$deltabar <- model$eff.p <- model$AIC <- NA
+    if (model$control$trace) cat(' done\n')
+  } else {
+    model$vcov <- model$vcov.basic
+    model$AIC <- model$deviance + k * length(object$coef)
+    model$misspec <- model$deltabar <- model$eff.p <- NA
+  }
   return(model)
 }
 

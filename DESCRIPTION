@@ -1,9 +1,9 @@
 Package: gotm
 Type: Package
 Title: Health reporting styles
-Version: 18.11.28.4
-Depends: R (>= 2.10)
-Imports: MASS, survey, VGAM, Rcpp, RcppEigen
+Version: 1.181210.1
+Depends: R (>= 2.10), survey
+Imports: MASS, VGAM, Rcpp, RcppEigen, Matrix
 LinkingTo: Rcpp, RcppEigen
 Authors@R: person("Maciej J.", "Danko", role = c("aut", "cre"), email = "Maciej.Danko@gmail.com", comment = c(ORCID = "0000-0002-7924-9022"))
 Description: Generalized Ordered Choice Threshold Models with application to health reporting styles.

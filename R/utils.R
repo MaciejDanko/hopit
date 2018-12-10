@@ -37,7 +37,7 @@ calcYYY<-function(model){
   model$YYY3 <- dY
   model
 }
- 
+
 
 #' INTERNAL: Decode link parmeter
 #' @param model fitted model.
@@ -130,6 +130,24 @@ classify.ind<-function(model){
 }
 
 
+order.as.in<-function(a,b){  #a = in
+  if (!all(a %in% b) || !all(b %in% a)) stop()
+  x <- data.frame(x=a, idx = seq_along(a), stringsAsFactors = FALSE)
+  x <- x[order(x$x),]
+  y <- data.frame(y=b, idy = seq_along(b), stringsAsFactors = FALSE)
+  y <- y[order(y$y),]
+  z <- data.frame(zx=x$idx, zy=y$idy)
+  z <- z[order(z$zx),]
+  z$zy
+}
+
+greplin<-function(p, x) sapply(p, function(y) any(grepl(y, x, fixed = TRUE)))
+
+# a=colnames(model$reg.mm)
+# b=names(vglm.reg)#[c(1,3,4,2,5,8,7,6)]
+# bi=order.as.in(a,b)
+# rbind(a,b[bi])
+
 #' INTERNAL: Fit vglm to get parameters of the model
 #' @param model \code{gotm} object.
 #' @param data data.frame with data used to fit the model.
@@ -141,15 +159,17 @@ fit.vglm <-function(model, data){
   thresh.formula <- model$thresh.formula
   if (length(thresh.formula)>2) thresh.formula[[2]] <- NULL
   thrf <- deparse(thresh.formula[[2]])
-  tmr <- attr(terms(as.formula(reg.formula)),"term.labels")
-  tmt <-attr(terms(as.formula(thresh.formula)),"term.labels")
-  model$J <- length(levels(as.factor(data[,deparse(model$reg.formula[[2]])]))) #update J if not calculated
-  ltmt <- sapply(tmt,function(k) length(levels(as.factor(data[,k]))))-1
-  model$parcount <- c(length(tmr),(model$J-1),sum(ltmt)*(model$J-1)) #update model parcount if not calculated
-  if (!length(model$weights)) model$weights <- rep(1)
+  Ynam <- deparse(reg.formula[[2]])
+  tmr <- model$reg.terms
+  tmt <- model$thresh.terms
+  model$J <- length(levels(as.factor(data[,Ynam]))) #update J if not calculated
+  #ltmt <- sapply(tmt,function(k) length(levels(as.factor(data[,k]))))-1
+  ltmt <- ncol(model$thresh.mm)
+  model$parcount <- c(length(tmr),(model$J-1),ltmt*(model$J-1)) #update model parcount if not calculated
+  if (!length(model$weights)) model$weights <- rep(1,model$N)
   incc <- tmr %in% tmt
   if (any(incc)) {
-    cat('\nThreshold variable(s) detected in reg.formula. Model may be not identifiable.\n')
+    message('\nThreshold variable(s) detected in reg.formula. Model may be not identifiable.\n')
     ignored.var<- tmr[incc]
     reg.formula <- update(reg.formula, paste('~ . ',paste(' -', ignored.var,collapse='')))
   } else ignored.var <- NULL
@@ -165,17 +185,30 @@ fit.vglm <-function(model, data){
               logit = VGAM::vglm(big.formula, weights = w, data = data,
                                  family = VGAM::cumulative(parallel = small.formula, link = 'logit')))
   rm(Y, envir = .GlobalEnv)
-  mv2.par <- c(VGAM::coef(mv2)[-(1:sum(model$parcount[2:3]))], VGAM::coef(mv2)[(1:sum(model$parcount[2:3]))])
+  cmv2 <- coef(mv2)
   model$vglm <- mv2
   model$vglm.LL<-VGAM::logLik(mv2)
+  Lind <- grepl('Intercept',names(cmv2),fixed='TRUE')
+  vglm.lambdas <- sort(cmv2[Lind])
+  #Rind <- names(cmv2) %in% colnames(model$reg.mm)
+  Rind <- greplin(names(cmv2), colnames(model$reg.mm))
+  vglm.reg <-  cmv2[Rind]
+  oi <- order.as.in(a=colnames(model$reg.mm), b=names(vglm.reg))
+  vglm.reg <- vglm.reg[oi]
+  vglm.gamma <- cmv2[!Lind & !Rind]
+  thr.ext.nam<-as.character(interaction(expand.grid(seq_len(model$J-1),colnames(model$thresh.mm))[,2:1],sep=':'))
+  oi <- order.as.in(a=thr.ext.nam, b=names(vglm.gamma))
+  vglm.gamma <- vglm.gamma[oi]
+  model$vglm.start.ls = list(reg.params = vglm.reg,
+                             thresh.lambda = vglm.lambdas,
+                             thresh.gamma = vglm.gamma)
+  model$vglm.start <- c(vglm.reg, vglm.lambdas, vglm.gamma)
+
   parcount <- model$parcount
-  parcount[1] <- parcount[1] - length(ignored.var)
-  model$vglm.start.ls <- gotm_ExtractParameters(model, mv2.par, parcount)
-  model$vglm.start <- mv2.par
-  
+  parcount[1] <- parcount[1] - length(ignored.var) #check!
   #remove negative sign in reg
   model$vglm.start.ls$reg.params <- -model$vglm.start.ls$reg.params
-  model$vglm.start[seq_len(model$parcount[1])] <- model$vglm.start.ls$reg.params
+  #model$vglm.start[seq_len(model$parcount[1])] <- model$vglm.start.ls$reg.params
   list(vglm.model=model,ignored.reg.var=ignored.var,new.reg.formula=reg.formula)
 }
 
@@ -193,11 +226,11 @@ get.vglm.start<-function(model, data){
   m <- suppressWarnings(fit.vglm(model, data))
   model <- m$vglm.model
   par.ls <- model$vglm.start.ls
-  
+
   # approximate coeficients
   if (!model$method) {
     z <- vglm2gotm(par.ls$reg.params, par.ls$thresh.lambda, par.ls$thresh.gamma, thresh_1_exp = model$control$thresh.1.exp)
-    
+
     if (length(m$ignored.reg.var)){
       ini.mis <- mean(z$reg_params)
       if (any(class(data[,m$ignored.reg.var])!='factor')) stop('Threshold-Health variables must be a factors',call. = NULL)
@@ -206,18 +239,18 @@ get.vglm.start<-function(model, data){
       z$reg_params <- c(z$reg_params, rep(ini.mis, npar))
       z$coef <- c(z$reg_params,z$thresh_lambda,z$thresh_gamma)
     }
-    
+
     model$start.ls$reg.params <- z$reg_params
     model$start.ls$lambda <- z$thresh_lambda
     model$start.ls$gamma.start <-z$thresh_gamma
     model$start <- z$coef
- 
+
   } else {
-  
+
     model$start.ls <- model$vglm.start.ls
     model$start <- model$vglm.start
-  
+
   }
-  
+
   model
 }
