@@ -283,7 +283,7 @@ lrt.gotm <- function(full, nested){
   if ((ncol(full$thresh.mm)) &&  (ncol(nested$thresh.mm)))
     if (!(all(colnames(nested$thresh.mm) %in% colnames(full$thresh.mm)))) warning(call. = FALSE, 'Models use probably different (non-nested) data sets (latent variable formula).')
 
-  stat <- 2L*(logLik.gotm(full) - logLik.gotm(nested))
+  stat <- 2L*( logLik.gotm(full) - logLik.gotm(nested))
   df.diff <- length(full$coef) - length(nested$coef)
 
   if (!length(full$design)) {

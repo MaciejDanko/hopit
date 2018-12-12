@@ -203,6 +203,10 @@ gotm_fitter <- function(model, start = model$start, use_weights = TRUE){
     model$coef <- start
     model$LL <- LLfn(start)
   }
+  # cat('VGLM LL:',model$vglm.LL,'\n')
+  # cat('START LL:',LLfn(start, neg=FALSE),'\n')
+  # cat('FITTED LL:',LLfn(model$coef, neg=FALSE),'\n')
+  # cat('FITTED LL:',model$LL,'\n')
   if (use_weights) {
     model$LL <- model$LL / sum(model$weights) * model$N #scale likelihood
   }
@@ -368,7 +372,7 @@ gotm.control<-function(grad.eps = 3e-5,
 gotm<- function(reg.formula,
                 thresh.formula = as.formula('~ 1'),
                 data,
-                method = c('linear','exp'),
+                method = c('exp','linear'),
                 #overdispersion = FALSE,
                 design = list(),
                 weights = NULL,

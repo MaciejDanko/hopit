@@ -194,7 +194,7 @@ fit.vglm <-function(model, data){
   Rind <- greplin(names(cmv2), colnames(model$reg.mm))
   vglm.reg <-  cmv2[Rind]
   oi <- order.as.in(a=colnames(model$reg.mm), b=names(vglm.reg))
-  vglm.reg <- vglm.reg[oi]
+  vglm.reg <- - vglm.reg[oi] #remove negative sign in reg
   vglm.gamma <- cmv2[!Lind & !Rind]
   thr.ext.nam<-as.character(interaction(expand.grid(seq_len(model$J-1),colnames(model$thresh.mm))[,2:1],sep=':'))
   oi <- order.as.in(a=thr.ext.nam, b=names(vglm.gamma))
@@ -206,9 +206,6 @@ fit.vglm <-function(model, data){
 
   parcount <- model$parcount
   parcount[1] <- parcount[1] - length(ignored.var) #check!
-  #remove negative sign in reg
-  model$vglm.start.ls$reg.params <- -model$vglm.start.ls$reg.params
-  #model$vglm.start[seq_len(model$parcount[1])] <- model$vglm.start.ls$reg.params
   list(vglm.model=model,ignored.reg.var=ignored.var,new.reg.formula=reg.formula)
 }
 

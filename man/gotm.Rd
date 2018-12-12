@@ -5,7 +5,7 @@
 \title{Fit Generelaized Ordered Choice Threshold Model}
 \usage{
 gotm(reg.formula, thresh.formula = as.formula("~ 1"), data,
-  method = c("linear", "exp"), design = list(), weights = NULL,
+  method = c("exp", "linear"), design = list(), weights = NULL,
   link = c("probit", "logit"), start = NULL, control = list())
 }
 \arguments{
