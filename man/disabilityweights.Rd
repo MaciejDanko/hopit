@@ -4,9 +4,9 @@
 \alias{disabilityweights}
 \title{Calculate disability weights}
 \usage{
-disabilityweights(model, method = 1, latent.method = c("observed",
-  "theoretical"), plotpval = FALSE, plotf = TRUE, mar = c(15, 4, 1, 1),
-  oma = c(0, 0, 0, 0), namesf = identity)
+disabilityweights(model, latent.method = c("observed", "theoretical"),
+  plotpval = FALSE, plotf = TRUE, mar = c(15, 4, 1, 1), oma = c(0, 0, 0,
+  0), namesf = identity)
 }
 \arguments{
 \item{model}{a fitted \code{gotm} model.}

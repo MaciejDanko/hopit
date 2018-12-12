@@ -5,7 +5,7 @@
 \alias{coefficients.gotm}
 \title{Extracting coefficients of fitted \code{gotm} object}
 \usage{
-coef.gotm(object, aslist = FALSE, ...)
+\method{coef}{gotm}(object, aslist = FALSE, ...)
 }
 \arguments{
 \item{object}{\code{gotm} object.}

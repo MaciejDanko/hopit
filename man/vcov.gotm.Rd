@@ -4,7 +4,7 @@
 \alias{vcov.gotm}
 \title{Extracting variance-covariance matrix from the fitted gotm}
 \usage{
-vcov.gotm(object, robust.vcov, ...)
+\method{vcov}{gotm}(object, robust.vcov, ...)
 }
 \arguments{
 \item{object}{\code{gotm} object.}

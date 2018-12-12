@@ -101,7 +101,7 @@ contingencytables <- function(model, formula, data, names.reg=identity){
 #' @param mar see \code{\link{par}}.
 #' @param oma see \code{\link{par}}.
 #' @export
-disabilityweights <- function (model, method=1, latent.method = c('observed','theoretical'),
+disabilityweights <- function (model, latent.method = c('observed','theoretical'),
                                plotpval = FALSE,
                                plotf = TRUE, mar = c(15, 4, 1, 1), oma = c(0, 0, 0, 0),
                                namesf = identity) {
@@ -117,11 +117,12 @@ disabilityweights <- function (model, method=1, latent.method = c('observed','th
   oz <- order(z, decreasing = TRUE)
   cfm <- z[oz]
   if (latent.method=='theoretical') r <- model$maxlatentrange else if (latent.method=='observed') r <- model$maxobservedlatentrange
-  if (method==2) {
-    res <- as.matrix((cfm - r[1])/diff(r))
-  } else if (method==1) {
-    res <- as.matrix((cfm - max(r[1],0))/min(diff(r),max(r)))
-  } else stop('Unknown method.', call. = FALSE)
+  #if (!force.positive) {
+    #res <- as.matrix((cfm - r[1])/diff(r))
+    res <- as.matrix((cfm)/diff(r))
+  #} else #if (force.positive) {
+  #  res <- as.matrix((cfm - max(r[1],0))/min(diff(r),max(r)))
+  #} else stop('Unknown method.', call. = FALSE)
 
   if (plotf) {
 

@@ -204,7 +204,7 @@ gotm_fitter <- function(model, start = model$start, use_weights = TRUE){
     model$LL <- LLfn(start)
   }
   if (use_weights) {
-    LL <- LL / sum(model$weights) * model$N #scale likelihood
+    model$LL <- model$LL / sum(model$weights) * model$N #scale likelihood
   }
   model
 }
@@ -390,7 +390,6 @@ gotm<- function(reg.formula,
   if (method=='linear') method <- 1 else if (method=='exp') method <- 0 else stop('Unknown method')
   link <- match.arg(link)
   control <- do.call("gotm.control", control)
-  design <- do.call("gotm.design", design)
 
   if (length(start) && class(start) == 'gotm'){
     if (link != start$link) {
@@ -471,8 +470,14 @@ gotm<- function(reg.formula,
   coefnames <-  c(reg.names, paste('(L)', interce, sep = '.'), tmp)
 
   if (length(weights) && length(design)) stop('Multiple weights specification detected. Please use either design or weights parameter.', call.=NULL)
-  if (length(design)) model$weights <- design$prob else if (length(weights)) model$weights <- weights else model$weights < rep(1, model$N)
-  if (length(model$weights) != model$N) stop('Vector of survey weights must be of the same length as data.', call.=NULL)
+  if (length(design)) model$weights <- design$prob else if (length(weights)) model$weights <- weights
+  if (!length(model$weights)) model$weights <- rep(1, model$N)
+
+  if (length(model$weights) != model$N) {
+    print(length(model$weights))
+    print(model$N)
+    stop('Vector of survey weights must be of the same length as data.', call.=NULL)
+  }
   model$weights <- as.vector(matrix(model$weights, 1L, model$N))
   #scaling weights
   model$weights <- model$N * model$weights / sum(model$weights)
@@ -519,7 +524,7 @@ gotm<- function(reg.formula,
   model$estfun <- gotm_derivLL(model$coef, model, collapse = FALSE)
   if (model$control$trace) cat(' done\n')
 
-  if (length(design)) {
+  if (length(model$design)) {
     if (model$control$trace) cat('Including survey design...')
     model$vcov <- svy.varcoef.gotm(model$vcov.basic, model$estfun, design)
 
@@ -537,7 +542,7 @@ gotm<- function(reg.formula,
     if (model$control$trace) cat(' done\n')
   } else {
     model$vcov <- model$vcov.basic
-    model$AIC <- model$deviance + k * length(object$coef)
+    model$AIC <- model$deviance + k * length(model$coef)
     model$misspec <- model$deltabar <- model$eff.p <- NA
   }
   return(model)

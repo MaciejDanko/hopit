@@ -4,7 +4,7 @@
 \alias{print.lrt.gotm}
 \title{Print object calculated by \code{\link{lrt.gotm}}}
 \usage{
-print.lrt.gotm(x, ...)
+\method{print}{lrt.gotm}(x, ...)
 }
 \arguments{
 \item{x}{object obtained from \code{\link{lrt.gotm}}}
