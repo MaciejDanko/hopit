@@ -2,12 +2,12 @@
 % Please edit documentation in R/utils.R
 \name{get.vglm.start}
 \alias{get.vglm.start}
-\title{INTERNAL: Translate vglm to gotm start parameters}
+\title{INTERNAL: Translate vglm to hopit start parameters}
 \usage{
 get.vglm.start(model, data)
 }
 \arguments{
-\item{model}{\code{gotm} object.}
+\item{model}{\code{hopit} object.}
 
 \item{data}{data.frame with data used to fit the model.}
 }
@@ -15,7 +15,7 @@ get.vglm.start(model, data)
 updated model
 }
 \description{
-INTERNAL: Translate vglm to gotm start parameters
+INTERNAL: Translate vglm to hopit start parameters
 }
 \author{
 Maciej J. Danko

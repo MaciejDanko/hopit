@@ -7,7 +7,7 @@
 fit.vglm(model, data)
 }
 \arguments{
-\item{model}{\code{gotm} object.}
+\item{model}{\code{hopit} object.}
 
 \item{data}{data.frame with data used to fit the model.}
 }

@@ -1,0 +1,187 @@
+---
+title: "Analysis of the reporting styles using generalized ordered threshold models."
+author: "Maciej J. Dańko"
+abstract: The *gotm* package provides R functions to fit and analyze ordered response data in the context of reporting styles. In this vignette we describe the formulation and fit of *gotm* models as well as functions used to analyse reporting styles.
+date: "14 XII 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1. Introduction
+
+The *gotm* package provides R functions to fit and analyze ordered response data in the context of reporting styles.
+
+## 2. Generalized ordered threshold model 
+
+The generalized ordered threshold model assumes three or more categorical ordered responses, which are based on underlying latent variable. Practically, the method assumes that when responding to a survey question (e.g. about general health) participitants access their true, continouse, latent variable (e.g. health) and assign a particular response according to provided scale. In the considered example, the response variable is self-rated health and latent variable $h_i$ can depend on different health conditions and diseases (health variables $X$). The "health" variables are modeled with paralel regression assumption. According to the assumption, coefficients, which describe the relationship between lowest and all higher response categories, are the same as those coefficients, which describe the relationship between another (e.g. adjacent) lowest and the remaining higher response categories. In the considered case $h_i$ is modeled as a linear function of (health) variables $X$ and their coeficients $\beta$:
+\begin{equation}
+\label{eq:1}
+h_{i} = \sum_{k=1}^K \beta_kX_{i,k} = X'\beta
+\end{equation}
+where index $i \in 1...N$ is number of cases (e.g. respondents), $X$ is in the form of model matrix, and $K$ is number of columns in $X$.
+The categorization (response mechanism) of the latent variable $h_i$ is modeled in terms of thresholds $\alpha_{i,j}$ assuming that thresholds of lower order are never greater than thresholds of higher orders:
+\begin{equation}
+\label{eq:2}
+\begin{cases}
+y_i = 1 ~\Leftrightarrow~ \alpha_{i,0} \leq h_i < \alpha_{i,1}\\
+y_i = 2 ~\Leftrightarrow~ \alpha_{i,1} \leq h_i < \alpha_{i,2}\\
+\cdots\\
+y_i = j~ \Leftrightarrow~ \alpha_{i,j-1} \leq h_i < \alpha_{i,j}\\
+\cdots\\
+y_i = J~ \Leftrightarrow~ \alpha_{i,J-1} \leq h_i < \alpha_{i,J}\\
+\end{cases}
+\end{equation}
+The tresholds (cut point, $\alpha$) are modeled by threshold variables $\gamma$ and intercepts $\lambda$. It is assumed that they model contextual characteristics of the responsent (e.g. country of origin, gender, or age). Threshold variables are modeled without parallel regression assumption, thus each threshold is modeled by one variable independently. In the parametrization proposed by King et al. 2004 and Jurges 2007 it is assumed that: 
+\begin{equation}
+\label{eq:3}
+\alpha_{i,~j} =\begin{cases} -\infty& for~j=0 \\
+  \lambda_{1} + \sum_{m=1}^{M} \gamma_{1,m} Y_{i,m} &for~j=1\\ 
+ \alpha_{i,~j-1} +exp(\lambda_{j}+\sum_{m=1}^M \gamma_{j,m} Y_{i,m})&for~J-1 \ge j\ge2\\
+ \infty& for~j=J
+\end{cases}
+\end{equation}
+
+The condition $y_i = j~ \Leftrightarrow~ \alpha_{j-1,i} \leq h_i < \alpha_{j,i}$ can be easily expressed in terms of the probability, which leads to:
+\begin{equation}
+\label{eq:4}
+P(y_i = j) = P(\alpha_{j-1,i} \leq h_i < \alpha_{j,i}),
+\end{equation}
+hence
+\begin{equation}
+\label{eq:5}
+P(y_i = j) = \Phi(\alpha_{i,~j}-h_{i})-\Phi(\alpha_{i,~j-1}-h_{i}),
+\end{equation}
+
+where $\Phi$ is a distribution function (cdf, cumulative density function). For example, for probit regression it is standard normal cdf $\Phi(x)=\frac{1}{2}+\frac{1}{2}*erf \Big(\frac{x}{\sqrt 2}\Big)$ whereas for logit regression it takes the form $\Phi(x)=\frac{1}{1+e^{-x}}$. In reporting styles analyses the typical choice is the probit model. It simply assumes that $h_i$ is affected by a random moise $\epsilon_i$ having standard normal distribution $\epsilon_i\sim \mathcal{N}(0,1)$. 
+
+Using all definitions presented above the log likelihood function can be constructed
+\begin{equation}
+\label{eq:6}
+\ln L = \sum_{i=1}^N \sum_{j=1}^J z_{i,~j} \ln\Big[\Phi(\alpha_{i,~j}-h_{i})-\Phi(\alpha_{i,~j-1}-h_{i})\Big],
+\end{equation}
+where $z_{i,j}$ is an indicator function defined as:
+\begin{equation}
+\label{eq:7}
+z_{i,~j} =\begin{cases} 0&for~ y_i=j\\ 1&for~y_i\ne j\end{cases}
+\end{equation}
+
+.......how the fitting is performed in the package vglm bfgs/cg
+
+## 3. Analyses of reporting styles
+
+\begin{equation}
+\label{eq:8}
+H_i = 1-\frac{h_i-\displaystyle\min_i h_i}{\displaystyle\max_i h_i-\displaystyle\min_i h_i}
+\end{equation}
+
+\begin{equation}
+\label{eq:9}
+D_k= \frac{\beta_k}{\displaystyle\max_i h_i-\displaystyle\min_i h_i}
+\end{equation}
+
+<!-- $$H_i = 1-\frac{\sum_{k=1}^K\beta_kX_{i,k}-\displaystyle\min_i h_i}{\displaystyle\max_i h_i-\displaystyle\min_i h_i}$$ -->
+<!-- $$H_i = 1-\sum_{k=1}^K D_kX_{i,k}+\frac{\displaystyle\min_i h_i}{\displaystyle\max_i h_i-\displaystyle\min_i h_i}$$ -->
+\begin{equation}
+\label{eq:10}
+H_i = C-\sum_{k=1}^K D_kX_{i,k}
+\end{equation}
+
+\begin{equation}
+\label{eq:11}
+ C=\frac{\displaystyle\max_i h_i}{\displaystyle\max_i h_i-\displaystyle\min_i h_i}
+\end{equation}
+
+## 4. Installing and loading the package
+
+The newest available version of the package is always available fron GitHub. It can be installed using *devtools* package
+```{r, echo=TRUE, eval=FALSE}
+library(devtools)
+install_github("maciejdanko/gotm")
+```
+
+```{r, echo=TRUE, eval=FALSE}
+library(gotm)
+```
+
+```{r, echo=FALSE,  results='hide', eval=TRUE, include=FALSE}
+g <- capture.output(library(gotm))
+```
+In examples presented below we will use artificially generated dataset. 
+```{r, echo=TRUE}
+data(healthsurvey)
+head(healthsurvey)
+```
+
+
+## 5. Fitting Generalized ordered threshold model 
+
+To code presented below fits Generalized ordered probit model 
+
+```{r, echo=TRUE}
+model1<- gotm(reg.formula = health ~ hypertenssion + cholesterol + heart_stroke_respiratory + 
+                 poor_mobility_or_grip + depression ,
+               thresh.formula = ~ sex + ageclass,
+               control=list(trace=FALSE),
+               data = healthsurvey)
+
+summary(model1)
+```
+
+The above model contains 5 dichotomus health variables () and two threshold variables (). It can be futher extended by addidg country as a tesholdvariable to control for contextual differences.
+
+```{r, echo=TRUE, cache=TRUE}
+model2<- gotm(reg.formula = health ~ hypertenssion + cholesterol + heart_stroke_respiratory + 
+                 poor_mobility_or_grip + depression ,
+               thresh.formula = ~ sex + ageclass + country,
+               control=list(trace=FALSE),
+               data = healthsurvey)
+```
+
+The fit of both models can be compared using AIC() function:
+
+```{r, echo=TRUE}
+AIC(model2, model1)
+```
+
+or using Likelihood Ratio Test (LRT) as models are nested:
+
+```{r, echo=TRUE}
+anova(model2, model1)
+```
+
+Test for "sex : ageclass" interaction
+
+```{r, echo=TRUE}
+model3<- gotm(reg.formula = health ~ hypertenssion + cholesterol + heart_stroke_respiratory + 
+                 poor_mobility_or_grip + depression ,
+               thresh.formula = ~ sex * ageclass + country,
+               control=list(trace=FALSE),
+               data = healthsurvey)
+
+anova(model3, model2)
+
+```
+
+The *gotm*() function has also an option to include survey design using *survey* package. 
+The example below shows the fit using simple two level cluster sampling design
+
+```{r, echo=TRUE}
+design <- svydesign(ids = ~ country + psu, weights = healthsurvey$csw, data = healthsurvey)
+model2s<- gotm(reg.formula = health ~ hypertenssion + cholesterol + heart_stroke_respiratory + 
+                 poor_mobility_or_grip + depression ,
+               thresh.formula = ~ sex + ageclass + country,
+               design = design,
+               control=list(trace=FALSE),
+               data = healthsurvey)
+
+# Compare coefficients of the latent variable for both models
+cbind('No survey design'=coef(model2,aslist=TRUE)$reg.par,
+      'Has survey design'=coef(model2s,aslist=TRUE)$reg.par)
+```
+
+## 6. Reporting styles analysis
+
+## 7. Summary

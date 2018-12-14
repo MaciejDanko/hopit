@@ -43,7 +43,7 @@ calcYYY<-function(model){
 #' @param model fitted model.
 #' @return updated model
 #' @keywords internal
-gotm_c_link<-function(model){
+hopit_c_link<-function(model){
   model$link <- tolower(model$link)
   if (model$link %in% c('probit','logit')){
     if (model$link=='probit') link=0 else link=1
@@ -116,12 +116,12 @@ unravel <-function(mat, freq)  {
 
 #' INTERNAL: Clasify individuals according to the reg.params and calculated thresholds
 #' @keywords internal
-#' @param model \code{gotm} object.
+#' @param model \code{hopit} object.
 classify.ind<-function(model){
-  p <- gotm_ExtractParameters(model, model$coef)
-  a <- gotm_Threshold(thresh.lambda = p$thresh.lambda, thresh.gamma = p$thresh.gamma,
+  p <- hopit_ExtractParameters(model, model$coef)
+  a <- hopit_Threshold(thresh.lambda = p$thresh.lambda, thresh.gamma = p$thresh.gamma,
                       model = model)
-  b <- gotm_Latent(p$reg.params, model)
+  b <- hopit_Latent(p$reg.params, model)
   a_0=a[,-1]
   a_J=a[,-ncol(a)]
   Ey_i <- sapply(1L : model$N, function(k) which((b[k]<a_0[k,]) & (b[k]>=a_J[k,])) )
@@ -149,7 +149,7 @@ greplin<-function(p, x) sapply(p, function(y) any(grepl(y, x, fixed = TRUE)))
 # rbind(a,b[bi])
 
 #' INTERNAL: Fit vglm to get parameters of the model
-#' @param model \code{gotm} object.
+#' @param model \code{hopit} object.
 #' @param data data.frame with data used to fit the model.
 #' @return updated model
 #' importFrom VGAM vglm
@@ -210,14 +210,14 @@ fit.vglm <-function(model, data){
 }
 
 
-#' INTERNAL: Translate vglm to gotm start parameters
+#' INTERNAL: Translate vglm to hopit start parameters
 #'
-#' @param model \code{gotm} object.
+#' @param model \code{hopit} object.
 #' @param data data.frame with data used to fit the model.
 #' @return updated model
 #' @author Maciej J. Danko
 #' @keywords internal
-#' @useDynLib gotm
+#' @useDynLib hopit
 #' @importFrom Rcpp evalCpp
 get.vglm.start<-function(model, data){
   m <- suppressWarnings(fit.vglm(model, data))
@@ -226,7 +226,7 @@ get.vglm.start<-function(model, data){
 
   # approximate coeficients
   if (!model$method) {
-    z <- vglm2gotm(par.ls$reg.params, par.ls$thresh.lambda, par.ls$thresh.gamma, thresh_1_exp = model$control$thresh.1.exp)
+    z <- vglm2hopit(par.ls$reg.params, par.ls$thresh.lambda, par.ls$thresh.gamma, thresh_1_exp = model$control$thresh.1.exp)
 
     if (length(m$ignored.reg.var)){
       ini.mis <- mean(z$reg_params)

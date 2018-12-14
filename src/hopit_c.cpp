@@ -23,14 +23,14 @@ Eigen::VectorXd dstdnorm(const Eigen::VectorXd v){   ///dnorm
 }
 
 // [[Rcpp::depends(RcppEigen)]]
-Eigen::VectorXd pstdlogit(const Eigen::VectorXd v) {
+Eigen::VectorXd dstdlogit(const Eigen::VectorXd v) {
   Eigen::VectorXd res = v.array().exp().matrix();
   Eigen::VectorXd res1 = res + res.Ones(res.size());
   return(res.cwiseQuotient(res1));
 }
 
 // [[Rcpp::depends(RcppEigen)]]
-Eigen::VectorXd dstdlogit(const Eigen::VectorXd v) {
+Eigen::VectorXd pstdlogit(const Eigen::VectorXd v) {
   Eigen::VectorXd res = (-v).array().exp().matrix();
   Eigen::VectorXd res1 = res + res.Ones(res.size());
   res1 = res1.cwiseProduct(res1);
@@ -63,7 +63,7 @@ Eigen::VectorXd extract_elements(const Eigen::VectorXi x,
 
 // [[Rcpp::depends(RcppEigen)]]
 // [[Rcpp::export]]
-SEXP vglm2gotm(const Eigen::VectorXd reg_params,
+SEXP vglm2hopit(const Eigen::VectorXd reg_params,
                           const Eigen::VectorXd thresh_lambda,
                           const Eigen::VectorXd thresh_gamma,
                           const int thresh_1_exp){

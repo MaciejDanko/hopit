@@ -2,9 +2,9 @@
 #'
 #' @author Maciej J. Danko
 #' @keywords internal
-#' @useDynLib gotm
+#' @useDynLib hopit
 #' @importFrom Rcpp evalCpp
-gotm_Threshold<-function(thresh.lambda, thresh.gamma, model){
+hopit_Threshold<-function(thresh.lambda, thresh.gamma, model){
   if (model$method == 0) {
     getThresholds(model$thresh.mm, thresh.lambda, thresh.gamma, model$thresh.no.cov,
                   thresh_start = model$control$thresh.start, thresh_1_exp = model$control$thresh.1.exp) #RcppEigen
@@ -18,14 +18,14 @@ gotm_Threshold<-function(thresh.lambda, thresh.gamma, model){
 #' INTERNAL: Calculate latent variable
 #' @author Maciej J. Danko
 #' @keywords internal
-gotm_Latent <- function(reg.params, model = NULL) model$reg.mm %*% (as.matrix(reg.params))
+hopit_Latent <- function(reg.params, model = NULL) model$reg.mm %*% (as.matrix(reg.params))
 
 
 #' INTERNAL: Calculate maximum possible latent range
-#' @param model a fitted \code{gotm} model.
+#' @param model a fitted \code{hopit} model.
 #' @param data a data used to fit the model
 #' @keywords internal
-gotm_latentrange <- function (model, data) {
+hopit_latentrange <- function (model, data) {
 
   cfm <- model$coef[seq_len(model$parcount[1])]
 
@@ -47,11 +47,11 @@ gotm_latentrange <- function (model, data) {
 #' INTERNAL: Extract model parameters in a form of list
 #'
 #' Extract model parameters in a form of a list
-#' @param model \code{gotm} object
+#' @param model \code{hopit} object
 #' @param parameters model parameters (optional). If not delivered then taken from \code{model$coef}
 #' @author Maciej J. Danko
 #' @keywords internal
-gotm_ExtractParameters <- function(model, parameters, parcount = model$parcount){
+hopit_ExtractParameters <- function(model, parameters, parcount = model$parcount){
   if (!length(parcount)) stop('Missing parcount in model object.')
   if (missing(parameters)) {
     parameters <- model$coef
@@ -80,10 +80,10 @@ gotm_ExtractParameters <- function(model, parameters, parcount = model$parcount)
 #' INTERNAL: The log likelihood function
 #' @author Maciej J. Danko
 #' @keywords internal
-#' @useDynLib gotm
+#' @useDynLib hopit
 #' @importFrom Rcpp evalCpp
-gotm_negLL <- function(parameters=model$coef, model, collapse = TRUE, use_weights = TRUE, negative = TRUE){
-  link = gotm_c_link(model)
+hopit_negLL <- function(parameters=model$coef, model, collapse = TRUE, use_weights = TRUE, negative = TRUE){
+  link = hopit_c_link(model)
   if (collapse) {
     LL <- LLFunc(parameters, yi=as.numeric(unclass(model$y_i)),reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
            link=link,thresh_no_cov=model$thresh.no.cov, negative=negative, thresh_1_exp = model$control$thresh.1.exp,
@@ -105,11 +105,11 @@ gotm_negLL <- function(parameters=model$coef, model, collapse = TRUE, use_weight
 #' INTERNAL: The gradient of the log likelihood function
 #' @author Maciej J. Danko
 #' @keywords internal
-#' @useDynLib gotm
+#' @useDynLib hopit
 #' @importFrom Rcpp evalCpp
-gotm_derivLL <- function(parameters=model$coef, model,
+hopit_derivLL <- function(parameters=model$coef, model,
                          collapse = TRUE, use_weights = TRUE, negative = FALSE){
-  link = gotm_c_link(model)
+  link = hopit_c_link(model)
   #be compatible with older versions
   if ((!length(model$YYY1)) || (!length(model$YYY1))){
     model <- calcYYY(model)
@@ -136,17 +136,17 @@ gotm_derivLL <- function(parameters=model$coef, model,
 }
 
 
-#' INTERNAL: Fit \code{gotm}
+#' INTERNAL: Fit \code{hopit}
 #'
 #' Fit the model.
-#' @param model \code{gotm} object
+#' @param model \code{hopit} object
 #' @param start starting parameters
-#' @param control a list with control parameters. See \code{\link{gotm.control}}.
+#' @param control a list with control parameters. See \code{\link{hopit.control}}.
 #' @author Maciej J. Danko
 #' @keywords internal
-#' @useDynLib gotm
+#' @useDynLib hopit
 #' @importFrom Rcpp evalCpp
-gotm_fitter <- function(model, start = model$start, use_weights = TRUE){
+hopit_fitter <- function(model, start = model$start, use_weights = TRUE){
 
   #be compatible with older versions
   if ((!length(model$YYY1)) || (!length(model$YYY1))){
@@ -154,7 +154,7 @@ gotm_fitter <- function(model, start = model$start, use_weights = TRUE){
   }
   control <- model$control
 
-  link <- gotm_c_link(model)
+  link <- hopit_c_link(model)
 
   LLgr <- function(par, neg = TRUE) LLGradFunc(par, yi=as.numeric(unclass(model$y_i)), YYY1=model$YYY1, YYY2=model$YYY2, YYY3=model$YYY3[,-model$J],
                                                YYY4=model$YYY3[,-1],
@@ -282,10 +282,10 @@ clone.of.ppsvar<-function (x, design)
 
 #' Calculation of variance-covariance matrix for specified survey design
 #' @keywords internal
-#' @param object a gotm object
+#' @param object a hopit object
 #' @param design a survey.design object
 #' @author Thomas Lumley, modified by Maciej J. Dańko
-svy.varcoef.gotm <- function (Ainv, estfun, design) {
+svy.varcoef.hopit <- function (Ainv, estfun, design) {
   # Ainv <- object$vcov #summary(glm.object)$cov.unscaled
   # estfun <- object$estfun #model.matrix(glm.object) * resid(glm.object, "working") *
   if (inherits(design, "survey.design2"))
@@ -306,21 +306,21 @@ svy.varcoef.gotm <- function (Ainv, estfun, design) {
 }
 
 
-#' Auxiliary for controlling \code{gotm} fitting
+#' Auxiliary for controlling \code{hopit} fitting
 #'
 #' @description
-#' Auxiliary function for controlling \code{gotm} fitting. Use this function to set control
-#' parameters of the \code{\link{gotm}} and other related functions.
+#' Auxiliary function for controlling \code{hopit} fitting. Use this function to set control
+#' parameters of the \code{\link{hopit}} and other related functions.
 #' @param grad.eps epsilon for hessian function.
 #' @param quick.fit logical, if TRUE extensive optimization methods are ignored and only BFGS and CG methods are run.
 #' @param trace logical, if to trace model fitting
 #' @param thresh.start internal parameter (threshold 0), under developement, do not change.
 #' @param thresh.1.exp internal parameter (logical if to exponentiate threshold function at threshold 1), under developement, do not change.
 #' @param LL_out_val internal parameter (LL value returned if LL cannot be computed), under developement, do not change.
-#' @seealso \code{\link{gotm}}
+#' @seealso \code{\link{hopit}}
 #' @author Maciej J. Danko
 #' @export
-gotm.control<-function(grad.eps = 3e-5,
+hopit.control<-function(grad.eps = 3e-5,
                        bgfs.maxit = 1e4,
                        cg.maxit = 1e4,
                        nlm.maxit = 150,
@@ -366,13 +366,13 @@ gotm.control<-function(grad.eps = 3e-5,
 #' @param weigts an optional weights. Use design to construct survey weights.
 #' @param link the link function. The possible values are \code{"probit"} (default) and \code{"logit"}.
 #' @param start starting values in the form \code{c(latent_parameters, threshold_lambdas, threshold_gammas)}
-#' @param control a list with control parameters. See \code{\link{gotm.control}}.
+#' @param control a list with control parameters. See \code{\link{hopit.control}}.
 #' @export
 #' @author Maciej J. Danko
-gotm<- function(reg.formula,
+hopit<- function(reg.formula,
                 thresh.formula = as.formula('~ 1'),
                 data,
-                method = c('exp','linear'),
+                method = c('hopit','vglm'),
                 #overdispersion = FALSE,
                 design = list(),
                 weights = NULL,
@@ -391,16 +391,16 @@ gotm<- function(reg.formula,
   if (missing(data)) data <- environment(reg.formula)
 
   method <- tolower(method[1])
-  if (method=='linear') method <- 1 else if (method=='exp') method <- 0 else stop('Unknown method')
+  if (method=='vglm') method <- 1 else if (method=='hopit') method <- 0 else stop('Unknown method')
   link <- match.arg(link)
-  control <- do.call("gotm.control", control)
+  control <- do.call("hopit.control", control)
 
-  if (length(start) && class(start) == 'gotm'){
+  if (length(start) && class(start) == 'hopit'){
     if (link != start$link) {
       stop ('Model in "start" is not compatible and will not be used.', call.=NULL)
     } else {
       tmp <- deparse(substitute(start))
-      start <- get.start.gotm(object = start, reg.formula = reg.formula,
+      start <- get.start.hopit(object = start, reg.formula = reg.formula,
                               thresh.formula = thresh.formula,
                               data = data, asList = FALSE)
       cat('Model "',tmp,'" was used to get starting values.\n',sep='')
@@ -498,26 +498,26 @@ gotm<- function(reg.formula,
 
   if (model$control$trace && !model$method) cat(' done\nFitting the model...')
 
-  model <- gotm_fitter(model, start = model$start)
+  model <- hopit_fitter(model, start = model$start)
 
-  class(model) <- 'gotm'
+  class(model) <- 'hopit'
   colnames(model$thresh.mm) <- thresh.names
   names(model$coef) <- coefnames
 
   if (model$control$trace) cat(' done\nCalculating maximum latent range...')
 
   model$Ey_i <- classify.ind(model)
-  model$y_latent_i <- gotm_Latent(model$coef[seq_len(model$parcount[1])], model)
-  p <- gotm_ExtractParameters(model)
+  model$y_latent_i <- hopit_Latent(model$coef[seq_len(model$parcount[1])], model)
+  p <- hopit_ExtractParameters(model)
   model$coef.ls <- p
-  model$maxlatentrange <- sort(gotm_latentrange(model=model, data=data)) #waht is the difference in the context of continuous variables
-  model$maxobservedlatentrange <-  sort(range(gotm_Latent(p$reg.params,model)))
+  model$maxlatentrange <- sort(hopit_latentrange(model=model, data=data)) #waht is the difference in the context of continuous variables
+  model$maxobservedlatentrange <-  sort(range(hopit_Latent(p$reg.params,model)))
   if (model$control$trace) cat(' done\n')
   model$deviance <- -2 * model$LL
   k <- 2
 
   if (model$control$trace) cat('Calculating hessian...')
-  hes <- my.grad(fn = gotm_derivLL, par = model$coef, model=model, eps = model$control$grad.eps, collapse = TRUE, negative=FALSE)
+  hes <- my.grad(fn = hopit_derivLL, par = model$coef, model=model, eps = model$control$grad.eps, collapse = TRUE, negative=FALSE)
   model$hessian <- hes
   model$vcov.basic <- try(base::solve(-hes), silent = TRUE)
   if (class(model$vcov) == 'try-error') {
@@ -525,12 +525,12 @@ gotm<- function(reg.formula,
     model$vcov.basic <- NA
   }
   if (model$control$trace) cat(' done\nCalculating estfun...')
-  model$estfun <- gotm_derivLL(model$coef, model, collapse = FALSE)
+  model$estfun <- hopit_derivLL(model$coef, model, collapse = FALSE)
   if (model$control$trace) cat(' done\n')
 
   if (length(model$design)) {
     if (model$control$trace) cat('Including survey design...')
-    model$vcov <- svy.varcoef.gotm(model$vcov.basic, model$estfun, design)
+    model$vcov <- svy.varcoef.hopit(model$vcov.basic, model$estfun, design)
 
     # model$misspec <- try(base::eigen(base::solve(model$vcov.basic) %*% model$vcov, only.values = TRUE)$values, silent = TRUE)
     # if (class(model$misspec) == 'try-error' || is.na(model$vcov)) {
@@ -556,7 +556,7 @@ gotm<- function(reg.formula,
 #' Get starting parameters from less or more complicated hierarchical models
 #'
 #' @export
-get.start.gotm <- function(object, reg.formula, thresh.formula, data, asList = FALSE){
+get.start.hopit <- function(object, reg.formula, thresh.formula, data, asList = FALSE){
   old.rf <- object$reg.formula
   old.tf <- object$thresh.formula
   if (deparse(object$reg.formula[[2]])!=deparse(reg.formula[[2]])) stop('Models have different dependent variables')
@@ -568,7 +568,7 @@ get.start.gotm <- function(object, reg.formula, thresh.formula, data, asList = F
   old.tt<-attr(terms(old.tf),"term.labels")
   new.rt<-attr(terms(as.formula(reg.formula)),"term.labels")
   new.tt<-attr(terms(as.formula(thresh.formula)),"term.labels")
-  pr <- gotm_ExtractParameters(object)
+  pr <- hopit_ExtractParameters(object)
   pr.new <-pr
   if ((old.rt %c% new.rt) && (new.rt %notc% old.rt)) {
     reg.mm <- model.matrix(reg.formula,data)[,-1]

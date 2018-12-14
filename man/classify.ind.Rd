@@ -7,7 +7,7 @@
 classify.ind(model)
 }
 \arguments{
-\item{model}{\code{gotm} object.}
+\item{model}{\code{hopit} object.}
 }
 \description{
 INTERNAL: Clasify individuals according to the reg.params and calculated thresholds

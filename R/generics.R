@@ -1,48 +1,48 @@
-#' Extracting coefficients of fitted \code{gotm} object
+#' Extracting coefficients of fitted \code{hopit} object
 #'
-#' @param object \code{gotm} object.
+#' @param object \code{hopit} object.
 #' @param aslist logical indicating if model coefficients should be returned as a list of three vectors
 #' related to latent variable, threshold lambdas, and threshold gammas.
 #' @param ...	further arguments passed to or from other methods.
 #' @export
 #' @keywords internal
 #' @author Maciej J. Danko
-#' @aliases coefficients.gotm
-coef.gotm <- function(object, aslist = FALSE, ...)  if (aslist) object$coef.ls else object$coef
+#' @aliases coefficients.hopit
+coef.hopit <- function(object, aslist = FALSE, ...)  if (aslist) object$coef.ls else object$coef
 
 
-#' Printing basic information about fitted gotm
+#' Printing basic information about fitted hopit
 #'
-#' @param x \code{gotm} object.
+#' @param x \code{hopit} object.
 #' @param ...	further arguments passed to or from other methods.
 #' @export
 #' @keywords internal
 #' @author Maciej J. Danko
-print.gotm<-function(x, ...){
+print.hopit<-function(x, ...){
   cat("Formula (latent variables):", deparse(x$reg.formula), fill = TRUE)
   cat("Formula (threshold variables):", deparse(x$thresh.formula), fill = TRUE)
   cat('Link:', x$link, fill = TRUE)
   cat('Number of cases:', x$N, fill = TRUE)
   cat('Response levels:', toString(levels(x$y_i)), fill = TRUE)
   cat('Number of thresholds:', x$J - 1, fill = TRUE)
-  cat('\nCoefficients (latent variables):\n')
-  print(model$coef.ls$reg.params)
+  cat('\nCoefficients of the latent variable:\n')
+  print(x$coef.ls$reg.params)
   cat('\nThreshold coefficents (Lambda):\n')
-  print(model$coef.ls$thresh.lambda)
-  if(length(model$coef.ls$thresh.gamma)){
+  print(x$coef.ls$thresh.lambda)
+  if(length(x$coef.ls$thresh.gamma)){
     cat('\nThreshold coefficients (Gamma):\n')
-    print(model$coef.ls$thresh.gamma)
+    print(x$coef.ls$thresh.gamma)
   }
   invisible(NULL)
 }
 
 
-#' Extracting variance-covariance matrix from the fitted gotm
+#' Extracting variance-covariance matrix from the fitted hopit
 #'
-#' @param object \code{gotm} object.
+#' @param object \code{hopit} object.
 #' @param robust.vcov logical indicating if to use sandwich estimator to calculate variance-covariance matrix.
 #' If survey deign is detected than this option is ignored.
-#' @param control a list with control parameters. See \code{\link{gotm.control}}.
+#' @param control a list with control parameters. See \code{\link{hopit.control}}.
 # @param robust.method method of calculation of log-likelihood gradient.
 # Set \code{"grad"} (default) for numerical gradient or \code{"working"}
 # for the method based on working residuals.
@@ -52,7 +52,7 @@ print.gotm<-function(x, ...){
 #' @importFrom survey svyrecvar
 #' @export
 #' @author Maciej J. Danko
-vcov.gotm<-function(object, robust.vcov, ...){
+vcov.hopit<-function(object, robust.vcov, ...){
   #robust.method <- tolower(robust.method[1])
   #if (!(robust.method %in% c("grad","working"))) stop('Unknown method.')
   z <- object$vcov
@@ -70,18 +70,18 @@ vcov.gotm<-function(object, robust.vcov, ...){
   }
   attr(z, 'survey.design') <- (length(object$design) > 0L)
   attr(z, 'robust.vcov') <- robust.vcov
-  class(z) <- 'vcov.gotm'
+  class(z) <- 'vcov.hopit'
   z
 }
 
 
-#' Print object calculated by \code{\link{vcov.gotm}}
+#' Print object calculated by \code{\link{vcov.hopit}}
 #'
-#' @param x \code{gotm} object
+#' @param x \code{hopit} object
 #' @param ...	further arguments passed to or from other methods.
 #' @keywords internal
 #' @export
-print.vcov.gotm <- function(x, digits = 3L, ...){
+print.vcov.hopit <- function(x, digits = 3L, ...){
   cat('Variance-covariance matrix:\n')
   print.default(x)
   if (attr(x, 'survey.design')) cat('\nVariance-covariance matrix adjusted for survey design.\n')
@@ -92,10 +92,10 @@ print.vcov.gotm <- function(x, digits = 3L, ...){
 
 #' Calculate model summary
 #'
-#' @param object \code{gotm} object.
+#' @param object \code{hopit} object.
 #' @param robust.se logical indicating if to use robust standard errors based on the sandwich estimator.
 #' If survey deign is detected than this option is ignored.
-#' @param control a list with control parameters. See \code{\link{gotm.control}}.
+#' @param control a list with control parameters. See \code{\link{hopit.control}}.
 # @param robust.method method of calculation of log-likelihood gradient.
 # Set \code{"grad"} (default) for numerical gradient or \code{"working"}
 # for the method based on working residuals.
@@ -104,7 +104,7 @@ print.vcov.gotm <- function(x, digits = 3L, ...){
 #' @param ...	further arguments passed to or from other methods.
 #' @export
 #' @author Maciej J. Danko
-summary.gotm <- function(object, robust.se = FALSE, ...){
+summary.hopit <- function(object, robust.se = FALSE, ...){
 
   varcov <- vcov(object, robust.se, ...)
   SE <- suppressWarnings(sqrt(diag(varcov)))
@@ -123,33 +123,33 @@ summary.gotm <- function(object, robust.se = FALSE, ...){
   tstat <-  object$coef/SE
   pvalue <- pnorm(-abs(tstat))  * 2L
   table1 <- data.frame(Estimate = object$coef, 'Std. Error' = SE, 'z value' = tstat, 'Pr(>|z|)' = pvalue, check.names = FALSE)
-  tmp <- list(table = table1, vcov = varcov, model = object, robust.se = robust.se)
-  class(tmp) <- 'summary.gotm'
+  tmp <- list(coef = table1, vcov = varcov, model = object, robust.se = robust.se)
+  class(tmp) <- 'summary.hopit'
   tmp
 }
 
 
-#' Print object calculated by \code{\link{summary.gotm}}
+#' Print object calculated by \code{\link{summary.hopit}}
 #'
-#' @param x object created with \code{\link{summary.gotm}}
+#' @param x object created with \code{\link{summary.hopit}}
 #' @param ...	further arguments passed to or from other methods.
 #' @keywords internal
 #' @export
 #' @author Maciej J. Danko
-print.summary.gotm <- function(x, ...){
+print.summary.hopit <- function(x, ...){
   model <- x$model
-  cat("Formula (latent variables):", deparse(model$reg.formula), fill = TRUE)
-  cat("Formula (threshold variables):", deparse(model$thresh.formula), fill = TRUE)
+  cat("Formula (latent variable):", deparse(model$reg.formula), fill = TRUE)
+  cat("Formula (threshold):", deparse(model$thresh.formula), fill = TRUE)
   cat('\nLink:', model$link, fill = TRUE)
   cat('Number of cases:', model$N, fill = TRUE)
   cat('Response levels:', toString(levels(model$y_i)), fill = TRUE)
   cat('Number of thresholds:', model$J - 1, fill = TRUE)
   if(x$robust.se) cat('\nRobust SE were used (sandwich estimator of varcov).\n')
   cat('\n')
-  printCoefmat(x = x$table, P.values = TRUE, has.Pvalue = TRUE, digits = 4L, dig.tst = 2L)
+  printCoefmat(x = x$coef, P.values = TRUE, has.Pvalue = TRUE, digits = 4L, dig.tst = 2L)
   cat('\nLog-likelihood:', model$LL, fill = TRUE)
   cat('\nDeviance:', model$deviance, fill = TRUE)
-  cat('AIC:', AIC.gotm(model), fill = TRUE)
+  cat('AIC:', AIC.hopit(model), fill = TRUE)
   cat('\n')
   invisible(NULL)
 }
@@ -157,12 +157,12 @@ print.summary.gotm <- function(x, ...){
 
 #' Extracts log likelihood of the fitted model
 #'
-#' @param object \code{gotm} object.
+#' @param object \code{hopit} object.
 #' @param ...	additional objects of the same type.
 #' @keywords internal
 #' @export
 #' @author Maciej J. Danko
-logLik.gotm<-function(object, ...) {
+logLik.hopit<-function(object, ...) {
   #if (length(object$design$PSU)) warning(call. = FALSE, 'The LogLik function is currently not supported for survey design, the value may be biased.')
   objects <- list(object, ...)
   tmp <- deparse(substitute(list(object, ...)))
@@ -174,13 +174,13 @@ logLik.gotm<-function(object, ...) {
 
 #' Extracts Akaike Information Criterion from the fitted model
 #'
-#' @param object \code{gotm} object.
+#' @param object \code{hopit} object.
 #' @param k	numeric, the penalty per parameter to be used; the default k = 2 is the classical AIC.
 #' @param ...	additional objects of the same type.
 #' @keywords internal
 #' @export
 #' @author Maciej J. Danko
-AIC.gotm<-function(object, ..., k = 2L) {
+AIC.hopit<-function(object, ..., k = 2L) {
   objects <- list(object, ...)
   tmp <- deparse(substitute(list(object, ...)))
   ob.nam <- gsub(' ', '', strsplit(substring(tmp, 6L, nchar(tmp) - 1L), ',', fixed = TRUE)[[1L]])
@@ -192,8 +192,8 @@ AIC.gotm<-function(object, ..., k = 2L) {
 
 #' LRT Tables
 #'
-#' Compute likelihood rato test for two or more \code{gotm} objecs.
-#' @param object an object containing the results returned by a \code{gotm}.
+#' Compute likelihood rato test for two or more \code{hopit} objecs.
+#' @param object an object containing the results returned by a \code{hopit}.
 #' @param ...	additional objects of the same type.
 #' @param method the method of model comparison. Choose \code{"sequential"} for 1-2, 2-3, 3-4, ... comparisons or
 #' \code{"with.first"} for 1-2, 1-3, 1-4, ... comparisons.
@@ -201,7 +201,7 @@ AIC.gotm<-function(object, ..., k = 2L) {
 # @keywords internal
 #' @export
 #' @author Maciej J. Danko
-anova.gotm<-function(object, ..., method = c('sequential', 'with.first'), direction = c('decreasing', 'increasing')){
+anova.hopit<-function(object, ..., method = c('sequential', 'with.first'), direction = c('decreasing', 'increasing')){
 
   method <- match.arg(method)
   direction <- match.arg(direction)
@@ -212,9 +212,9 @@ anova.gotm<-function(object, ..., method = c('sequential', 'with.first'), direct
   } else  stop('At least two objects must be listed.')
   if (length(objects) == 2L){
     if(length(objects[[1L]]$coef)>length(objects[[2L]]$coef)) {
-      return(lrt.gotm(objects[[1L]], objects[[2L]]))
+      return(lrt.hopit(objects[[1L]], objects[[2L]]))
     } else {
-      return(lrt.gotm(objects[[2L]], objects[[1L]]))
+      return(lrt.hopit(objects[[2L]], objects[[1L]]))
     }
   } else {
     out <- NULL
@@ -222,10 +222,10 @@ anova.gotm<-function(object, ..., method = c('sequential', 'with.first'), direct
     if (direction == 'increasing') objects <- objects[length(objects) : 1L] else if (direction != 'decreasing') stop('Unknown direction.')
     for (k in 1L : (length(objects) - 1L)) {
       if (tolower(method) == 'sequential'){
-        tmp <- lrt.gotm(objects[[k]], objects[[k + 1L]]) # try models mut be of decreasing complexity, silent = F
+        tmp <- lrt.hopit(objects[[k]], objects[[k + 1L]]) # try models mut be of decreasing complexity, silent = F
         rna <- c(rna, paste(ob.nam[k], 'vs.', ob.nam[k + 1L], sep = ' '))
       } else if (tolower(method) == 'with.first') {
-        tmp <- lrt.gotm(objects[[1L]], objects[[k + 1L]]) # the first model must be the most complex,  silent = F
+        tmp <- lrt.hopit(objects[[1L]], objects[[k + 1L]]) # the first model must be the most complex,  silent = F
         rna <- c(rna, paste(ob.nam[1L], 'vs', ob.nam[k + 1L], sep = ''))
       } else
         out <- rbind(out, c('Chi^2' = tmp$chisq, df = tmp$df, 'Pr(>Chi^2)' = tmp$pval))
@@ -234,19 +234,19 @@ anova.gotm<-function(object, ..., method = c('sequential', 'with.first'), direct
     if (direction == 'increasing') out <- out[dim(out)[1L] : 1L,]
   }
   out <- list(table = out, objets = objects, names = ob.nam, method = method)
-  class(out) <- 'anova.gotm'
+  class(out) <- 'anova.hopit'
   out
 }
 
 
-#' Print object calcuated by \code{\link{anova.gotm}}
+#' Print object calcuated by \code{\link{anova.hopit}}
 #'
-#' @param x object generated by \code{\link{anova.gotm}}
+#' @param x object generated by \code{\link{anova.hopit}}
 #' @param ...	further arguments passed to or from other methods.
 #' @keywords internal
 #' @export
 #' @author Maciej J. Danko
-print.anova.gotm <- function(x, ...){
+print.anova.hopit <- function(x, ...){
   cat('Anova (LRTs):\n')
   cat('Method: "', x$method, '"\n\n', sep = '')
   printCoefmat(x$table, signif.stars = TRUE, P.values = TRUE, has.Pvalue = TRUE, digits = 5L, dig.tst = 3L, tst.ind = 1L)
@@ -259,7 +259,7 @@ print.anova.gotm <- function(x, ...){
 #' @keywords internal
 #' @export
 #' @author Maciej J. Danko
-lrt.gotm <- function(full, nested){
+lrt.hopit <- function(full, nested){
 
   if (!identical(full$design, nested$design)) stop('Models have different survey designs.',call. = NULL)
   if (length(full$coef) <= length(nested$coef)) stop('The "full" model must have more parameters than the "nested" one.',call. = NULL)
@@ -283,7 +283,7 @@ lrt.gotm <- function(full, nested){
   if ((ncol(full$thresh.mm)) &&  (ncol(nested$thresh.mm)))
     if (!(all(colnames(nested$thresh.mm) %in% colnames(full$thresh.mm)))) warning(call. = FALSE, 'Models use probably different (non-nested) data sets (latent variable formula).')
 
-  stat <- 2L*( logLik.gotm(full) - logLik.gotm(nested))
+  stat <- 2L*( logLik.hopit(full) - logLik.hopit(nested))
   df.diff <- length(full$coef) - length(nested$coef)
 
   if (!length(full$design)) {
@@ -303,19 +303,19 @@ lrt.gotm <- function(full, nested){
   }
 
   z <- list(chisq = stat, df = df.diff, pval = p, scalef<-scalef, full = full, nested = nested)
-  class(z) <- 'lrt.gotm'
+  class(z) <- 'lrt.hopit'
   z
 }
 
 
-#' Print object calculated by \code{\link{lrt.gotm}}
+#' Print object calculated by \code{\link{lrt.hopit}}
 #'
-#' @param x object obtained from \code{\link{lrt.gotm}}
+#' @param x object obtained from \code{\link{lrt.hopit}}
 #' @param ...	further arguments passed to or from other methods.
 #' @keywords internal
 #' @export
 #' @author Maciej J. Danko
-print.lrt.gotm <- function(x, ...){
+print.lrt.hopit <- function(x, ...){
   cat('Likelihood ratio test:\n')
   cat('full model:\n')
   cat("-- Formula (latent variables):", deparse(x$full$reg.formula), fill = TRUE)
@@ -341,7 +341,7 @@ print.lrt.gotm <- function(x, ...){
 
 #' Model predictions
 #'
-#' @param object \code{gotm} object.
+#' @param object \code{hopit} object.
 #' @param type the type of prediction required. The default \code{"link"}
 #' is on the scale of linear predictors (latent variable). The alternative \code{"response"}
 #' is on the scale of categorical response variable. The \code{"threshold"}
@@ -352,7 +352,7 @@ print.lrt.gotm <- function(x, ...){
 #' @param ...	further arguments passed to or from other methods.
 #' @export
 #' @author Maciej J. Danko
-predict.gotm <- function(object, newdata=NULL, type = c('link', 'response', 'threshold', 'threshold_link'),
+predict.hopit <- function(object, newdata=NULL, type = c('link', 'response', 'threshold', 'threshold_link'),
                          unravelFreq = TRUE, ...){
   if (length(newdata)) stop('"new data" not implemented yet.')
   if (length(object$design$FWeights) && unravelFreq) conv<-function(x) unravel(x,freq=object$design$FWeights) else conv<-identity
