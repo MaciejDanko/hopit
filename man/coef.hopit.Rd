@@ -5,7 +5,7 @@
 \alias{coefficients.hopit}
 \title{Extracting coefficients of fitted \code{hopit} object}
 \usage{
-coef.hopit(object, aslist = FALSE, ...)
+\method{coef}{hopit}(object, aslist = FALSE, ...)
 }
 \arguments{
 \item{object}{\code{hopit} object.}

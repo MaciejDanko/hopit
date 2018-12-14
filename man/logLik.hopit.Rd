@@ -4,7 +4,7 @@
 \alias{logLik.hopit}
 \title{Extracts log likelihood of the fitted model}
 \usage{
-logLik.hopit(object, ...)
+\method{logLik}{hopit}(object, ...)
 }
 \arguments{
 \item{object}{\code{hopit} object.}

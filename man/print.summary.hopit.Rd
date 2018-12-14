@@ -4,7 +4,7 @@
 \alias{print.summary.hopit}
 \title{Print object calculated by \code{\link{summary.hopit}}}
 \usage{
-print.summary.hopit(x, ...)
+\method{print}{summary.hopit}(x, ...)
 }
 \arguments{
 \item{x}{object created with \code{\link{summary.hopit}}}

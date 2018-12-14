@@ -4,7 +4,7 @@
 \alias{AIC.hopit}
 \title{Extracts Akaike Information Criterion from the fitted model}
 \usage{
-AIC.hopit(object, ..., k = 2L)
+\method{AIC}{hopit}(object, ..., k = 2L)
 }
 \arguments{
 \item{object}{\code{hopit} object.}

@@ -1,7 +1,7 @@
 ---
 title: "Analysis of the reporting styles using generalized ordered threshold models."
 author: "Maciej J. Dańko"
-abstract: The *gotm* package provides R functions to fit and analyze ordered response data in the context of reporting styles. In this vignette we describe the formulation and fit of *gotm* models as well as functions used to analyse reporting styles.
+abstract: The *hopit* package provides R functions to fit and analyze ordered response data in the context of reporting styles. In this vignette we describe the formulation and fit of *hopit* models as well as functions used to analyse reporting styles.
 date: "14 XII 2018"
 output: pdf_document
 ---
@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## 1. Introduction
 
-The *gotm* package provides R functions to fit and analyze ordered response data in the context of reporting styles.
+The *hopit* package provides R functions to fit and analyze ordered response data in the context of reporting styles.
 
 ## 2. Generalized ordered threshold model 
 
@@ -99,15 +99,15 @@ H_i = C-\sum_{k=1}^K D_kX_{i,k}
 The newest available version of the package is always available fron GitHub. It can be installed using *devtools* package
 ```{r, echo=TRUE, eval=FALSE}
 library(devtools)
-install_github("maciejdanko/gotm")
+install_github("maciejdanko/hopit")
 ```
 
 ```{r, echo=TRUE, eval=FALSE}
-library(gotm)
+library(hopit)
 ```
 
 ```{r, echo=FALSE,  results='hide', eval=TRUE, include=FALSE}
-g <- capture.output(library(gotm))
+g <- capture.output(library(hopit))
 ```
 In examples presented below we will use artificially generated dataset. 
 ```{r, echo=TRUE}
@@ -121,7 +121,7 @@ head(healthsurvey)
 To code presented below fits Generalized ordered probit model 
 
 ```{r, echo=TRUE}
-model1<- gotm(reg.formula = health ~ hypertenssion + cholesterol + heart_stroke_respiratory + 
+model1<- hopit(reg.formula = health ~ hypertenssion + cholesterol + heart_stroke_respiratory + 
                  poor_mobility_or_grip + depression ,
                thresh.formula = ~ sex + ageclass,
                control=list(trace=FALSE),
@@ -133,7 +133,7 @@ summary(model1)
 The above model contains 5 dichotomus health variables () and two threshold variables (). It can be futher extended by addidg country as a tesholdvariable to control for contextual differences.
 
 ```{r, echo=TRUE, cache=TRUE}
-model2<- gotm(reg.formula = health ~ hypertenssion + cholesterol + heart_stroke_respiratory + 
+model2<- hopit(reg.formula = health ~ hypertenssion + cholesterol + heart_stroke_respiratory + 
                  poor_mobility_or_grip + depression ,
                thresh.formula = ~ sex + ageclass + country,
                control=list(trace=FALSE),
@@ -155,7 +155,7 @@ anova(model2, model1)
 Test for "sex : ageclass" interaction
 
 ```{r, echo=TRUE}
-model3<- gotm(reg.formula = health ~ hypertenssion + cholesterol + heart_stroke_respiratory + 
+model3<- hopit(reg.formula = health ~ hypertenssion + cholesterol + heart_stroke_respiratory + 
                  poor_mobility_or_grip + depression ,
                thresh.formula = ~ sex * ageclass + country,
                control=list(trace=FALSE),
@@ -165,12 +165,12 @@ anova(model3, model2)
 
 ```
 
-The *gotm*() function has also an option to include survey design using *survey* package. 
+The *hopit*() function has also an option to include survey design using *survey* package. 
 The example below shows the fit using simple two level cluster sampling design
 
 ```{r, echo=TRUE}
 design <- svydesign(ids = ~ country + psu, weights = healthsurvey$csw, data = healthsurvey)
-model2s<- gotm(reg.formula = health ~ hypertenssion + cholesterol + heart_stroke_respiratory + 
+model2s<- hopit(reg.formula = health ~ hypertenssion + cholesterol + heart_stroke_respiratory + 
                  poor_mobility_or_grip + depression ,
                thresh.formula = ~ sex + ageclass + country,
                design = design,

@@ -4,7 +4,7 @@
 \alias{vcov.hopit}
 \title{Extracting variance-covariance matrix from the fitted hopit}
 \usage{
-vcov.hopit(object, robust.vcov, ...)
+\method{vcov}{hopit}(object, robust.vcov, ...)
 }
 \arguments{
 \item{object}{\code{hopit} object.}

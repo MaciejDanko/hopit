@@ -4,7 +4,7 @@
 \alias{print.hopit}
 \title{Printing basic information about fitted hopit}
 \usage{
-print.hopit(x, ...)
+\method{print}{hopit}(x, ...)
 }
 \arguments{
 \item{x}{\code{hopit} object.}

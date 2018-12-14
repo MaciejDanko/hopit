@@ -4,7 +4,7 @@
 \alias{predict.hopit}
 \title{Model predictions}
 \usage{
-predict.hopit(object, newdata = NULL, type = c("link", "response",
+\method{predict}{hopit}(object, newdata = NULL, type = c("link", "response",
   "threshold", "threshold_link"), unravelFreq = TRUE, ...)
 }
 \arguments{

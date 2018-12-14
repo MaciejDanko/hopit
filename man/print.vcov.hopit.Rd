@@ -4,7 +4,7 @@
 \alias{print.vcov.hopit}
 \title{Print object calculated by \code{\link{vcov.hopit}}}
 \usage{
-print.vcov.hopit(x, digits = 3L, ...)
+\method{print}{vcov.hopit}(x, digits = 3L, ...)
 }
 \arguments{
 \item{x}{\code{hopit} object}
