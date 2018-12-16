@@ -5,8 +5,9 @@
 \title{Fit Generelaized Ordered Choice Threshold Model}
 \usage{
 hopit(reg.formula, thresh.formula = as.formula("~ 1"), data,
-  method = c("hopit", "vglm"), design = list(), weights = NULL,
-  link = c("probit", "logit"), start = NULL, control = list())
+  method = c("hopit", "vglm"), overdispersion = FALSE, design = list(),
+  weights = NULL, link = c("probit", "logit"), start = NULL,
+  control = list())
 }
 \arguments{
 \item{reg.formula}{formula used to model latent process.}

@@ -57,7 +57,7 @@ hopit_ExtractParameters <- function(model, parameters, parcount = model$parcount
     parameters <- model$coef
     if (!length(parameters)) stop('Missing (estimated) parameters.')
   }
-  if (length(parameters) != sum(parcount)) stop('Wrong number of parameters.')
+  if (length(parameters) != sum(parcount) + model$hasdisp) stop('Wrong number of parameters.')
 
   reg.params <- parameters[1L : parcount[1L]]
   cpc <- cumsum(parcount)
@@ -73,7 +73,12 @@ hopit_ExtractParameters <- function(model, parameters, parcount = model$parcount
   } else {
     thresh.gamma <- NULL
   }
-  list(reg.params = reg.params, thresh.lambda = thresh.lambda, thresh.gamma = thresh.gamma)
+
+  if (model$hasdisp) {
+    list(reg.params = reg.params, thresh.lambda = thresh.lambda, thresh.gamma = thresh.gamma, theta = parameters[length(parameters)])
+  } else {
+    list(reg.params = reg.params, thresh.lambda = thresh.lambda, thresh.gamma = thresh.gamma, theta = 1)
+  }
 }
 
 
@@ -82,18 +87,20 @@ hopit_ExtractParameters <- function(model, parameters, parcount = model$parcount
 #' @keywords internal
 #' @useDynLib hopit
 #' @importFrom Rcpp evalCpp
-hopit_negLL <- function(parameters=model$coef, model, collapse = TRUE, use_weights = TRUE, negative = TRUE){
+hopit_negLL <- function(parameters=model$coef, model, collapse = TRUE, use_weights = model$use.weights, negative = TRUE){
   link = hopit_c_link(model)
   if (collapse) {
     LL <- LLFunc(parameters, yi=as.numeric(unclass(model$y_i)),reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
-           link=link,thresh_no_cov=model$thresh.no.cov, negative=negative, thresh_1_exp = model$control$thresh.1.exp,
-           weights=model$weights,use_weights = use_weights, thresh_start=model$control$thresh.start, out_val = model$control$LL_out_val,
-           method = model$method)
+                 hasdisp = model$hasdisp,
+                 link=link,thresh_no_cov=model$thresh.no.cov, negative=negative, thresh_1_exp = model$control$thresh.1.exp,
+                 weights=model$weights,use_weights = use_weights, thresh_start=model$control$thresh.start, out_val = model$control$LL_out_val,
+                 method = model$method)
   } else {
     LL <- LLFuncIndv(parameters, yi=as.numeric(unclass(model$y_i)),reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
-               link=link,thresh_no_cov=model$thresh.no.cov, negative=negative, thresh_1_exp = model$control$thresh.1.exp,
-               weights=model$weights, thresh_start = model$control$thresh.start, use_weights = use_weights,
-               method = model$method)
+                     hasdisp = model$hasdisp,
+                     link=link,thresh_no_cov=model$thresh.no.cov, negative=negative, thresh_1_exp = model$control$thresh.1.exp,
+                     weights=model$weights, thresh_start = model$control$thresh.start, use_weights = use_weights,
+                     method = model$method)
   }
   if (use_weights) {
     LL <- LL / sum(model$weights) * model$N #scale likelihood
@@ -108,7 +115,7 @@ hopit_negLL <- function(parameters=model$coef, model, collapse = TRUE, use_weigh
 #' @useDynLib hopit
 #' @importFrom Rcpp evalCpp
 hopit_derivLL <- function(parameters=model$coef, model,
-                         collapse = TRUE, use_weights = TRUE, negative = FALSE){
+                          collapse = TRUE, use_weights = model$use.weights, negative = FALSE){
   link = hopit_c_link(model)
   #be compatible with older versions
   if ((!length(model$YYY1)) || (!length(model$YYY1))){
@@ -116,17 +123,18 @@ hopit_derivLL <- function(parameters=model$coef, model,
   }
   if (collapse) {
     LLgr <- LLGradFunc(parameters, yi=as.numeric(unclass(model$y_i)), YYY1=model$YYY1, YYY2=model$YYY2,
-               YYY3=model$YYY3[,-model$J],YYY4=model$YYY3[,-1],
-               reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
-               link=link,thresh_no_cov=model$thresh.no.cov,negative=negative, thresh_1_exp = model$control$thresh.1.exp,
-               weights=model$weights, thresh_start = model$control$thresh.start, use_weights = use_weights,
-               method = model$method)
+                       YYY3=model$YYY3[,-model$J],YYY4=model$YYY3[,-1], hasdisp = model$hasdisp,
+                       reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
+                       link=link,thresh_no_cov=model$thresh.no.cov,negative=negative, thresh_1_exp = model$control$thresh.1.exp,
+                       weights=model$weights, thresh_start = model$control$thresh.start, use_weights = use_weights,
+                       method = model$method)
   } else {
     LLgr <- LLGradFuncIndv(parameters, yi=as.numeric(unclass(model$y_i)), YYY1=model$YYY1, YYY2=model$YYY2, YYY3=model$YYY3[,-model$J], YYY4=model$YYY3[,-1],
-                   reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
-                   link=link,thresh_no_cov=model$thresh.no.cov, negative=negative, thresh_1_exp = model$control$thresh.1.exp,
-                   weights=model$weights,thresh_start = model$control$thresh.start, use_weights = use_weights,
-                   method = model$method)
+                           reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
+                           hasdisp = model$hasdisp,
+                           link=link,thresh_no_cov=model$thresh.no.cov, negative=negative, thresh_1_exp = model$control$thresh.1.exp,
+                           weights=model$weights,thresh_start = model$control$thresh.start, use_weights = use_weights,
+                           method = model$method)
   }
 
   if (use_weights) {
@@ -146,7 +154,7 @@ hopit_derivLL <- function(parameters=model$coef, model,
 #' @keywords internal
 #' @useDynLib hopit
 #' @importFrom Rcpp evalCpp
-hopit_fitter <- function(model, start = model$start, use_weights = TRUE){
+hopit_fitter <- function(model, start = model$start, use_weights = model$use.weights){
 
   #be compatible with older versions
   if ((!length(model$YYY1)) || (!length(model$YYY1))){
@@ -157,7 +165,7 @@ hopit_fitter <- function(model, start = model$start, use_weights = TRUE){
   link <- hopit_c_link(model)
 
   LLgr <- function(par, neg = TRUE) LLGradFunc(par, yi=as.numeric(unclass(model$y_i)), YYY1=model$YYY1, YYY2=model$YYY2, YYY3=model$YYY3[,-model$J],
-                                               YYY4=model$YYY3[,-1],
+                                               YYY4=model$YYY3[,-1],hasdisp = model$hasdisp,
                                                reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
                                                link=link,thresh_no_cov=model$thresh.no.cov, negative=neg, thresh_1_exp = model$control$thresh.1.exp,
                                                weights=model$weights, thresh_start=model$control$thresh.start, use_weights = use_weights,
@@ -165,7 +173,7 @@ hopit_fitter <- function(model, start = model$start, use_weights = TRUE){
   LLfn <- function(par, neg = TRUE) LLFunc(par, yi=as.numeric(unclass(model$y_i)),reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
                                            link=link, thresh_no_cov=model$thresh.no.cov, negative=neg, thresh_1_exp = model$control$thresh.1.exp,
                                            weights=model$weights,use_weights = use_weights, thresh_start=model$control$thresh.start,
-                                           out_val = model$control$LL_out_val, method = model$method)
+                                           out_val = model$control$LL_out_val, hasdisp = model$hasdisp, method = model$method)
   if (model$method==0) {
 
     #Two methods one after each othe
@@ -173,11 +181,11 @@ hopit_fitter <- function(model, start = model$start, use_weights = TRUE){
       #BFGS and CG method
       try({
         if (meto == 'BFGS') {
-        fit <- optim(par = fit$par, fn = LLfn, gr = LLgr,
-                     method = 'BFGS', hessian = FALSE, control=list(maxit=model$control$bgfs.maxit, reltol=model$control$bgfs.reltol))
+          fit <- optim(par = fit$par, fn = LLfn, gr = LLgr,
+                       method = 'BFGS', hessian = FALSE, control=list(maxit=model$control$bgfs.maxit, reltol=model$control$bgfs.reltol))
         } else if (meto == 'CG'){
-        fit <- optim(par = fit$par, fn = LLfn, gr = LLgr,
-                     method = 'CG', hessian = FALSE, control=list(maxit=model$control$cg.maxit, reltol=model$control$cg.reltol))
+          fit <- optim(par = fit$par, fn = LLfn, gr = LLgr,
+                       method = 'CG', hessian = FALSE, control=list(maxit=model$control$cg.maxit, reltol=model$control$cg.reltol))
         }
       }, silent = FALSE)
 
@@ -186,6 +194,21 @@ hopit_fitter <- function(model, start = model$start, use_weights = TRUE){
 
     z <- try({
       fit <- list(par = start)
+      # sstart=start
+      # sstart[length(sstart)]=1
+      # LLFunc(sstart, yi=as.numeric(unclass(model$y_i)),reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
+      #        link=link, thresh_no_cov=model$thresh.no.cov, negative=TRUE, thresh_1_exp = model$control$thresh.1.exp,
+      #        weights=model$weights,use_weights = use_weights, thresh_start=model$control$thresh.start,
+      #        out_val = model$control$LL_out_val, hasdisp = TRUE, method = model$method)
+      # start=model$start
+      # LLGradFunc(start, yi=as.numeric(unclass(model$y_i)), YYY1=model$YYY1, YYY2=model$YYY2, YYY3=model$YYY3[,-model$J],
+      #            YYY4=model$YYY3[,-1],hasdisp = TRUE,
+      #            reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
+      #            link=link,thresh_no_cov=model$thresh.no.cov, negative=TRUE, thresh_1_exp = model$control$thresh.1.exp,
+      #            weights=model$weights, thresh_start=model$control$thresh.start, use_weights = use_weights,
+      #            method = model$method)
+      # my.grad(LLfn,start,1e-6)
+
       if ('CG' %in% control$fit.methods) fit <- fastgradfit(fit, meto = 'CG')
       if ('BFGS' %in% control$fit.methods) fit <- fastgradfit(fit, meto = 'BFGS')
       if (!model$control$quick.fit || !length(fit$par)) {
@@ -222,7 +245,7 @@ clone.of.htvar.matrix <- function (xcheck, Dcheck) {
   if (is.null(dim(xcheck)))
     xcheck <- as.matrix(xcheck)
   rval <- apply(xcheck, 2, function(xicheck) apply(xcheck, 2, function(xjcheck) as.matrix(Matrix::crossprod(xicheck,
-                                                                                                    Dcheck %*% xjcheck))))
+                                                                                                            Dcheck %*% xjcheck))))
   if (is.null(dim(rval)))
     dim(rval) <- c(1, 1)
   rval
@@ -274,7 +297,7 @@ clone.of.ppsvar<-function (x, design)
   if (length(dcheck) != 1)
     stop("Multistage not implemented yet")
   rval <- switch(est, HT = clone.of.htvar.matrix(rowsum(x, dcheck[[1]]$id,
-                                               reorder = FALSE), dcheck[[1]]$dcheck),
+                                                        reorder = FALSE), dcheck[[1]]$dcheck),
                  YG = clone.of.ygvar.matrix(rowsum(x, dcheck[[1]]$id, reorder = FALSE), dcheck[[1]]$dcheck),
                  stop("can't happen"))
   rval
@@ -290,7 +313,7 @@ svy.varcoef.hopit <- function (Ainv, estfun, design) {
   # estfun <- object$estfun #model.matrix(glm.object) * resid(glm.object, "working") *
   if (inherits(design, "survey.design2"))
     V <- survey::svyrecvar(estfun %*% Ainv, design$cluster, design$strata,
-              design$fpc, postStrata = design$postStrata)
+                           design$fpc, postStrata = design$postStrata)
   else if (inherits(design, "twophase"))
     V <- survey::twophasevar(estfun %*% Ainv, design)
   else if (inherits(design, "twophase2"))
@@ -298,7 +321,7 @@ svy.varcoef.hopit <- function (Ainv, estfun, design) {
   else if (inherits(design, "pps"))
     V <- clone.of.ppsvar(estfun %*% Ainv, design)
   else V <-survey::svyCprod(estfun %*% Ainv, design$strata, design$cluster[[1]],
-                design$fpc, design$nPSU, design$certainty, design$postStrata)
+                            design$fpc, design$nPSU, design$certainty, design$postStrata)
   if (inherits(design, "svyrep.design")) {
     Vtest <- vcov(survey::svymean(estfun %*% Ainv*design$prob, design)) * length(design$prob)^2
     if (max(abs(Vtest-V)) > 1e-4) warning('Something wrong with survey package.')
@@ -321,19 +344,19 @@ svy.varcoef.hopit <- function (Ainv, estfun, design) {
 #' @author Maciej J. Danko
 #' @export
 hopit.control<-function(grad.eps = 3e-5,
-                       bgfs.maxit = 1e4,
-                       cg.maxit = 1e4,
-                       nlm.maxit = 150,
-                       bgfs.reltol = 5e-10,
-                       cg.reltol = 5e-10,
-                       nlm.gradtol = 1e-7,
-                       nlm.steptol = 1e-7,
-                       fit.methods = c('CG','BFGS'),
-                       quick.fit = TRUE,
-                       trace = TRUE,
-                       thresh.start = -Inf,
-                       thresh.1.exp = FALSE,
-                       LL_out_val = -Inf){
+                        bgfs.maxit = 1e4,
+                        cg.maxit = 1e4,
+                        nlm.maxit = 150,
+                        bgfs.reltol = 5e-10,
+                        cg.reltol = 5e-10,
+                        nlm.gradtol = 1e-7,
+                        nlm.steptol = 1e-7,
+                        fit.methods = c('CG','BFGS'),
+                        quick.fit = TRUE,
+                        trace = TRUE,
+                        thresh.start = -Inf,
+                        thresh.1.exp = FALSE,
+                        LL_out_val = -Inf){
 
   if (!length(fit.methods)) stop('Please specify fit method',call. = NULL) else fit.methods <- toupper(fit.methods)
   if (any(fit.methods %notin% c('CG','BFGS'))) stop ('Unknown fit method.',call.=NULL)
@@ -370,15 +393,15 @@ hopit.control<-function(grad.eps = 3e-5,
 #' @export
 #' @author Maciej J. Danko
 hopit<- function(reg.formula,
-                thresh.formula = as.formula('~ 1'),
-                data,
-                method = c('hopit','vglm'),
-                #overdispersion = FALSE,
-                design = list(),
-                weights = NULL,
-                link = c('probit', 'logit'),
-                start = NULL,
-                control = list()){
+                 thresh.formula = as.formula('~ 1'),
+                 data,
+                 method = c('hopit','vglm'),
+                 overdispersion = FALSE,
+                 design = list(),
+                 weights = NULL,
+                 link = c('probit', 'logit'),
+                 start = NULL,
+                 control = list()){
 
   my.grad <- function(fn, par, eps, ...){
     sapply(1L : length(par), function(k){
@@ -401,8 +424,8 @@ hopit<- function(reg.formula,
     } else {
       tmp <- deparse(substitute(start))
       start <- get.start.hopit(object = start, reg.formula = reg.formula,
-                              thresh.formula = thresh.formula,
-                              data = data, asList = FALSE)
+                               thresh.formula = thresh.formula,
+                               data = data, asList = FALSE)
       cat('Model "',tmp,'" was used to get starting values.\n',sep='')
     }
   } else if (length(start) && !is.double(start)) stop('Wrong format of "start".', call.=NULL)
@@ -411,7 +434,7 @@ hopit<- function(reg.formula,
   model$control <- control
   model$link <- link
   model$method <- as.numeric(method)
-
+  model$hasdisp <- overdispersion
   if (length(thresh.formula)>2L){
     warning(call. = FALSE, 'The treshold formula should be given without dependent variable.')
     thresh.formula[[2]] <- NULL
@@ -472,10 +495,15 @@ hopit<- function(reg.formula,
   }
 
   coefnames <-  c(reg.names, paste('(L)', interce, sep = '.'), tmp)
+  if (model$hasdisp) coefnames <- c(coefnames, 'Theta')
 
+  model$weights <- NULL
   if (length(weights) && length(design)) stop('Multiple weights specification detected. Please use either design or weights parameter.', call.=NULL)
   if (length(design)) model$weights <- design$prob else if (length(weights)) model$weights <- weights
-  if (!length(model$weights)) model$weights <- rep(1, model$N)
+  if (!length(model$weights)) {
+    model$weights <- rep(1, model$N)
+    model$use.weights <- FALSE
+  } else model$use.weights <- TRUE
 
   if (length(model$weights) != model$N) {
     print(length(model$weights))
@@ -517,7 +545,11 @@ hopit<- function(reg.formula,
   k <- 2
 
   if (model$control$trace) cat('Calculating hessian...')
-  hes <- my.grad(fn = hopit_derivLL, par = model$coef, model=model, eps = model$control$grad.eps, collapse = TRUE, negative=FALSE)
+  hes <- my.grad(fn = hopit_derivLL, par = model$coef, model=model, eps = 1e-4, collapse = TRUE, negative=FALSE)
+  if (model$hasdisp) {
+    hes <- hes[-nrow(hes),-ncol(hes)] #remove theta from vcov
+    model$coef <- model$coef[-length(model$coef)] #remove from coef
+  }
   model$hessian <- hes
   model$vcov.basic <- try(base::solve(-hes), silent = TRUE)
   if (class(model$vcov) == 'try-error') {

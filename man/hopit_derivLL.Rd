@@ -5,7 +5,7 @@
 \title{INTERNAL: The gradient of the log likelihood function}
 \usage{
 hopit_derivLL(parameters = model$coef, model, collapse = TRUE,
-  use_weights = TRUE, negative = FALSE)
+  use_weights = model$use.weights, negative = FALSE)
 }
 \description{
 INTERNAL: The gradient of the log likelihood function

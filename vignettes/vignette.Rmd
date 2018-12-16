@@ -160,7 +160,7 @@ model3<- hopit(reg.formula = health ~ hypertenssion + cholesterol + heart_stroke
                thresh.formula = ~ sex * ageclass + country,
                control=list(trace=FALSE),
                data = healthsurvey)
-
+summary(model3)
 anova(model3, model2)
 
 ```
@@ -176,12 +176,25 @@ model2s<- hopit(reg.formula = health ~ hypertenssion + cholesterol + heart_strok
                design = design,
                control=list(trace=FALSE),
                data = healthsurvey)
-
-# Compare coefficients of the latent variable for both models
+#summary(model2s)
+```
+Compare coefficients of the latent variable for both models
+```{r, echo=TRUE}
 cbind('No survey design'=coef(model2,aslist=TRUE)$reg.par,
       'Has survey design'=coef(model2s,aslist=TRUE)$reg.par)
 ```
 
+Controling for overdispersion
+```{r, echo=TRUE}
+# model3 <- hopit(reg.formula = health ~ hypertenssion + cholesterol + heart_stroke_respiratory + 
+#                  poor_mobility_or_grip + depression ,
+#                thresh.formula = ~ sex + ageclass + country,
+#                control=list(trace=FALSE),
+#                overdispersion = TRUE,
+#                data = healthsurvey)
+```
+
 ## 6. Reporting styles analysis
 
+disabilityweights(model2)
 ## 7. Summary

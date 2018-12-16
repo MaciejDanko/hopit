@@ -5,7 +5,7 @@
 \title{INTERNAL: The log likelihood function}
 \usage{
 hopit_negLL(parameters = model$coef, model, collapse = TRUE,
-  use_weights = TRUE, negative = TRUE)
+  use_weights = model$use.weights, negative = TRUE)
 }
 \description{
 INTERNAL: The log likelihood function

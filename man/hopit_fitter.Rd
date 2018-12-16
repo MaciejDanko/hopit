@@ -4,7 +4,7 @@
 \alias{hopit_fitter}
 \title{INTERNAL: Fit \code{hopit}}
 \usage{
-hopit_fitter(model, start = model$start, use_weights = TRUE)
+hopit_fitter(model, start = model$start, use_weights = model$use.weights)
 }
 \arguments{
 \item{model}{\code{hopit} object}

@@ -1,12 +1,12 @@
 Package: hopit
 Type: Package
-Title: Hierarchical ordered probit/logit models with application to health reporting styles
+Title: Hierarchical ordered probit/logit models with application to reporting styles
 Version: 0.0.1
 Depends: R (>= 2.10), survey
 Imports: MASS, VGAM, Rcpp, RcppEigen, Matrix
 LinkingTo: Rcpp, RcppEigen
 Authors@R: person("Maciej J.", "Danko", role = c("aut", "cre"), email = "Maciej.Danko@gmail.com", comment = c(ORCID = "0000-0002-7924-9022"))
-Description: Hierarchical ordered probit/logit models with application to health reporting styles.
+Description: Hierarchical ordered probit/logit models with application to reporting styles.
 License: GPL-3
 Encoding: UTF-8
 LazyData: TRUE

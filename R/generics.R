@@ -24,13 +24,17 @@ print.hopit<-function(x, ...){
   cat('Link:', x$link, fill = TRUE)
   cat('Number of cases:', x$N, fill = TRUE)
   cat('Response levels:', toString(levels(x$y_i)), fill = TRUE)
-  cat('Number of thresholds:', x$J - 1, fill = TRUE)
+  if (x$hasdisp) cat('Dispersion parameter (Theta):', x$coef[length(x$coef)], fill = TRUE)
   cat('\nCoefficients of the latent variable:\n')
   print(x$coef.ls$reg.params)
   cat('\nThreshold coefficents (Lambda):\n')
   print(x$coef.ls$thresh.lambda)
   if(length(x$coef.ls$thresh.gamma)){
     cat('\nThreshold coefficients (Gamma):\n')
+    print(x$coef.ls$thresh.gamma)
+  }
+  if(length(x$coef.ls$theta)){
+    cat('\nTheta:\n')
     print(x$coef.ls$thresh.gamma)
   }
   invisible(NULL)
@@ -104,6 +108,8 @@ print.vcov.hopit <- function(x, digits = 3L, ...){
 #' @param ...	further arguments passed to or from other methods.
 #' @export
 #' @author Maciej J. Danko
+#' @useDynLib hopit
+#' @importFrom Rcpp evalCpp
 summary.hopit <- function(object, robust.se = FALSE, ...){
 
   varcov <- vcov(object, robust.se, ...)
@@ -112,7 +118,7 @@ summary.hopit <- function(object, robust.se = FALSE, ...){
     cat('Survey weights detected. Standard errors was adjusted for survey design.\n')
   }
   if ((!robust.se) && (any(is.na(SE))) && !(length(object$design)))
-    warning(call. = FALSE, 'Problem with some standard errors, please try option "robust.se" == TRUE, nd consider to use the "hopit" model.')
+    warning(call. = FALSE, 'Problem with some standard errors, please try option "robust.se" == TRUE.')
   testse <- abs(SE/object$coef)
   testse <- testse[!is.na(testse)]
   #if (any((testse > 50L)&(SE > 20L))) warning(call. = FALSE, 'Huge standard errors may suggest a problem with model identifiability.')
@@ -121,7 +127,7 @@ summary.hopit <- function(object, robust.se = FALSE, ...){
   #SE <- suppressWarnings(sqrt(diag(varcov)))
 
   tstat <-  object$coef/SE
-  pvalue <- pnorm(-abs(tstat))  * 2L
+  pvalue <- pstdnorm(-abs(tstat))  * 2L
   table1 <- data.frame(Estimate = object$coef, 'Std. Error' = SE, 'z value' = tstat, 'Pr(>|z|)' = pvalue, check.names = FALSE)
   tmp <- list(coef = table1, vcov = varcov, model = object, robust.se = robust.se)
   class(tmp) <- 'summary.hopit'
@@ -143,13 +149,14 @@ print.summary.hopit <- function(x, ...){
   cat('\nLink:', model$link, fill = TRUE)
   cat('Number of cases:', model$N, fill = TRUE)
   cat('Response levels:', toString(levels(model$y_i)), fill = TRUE)
-  cat('Number of thresholds:', model$J - 1, fill = TRUE)
+  if (model$hasdisp) cat('Dispersion parameter (Theta):', model$coef[length(model$coef)], fill = TRUE)
   if(x$robust.se) cat('\nRobust SE were used (sandwich estimator of varcov).\n')
   cat('\n')
   printCoefmat(x = x$coef, P.values = TRUE, has.Pvalue = TRUE, digits = 4L, dig.tst = 2L)
+  cat('\nTheta:', model$coef.ls$theta, fill = TRUE)
   cat('\nLog-likelihood:', model$LL, fill = TRUE)
   cat('\nDeviance:', model$deviance, fill = TRUE)
-  cat('AIC:', AIC.hopit(model), fill = TRUE)
+  if (!length(model$design)) cat('AIC:', AIC.hopit(model), fill = TRUE)
   cat('\n')
   invisible(NULL)
 }
@@ -284,10 +291,10 @@ lrt.hopit <- function(full, nested){
     if (!(all(colnames(nested$thresh.mm) %in% colnames(full$thresh.mm)))) warning(call. = FALSE, 'Models use probably different (non-nested) data sets (latent variable formula).')
 
   stat <- 2L*( logLik.hopit(full) - logLik.hopit(nested))
-  df.diff <- length(full$coef) - length(nested$coef)
+  #df.diff <- length(full$coef) - length(nested$coef) + length(full$coef.ls$theta) - length(nested$coef.ls$theta)
 
   if (!length(full$design)) {
-    df.diff <- length(full$coef) - length(nested$coef)
+    df.diff <- length(full$coef) - length(nested$coef) + length(full$coef.ls$theta) - length(nested$coef.ls$theta)
     p <- 1L - pchisq(stat, df.diff)
     scalef <- NULL
   } else {
@@ -367,3 +374,66 @@ predict.hopit <- function(object, newdata=NULL, type = c('link', 'response', 'th
                                           right.boundary=conv(col_path(object$alpha, unclass(object$Ey_i)+2))))
   return(H)
 }
+
+#' Calculate log likelihood profile for fitted hopit model
+#'
+#' @param x \code{hopit} object.
+#' @export
+#' @keywords internal
+#' @author Maciej J. Danko
+profile.hopit<-function(model, scope=0.15, steps=101){
+  steps <- floor(steps/2)*2+1
+  COEF <- c(model$coef,model$coef.ls$theta)
+  sub <- function(x,y) if (x==1) c(y,COEF[2:length(COEF)]) else if (x==length(COEF)) c(COEF[-length(COEF)],y) else
+    c(COEF[1:(x-1)],y,COEF[(x+1):length(COEF)])
+  lo <- COEF*(1-scope)
+  hi <- COEF*(1+scope)
+  GG <- function(x) sapply(seq(lo[x],hi[x],length.out=steps),function(y) hopit_negLL(parameters=sub(x,y),model,negative = FALSE))
+  val <- sapply(seq_along(COEF), function(x) GG(x))
+  attr(val,'scope') <- scope
+  attr(val,'steps') <- steps
+  attr(val,'lo') <- lo
+  attr(val,'hi') <- hi
+  colnames(val) <- names(COEF)
+  class(val) <- c("profile.hopit", "profile")
+  val
+}
+
+
+#' Plot log likelihood profile for profile.hopit object
+#'
+#' @param x \code{profile.hopit} object.
+#' @export
+#' @keywords internal
+#' @author Maciej J. Danko
+plot.profile.hopit<-function(object){
+  z=ceiling(sqrt(ncol(object)))
+  spar <- par(c('mfrow','mar'))
+  par(mfrow=c(z,z),mar=c(0,0,0,0))
+  for (j in seq_len(ncol(object))) {
+    plot(object[,j],type='l',axes='F')
+    abline(v=floor(nrow(object)/2)+1,col=2,lty=2)
+    legend('bottom',colnames(object)[j],bty='n')
+    box()
+  }
+  suppressWarnings(par(spar))
+}
+
+
+#' Print method for profile.hopit object
+#'
+#' @param x \code{hopit} object.
+#' @export
+#' @keywords internal
+#' @author Maciej J. Danko
+print.profile.hopit<-function(object, plot = TRUE){
+  test <- apply(object,2,which.max)==floor(nrow(object)/2)+1
+  if(plot) plot.profile.hopit(object)
+  if (any(!test)) {
+    message('Log likelihood maximum not reached.')
+    message(paste('Check:',paste(names(test)[!test],sep='',collapse = ',  ')))
+  } else {
+    cat('All parameters are arg.max \n')
+  }
+}
+

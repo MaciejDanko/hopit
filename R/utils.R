@@ -203,7 +203,7 @@ fit.vglm <-function(model, data){
                              thresh.lambda = vglm.lambdas,
                              thresh.gamma = vglm.gamma)
   model$vglm.start <- c(vglm.reg, vglm.lambdas, vglm.gamma)
-
+  if (model$hasdisp) model$vglm.start <- c(model$vglm.start, 1)
   parcount <- model$parcount
   parcount[1] <- parcount[1] - length(ignored.var) #check!
   list(vglm.model=model,ignored.reg.var=ignored.var,new.reg.formula=reg.formula)
@@ -240,7 +240,11 @@ get.vglm.start<-function(model, data){
     model$start.ls$reg.params <- z$reg_params
     model$start.ls$lambda <- z$thresh_lambda
     model$start.ls$gamma.start <-z$thresh_gamma
-    model$start <- z$coef
+
+    if (model$hasdisp) {
+      model$start.ls$theta <- 1
+      model$start <- c(z$coef, 1)
+    } else model$start <- z$coef
 
   } else {
 
