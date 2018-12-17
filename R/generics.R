@@ -71,7 +71,7 @@ vcov.hopit<-function(object, robust.vcov, ...){
       robust.vcov <- NA
     }
   } else {
-    if (missing(robust.vcov)) robust.vcov <- FALSE
+    if (missing(robust.vcov)) robust.vcov <- TRUE
     if (length(object$weights)) divw <- object$weights else divw <- 1
     if (robust.vcov) z <- (z %*% t(object$estfun) %*% (object$estfun/divw) %*% (z))
   }
@@ -113,9 +113,9 @@ print.vcov.hopit <- function(x, digits = 3L, ...){
 #' @export
 #' @author Maciej J. Danko
 #' @useDynLib hopit
-#' @usage \method{summary}{hopit}(object, robust.se = FALSE, ...)
+#' @usage \method{summary}{hopit}(object, robust.se = TRUE, ...)
 #' @importFrom Rcpp evalCpp
-summary.hopit <- function(object, robust.se = FALSE, ...){
+summary.hopit <- function(object, robust.se = TRUE, ...){
 
   varcov <- vcov(object, robust.se, ...)
   SE <- suppressWarnings(sqrt(diag(varcov)))
@@ -124,8 +124,8 @@ summary.hopit <- function(object, robust.se = FALSE, ...){
   }
   if ((!robust.se) && (any(is.na(SE))) && !(length(object$design)))
     warning(call. = FALSE, 'Problem with some standard errors, please try option "robust.se" == TRUE.')
-  testse <- abs(SE/object$coef)
-  testse <- testse[!is.na(testse)]
+  #testse <- abs(SE/object$coef)
+  #testse <- testse[!is.na(testse)]
   #if (any((testse > 50L)&(SE > 20L))) warning(call. = FALSE, 'Huge standard errors may suggest a problem with model identifiability.')
 
   #varcov <- vcov(object$vglm)
