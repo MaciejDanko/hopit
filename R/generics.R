@@ -73,7 +73,7 @@ vcov.hopit<-function(object, robust.vcov, ...){
   } else {
     if (missing(robust.vcov)) robust.vcov <- TRUE
     if (length(object$weights)) divw <- object$weights else divw <- 1
-    if (robust.vcov) z <- (z %*% t(object$estfun) %*% (object$estfun/divw) %*% (z))
+    if (robust.vcov) z <- (z %*% t(object$estfun) %*% (object$estfun/divw) %*% (z)) #check how weights work here, they must be standardized.
   }
   attr(z, 'survey.design') <- (length(object$design) > 0L)
   attr(z, 'robust.vcov') <- robust.vcov

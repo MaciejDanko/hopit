@@ -196,13 +196,16 @@ model3 <- hopit(reg.formula = health ~ hypertenssion + cholesterol + heart_strok
 model3$coef.ls$theta
 ```
 
-The fit of the model can be accessed using *profile*() function, which calcualte nd plot profile of the log likelihood function around fitted values.
+The fit of the model can be asesed using *profile*() function, which calcualte nd plot profile of the log likelihood function around fitted coeficient values.
 ```{r, echo=TRUE}
 profile(model3)
 ```
 
-
 ## 6. Reporting styles analysis
 
-disabilityweights(model2)
+```{r, echo=TRUE}
+standardizeCoef(model2, plotf = TRUE)
+
+latentindex(model2, plotf = TRUE)
+```
 ## 7. Summary

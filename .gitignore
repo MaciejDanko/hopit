@@ -4,7 +4,10 @@
 .RData
 .Ruserdata
 .DS_Store
-gotm.Rproj
+script/
+old/
+
+hopit.Rproj
 
 # C++ files
 src/*.o
@@ -25,6 +28,7 @@ checks/
 vignettes/*.html
 vignettes/*.pdf
 vignettes/*.R
+vignettes/*_cache/
 
 # OAuth2 token, see https://github.com/hadley/httr/releases/tag/v0.3
 .httr-oauth

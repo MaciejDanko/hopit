@@ -60,14 +60,6 @@ hopit_c_link<-function(model){
 Vector2DummyMat<-function(V) sapply(levels(as.factor(V)), function(k) as.factor(V) == k)*1L
 
 
-#' INTERNAL: Converts a matrix with dummies in columns into categorical vector
-#'
-#' @param D a matrix of dummies.
-#' @author Maciej J. Danko
-#' @keywords internal
-DummyMat2Vector<-function(D) D %*% ((1L : dim(D)[2L]) -1L)
-
-
 #' INTERNAL: Do cumsum() in each row of a matrix
 #'
 #' @param mat a matrix.
