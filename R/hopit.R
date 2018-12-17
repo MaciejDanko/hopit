@@ -400,6 +400,7 @@ hopit<- function(reg.formula,
                  design = list(),
                  weights = NULL,
                  link = c('probit', 'logit'),
+                 start.method = c('glm','vglm'),
                  start = NULL,
                  control = list()){
 
@@ -412,7 +413,7 @@ hopit<- function(reg.formula,
   }
 
   if (missing(data)) data <- environment(reg.formula)
-
+  start.method <- tolower(start.method[1])
   method <- tolower(method[1])
   if (method=='vglm') method <- 1 else if (method=='hopit') method <- 0 else stop('Unknown method')
   link <- match.arg(link)
@@ -433,7 +434,8 @@ hopit<- function(reg.formula,
   model <- NULL
   model$control <- control
   model$link <- link
-  model$method <- as.numeric(method)
+  model$method <- as.logical(method)
+  model$start.method <- start.method
   model$hasdisp <- overdispersion
   if (length(thresh.formula)>2L){
     warning(call. = FALSE, 'The treshold formula should be given without dependent variable.')
@@ -527,6 +529,8 @@ hopit<- function(reg.formula,
   if (model$control$trace && !model$method) cat(' done\nFitting the model...')
 
   model <- hopit_fitter(model, start = model$start)
+  model$vglm <- NULL
+  model$vglm.LL <- NULL
 
   class(model) <- 'hopit'
   colnames(model$thresh.mm) <- thresh.names

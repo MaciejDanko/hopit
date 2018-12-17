@@ -129,7 +129,7 @@ classify.ind<-function(model){
   Ey_i
 }
 
-
+#' @keywords internal
 order.as.in<-function(a,b){  #a = in
   if (!all(a %in% b) || !all(b %in% a)) stop()
   x <- data.frame(x=a, idx = seq_along(a), stringsAsFactors = FALSE)
@@ -141,20 +141,35 @@ order.as.in<-function(a,b){  #a = in
   z$zy
 }
 
+#' @keywords internal
 greplin<-function(p, x) sapply(p, function(y) any(grepl(y, x, fixed = TRUE)))
 
-# a=colnames(model$reg.mm)
-# b=names(vglm.reg)#[c(1,3,4,2,5,8,7,6)]
-# bi=order.as.in(a,b)
-# rbind(a,b[bi])
+#' @keywords internal
+extractCoef <- function(COEF, model){
+  Lind <- grepl('Intercept',names(COEF),fixed='TRUE')
+  xglm.lambda <- sort(COEF[Lind])
+  #Rind <- names(COEF) %in% colnames(model$reg.mm)
+  Rind <- greplin(names(COEF), colnames(model$reg.mm))
+  xglm.reg <-  COEF[Rind]
+  oi <- order.as.in(a=colnames(model$reg.mm), b=names(xglm.reg))
+  xglm.reg <- - xglm.reg[oi] #remove negative sign in reg
+  xglm.gamma <- COEF[!Lind & !Rind]
+  thr.ext.nam<-as.character(interaction(expand.grid(seq_len(model$J-1),colnames(model$thresh.mm))[,2:1],sep=':'))
+  oi <- order.as.in(a=thr.ext.nam, b=names(xglm.gamma))
+  xglm.gamma <- xglm.gamma[oi]
+  list(start.ls = list(reg.params = xglm.reg,
+                       thresh.lambda = xglm.lambda,
+                       thresh.gamma = xglm.gamma),
+       start <- c(xglm.reg, xglm.lambda, xglm.gamma))
+}
 
-#' INTERNAL: Fit vglm to get parameters of the model
+#' INTERNAL: Use vglm to get starting parameters
 #' @param model \code{hopit} object.
 #' @param data data.frame with data used to fit the model.
 #' @return updated model
 #' importFrom VGAM vglm
 #' @keywords internal
-fit.vglm <-function(model, data){
+start.vglm <-function(model, data){
   reg.formula <- model$reg.formula
   thresh.formula <- model$thresh.formula
   if (length(thresh.formula)>2) thresh.formula[[2]] <- NULL
@@ -188,25 +203,65 @@ fit.vglm <-function(model, data){
   cmv2 <- coef(mv2)
   model$vglm <- mv2
   model$vglm.LL<-VGAM::logLik(mv2)
-  Lind <- grepl('Intercept',names(cmv2),fixed='TRUE')
-  vglm.lambdas <- sort(cmv2[Lind])
-  #Rind <- names(cmv2) %in% colnames(model$reg.mm)
-  Rind <- greplin(names(cmv2), colnames(model$reg.mm))
-  vglm.reg <-  cmv2[Rind]
-  oi <- order.as.in(a=colnames(model$reg.mm), b=names(vglm.reg))
-  vglm.reg <- - vglm.reg[oi] #remove negative sign in reg
-  vglm.gamma <- cmv2[!Lind & !Rind]
-  thr.ext.nam<-as.character(interaction(expand.grid(seq_len(model$J-1),colnames(model$thresh.mm))[,2:1],sep=':'))
-  oi <- order.as.in(a=thr.ext.nam, b=names(vglm.gamma))
-  vglm.gamma <- vglm.gamma[oi]
-  model$vglm.start.ls = list(reg.params = vglm.reg,
-                             thresh.lambda = vglm.lambdas,
-                             thresh.gamma = vglm.gamma)
-  model$vglm.start <- c(vglm.reg, vglm.lambdas, vglm.gamma)
+  # Lind <- grepl('Intercept',names(cmv2),fixed='TRUE')
+  # vglm.lambdas <- sort(cmv2[Lind])
+  # #Rind <- names(cmv2) %in% colnames(model$reg.mm)
+  # Rind <- greplin(names(cmv2), colnames(model$reg.mm))
+  # vglm.reg <-  cmv2[Rind]
+  # oi <- order.as.in(a=colnames(model$reg.mm), b=names(vglm.reg))
+  # vglm.reg <- - vglm.reg[oi] #remove negative sign in reg
+  # vglm.gamma <- cmv2[!Lind & !Rind]
+  # thr.ext.nam<-as.character(interaction(expand.grid(seq_len(model$J-1),colnames(model$thresh.mm))[,2:1],sep=':'))
+  # oi <- order.as.in(a=thr.ext.nam, b=names(vglm.gamma))
+  # vglm.gamma <- vglm.gamma[oi]
+  # model$vglm.start.ls = list(reg.params = vglm.reg,
+  #                            thresh.lambda = vglm.lambdas,
+  #                            thresh.gamma = vglm.gamma)
+  # model$vglm.start <- c(vglm.reg, vglm.lambdas, vglm.gamma)
+  z <- extractCoef(cmv2, model)
+  model$vglm.start.ls <- z$start.ls
+  model$vglm.start <- z$start
   if (model$hasdisp) model$vglm.start <- c(model$vglm.start, 1)
   parcount <- model$parcount
   parcount[1] <- parcount[1] - length(ignored.var) #check!
   list(vglm.model=model,ignored.reg.var=ignored.var,new.reg.formula=reg.formula)
+}
+
+compareStr<-function(s1,s2) sapply(seq_along(s1), function(k) s1[k] == substr(s2[k],1,nchar(s1[k])))
+
+#' INTERNAL: Use glm to get starting parameters
+#' @param model \code{hopit} object.
+#' @param data data.frame with data used to fit the model.
+#' @return updated model
+#' importFrom VGAM vglm
+#' @keywords internal
+start.glm<-function(model, data){
+  g <- as.numeric(model$y_i)
+  Y <- sapply(2:max(g), function(k) g<k)
+  res <- sapply(seq_len(ncol(Y)),function(yi){
+    zdat <- data
+    zdat$yi <- Y[,yi]
+    f1 <- model$reg.formula
+    f1[[2]] <- as.name('yi')
+    f1 <- update(f1, paste('.~.+',deparse(model$thresh.formula[[-1]])))
+    gl <- glm(f1,data=zdat,family=binomial(link=model$link))
+    if (!gl$converged) stop('Starting points cannot be found using glm method. Try start.method="vglm". ', call.=NULL)
+    gl$coef
+    #check convergence
+  })
+  glm.lambda <-  res[which(grepl('Intercept',rownames(res))),]
+  glm.reg <- res[unlist(sapply(attr(terms(model$reg.formula),'term.labels'),grep, x=rownames(res))),]
+  glm.reg <- - rowMeans(glm.reg)
+  thr.ext.nam <-as.character(interaction(expand.grid(seq_len(model$J-1),colnames(model$thresh.mm))[,2:1],sep=':'))
+  # THRn <- attr(terms(model$thresh.formula),'term.labels')
+  res[rownames(res)%in%colnames(model$thresh.mm),]
+  glm.gamma <- as.vector(t(res[rownames(res)%in%colnames(model$thresh.mm),]))
+  names(glm.gamma) <- thr.ext.nam
+  model$glm.start <- c(glm.reg,glm.lambda,glm.gamma)
+  model$glm.start.ls <-list(reg.params = glm.reg,
+                            thresh.lambda = glm.lambda,
+                            thresh.gamma = glm.gamma)
+  model
 }
 
 
@@ -220,14 +275,18 @@ fit.vglm <-function(model, data){
 #' @useDynLib hopit
 #' @importFrom Rcpp evalCpp
 get.vglm.start<-function(model, data){
-  m <- suppressWarnings(fit.vglm(model, data))
-  model <- m$vglm.model
-  par.ls <- model$vglm.start.ls
+  if ((!model$method) && (model$start.method=='glm')) {
+    m <- suppressWarnings(start.glm(model, data))
+    model <- m
+    par.ls <- model$glm.start.ls
+  } else if ((model$method) || (model$start.method=='vglm')) {
+    m <- suppressWarnings(start.vglm(model, data))
+    model <- m$vglm.model
+    par.ls <- model$vglm.start.ls
+  } else stop('Wrong start method.',call.=NULL)
 
-  # approximate coeficients
-  if (!model$method) {
+  if ((!model$method) || (model$start.method=='glm')) {
     z <- vglm2hopit(par.ls$reg.params, par.ls$thresh.lambda, par.ls$thresh.gamma, thresh_1_exp = model$control$thresh.1.exp)
-
     if (length(m$ignored.reg.var)){
       ini.mis <- mean(z$reg_params)
       if (any(class(data[,m$ignored.reg.var])!='factor')) stop('Threshold-Health variables must be a factors',call. = NULL)
@@ -247,11 +306,9 @@ get.vglm.start<-function(model, data){
     } else model$start <- z$coef
 
   } else {
-
     model$start.ls <- model$vglm.start.ls
     model$start <- model$vglm.start
 
   }
-
   model
 }

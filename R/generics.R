@@ -35,7 +35,7 @@ print.hopit<-function(x, ...){
   }
   if(length(x$coef.ls$theta)){
     cat('\nTheta:\n')
-    print(x$coef.ls$thresh.gamma)
+    print(x$coef.ls$theta)
   }
   invisible(NULL)
 }
@@ -383,7 +383,7 @@ predict.hopit <- function(object, newdata=NULL, type = c('link', 'response', 'th
 #' @author Maciej J. Danko
 profile.hopit<-function(model, scope=0.15, steps=101){
   steps <- floor(steps/2)*2+1
-  COEF <- c(model$coef,model$coef.ls$theta)
+  if (model$hasdisp) COEF <- c(model$coef,model$coef.ls$theta) else COEF <- model$coef
   sub <- function(x,y) if (x==1) c(y,COEF[2:length(COEF)]) else if (x==length(COEF)) c(COEF[-length(COEF)],y) else
     c(COEF[1:(x-1)],y,COEF[(x+1):length(COEF)])
   lo <- COEF*(1-scope)
@@ -406,14 +406,16 @@ profile.hopit<-function(model, scope=0.15, steps=101){
 #' @export
 #' @keywords internal
 #' @author Maciej J. Danko
-plot.profile.hopit<-function(object){
-  z=ceiling(sqrt(ncol(object)))
+plot.profile.hopit<-function(object, leg.cex = 0.9, leg.col = 'blue'){
+  z <- sqrt(ncol(object))
+  zy <- round(z)
+  zx <- ceiling(z)
   spar <- par(c('mfrow','mar'))
-  par(mfrow=c(z,z),mar=c(0,0,0,0))
+  par(mfrow=c(zx,zy),mar=c(0,0,0,0))
   for (j in seq_len(ncol(object))) {
     plot(object[,j],type='l',axes='F')
     abline(v=floor(nrow(object)/2)+1,col=2,lty=2)
-    legend('bottom',colnames(object)[j],bty='n')
+    legend('bottom',colnames(object)[j], bty='n',cex=leg.cex, text.col=leg.col)
     box()
   }
   suppressWarnings(par(spar))
@@ -431,9 +433,9 @@ print.profile.hopit<-function(object, plot = TRUE){
   if(plot) plot.profile.hopit(object)
   if (any(!test)) {
     message('Log likelihood maximum not reached.')
-    message(paste('Check:',paste(names(test)[!test],sep='',collapse = ',  ')))
+    message(paste('Problem in:',paste(names(test)[!test],sep='',collapse = ',  ')))
   } else {
-    cat('All parameters are arg.max \n')
+    cat('All parameters seem to be at arg.max (optimum).\n')
   }
 }
 

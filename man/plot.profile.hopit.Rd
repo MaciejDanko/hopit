@@ -4,7 +4,7 @@
 \alias{plot.profile.hopit}
 \title{Plot log likelihood profile for profile.hopit object}
 \usage{
-\method{plot}{profile.hopit}(object)
+\method{plot}{profile.hopit}(object, leg.cex = 0.9, leg.col = "blue")
 }
 \arguments{
 \item{x}{\code{profile.hopit} object.}

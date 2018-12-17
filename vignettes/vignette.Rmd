@@ -160,7 +160,7 @@ model3<- hopit(reg.formula = health ~ hypertenssion + cholesterol + heart_stroke
                thresh.formula = ~ sex * ageclass + country,
                control=list(trace=FALSE),
                data = healthsurvey)
-summary(model3)
+
 anova(model3, model2)
 
 ```
@@ -168,7 +168,7 @@ anova(model3, model2)
 The *hopit*() function has also an option to include survey design using *survey* package. 
 The example below shows the fit using simple two level cluster sampling design
 
-```{r, echo=TRUE}
+```{r, echo=TRUE, cache=TRUE}
 design <- svydesign(ids = ~ country + psu, weights = healthsurvey$csw, data = healthsurvey)
 model2s<- hopit(reg.formula = health ~ hypertenssion + cholesterol + heart_stroke_respiratory + 
                  poor_mobility_or_grip + depression ,
@@ -176,7 +176,6 @@ model2s<- hopit(reg.formula = health ~ hypertenssion + cholesterol + heart_strok
                design = design,
                control=list(trace=FALSE),
                data = healthsurvey)
-#summary(model2s)
 ```
 Compare coefficients of the latent variable for both models
 ```{r, echo=TRUE}
@@ -184,15 +183,24 @@ cbind('No survey design'=coef(model2,aslist=TRUE)$reg.par,
       'Has survey design'=coef(model2s,aslist=TRUE)$reg.par)
 ```
 
-Controling for overdispersion
-```{r, echo=TRUE}
-# model3 <- hopit(reg.formula = health ~ hypertenssion + cholesterol + heart_stroke_respiratory + 
-#                  poor_mobility_or_grip + depression ,
-#                thresh.formula = ~ sex + ageclass + country,
-#                control=list(trace=FALSE),
-#                overdispersion = TRUE,
-#                data = healthsurvey)
+*hopit*() is also able to fit additional theata parameter that controls for "dispersion". Theta is the variance of random gussian noise in probit regression (or shape parameter in logistic regression)
+
+```{r, echo=TRUE, cache=TRUE}
+model3 <- hopit(reg.formula = health ~ hypertenssion + cholesterol + heart_stroke_respiratory +
+                 poor_mobility_or_grip + depression ,
+               thresh.formula = ~ sex + ageclass + country,
+               control=list(trace=FALSE),
+               overdispersion = TRUE,
+               data = healthsurvey)
+
+model3$coef.ls$theta
 ```
+
+The fit of the model can be accessed using *profile*() function, which calcualte nd plot profile of the log likelihood function around fitted values.
+```{r, echo=TRUE}
+profile(model3)
+```
+
 
 ## 6. Reporting styles analysis
 
