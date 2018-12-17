@@ -5,6 +5,7 @@
 #' related to latent variable, threshold lambdas, and threshold gammas.
 #' @param ...	further arguments passed to or from other methods.
 #' @export
+#' @usage \method{coef}{hopit}(object, aslist = FALSE, ...)
 #' @keywords internal
 #' @author Maciej J. Danko
 #' @aliases coefficients.hopit
@@ -16,6 +17,7 @@ coef.hopit <- function(object, aslist = FALSE, ...)  if (aslist) object$coef.ls 
 #' @param x \code{hopit} object.
 #' @param ...	further arguments passed to or from other methods.
 #' @export
+#' @usage \method{print}{hopit}(x, ...)
 #' @keywords internal
 #' @author Maciej J. Danko
 print.hopit<-function(x, ...){
@@ -55,6 +57,7 @@ print.hopit<-function(x, ...){
 #' @param ...	further arguments passed to or from other methods.
 #' @importFrom survey svyrecvar
 #' @export
+#' @usage \method{vcov}{hopit}(object, robust.vcov, ...)
 #' @author Maciej J. Danko
 vcov.hopit<-function(object, robust.vcov, ...){
   #robust.method <- tolower(robust.method[1])
@@ -83,6 +86,7 @@ vcov.hopit<-function(object, robust.vcov, ...){
 #'
 #' @param x \code{hopit} object
 #' @param ...	further arguments passed to or from other methods.
+#' @usage \method{print}{vcov.hopit}(x, digits = 3L, ...)
 #' @keywords internal
 #' @export
 print.vcov.hopit <- function(x, digits = 3L, ...){
@@ -109,6 +113,7 @@ print.vcov.hopit <- function(x, digits = 3L, ...){
 #' @export
 #' @author Maciej J. Danko
 #' @useDynLib hopit
+#' @usage \method{summary}{hopit}(object, robust.se = FALSE, ...)
 #' @importFrom Rcpp evalCpp
 summary.hopit <- function(object, robust.se = FALSE, ...){
 
@@ -141,6 +146,7 @@ summary.hopit <- function(object, robust.se = FALSE, ...){
 #' @param ...	further arguments passed to or from other methods.
 #' @keywords internal
 #' @export
+#' @usage \method{print}{summary.hopit}(x, ...)
 #' @author Maciej J. Danko
 print.summary.hopit <- function(x, ...){
   model <- x$model
@@ -168,6 +174,7 @@ print.summary.hopit <- function(x, ...){
 #' @param ...	additional objects of the same type.
 #' @keywords internal
 #' @export
+#' @usage \method{logLik}{hopit}(object, ...)
 #' @author Maciej J. Danko
 logLik.hopit<-function(object, ...) {
   #if (length(object$design$PSU)) warning(call. = FALSE, 'The LogLik function is currently not supported for survey design, the value may be biased.')
@@ -186,6 +193,7 @@ logLik.hopit<-function(object, ...) {
 #' @param ...	additional objects of the same type.
 #' @keywords internal
 #' @export
+#' @usage \method{AIC}{hopit}(object, ..., k = 2L)
 #' @author Maciej J. Danko
 AIC.hopit<-function(object, ..., k = 2L) {
   objects <- list(object, ...)
@@ -206,6 +214,7 @@ AIC.hopit<-function(object, ..., k = 2L) {
 #' \code{"with.first"} for 1-2, 1-3, 1-4, ... comparisons.
 #' @param direction determine if complexity of listed models is \code{"increasing"} or \code{"decreasing"} (default).
 # @keywords internal
+#' @usage \method{anova}{hopit}(object, ..., method = c("sequential", "with.first"), direction = c("decreasing", "increasing"))
 #' @export
 #' @author Maciej J. Danko
 anova.hopit<-function(object, ..., method = c('sequential', 'with.first'), direction = c('decreasing', 'increasing')){
@@ -253,6 +262,7 @@ anova.hopit<-function(object, ..., method = c('sequential', 'with.first'), direc
 #' @keywords internal
 #' @export
 #' @author Maciej J. Danko
+#' @usage \method{print}{anova.hopit}(x, ...)
 print.anova.hopit <- function(x, ...){
   cat('Anova (LRTs):\n')
   cat('Method: "', x$method, '"\n\n', sep = '')
@@ -321,6 +331,7 @@ lrt.hopit <- function(full, nested){
 #' @param ...	further arguments passed to or from other methods.
 #' @keywords internal
 #' @export
+#' @usage \method{print}{lrt.hopit}(x, ...)
 #' @author Maciej J. Danko
 print.lrt.hopit <- function(x, ...){
   cat('Likelihood ratio test:\n')
@@ -358,6 +369,7 @@ print.lrt.hopit <- function(x, ...){
 #' @param unravelFreq logical indicating if to represent results on individual scale if FWeights were used.
 #' @param ...	further arguments passed to or from other methods.
 #' @export
+#' @usage \method{predict}{hopit}(object, newdata=NULL, type = c('link', 'response', 'threshold', 'threshold_link'), unravelFreq = TRUE, ...)
 #' @author Maciej J. Danko
 predict.hopit <- function(object, newdata=NULL, type = c('link', 'response', 'threshold', 'threshold_link'),
                          unravelFreq = TRUE, ...){
@@ -381,6 +393,7 @@ predict.hopit <- function(object, newdata=NULL, type = c('link', 'response', 'th
 #' @export
 #' @keywords internal
 #' @author Maciej J. Danko
+#' @usage \method{profile}{hopit}(model, scope = 0.15, steps = 101)
 profile.hopit<-function(model, scope=0.15, steps=101){
   steps <- floor(steps/2)*2+1
   if (model$hasdisp) COEF <- c(model$coef,model$coef.ls$theta) else COEF <- model$coef
@@ -405,8 +418,9 @@ profile.hopit<-function(model, scope=0.15, steps=101){
 #' @param x \code{profile.hopit} object.
 #' @export
 #' @keywords internal
+#' @usage \method{plot}{profile.hopit}(object, leg.cex = 0.85, leg.col = 'blue4')
 #' @author Maciej J. Danko
-plot.profile.hopit<-function(object, leg.cex = 0.9, leg.col = 'blue'){
+plot.profile.hopit<-function(object, leg.cex = 0.85, leg.col = 'blue4'){
   z <- sqrt(ncol(object))
   zy <- round(z)
   zx <- ceiling(z)
@@ -427,6 +441,7 @@ plot.profile.hopit<-function(object, leg.cex = 0.9, leg.col = 'blue'){
 #' @param x \code{hopit} object.
 #' @export
 #' @keywords internal
+#' @usage \method{print}{profile.hopit}(object, plot = TRUE)
 #' @author Maciej J. Danko
 print.profile.hopit<-function(object, plot = TRUE){
   test <- apply(object,2,which.max)==floor(nrow(object)/2)+1

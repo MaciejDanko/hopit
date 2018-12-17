@@ -4,8 +4,7 @@
 \alias{anova.hopit}
 \title{LRT Tables}
 \usage{
-\method{anova}{hopit}(object, ..., method = c("sequential", "with.first"),
-  direction = c("decreasing", "increasing"))
+\method{anova}{hopit}(object, ..., method = c("sequential", "with.first"), direction = c("decreasing", "increasing"))
 }
 \arguments{
 \item{object}{an object containing the results returned by a \code{hopit}.}

@@ -68,7 +68,7 @@ where $z_{i,j}$ is an indicator function defined as:
 z_{i,~j} =\begin{cases} 0&for~ y_i=j\\ 1&for~y_i\ne j\end{cases}
 \end{equation}
 
-.......how the fitting is performed in the package vglm bfgs/cg
+.......how the fitting is performed in the package glm/vglm bfgs/cg
 
 ## 3. Analyses of reporting styles
 

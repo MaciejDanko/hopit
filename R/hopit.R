@@ -402,7 +402,8 @@ hopit<- function(reg.formula,
                  link = c('probit', 'logit'),
                  start.method = c('glm','vglm'),
                  start = NULL,
-                 control = list()){
+                 control = list(),
+                 remove.theta = TRUE){
 
   my.grad <- function(fn, par, eps, ...){
     sapply(1L : length(par), function(k){
@@ -549,19 +550,23 @@ hopit<- function(reg.formula,
   k <- 2
 
   if (model$control$trace) cat('Calculating hessian...')
+
   hes <- my.grad(fn = hopit_derivLL, par = model$coef, model=model, eps = 1e-4, collapse = TRUE, negative=FALSE)
-  if (model$hasdisp) {
+  if (model$hasdisp && remove.theta) {
+    cat('.removing theta.')
     hes <- hes[-nrow(hes),-ncol(hes)] #remove theta from vcov
     model$coef <- model$coef[-length(model$coef)] #remove from coef
   }
   model$hessian <- hes
-  model$vcov.basic <- try(base::solve(-hes), silent = TRUE)
+  model$vcov.basic <- try(base::solve(-hes), silent = FALSE)
   if (class(model$vcov) == 'try-error') {
     warning(call. = FALSE, 'Model is probably unidentifiable, $vcov (variance-covariance matrix) cannot be computed.')
     model$vcov.basic <- NA
   }
   if (model$control$trace) cat(' done\nCalculating estfun...')
-  model$estfun <- hopit_derivLL(model$coef, model, collapse = FALSE)
+  if (model$hasdisp && !remove.theta) COEF <- c(model$coef,model$coef.ls$theta) else COEF <- model$coef
+  model$estfun <- hopit_derivLL(COEF, model, collapse = FALSE)
+  if (remove.theta) model$estfun <- model$estfun[,-ncol(model$estfun)]
   if (model$control$trace) cat(' done\n')
 
   if (length(model$design)) {
