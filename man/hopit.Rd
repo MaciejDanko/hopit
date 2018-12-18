@@ -7,7 +7,7 @@
 hopit(reg.formula, thresh.formula = as.formula("~ 1"), data,
   method = c("hopit", "vglm"), overdispersion = FALSE, design = list(),
   weights = NULL, link = c("probit", "logit"), start.method = c("glm",
-  "vglm"), control = list(), remove.theta = TRUE)
+  "vglm"), control = list())
 }
 \arguments{
 \item{reg.formula}{formula used to model latent process.}
@@ -19,14 +19,14 @@ Any dependent variable (left side of "~") will be ignored.}
 
 \item{design}{an optional survey design. Use \code{\link[survey]{svydesign}} function to specify the design.}
 
+\item{weights}{an optional weights. Use design to construct survey weights.}
+
 \item{link}{the link function. The possible values are \code{"probit"} (default) and \code{"logit"}.}
 
 \item{control}{a list with control parameters. See \code{\link{hopit.control}}.}
-
-\item{weigts}{an optional weights. Use design to construct survey weights.}
 }
 \description{
--- use_weights is unused....
+Fit Generelaized Ordered Choice Threshold Model
 }
 \author{
 Maciej J. Danko

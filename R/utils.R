@@ -270,7 +270,7 @@ start.glm<-function(model, data){
 #' @keywords internal
 #' @useDynLib hopit
 #' @importFrom Rcpp evalCpp
-get.vglm.start<-function(model, data){
+get.vglm.start<-function(model, data, expTheta = 0){
   if ((!model$method) && (model$start.method=='glm')) {
     m <- suppressWarnings(start.glm(model, data))
     model <- m
@@ -297,8 +297,8 @@ get.vglm.start<-function(model, data){
     model$start.ls$gamma.start <-z$thresh_gamma
 
     if (model$hasdisp) {
-      model$start.ls$theta <- 1
-      model$start <- c(z$coef, 1)
+      model$start.ls$theta <- expTheta
+      model$start <- c(z$coef, expTheta)
     } else model$start <- z$coef
 
   } else {

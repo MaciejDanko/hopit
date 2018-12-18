@@ -380,13 +380,12 @@ hopit.control<-function(grad.eps = 3e-5,
 
 #' Fit Generelaized Ordered Choice Threshold Model
 #'
-#'-- use_weights is unused....
 #' @param reg.formula formula used to model latent process.
 #' @param thresh.formula formula used to model threshold variable.
 #' Any dependent variable (left side of "~") will be ignored.
 #' @param data a data frame including all modeled variables.
 #' @param design an optional survey design. Use \code{\link[survey]{svydesign}} function to specify the design.
-#' @param weigts an optional weights. Use design to construct survey weights.
+#' @param weights an optional weights. Use design to construct survey weights.
 #' @param link the link function. The possible values are \code{"probit"} (default) and \code{"logit"}.
 ## @param start starting values in the form \code{c(latent_parameters, threshold_lambdas, threshold_gammas)}
 #' @param control a list with control parameters. See \code{\link{hopit.control}}.
@@ -402,8 +401,7 @@ hopit<- function(reg.formula,
                  link = c('probit', 'logit'),
                  start.method = c('glm','vglm'),
 #                 start = NULL,
-                 control = list(),
-                 remove.theta = TRUE){
+                 control = list()){
 
   my.grad <- function(fn, par, eps, ...){
     sapply(1L : length(par), function(k){
@@ -413,7 +411,7 @@ hopit<- function(reg.formula,
     })
   }
 
-  if (!overdispersion) remove.theta = FALSE
+  if (!overdispersion) remove.theta = FALSE else remove.theta = TRUE
   if (missing(data)) data <- environment(reg.formula)
   start.method <- tolower(start.method[1])
   method <- tolower(method[1])

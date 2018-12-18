@@ -18,9 +18,10 @@ Eigen::VectorXd pstdnorm(const Eigen::VectorXd v){   ///pnorm0
 }
 
 // [[Rcpp::depends(RcppEigen)]]
-Eigen::VectorXd dpnorm0_dsigma(const Eigen::VectorXd v, const double sigma){   ///pnorm0_dsigma
+Eigen::VectorXd dpnorm0_dexpsigma(const Eigen::VectorXd v, const double sigma){   ///pnorm0_dsigma
+  double sigma2 = std::exp(sigma);
   Eigen::VectorXd res(v.size()),res2(v.size());
-  double sigma2 = sigma*sigma;
+  sigma2 = sigma2 * sigma2;
   res = - M_1_SQRT_2PI * v/sigma2;
   res2 = - 0.5 * v.cwiseProduct(v) / sigma2;
   return(res.cwiseProduct(res2.array().exp().matrix()));
@@ -29,8 +30,9 @@ Eigen::VectorXd dpnorm0_dsigma(const Eigen::VectorXd v, const double sigma){   /
 // [[Rcpp::depends(RcppEigen)]]
 Eigen::VectorXd pnorm0(const Eigen::VectorXd v, const double sigma){   ///pnorm0
   Eigen::VectorXd res(v.size());
+  double sigma2 = std::exp(sigma);
   for (int i = 0L; i < v.size(); ++i) {
-    res(i) = 0.5 * (1L - erf( -v(i) * M_SQRT1_2 / sigma));
+    res(i) = 0.5 * (1L - erf( -v(i) * M_SQRT1_2 / sigma2));
   }
   return(res);
 }
@@ -54,7 +56,7 @@ Eigen::VectorXd dstdnorm(const Eigen::VectorXd v){   ///dnorm
 
 // [[Rcpp::depends(RcppEigen)]]
 Eigen::VectorXd dnorm0(const Eigen::VectorXd v, const double sigma){   ///dnorm0
-  double s1 = 1 / sigma;
+  double s1 = 1 / std::exp(sigma);
   Eigen::VectorXd v2 = v * s1;
   v2 = - v2.cwiseProduct(v2) * 0.5;
   //Eigen::VectorXd res = 0.5 * M_SQRT1_2 * M_2_SQRTPI * v2.array().exp().matrix() * s1;
@@ -73,9 +75,10 @@ Eigen::VectorXd dstdlogis(const Eigen::VectorXd v) {
 
 // [[Rcpp::depends(RcppEigen)]]
 Eigen::VectorXd dlogis0(const Eigen::VectorXd v, const double s) {
-  Eigen::VectorXd res = (v / s).array().exp().matrix();
+  double s2 = std::exp(s);
+  Eigen::VectorXd res = (v / s2).array().exp().matrix();
   Eigen::VectorXd res1 = res + res.Ones(res.size());
-  return(res.cwiseQuotient(res1.cwiseProduct(res1)) / s);
+  return(res.cwiseQuotient(res1.cwiseProduct(res1)) / s2);
 }
 
 
@@ -89,15 +92,16 @@ Eigen::VectorXd pstdlogis(const Eigen::VectorXd v) {
 
 // [[Rcpp::depends(RcppEigen)]]
 Eigen::VectorXd plogis0(const Eigen::VectorXd v, const double s) {
-  Eigen::VectorXd res = (-v / s).array().exp().matrix();
+  Eigen::VectorXd res = (-v / std::exp(s)).array().exp().matrix();
   return((res + res.Ones(res.size())).cwiseInverse());
 }
 
 
 // [[Rcpp::depends(RcppEigen)]]
-Eigen::VectorXd dplogis0_ds(const Eigen::VectorXd v, const double s) {
-  Eigen::VectorXd res = (-v / s).array().exp().matrix();
-  Eigen::VectorXd res1 =  - res.cwiseProduct(v / s /s);
+Eigen::VectorXd dplogis0_dexps(const Eigen::VectorXd v, const double s) {
+  double s2 = std::exp(s);
+  Eigen::VectorXd res = (-v / s2).array().exp().matrix();
+  Eigen::VectorXd res1 =  - res.cwiseProduct(v / s2 /s2);
   res = res + res.Ones(res.size());
   res = res.cwiseProduct(res);
   return(res1.cwiseQuotient(res));
@@ -302,10 +306,10 @@ double LLFunc(const Eigen::Map<Eigen::VectorXd> parameters,
   int p01 = parcount(0) + parcount(1) - 1L;
   Eigen::VectorXd thresh_lambda = subvec(parcount(0), p01, parameters);
   Eigen::VectorXd thresh_gamma = subvec(p01 + 1L, p01 + parcount(2), parameters);
-  double disp = 1;
+  double disp = 0;
   if (hasdisp == 1) disp = parameters(parameters.size()-1);
   // printf("\nTheta: %f ", disp);
-  if (disp<=0) {if (negative)  return(R_PosInf); else return(R_NegInf);}
+  //if (disp<=0) {if (negative)  return(R_PosInf); else return(R_NegInf);}
 
   Eigen::MatrixXd a;
   Eigen::MatrixXd b;
@@ -370,14 +374,14 @@ Eigen::MatrixXd LLFuncIndv(const Eigen::Map<Eigen::VectorXd> parameters,
   int p01 = parcount(0) + parcount(1) - 1L;
   Eigen::VectorXd thresh_lambda = subvec(parcount(0), p01, parameters);
   Eigen::VectorXd thresh_gamma = subvec(p01 + 1L, p01 + parcount(2), parameters);
-  double disp = 1;
+  double disp = 0;
   if (hasdisp == 1) disp = parameters(parameters.size()-1);
   //  printf("\nTheta: %f ", disp);
-  if (disp<=0) {
-    Eigen::MatrixXd exi(1,1);
-    exi(1,1) = R_PosInf;
-    if (negative) return(exi); else return(-exi);
-  }
+  // if (disp<=0) {
+  //   Eigen::MatrixXd exi(1,1);
+  //   exi(1,1) = R_PosInf;
+  //   if (negative) return(exi); else return(-exi);
+  // }
   Eigen::MatrixXd a;
   Eigen::MatrixXd b;
   if (method==1) {
@@ -467,7 +471,7 @@ Eigen::MatrixXd LLGradFunc(const Eigen::Map<Eigen::VectorXd> parameters,
   int p01 = parcount(0) + parcount(1) - 1L;
   Eigen::VectorXd thresh_lambda = subvec(parcount(0), p01, parameters);
   Eigen::VectorXd thresh_gamma = subvec(p01 + 1L, p01 + parcount(2), parameters);
-  double disp = 1;
+  double disp = 0;
   if (hasdisp == 1) disp = parameters(parameters.size()-1);
 
   Eigen::MatrixXd a;
@@ -492,15 +496,15 @@ Eigen::MatrixXd LLGradFunc(const Eigen::Map<Eigen::VectorXd> parameters,
       P2 = pnorm0(A2,disp);
       D1 = dnorm0(A1,disp);
       D2 = dnorm0(A2,disp);
-      sig1 = dpnorm0_dsigma(A1, disp);
-      sig2 = dpnorm0_dsigma(A2, disp);
+      sig1 = dpnorm0_dexpsigma(A1, disp);
+      sig2 = dpnorm0_dexpsigma(A2, disp);
     } else {
       P1 = plogis0(A1,disp);
       P2 = plogis0(A2,disp);
       D1 = dlogis0(A1,disp);
       D2 = dlogis0(A2,disp);
-      sig1 = dplogis0_ds(A1, disp);
-      sig2 = dplogis0_ds(A2, disp);
+      sig1 = dplogis0_dexps(A1, disp);
+      sig2 = dplogis0_dexps(A2, disp);
     }
   } else {
     if (link == 0) {
@@ -521,8 +525,8 @@ Eigen::MatrixXd LLGradFunc(const Eigen::Map<Eigen::VectorXd> parameters,
 
   Eigen::VectorXd dlnLL_dX = P.array().cwiseInverse().matrix();
 
-  Eigen::VectorXd dF_ds;
-  if (hasdisp == 1) dF_ds = (sig1 - sig2).cwiseProduct(dlnLL_dX);
+  Eigen::VectorXd dF_dexps;
+  if (hasdisp == 1) dF_dexps = (sig1 - sig2).cwiseProduct(dlnLL_dX);
 
   Eigen::MatrixXd dlnLL_dbeta(D.size(), reg_par.size());
   Eigen::MatrixXd dd = - D.cwiseProduct(dlnLL_dX);
@@ -566,7 +570,7 @@ Eigen::MatrixXd LLGradFunc(const Eigen::Map<Eigen::VectorXd> parameters,
     if (thresh_no_cov == 1L) {
       if (hasdisp == 1) {
         res.resize(dlnLL_dbeta.cols()+dlnLL_Lambda.cols()+1);
-        res << colSums_c(dlnLL_dbeta), colSums_c(dlnLL_Lambda), colSums_c(dF_ds);
+        res << colSums_c(dlnLL_dbeta), colSums_c(dlnLL_Lambda), colSums_c(dF_dexps);
       } else {
         res.resize(dlnLL_dbeta.cols()+dlnLL_Lambda.cols());
         res << colSums_c(dlnLL_dbeta), colSums_c(dlnLL_Lambda);
@@ -575,7 +579,7 @@ Eigen::MatrixXd LLGradFunc(const Eigen::Map<Eigen::VectorXd> parameters,
       dlnLL_Gamma = rep_col_c(dlnLL_Lambda, thresh_mm.cols()).cwiseProduct(thresh_extd);
       if (hasdisp == 1) {
         res.resize(dlnLL_dbeta.cols()+dlnLL_Lambda.cols()+dlnLL_Gamma.cols()+1);
-        res << colSums_c(dlnLL_dbeta), colSums_c(dlnLL_Lambda), colSums_c(dlnLL_Gamma), colSums_c(dF_ds);
+        res << colSums_c(dlnLL_dbeta), colSums_c(dlnLL_Lambda), colSums_c(dlnLL_Gamma), colSums_c(dF_dexps);
       } else {
         res.resize(dlnLL_dbeta.cols()+dlnLL_Lambda.cols()+dlnLL_Gamma.cols());
         res << colSums_c(dlnLL_dbeta), colSums_c(dlnLL_Lambda), colSums_c(dlnLL_Gamma);
@@ -585,7 +589,7 @@ Eigen::MatrixXd LLGradFunc(const Eigen::Map<Eigen::VectorXd> parameters,
     if (thresh_no_cov == 1L) {
       if (hasdisp == 1) {
         res.resize(dlnLL_dbeta.cols()+dlnLL_Lambda.cols() +1);
-        res << colSums_weighted(dlnLL_dbeta, weights), colSums_weighted(dlnLL_Lambda, weights), colSums_weighted(dF_ds, weights); // weigth sums by weights
+        res << colSums_weighted(dlnLL_dbeta, weights), colSums_weighted(dlnLL_Lambda, weights), colSums_weighted(dF_dexps, weights); // weigth sums by weights
       } else {
         res.resize(dlnLL_dbeta.cols()+dlnLL_Lambda.cols());
         res << colSums_weighted(dlnLL_dbeta, weights), colSums_weighted(dlnLL_Lambda, weights); // weigth sums by weights
@@ -595,7 +599,7 @@ Eigen::MatrixXd LLGradFunc(const Eigen::Map<Eigen::VectorXd> parameters,
       if (hasdisp == 1) {
         res.resize(dlnLL_dbeta.cols()+dlnLL_Lambda.cols()+dlnLL_Gamma.cols()+1);
         res << colSums_weighted(dlnLL_dbeta, weights), colSums_weighted(dlnLL_Lambda, weights),
-               colSums_weighted(dlnLL_Gamma, weights), colSums_weighted(dF_ds, weights);
+               colSums_weighted(dlnLL_Gamma, weights), colSums_weighted(dF_dexps, weights);
       } else {
         res.resize(dlnLL_dbeta.cols()+dlnLL_Lambda.cols()+dlnLL_Gamma.cols());
         res << colSums_weighted(dlnLL_dbeta, weights), colSums_weighted(dlnLL_Lambda, weights), colSums_weighted(dlnLL_Gamma, weights);
@@ -643,7 +647,7 @@ Eigen::MatrixXd LLGradFuncIndv(const Eigen::Map<Eigen::VectorXd> parameters,
   int p01 = parcount(0) + parcount(1) - 1L;
   Eigen::VectorXd thresh_lambda = subvec(parcount(0), p01, parameters);
   Eigen::VectorXd thresh_gamma = subvec(p01 + 1L, p01 + parcount(2), parameters);
-  double disp = 1;
+  double disp = 0;
   if (hasdisp == 1) disp = parameters(parameters.size()-1);
 
   Eigen::MatrixXd a;
@@ -668,15 +672,15 @@ Eigen::MatrixXd LLGradFuncIndv(const Eigen::Map<Eigen::VectorXd> parameters,
       P2 = pnorm0(A2,disp);
       D1 = dnorm0(A1,disp);
       D2 = dnorm0(A2,disp);
-      sig1 = dpnorm0_dsigma(A1, disp);
-      sig2 = dpnorm0_dsigma(A2, disp);
+      sig1 = dpnorm0_dexpsigma(A1, disp);
+      sig2 = dpnorm0_dexpsigma(A2, disp);
     } else {
       P1 = plogis0(A1,disp);
       P2 = plogis0(A2,disp);
       D1 = dlogis0(A1,disp);
       D2 = dlogis0(A2,disp);
-      sig1 = dplogis0_ds(A1, disp);
-      sig2 = dplogis0_ds(A2, disp);
+      sig1 = dplogis0_dexps(A1, disp);
+      sig2 = dplogis0_dexps(A2, disp);
     }
   } else {
     if (link == 0) {
@@ -697,8 +701,8 @@ Eigen::MatrixXd LLGradFuncIndv(const Eigen::Map<Eigen::VectorXd> parameters,
 
   Eigen::VectorXd dlnLL_dX = P.array().cwiseInverse().matrix();
 
-  Eigen::VectorXd dF_ds;
-  if (hasdisp == 1) dF_ds = (sig1 - sig2).cwiseProduct(dlnLL_dX);
+  Eigen::VectorXd dF_dexps;
+  if (hasdisp == 1) dF_dexps = (sig1 - sig2).cwiseProduct(dlnLL_dX);
 
   Eigen::MatrixXd dlnLL_dbeta = Eigen::MatrixXd::Zero(D.size(), reg_par.size());
   Eigen::MatrixXd dd = - D.cwiseProduct(dlnLL_dX);
@@ -746,14 +750,14 @@ Eigen::MatrixXd LLGradFuncIndv(const Eigen::Map<Eigen::VectorXd> parameters,
   if (use_weights==0){
     if (thresh_no_cov == 1L) {
       if (hasdisp == 1) {
-        res << dlnLL_dbeta, dlnLL_Lambda, dF_ds;
+        res << dlnLL_dbeta, dlnLL_Lambda, dF_dexps;
       } else {
         res << dlnLL_dbeta, dlnLL_Lambda;
       }
     } else {
       Eigen::MatrixXd dlnLL_Gamma = rep_col_c(dlnLL_Lambda, thresh_mm.cols()).cwiseProduct(thresh_extd);
       if (hasdisp == 1) {
-        res << dlnLL_dbeta, dlnLL_Lambda, dlnLL_Gamma, dF_ds;
+        res << dlnLL_dbeta, dlnLL_Lambda, dlnLL_Gamma, dF_dexps;
       } else {
         res << dlnLL_dbeta, dlnLL_Lambda, dlnLL_Gamma;
       }
@@ -761,14 +765,14 @@ Eigen::MatrixXd LLGradFuncIndv(const Eigen::Map<Eigen::VectorXd> parameters,
   } else {
     if (thresh_no_cov == 1L) {
       if (hasdisp == 1) {
-        res << weight_rows(dlnLL_dbeta, weights), weight_rows(dlnLL_Lambda, weights), dF_ds;
+        res << weight_rows(dlnLL_dbeta, weights), weight_rows(dlnLL_Lambda, weights), dF_dexps;
       } else {
         res << weight_rows(dlnLL_dbeta, weights), weight_rows(dlnLL_Lambda, weights); // weigth sums by weights
       }
     } else {
       Eigen::MatrixXd dlnLL_Gamma = rep_col_c(dlnLL_Lambda, thresh_mm.cols()).cwiseProduct(thresh_extd);
       if (hasdisp == 1) {
-        res << weight_rows(dlnLL_dbeta, weights), weight_rows(dlnLL_Lambda, weights), weight_rows(dlnLL_Gamma, weights), dF_ds;
+        res << weight_rows(dlnLL_dbeta, weights), weight_rows(dlnLL_Lambda, weights), weight_rows(dlnLL_Gamma, weights), dF_dexps;
       } else {
         res << weight_rows(dlnLL_dbeta, weights), weight_rows(dlnLL_Lambda, weights), weight_rows(dlnLL_Gamma, weights);
       }

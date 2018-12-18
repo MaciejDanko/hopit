@@ -120,7 +120,9 @@ print.vcov.hopit <- function(x, digits = 3L, ...){
 summary.hopit <- function(object, robust.se = TRUE, ...){
 
   varcov <- vcov(object, robust.se, ...)
-  SE <- suppressWarnings(sqrt(diag(varcov)))
+  dvcov <- diag(varcov)
+  if (any(dvcov<0)) warning('Negative variaces where transformed to positive, try different robust.se options and check the fit!')
+  SE <- suppressWarnings(sqrt(abs(dvcov)))
   if (length(object$design)){
     cat('Survey weights detected. Standard errors was adjusted for survey design.\n')
   }
