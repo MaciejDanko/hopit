@@ -36,8 +36,8 @@ print.hopit<-function(x, ...){
     print(x$coef.ls$thresh.gamma)
   }
   if(length(x$coef.ls$theta)){
-    cat('\nTheta:\n')
-    print(x$coef.ls$theta)
+    if (x$hasdisp) cat('\nTheta:\n') else cat('\nFixed Theta:\n')
+    cat(x$coef.ls$theta,'\n')
   }
   invisible(NULL)
 }
@@ -124,13 +124,7 @@ summary.hopit <- function(object, robust.se = TRUE, ...){
   }
   if ((!robust.se) && (any(is.na(SE))) && !(length(object$design)))
     warning(call. = FALSE, 'Problem with some standard errors, please try option "robust.se" == TRUE.')
-  #testse <- abs(SE/object$coef)
-  #testse <- testse[!is.na(testse)]
-  #if (any((testse > 50L)&(SE > 20L))) warning(call. = FALSE, 'Huge standard errors may suggest a problem with model identifiability.')
-
-  #varcov <- vcov(object$vglm)
-  #SE <- suppressWarnings(sqrt(diag(varcov)))
-
+  if (length(object$coef) != length(SE)) stop('Something wrong.',call.=NULL)
   tstat <-  object$coef/SE
   pvalue <- pstdnorm(-abs(tstat))  * 2L
   table1 <- data.frame(Estimate = object$coef, 'Std. Error' = SE, 'z value' = tstat, 'Pr(>|z|)' = pvalue, check.names = FALSE)
@@ -295,6 +289,8 @@ lrt.hopit <- function(full, nested){
     cat("-- Formula (threshold variables):", deparse(nested$thresh.formula), fill = TRUE)
     stop('The threshold formulas are not nested.')
   }
+  if (ncol(full$hasdisp) < ncol(nested$hasdisp)) stop('Theta params are not nested.')
+
   if ((ncol(full$reg.mm)) &&  (ncol(nested$reg.mm)))
     if (!(all(colnames(nested$reg.mm) %in% colnames(full$reg.mm)))) warning(call. = FALSE, 'Models use probably different (non-nested) data sets (latent variable formula).')
   if ((ncol(full$thresh.mm)) &&  (ncol(nested$thresh.mm)))
@@ -304,7 +300,10 @@ lrt.hopit <- function(full, nested){
   #df.diff <- length(full$coef) - length(nested$coef) + length(full$coef.ls$theta) - length(nested$coef.ls$theta)
 
   if (!length(full$design)) {
-    df.diff <- length(full$coef) - length(nested$coef) + length(full$coef.ls$theta) - length(nested$coef.ls$theta)
+    df.diff <- length(full$coef.ls$reg.params) - length(nested$coef.ls$reg.params) +
+      length(full$coef.ls$thresh.lambda) - length(nested$coef.ls$thresh.lambda) +
+      length(full$coef.ls$thresh.gamma) - length(nested$coef.ls$thresh.gamma) +
+      (full$hasdisp) - (nested$hasdisp)
     p <- 1L - pchisq(stat, df.diff)
     scalef <- NULL
   } else {
@@ -338,12 +337,14 @@ print.lrt.hopit <- function(x, ...){
   cat('full model:\n')
   cat("-- Formula (latent variables):", deparse(x$full$reg.formula), fill = TRUE)
   cat("-- Formula (threshold variables):", deparse(x$full$thresh.formula), fill = TRUE)
+  cat("-- Estimated theta:",x$full$hasdisp, fill=TRUE)
   cat('\nnested model:\n')
   cat("-- Formula (latent variables):", deparse(x$nested$reg.formula), fill = TRUE)
   cat("-- Formula (threshold variables):", deparse(x$nested$thresh.formula), fill = TRUE)
+  cat("-- Estimated theta:",x$nested$hasdisp, fill=TRUE)
   #uzyc signif
   cat('\nLikelihood ratio test:\n')
-  if (length(x$df.diff)) {
+  if (length(x$df)) {
     out <- t(as.matrix(c('Chi^2' = unname(x$chisq), df = unname(x$df), 'Pr(>Chi^2)' = unname(x$pval))))
     out2 <- NULL
   } else {

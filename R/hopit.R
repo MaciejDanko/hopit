@@ -413,6 +413,7 @@ hopit<- function(reg.formula,
     })
   }
 
+  if (!overdispersion) remove.theta = FALSE
   if (missing(data)) data <- environment(reg.formula)
   start.method <- tolower(start.method[1])
   method <- tolower(method[1])
@@ -558,13 +559,14 @@ hopit<- function(reg.formula,
     model$coef <- model$coef[-length(model$coef)] #remove from coef
   }
   model$hessian <- hes
+
   model$vcov.basic <- try(base::solve(-hes), silent = FALSE)
   if (class(model$vcov) == 'try-error') {
     warning(call. = FALSE, 'Model is probably unidentifiable, $vcov (variance-covariance matrix) cannot be computed.')
     model$vcov.basic <- NA
   }
   if (model$control$trace) cat(' done\nCalculating estfun...')
-  if (model$hasdisp && !remove.theta) COEF <- c(model$coef,model$coef.ls$theta) else COEF <- model$coef
+  if (model$hasdisp && remove.theta) COEF <- c(model$coef,model$coef.ls$theta) else COEF <- model$coef
   model$estfun <- hopit_derivLL(COEF, model, collapse = FALSE)
   if (remove.theta) model$estfun <- model$estfun[,-ncol(model$estfun)]
   if (model$control$trace) cat(' done\n')
@@ -587,7 +589,9 @@ hopit<- function(reg.formula,
     if (model$control$trace) cat(' done\n')
   } else {
     model$vcov <- model$vcov.basic
-    model$AIC <- model$deviance + k * length(model$coef)
+    model$AIC <- model$deviance + k * (length(model$coef.ls$reg.params)+
+                                       length(model$coef.ls$thresh.lambda)+
+                                       length(model$coef.ls$thresh.gamma)+model$hasdisp)
     model$misspec <- model$deltabar <- model$eff.p <- NA
   }
   return(model)
