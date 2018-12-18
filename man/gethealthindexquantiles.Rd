@@ -10,7 +10,7 @@ gethealthindexquantiles(model, formula = model$thresh.formula,
   healthlevelsorder = "decreasing")
 }
 \arguments{
-\item{model}{a fitted \code{gotm} model.}
+\item{model}{a fitted \code{hopit} model.}
 
 \item{formula}{a formula containing the variables. It is by default set to threshold formula.}
 

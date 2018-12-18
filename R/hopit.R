@@ -388,12 +388,12 @@ hopit.control<-function(grad.eps = 3e-5,
 #' @param design an optional survey design. Use \code{\link[survey]{svydesign}} function to specify the design.
 #' @param weigts an optional weights. Use design to construct survey weights.
 #' @param link the link function. The possible values are \code{"probit"} (default) and \code{"logit"}.
-#' @param start starting values in the form \code{c(latent_parameters, threshold_lambdas, threshold_gammas)}
+## @param start starting values in the form \code{c(latent_parameters, threshold_lambdas, threshold_gammas)}
 #' @param control a list with control parameters. See \code{\link{hopit.control}}.
 #' @export
 #' @author Maciej J. Danko
 hopit<- function(reg.formula,
-                 thresh.formula = as.formula('~ 1'),
+                 thresh.formula = as.formula('~ 1'), # ~1 not tested!!!
                  data,
                  method = c('hopit','vglm'),
                  overdispersion = FALSE,
@@ -401,7 +401,7 @@ hopit<- function(reg.formula,
                  weights = NULL,
                  link = c('probit', 'logit'),
                  start.method = c('glm','vglm'),
-                 start = NULL,
+#                 start = NULL,
                  control = list(),
                  remove.theta = TRUE){
 
@@ -421,17 +421,17 @@ hopit<- function(reg.formula,
   link <- match.arg(link)
   control <- do.call("hopit.control", control)
 
-  if (length(start) && class(start) == 'hopit'){
-    if (link != start$link) {
-      stop ('Model in "start" is not compatible and will not be used.', call.=NULL)
-    } else {
-      tmp <- deparse(substitute(start))
-      start <- get.start.hopit(object = start, reg.formula = reg.formula,
-                               thresh.formula = thresh.formula,
-                               data = data, asList = FALSE)
-      cat('Model "',tmp,'" was used to get starting values.\n',sep='')
-    }
-  } else if (length(start) && !is.double(start)) stop('Wrong format of "start".', call.=NULL)
+  # if (length(start) && class(start) == 'hopit'){
+  #   if (link != start$link) {
+  #     stop ('Model in "start" is not compatible and will not be used.', call.=NULL)
+  #   } else {
+  #     tmp <- deparse(substitute(start))
+  #     start <- get.start.hopit(object = start, reg.formula = reg.formula,
+  #                              thresh.formula = thresh.formula,
+  #                              data = data, asList = FALSE)
+  #     cat('Model "',tmp,'" was used to get starting values.\n',sep='')
+  #   }
+  # } else if (length(start) && !is.double(start)) stop('Wrong format of "start".', call.=NULL)
 
   model <- NULL
   model$control <- control
@@ -521,12 +521,12 @@ hopit<- function(reg.formula,
   #calculate special matrices for gradient calaculation
   model <- calcYYY(model)
 
-  if (!length(start)) {
-    if (model$control$trace) cat('Calculating starting parameters...')
-    model <- suppressWarnings(get.vglm.start(model, data))
-  } else {
-    model$start <- start
-  }
+  # if (!length(start)) {
+  if (model$control$trace) cat('Calculating starting parameters...')
+  model <- suppressWarnings(get.vglm.start(model, data))
+  # } else {
+  #   model$start <- start
+  # }
 
   if (model$control$trace && !model$method) cat(' done\nFitting the model...')
 
@@ -598,57 +598,57 @@ hopit<- function(reg.formula,
 }
 
 
-#' Get starting parameters from less or more complicated hierarchical models
-#'
-#' @export
-get.start.hopit <- function(object, reg.formula, thresh.formula, data, asList = FALSE){
-  old.rf <- object$reg.formula
-  old.tf <- object$thresh.formula
-  if (deparse(object$reg.formula[[2]])!=deparse(reg.formula[[2]])) stop('Models have different dependent variables')
-  if (length(thresh.formula)>2L){
-    warning(call. = FALSE, 'The treshold formula should be given without dependent variable.')
-    thresh.formula[[2]] <- NULL
-  }
-  old.rt<-attr(terms(old.rf),"term.labels")
-  old.tt<-attr(terms(old.tf),"term.labels")
-  new.rt<-attr(terms(as.formula(reg.formula)),"term.labels")
-  new.tt<-attr(terms(as.formula(thresh.formula)),"term.labels")
-  pr <- hopit_ExtractParameters(object)
-  pr.new <-pr
-  if ((old.rt %c% new.rt) && (new.rt %notc% old.rt)) {
-    reg.mm <- model.matrix(reg.formula,data)[,-1]
-    pr.new$reg.params <- rep(0, NCOL(reg.mm))
-    old.ind <- which(colnames(reg.mm)%in%colnames(object$reg.mm))
-    pr.new$reg.params[old.ind] <- pr$reg.params
-    names(pr.new$reg.params)[old.ind] <- names(pr$reg.params)
-    new.ind <- which(colnames(reg.mm)%notin%colnames(object$reg.mm))
-    nnam <- colnames(reg.mm)[new.ind]
-    names(pr.new$reg.params)[new.ind] <- nnam
-  } else if ((new.rt %c% old.rt) && (old.rt %notc% new.rt)) {
-    reg.mm <- model.matrix(reg.formula,data)[,-1]
-    rm.ind <- which(colnames(object$reg.mm)%notin%colnames(reg.mm))
-    tmp <- pr.new$reg.params[rm.ind]
-    pr.new$reg.params <- pr.new$reg.params[-rm.ind]
-    pr.new$thresh.lambda[1] <- pr.new$thresh.lambda[1] -
-      mean(object$reg.mm[,rm.ind] * rep_row(tmp, NROW(reg.mm))) * length(tmp)
-  }
-  if ((old.tt %c% new.tt) && (new.tt %notc% old.tt)){
-    thresh.mm <- model.matrix(thresh.formula,data)[,-1]
-    pr.new$thresh.params <- rep(0, NCOL(thresh.mm))
-    old.ind <- which(colnames(thresh.mm)%in%colnames(object$thresh.mm))
-    pr.new$thresh.gamma[old.ind] <- pr$thresh.gamma
-    names(pr.new$thresh.gamma)[old.ind] <- names(pr$thresh.gamma)
-    new.ind <- which(colnames(thresh.mm)%notin%colnames(object$thresh.mm))
-    nnam <- colnames(thresh.mm)[new.ind]
-    names(pr.new$thresh.gamma)[new.ind] <- nnam
-  } else if ((new.tt %c% old.tt) && (old.tt %notc% new.tt)) {
-    thresh.mm <- model.matrix(thresh.formula,data)[,-1]
-    rm.ind <- which(colnames(object$thresh.mm)%notin%colnames(thresh.mm))
-    tmp <- pr.new$thresh.gamma[rm.ind]
-    pr.new$thresh.gamma <- pr.new$thresh.gamma[-rm.ind]
-    pr.new$thresh.lambda[1] <- pr.new$thresh.lambda[1] -
-      mean(object$thresh.mm[,rm.ind] * rep_row(tmp, NROW(thresh.mm))) * length(tmp)
-  }
-  if (asList) return(pr.new) else
-    return(c(pr.new$reg.params, pr.new$thresh.lambda, pr.new$thresh.gamma))
-}
+#' #' Get starting parameters from less or more complicated hierarchical models
+#' #'
+#' #' @export
+#' get.start.hopit <- function(object, reg.formula, thresh.formula, data, asList = FALSE){
+#'   old.rf <- object$reg.formula
+#'   old.tf <- object$thresh.formula
+#'   if (deparse(object$reg.formula[[2]])!=deparse(reg.formula[[2]])) stop('Models have different dependent variables')
+#'   if (length(thresh.formula)>2L){
+#'     warning(call. = FALSE, 'The treshold formula should be given without dependent variable.')
+#'     thresh.formula[[2]] <- NULL
+#'   }
+#'   old.rt<-attr(terms(old.rf),"term.labels")
+#'   old.tt<-attr(terms(old.tf),"term.labels")
+#'   new.rt<-attr(terms(as.formula(reg.formula)),"term.labels")
+#'   new.tt<-attr(terms(as.formula(thresh.formula)),"term.labels")
+#'   pr <- hopit_ExtractParameters(object)
+#'   pr.new <-pr
+#'   if ((old.rt %c% new.rt) && (new.rt %notc% old.rt)) {
+#'     reg.mm <- model.matrix(reg.formula,data)[,-1]
+#'     pr.new$reg.params <- rep(0, NCOL(reg.mm))
+#'     old.ind <- which(colnames(reg.mm)%in%colnames(object$reg.mm))
+#'     pr.new$reg.params[old.ind] <- pr$reg.params
+#'     names(pr.new$reg.params)[old.ind] <- names(pr$reg.params)
+#'     new.ind <- which(colnames(reg.mm)%notin%colnames(object$reg.mm))
+#'     nnam <- colnames(reg.mm)[new.ind]
+#'     names(pr.new$reg.params)[new.ind] <- nnam
+#'   } else if ((new.rt %c% old.rt) && (old.rt %notc% new.rt)) {
+#'     reg.mm <- model.matrix(reg.formula,data)[,-1]
+#'     rm.ind <- which(colnames(object$reg.mm)%notin%colnames(reg.mm))
+#'     tmp <- pr.new$reg.params[rm.ind]
+#'     pr.new$reg.params <- pr.new$reg.params[-rm.ind]
+#'     pr.new$thresh.lambda[1] <- pr.new$thresh.lambda[1] -
+#'       mean(object$reg.mm[,rm.ind] * rep_row(tmp, NROW(reg.mm))) * length(tmp)
+#'   }
+#'   if ((old.tt %c% new.tt) && (new.tt %notc% old.tt)){
+#'     thresh.mm <- model.matrix(thresh.formula,data)[,-1]
+#'     pr.new$thresh.params <- rep(0, NCOL(thresh.mm))
+#'     old.ind <- which(colnames(thresh.mm)%in%colnames(object$thresh.mm))
+#'     pr.new$thresh.gamma[old.ind] <- pr$thresh.gamma
+#'     names(pr.new$thresh.gamma)[old.ind] <- names(pr$thresh.gamma)
+#'     new.ind <- which(colnames(thresh.mm)%notin%colnames(object$thresh.mm))
+#'     nnam <- colnames(thresh.mm)[new.ind]
+#'     names(pr.new$thresh.gamma)[new.ind] <- nnam
+#'   } else if ((new.tt %c% old.tt) && (old.tt %notc% new.tt)) {
+#'     thresh.mm <- model.matrix(thresh.formula,data)[,-1]
+#'     rm.ind <- which(colnames(object$thresh.mm)%notin%colnames(thresh.mm))
+#'     tmp <- pr.new$thresh.gamma[rm.ind]
+#'     pr.new$thresh.gamma <- pr.new$thresh.gamma[-rm.ind]
+#'     pr.new$thresh.lambda[1] <- pr.new$thresh.lambda[1] -
+#'       mean(object$thresh.mm[,rm.ind] * rep_row(tmp, NROW(thresh.mm))) * length(tmp)
+#'   }
+#'   if (asList) return(pr.new) else
+#'     return(c(pr.new$reg.params, pr.new$thresh.lambda, pr.new$thresh.gamma))
+#' }

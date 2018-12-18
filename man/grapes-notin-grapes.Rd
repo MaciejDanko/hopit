@@ -6,6 +6,9 @@
 \usage{
 x \%notin\% y
 }
+\arguments{
+\item{x, }{y numeric vectors}
+}
 \description{
 Not \%in\% function
 }

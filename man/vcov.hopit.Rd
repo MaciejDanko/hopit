@@ -22,3 +22,4 @@ Extracting variance-covariance matrix from the fitted hopit
 \author{
 Maciej J. Danko
 }
+\keyword{internal}

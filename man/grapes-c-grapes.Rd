@@ -6,6 +6,9 @@
 \usage{
 x \%c\% y
 }
+\arguments{
+\item{x, }{y numeric vectors}
+}
 \description{
 Check if one set is a subset of an another subset
 }

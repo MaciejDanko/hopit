@@ -305,7 +305,7 @@ double LLFunc(const Eigen::Map<Eigen::VectorXd> parameters,
   double disp = 1;
   if (hasdisp == 1) disp = parameters(parameters.size()-1);
   // printf("\nTheta: %f ", disp);
-  if (disp<=0) if (negative) return(R_PosInf); else return(R_NegInf);
+  if (disp<=0) {if (negative)  return(R_PosInf); else return(R_NegInf);}
 
   Eigen::MatrixXd a;
   Eigen::MatrixXd b;

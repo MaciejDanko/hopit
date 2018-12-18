@@ -7,7 +7,7 @@
 hopit(reg.formula, thresh.formula = as.formula("~ 1"), data,
   method = c("hopit", "vglm"), overdispersion = FALSE, design = list(),
   weights = NULL, link = c("probit", "logit"), start.method = c("glm",
-  "vglm"), start = NULL, control = list(), remove.theta = TRUE)
+  "vglm"), control = list(), remove.theta = TRUE)
 }
 \arguments{
 \item{reg.formula}{formula used to model latent process.}
@@ -20,8 +20,6 @@ Any dependent variable (left side of "~") will be ignored.}
 \item{design}{an optional survey design. Use \code{\link[survey]{svydesign}} function to specify the design.}
 
 \item{link}{the link function. The possible values are \code{"probit"} (default) and \code{"logit"}.}
-
-\item{start}{starting values in the form \code{c(latent_parameters, threshold_lambdas, threshold_gammas)}}
 
 \item{control}{a list with control parameters. See \code{\link{hopit.control}}.}
 

@@ -1,9 +1,13 @@
 ---
 title: "Analysis of the reporting styles using generalized ordered threshold models."
 author: "Maciej J. Dańko"
-abstract: The *hopit* package provides R functions to fit and analyze ordered response data in the context of reporting styles. In this vignette we describe the formulation and fit of *hopit* models as well as functions used to analyse reporting styles.
-date: "14 XII 2018"
-output: pdf_document
+date: "18 XII 2018"
+output:
+  #word_document: default
+  pdf_document: default
+abstract: The *hopit* package provides R functions to fit and analyze ordered response
+  data in the context of reporting styles. In this vignette we describe the formulation
+  and fit of *hopit* models as well as functions used to analyse reporting styles.
 ---
 
 ```{r setup, include=FALSE}
@@ -120,7 +124,7 @@ head(healthsurvey)
 
 To code presented below fits Generalized ordered probit model 
 
-```{r, echo=TRUE}
+```{r, echo=TRUE, cache=TRUE}
 model1<- hopit(reg.formula = health ~ hypertenssion + cholesterol + heart_stroke_respiratory + 
                  poor_mobility_or_grip + depression ,
                thresh.formula = ~ sex + ageclass,

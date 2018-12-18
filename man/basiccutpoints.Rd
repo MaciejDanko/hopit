@@ -8,7 +8,7 @@ basiccutpoints(model, subset = NULL, plotf = TRUE, mar = c(4, 4, 1, 1),
   oma = c(0, 0, 0, 0), revf = NULL, simple.plot = TRUE)
 }
 \arguments{
-\item{model}{a fitted \code{gotm} model.}
+\item{model}{a fitted \code{hopit} model.}
 
 \item{subset}{an optional vector specifying a subset of observations.}
 

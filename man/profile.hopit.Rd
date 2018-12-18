@@ -4,10 +4,16 @@
 \alias{profile.hopit}
 \title{Calculate log likelihood profile for fitted hopit model}
 \usage{
-\method{profile}{hopit}(model, scope = 0.15, steps = 101)
+\method{profile}{hopit}(fitted, ..., scope = 0.15, steps = 101)
 }
 \arguments{
-\item{x}{\code{hopit} object.}
+\item{fitted}{\code{hopit} object. Fitted model.}
+
+\item{...}{unused now.}
+
+\item{scope}{value (fraction) defining plotting range for a coeficient. The range is \code{c(coef \* (1-scope), coef \* (1+scope))}.}
+
+\item{steps}{at how many equaly spaced points calcualte the log likelihood function for each coeficient.}
 }
 \description{
 Calculate log likelihood profile for fitted hopit model

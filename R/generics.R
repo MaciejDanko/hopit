@@ -58,6 +58,7 @@ print.hopit<-function(x, ...){
 #' @importFrom survey svyrecvar
 #' @export
 #' @usage \method{vcov}{hopit}(object, robust.vcov, ...)
+#' @keywords internal
 #' @author Maciej J. Danko
 vcov.hopit<-function(object, robust.vcov, ...){
   #robust.method <- tolower(robust.method[1])
@@ -114,6 +115,7 @@ print.vcov.hopit <- function(x, digits = 3L, ...){
 #' @author Maciej J. Danko
 #' @useDynLib hopit
 #' @usage \method{summary}{hopit}(object, robust.se = TRUE, ...)
+#' @keywords internal
 #' @importFrom Rcpp evalCpp
 summary.hopit <- function(object, robust.se = TRUE, ...){
 
@@ -208,7 +210,8 @@ AIC.hopit<-function(object, ..., k = 2L) {
 #' \code{"with.first"} for 1-2, 1-3, 1-4, ... comparisons.
 #' @param direction determine if complexity of listed models is \code{"increasing"} or \code{"decreasing"} (default).
 # @keywords internal
-#' @usage \method{anova}{hopit}(object, ..., method = c("sequential", "with.first"), direction = c("decreasing", "increasing"))
+#' @usage \method{anova}{hopit}(object, ..., method = c("sequential", "with.first"),
+#' direction = c("decreasing", "increasing"))
 #' @export
 #' @author Maciej J. Danko
 anova.hopit<-function(object, ..., method = c('sequential', 'with.first'), direction = c('decreasing', 'increasing')){
@@ -289,7 +292,7 @@ lrt.hopit <- function(full, nested){
     cat("-- Formula (threshold variables):", deparse(nested$thresh.formula), fill = TRUE)
     stop('The threshold formulas are not nested.')
   }
-  if (ncol(full$hasdisp) < ncol(nested$hasdisp)) stop('Theta params are not nested.')
+  if ((full$hasdisp) < (nested$hasdisp)) stop('Theta params are not nested.')
 
   if ((ncol(full$reg.mm)) &&  (ncol(nested$reg.mm)))
     if (!(all(colnames(nested$reg.mm) %in% colnames(full$reg.mm)))) warning(call. = FALSE, 'Models use probably different (non-nested) data sets (latent variable formula).')
@@ -370,7 +373,9 @@ print.lrt.hopit <- function(x, ...){
 #' @param unravelFreq logical indicating if to represent results on individual scale if FWeights were used.
 #' @param ...	further arguments passed to or from other methods.
 #' @export
-#' @usage \method{predict}{hopit}(object, newdata=NULL, type = c('link', 'response', 'threshold', 'threshold_link'), unravelFreq = TRUE, ...)
+#' @usage \method{predict}{hopit}(object, newdata=NULL,
+#' type = c('link', 'response', 'threshold', 'threshold_link'),
+#' unravelFreq = TRUE, ...)
 #' @author Maciej J. Danko
 predict.hopit <- function(object, newdata=NULL, type = c('link', 'response', 'threshold', 'threshold_link'),
                          unravelFreq = TRUE, ...){
@@ -390,19 +395,22 @@ predict.hopit <- function(object, newdata=NULL, type = c('link', 'response', 'th
 
 #' Calculate log likelihood profile for fitted hopit model
 #'
-#' @param x \code{hopit} object.
+#' @param fitted \code{hopit} object. Fitted model.
+#' @param scope value (fraction) defining plotting range for a coeficient. The range is \code{c(coef \* (1-scope), coef \* (1+scope))}.
+#' @param steps at how many equaly spaced points calcualte the log likelihood function for each coeficient.
+#' @param ... unused now.
 #' @export
 #' @keywords internal
 #' @author Maciej J. Danko
-#' @usage \method{profile}{hopit}(model, scope = 0.15, steps = 101)
-profile.hopit<-function(model, scope=0.15, steps=101){
+#' @usage \method{profile}{hopit}(fitted, ..., scope = 0.15, steps = 101)
+profile.hopit<-function(fitted, ..., scope=0.15, steps=101){
   steps <- floor(steps/2)*2+1
-  if (model$hasdisp) COEF <- c(model$coef,model$coef.ls$theta) else COEF <- model$coef
+  if (fitted$hasdisp) COEF <- c(fitted$coef, fitted$coef.ls$theta) else COEF <- fitted$coef
   sub <- function(x,y) if (x==1) c(y,COEF[2:length(COEF)]) else if (x==length(COEF)) c(COEF[-length(COEF)],y) else
     c(COEF[1:(x-1)],y,COEF[(x+1):length(COEF)])
   lo <- COEF*(1-scope)
   hi <- COEF*(1+scope)
-  GG <- function(x) sapply(seq(lo[x],hi[x],length.out=steps),function(y) hopit_negLL(parameters=sub(x,y),model,negative = FALSE))
+  GG <- function(x) sapply(seq(lo[x],hi[x],length.out=steps),function(y) hopit_negLL(parameters=sub(x,y),fitted,negative = FALSE))
   val <- sapply(seq_along(COEF), function(x) GG(x))
   attr(val,'scope') <- scope
   attr(val,'steps') <- steps
@@ -416,21 +424,25 @@ profile.hopit<-function(model, scope=0.15, steps=101){
 
 #' Plot log likelihood profile for profile.hopit object
 #'
+#' Plot method for profile.hopit object.
 #' @param x \code{profile.hopit} object.
+#' @param leg.cex character expansion factor relative to current \code{par("cex")} (see \code{\link{legend}}).
+#' @param leg.col the color used for the legend text.
+#' @param ... arguments to be passed to \code{plot}() function (see \code{\link{par}}).
 #' @export
 #' @keywords internal
-#' @usage \method{plot}{profile.hopit}(object, leg.cex = 0.85, leg.col = 'blue4')
+#' @usage \method{plot}{profile.hopit}(x, ..., leg.cex = 0.85, leg.col = 'blue4')
 #' @author Maciej J. Danko
-plot.profile.hopit<-function(object, leg.cex = 0.85, leg.col = 'blue4'){
-  z <- sqrt(ncol(object))
+plot.profile.hopit<-function(x, ..., leg.cex = 0.85, leg.col = 'blue4'){
+  z <- sqrt(ncol(x))
   zy <- round(z)
   zx <- ceiling(z)
   spar <- par(c('mfrow','mar'))
   par(mfrow=c(zx,zy),mar=c(0,0,0,0))
-  for (j in seq_len(ncol(object))) {
-    plot(object[,j],type='l',axes='F')
-    abline(v=floor(nrow(object)/2)+1,col=2,lty=2)
-    legend('bottom',colnames(object)[j], bty='n',cex=leg.cex, text.col=leg.col)
+  for (j in seq_len(ncol(x))) {
+    plot(x[,j],type='l',axes='F', ...)
+    abline(v=floor(nrow(x)/2)+1,col=2,lty=2)
+    legend('bottom',colnames(x)[j], bty='n',cex=leg.cex, text.col=leg.col)
     box()
   }
   suppressWarnings(par(spar))
@@ -439,14 +451,16 @@ plot.profile.hopit<-function(object, leg.cex = 0.85, leg.col = 'blue4'){
 
 #' Print method for profile.hopit object
 #'
-#' @param x \code{hopit} object.
+#' @param x \code{profile.hopit} object.
+#' @param plotf \code{hopit} object.
+#' @param ... arguments to be passed to \code{plot}() function (see \code{\link{plot.profile.hopit}}).
 #' @export
 #' @keywords internal
-#' @usage \method{print}{profile.hopit}(object, plot = TRUE)
+#' @usage \method{print}{profile.hopit}(x, ..., plotf = TRUE)
 #' @author Maciej J. Danko
-print.profile.hopit<-function(object, plot = TRUE){
-  test <- apply(object,2,which.max)==floor(nrow(object)/2)+1
-  if(plot) plot.profile.hopit(object)
+print.profile.hopit<-function(x, ..., plotf = TRUE){
+  test <- apply(x,2,which.max)==floor(nrow(x)/2)+1
+  if(plotf) plot.profile.hopit(x, ...)
   if (any(!test)) {
     message('Log likelihood maximum not reached.')
     message(paste('Problem in:',paste(names(test)[!test],sep='',collapse = ',  ')))

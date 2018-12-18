@@ -8,24 +8,30 @@
 \usage{
 standardizeCoef(model, latent.method = c("observed", "theoretical"),
   plotpval = FALSE, plotf = TRUE, mar = c(15, 4, 1, 1), oma = c(0, 0, 0,
-  0), namesf = identity)
+  0), namesf = identity, ...)
 
 standardiseCoef(model, latent.method = c("observed", "theoretical"),
   plotpval = FALSE, plotf = TRUE, mar = c(15, 4, 1, 1), oma = c(0, 0, 0,
-  0), namesf = identity)
+  0), namesf = identity, ...)
 
 disabilityweights(model, latent.method = c("observed", "theoretical"),
   plotpval = FALSE, plotf = TRUE, mar = c(15, 4, 1, 1), oma = c(0, 0, 0,
-  0), namesf = identity)
+  0), namesf = identity, ...)
 }
 \arguments{
-\item{model}{a fitted \code{gotm} model.}
+\item{model}{a fitted \code{hopit} model.}
+
+\item{plotpval}{logical indicating if to plot p-values.}
 
 \item{plotf}{logical indicating if to plot results.}
 
 \item{mar}{see \code{\link{par}}.}
 
 \item{oma}{see \code{\link{par}}.}
+
+\item{namesf}{one argument function that modifies names of coeficients.}
+
+\item{...}{arguments passed to \code{\link{boxplot}}.}
 }
 \description{
 Calculate standardized coeficients - disability weights

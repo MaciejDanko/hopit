@@ -11,10 +11,13 @@
 #'   \item{heart_stroke_respiratory}{has respiratory problems or had stroke or heart attack? Yes or No}
 #'   \item{poor_mobility_or_grip}{has poor mobility or cannot perform grip strength? Yes or No}
 #'   \item{depression}{has depression? Yes or No}
+#'   \item{contHM}{a continous health marker}
 #'   \item{sex}{sex: woman or man}
 #'   \item{ageclass}{categorized age: [50,60), [60,70), [70,80), [80,120)}
+#'   \item{country}{X, Y, or Z}
 #'   \item{csw}{cross-sectional survey weights}
 #'   \item{psu}{primary statistical unit}
+#'   \item{ssu}{secondary statistical unit}
 #' }
 #'
 #' @source Data was randomly generated using probabilities of occurence of particular

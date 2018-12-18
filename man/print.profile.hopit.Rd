@@ -4,10 +4,14 @@
 \alias{print.profile.hopit}
 \title{Print method for profile.hopit object}
 \usage{
-\method{print}{profile.hopit}(object, plot = TRUE)
+\method{print}{profile.hopit}(x, ..., plotf = TRUE)
 }
 \arguments{
-\item{x}{\code{hopit} object.}
+\item{x}{\code{profile.hopit} object.}
+
+\item{...}{arguments to be passed to \code{plot}() function (see \code{\link{plot.profile.hopit}}).}
+
+\item{plotf}{\code{hopit} object.}
 }
 \description{
 Print method for profile.hopit object

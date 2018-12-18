@@ -22,3 +22,4 @@ Calculate model summary
 \author{
 Maciej J. Danko
 }
+\keyword{internal}

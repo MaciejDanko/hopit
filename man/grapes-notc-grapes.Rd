@@ -6,6 +6,9 @@
 \usage{
 x \%notc\% y
 }
+\arguments{
+\item{x, }{y numeric vectors}
+}
 \description{
 Not \%notc\% function
 }

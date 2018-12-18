@@ -12,7 +12,7 @@ healthindex(model, subset = NULL, plotf = FALSE, crude = FALSE,
   healthlevelsorder = "decreasing", method = c("observed", "theoretical"))
 }
 \arguments{
-\item{model}{a fitted \code{gotm} model.}
+\item{model}{a fitted \code{hopit} model.}
 
 \item{subset}{an optional vector specifying a subset of observations.}
 

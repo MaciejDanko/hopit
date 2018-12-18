@@ -1,16 +1,20 @@
 #' Not \%in\% function
 #'
+#' @param x, y numeric vectors
 #' @usage x \%notin\% y
 #' @export
 '%notin%' <-function(x, y) match(x, y, nomatch = 0L) == 0L
 
 #' Check if one set is a subset of an another subset
 #'
+#' @param x, y numeric vectors
 #' @usage x \%c\% y
 #' @export
 '%c%' <-function(x, y) all(match(x, y, nomatch = 0L))
 
 #' Not \%notc\% function
+#'
+#' @param x, y numeric vectors
 #' @usage x \%notc\% y
 #' @export
 '%notc%' <- function(x, y) !all(match(x, y, nomatch = 0L))

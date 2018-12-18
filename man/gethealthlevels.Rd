@@ -10,7 +10,7 @@ gethealthlevels(model, formula = model$thresh.formula,
   oma = c(0, 3, 0, 0))
 }
 \arguments{
-\item{model}{a fitted \code{gotm} model.}
+\item{model}{a fitted \code{hopit} model.}
 
 \item{formula}{a formula containing the variables. It is by default set to threshold formula.}
 

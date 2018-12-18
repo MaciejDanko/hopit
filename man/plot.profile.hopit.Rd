@@ -4,13 +4,19 @@
 \alias{plot.profile.hopit}
 \title{Plot log likelihood profile for profile.hopit object}
 \usage{
-\method{plot}{profile.hopit}(object, leg.cex = 0.85, leg.col = 'blue4')
+\method{plot}{profile.hopit}(x, ..., leg.cex = 0.85, leg.col = 'blue4')
 }
 \arguments{
 \item{x}{\code{profile.hopit} object.}
+
+\item{...}{arguments to be passed to \code{plot}() function (see \code{\link{par}}).}
+
+\item{leg.cex}{character expansion factor relative to current \code{par("cex")} (see \code{\link{legend}}).}
+
+\item{leg.col}{the color used for the legend text.}
 }
 \description{
-Plot log likelihood profile for profile.hopit object
+Plot method for profile.hopit object.
 }
 \author{
 Maciej J. Danko

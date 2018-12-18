@@ -4,7 +4,7 @@
 #' zero is prescribed to the worse possible health (maximum posible value fo the latent variable;
 #' all conditions/diseases with negative effects on health are present) and 1 is prescribed
 #' to the best possible health (calculated analogically).
-#' @param model a fitted \code{gotm} model.
+#' @param model a fitted \code{hopit} model.
 #' @param subset an optional vector specifying a subset of observations.
 #' @param plotf logical indicating if to plot summary figure.
 #' @param crude logical indicating if to calculate crude health measure based directly on self reported health levels.
@@ -15,9 +15,9 @@ latentindex <- function(model, subset=NULL, plotf = FALSE, crude = FALSE, #scale
                         healthlevelsorder = 'decreasing', method = c('observed','theoretical')) {
   #0 is the worse possible health, 1 is the best possible health
   method = method[1]
-  p <- gotm_ExtractParameters(model)
-  if (!length(model$maxlatentrange)) model$maxlatentrange <- sort(gotm_latentrange(model=model, data=data))
-  if (!length(model$maxobservedlatentrange)) model$maxobservedlatentrange <- sort(range(gotm_Latent(p$reg.params,model)))
+  p <- hopit_ExtractParameters(model)
+  if (!length(model$maxlatentrange)) model$maxlatentrange <- sort(hopit_latentrange(model=model, data=data))
+  if (!length(model$maxobservedlatentrange)) model$maxobservedlatentrange <- sort(range(hopit_Latent(p$reg.params,model)))
   if (length(subset) == 0) subset=seq_along(model$y_i)
   if (crude) {
     hi <- as.numeric(unclass(model$y_i))
@@ -43,23 +43,24 @@ healthindex <- latentindex
 #' of its linear prediction. The range is calcualted as difference between maximum and minimum possible value of the latent variable
 #' given estimated parameters.
 #' @seealso \code{\link{healthindex}}
-#' @param model a fitted \code{gotm} model.
+#' @param model a fitted \code{hopit} model.
 #' @param plotf logical indicating if to plot results.
+#' @param plotpval logical indicating if to plot p-values.
 #' @param mar see \code{\link{par}}.
 #' @param oma see \code{\link{par}}.
+#' @param namesf one argument function that modifies names of coeficients.
+#' @param ... arguments passed to \code{\link{boxplot}}.
 #' @name standardizeCoef
 #' @export
 standardizeCoef <- function (model, latent.method = c('observed','theoretical'),
                                plotpval = FALSE,
                                plotf = TRUE, mar = c(15, 4, 1, 1), oma = c(0, 0, 0, 0),
-                               namesf = identity) {
+                               namesf = identity, ...) {
   latent.method <- latent.method[1]
-  #if (model$thresh.method != 'vglm') k <- 1 else k <- -1
-  k=1
-  p <- gotm_ExtractParameters(model)
-  if (!length(model$maxlatentrange)) model$maxlatentrange <- sort(k*gotm_latentrange(model=model, data=data))
-  if (!length(model$maxobservedlatentrange)) model$maxobservedlatentrange <- sort(k*range(gotm_Latent(p$reg.params,model)))
-  z <- (k * model$coef)[seq_len(model$parcount[1])]
+  p <- hopit_ExtractParameters(model)
+  if (!length(model$maxlatentrange)) stop('maxlatentenrange field not present in the model.') #model$maxlatentrange <- sort(k*hopit_latentrange(model=model, data=data))
+  if (!length(model$maxobservedlatentrange)) stop('maxobservedlatentenrange field not present in the model.') #model$maxobservedlatentrange <- sort(k*range(hopit_Latent(p$reg.params,model)))
+  z <- (model$coef)[seq_len(model$parcount[1])]
 
   if (class(namesf)=='function') names(z) <- namesf(names(z)) else names(z) <- namesf
   oz <- order(z, decreasing = TRUE)
@@ -76,7 +77,7 @@ standardizeCoef <- function (model, latent.method = c('observed','theoretical'),
 
     opar <- par(c("mar", "oma"))
     par(mar = mar, oma = oma)
-    rr <- barplot(t(res), las = 3)
+    rr <- barplot(t(res), las = 3, ...)
     if(plotpval) {
       y <- summary(model)
       pval <- format(round(y$table$`Pr(>|z|)`[seq_len(model$parcount[1])],4),digits=4,scientific=FALSE)[oz]
@@ -139,7 +140,7 @@ formula2classes <- function(formula, data, sep='_', add.var.names = FALSE, retur
 #' Get health index quantiles with respect to specified vaiables
 #' @description
 #' Get health index quantiles with respect to specified vaiables.
-#' @param model a fitted \code{gotm} model.
+#' @param model a fitted \code{hopit} model.
 #' @param formula a formula containing the variables. It is by default set to threshold formula.
 #' @param data used to fit the model.
 #' @param plotf logical indicating if to plot the results.
@@ -198,7 +199,7 @@ gethealthindexquantiles<-function(model, formula=model$thresh.formula, data=envi
 #' Calcualte threshold cut-points using Jurges' method
 #' @description
 #' Calcualte threshold cut-points using Jurges' method.
-#' @param model a fitted \code{gotm} model.
+#' @param model a fitted \code{hopit} model.
 #' @param subset an optional vector specifying a subset of observations.
 #' @param plotf logical indicating if to plot the results.
 #' @param revf logical indicating if self-reported health classes are ordered in increasing order.
@@ -265,7 +266,7 @@ basiccutpoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=
 #' Calcualte threshold cut-points using Jurges' method
 #' @description
 #' Calcualte threshold cut-points using Jurges' method.
-#' @param model a fitted \code{gotm} model.
+#' @param model a fitted \code{hopit} model.
 #' @param formula a formula containing the variables.
 #' It is by default set to threshold formula.
 #' If set to \code{NULL} then threshold cut-point are calcualted for the whole population.
@@ -329,7 +330,7 @@ getcutpoints<-function(model, formula=model$thresh.formula,
 #' Calcualte adjusted health levels.
 #' @description
 #' Calcualte adjusted health levels according to th Jurges' method.
-#' @param model a fitted \code{gotm} model.
+#' @param model a fitted \code{hopit} model.
 #' @param formula a formula containing the variables. It is by default set to threshold formula.
 #' @param data data used to fit the model.
 #' @param plotf logical indicating if to plot the results.
