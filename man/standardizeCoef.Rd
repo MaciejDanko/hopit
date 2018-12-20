@@ -8,15 +8,15 @@
 \usage{
 standardizeCoef(model, latent.method = c("observed", "theoretical"),
   plotpval = FALSE, plotf = TRUE, mar = c(15, 4, 1, 1), oma = c(0, 0, 0,
-  0), namesf = identity, ...)
+  0), YLab = "Disability weight", namesf = identity, ...)
 
 standardiseCoef(model, latent.method = c("observed", "theoretical"),
   plotpval = FALSE, plotf = TRUE, mar = c(15, 4, 1, 1), oma = c(0, 0, 0,
-  0), namesf = identity, ...)
+  0), YLab = "Disability weight", namesf = identity, ...)
 
 disabilityweights(model, latent.method = c("observed", "theoretical"),
   plotpval = FALSE, plotf = TRUE, mar = c(15, 4, 1, 1), oma = c(0, 0, 0,
-  0), namesf = identity, ...)
+  0), YLab = "Disability weight", namesf = identity, ...)
 }
 \arguments{
 \item{model}{a fitted \code{hopit} model.}

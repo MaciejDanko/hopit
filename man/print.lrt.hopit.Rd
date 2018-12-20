@@ -9,6 +9,8 @@
 \arguments{
 \item{x}{object obtained from \code{\link{lrt.hopit}}}
 
+\item{short}{logical, shortened description}
+
 \item{...}{further arguments passed to or from other methods.}
 }
 \description{

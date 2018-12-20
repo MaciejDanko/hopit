@@ -4,7 +4,7 @@
 \alias{get.vglm.start}
 \title{INTERNAL: Translate vglm to hopit start parameters}
 \usage{
-get.vglm.start(model, data, expTheta = 0)
+get.vglm.start(model, data)
 }
 \arguments{
 \item{model}{\code{hopit} object.}

@@ -35,10 +35,10 @@ print.hopit<-function(x, ...){
     cat('\nThreshold coefficients (Gamma):\n')
     print(x$coef.ls$thresh.gamma)
   }
-  if(length(x$coef.ls$theta)){
+  #if(length(x$coef.ls$logTheta)){
     if (x$hasdisp) cat('\nTheta:\n') else cat('\nFixed Theta:\n')
-    cat(x$coef.ls$theta,'\n')
-  }
+    cat(exp(x$coef.ls$logTheta),'\n')
+  #}
   invisible(NULL)
 }
 
@@ -118,10 +118,9 @@ print.vcov.hopit <- function(x, digits = 3L, ...){
 #' @keywords internal
 #' @importFrom Rcpp evalCpp
 summary.hopit <- function(object, robust.se = TRUE, ...){
-
   varcov <- vcov(object, robust.se, ...)
   dvcov <- diag(varcov)
-  if (any(dvcov<0)) warning('Negative variaces where transformed to positive, try different robust.se options and check the fit!')
+  if (any(dvcov<0)) warning('Negative variaces detected, try different robust.se/survey options and check the fit!')
   SE <- suppressWarnings(sqrt(abs(dvcov)))
   if (length(object$design)){
     cat('Survey weights detected. Standard errors was adjusted for survey design.\n')
@@ -153,11 +152,10 @@ print.summary.hopit <- function(x, ...){
   cat('\nLink:', model$link, fill = TRUE)
   cat('Number of cases:', model$N, fill = TRUE)
   cat('Response levels:', toString(levels(model$y_i)), fill = TRUE)
-  if (model$hasdisp) cat('Dispersion parameter (Theta):', model$coef[length(model$coef)], fill = TRUE)
   if(x$robust.se) cat('\nRobust SE were used (sandwich estimator of varcov).\n')
   cat('\n')
   printCoefmat(x = x$coef, P.values = TRUE, has.Pvalue = TRUE, digits = 4L, dig.tst = 2L)
-  cat('\nTheta:', model$coef.ls$theta, fill = TRUE)
+  cat('\nTheta:', exp(model$coef.ls$logTheta), fill = TRUE)
   cat('\nLog-likelihood:', model$LL, fill = TRUE)
   cat('\nDeviance:', model$deviance, fill = TRUE)
   if (!length(model$design)) cat('AIC:', AIC.hopit(model), fill = TRUE)
@@ -226,7 +224,7 @@ anova.hopit<-function(object, ..., method = c('sequential', 'with.first'), direc
     ob.nam <- gsub(' ', '', strsplit(substring(tmp, 6L, nchar(tmp) - 1L), ',', fixed = TRUE)[[1L]])
   } else  stop('At least two objects must be listed.')
   if (length(objects) == 2L){
-    if(length(objects[[1L]]$coef)>length(objects[[2L]]$coef)) {
+    if(length(objects[[1L]]$coef)+objects[[1L]]$hasdisp>length(objects[[2L]]$coef)+objects[[2L]]$hasdisp) {
       return(lrt.hopit(objects[[1L]], objects[[2L]]))
     } else {
       return(lrt.hopit(objects[[2L]], objects[[1L]]))
@@ -278,7 +276,7 @@ print.anova.hopit <- function(x, ...){
 lrt.hopit <- function(full, nested){
 
   if (!identical(full$design, nested$design)) stop('Models have different survey designs.',call. = NULL)
-  if (length(full$coef) <= length(nested$coef)) stop('The "full" model must have more parameters than the "nested" one.',call. = NULL)
+  if (length(full$coef) + full$hasdisp <= length(nested$coef)+ nested$hasdisp) stop('The "full" model must have more parameters than the "nested" one.',call. = NULL)
   if (full$LL - nested$LL < -.Machine$double.eps) warning(call. = FALSE, 'The "nested" model has the higher likelihood than the "full" model. Try to improve the fit of the models.')
   if (ncol(full$reg.mm) < ncol(nested$reg.mm)) {
     cat('Full model:\n')
@@ -302,7 +300,7 @@ lrt.hopit <- function(full, nested){
     if (!(all(colnames(nested$thresh.mm) %in% colnames(full$thresh.mm)))) warning(call. = FALSE, 'Models use probably different (non-nested) data sets (latent variable formula).')
 
   stat <- 2L*( logLik.hopit(full) - logLik.hopit(nested))
-  #df.diff <- length(full$coef) - length(nested$coef) + length(full$coef.ls$theta) - length(nested$coef.ls$theta)
+  #df.diff <- length(full$coef) - length(nested$coef) + length(full$coef.ls$logTheta) - length(nested$coef.ls$logTheta)
 
   if (!length(full$design)) {
     df.diff <- length(full$coef.ls$reg.params) - length(nested$coef.ls$reg.params) +
@@ -332,21 +330,23 @@ lrt.hopit <- function(full, nested){
 #' Print object calculated by \code{\link{lrt.hopit}}
 #'
 #' @param x object obtained from \code{\link{lrt.hopit}}
+#' @param short logical, shortened description
 #' @param ...	further arguments passed to or from other methods.
 #' @keywords internal
 #' @export
 #' @usage \method{print}{lrt.hopit}(x, ...)
 #' @author Maciej J. Danko
-print.lrt.hopit <- function(x, ...){
-  cat('Likelihood ratio test:\n')
-  cat('full model:\n')
-  cat("-- Formula (latent variables):", deparse(x$full$reg.formula), fill = TRUE)
-  cat("-- Formula (threshold variables):", deparse(x$full$thresh.formula), fill = TRUE)
-  cat("-- Estimated theta:",x$full$hasdisp, fill=TRUE)
-  cat('\nnested model:\n')
-  cat("-- Formula (latent variables):", deparse(x$nested$reg.formula), fill = TRUE)
-  cat("-- Formula (threshold variables):", deparse(x$nested$thresh.formula), fill = TRUE)
-  cat("-- Estimated theta:",x$nested$hasdisp, fill=TRUE)
+print.lrt.hopit <- function(x, short=FALSE, ...){
+  if (!short) {
+    cat('full model:\n')
+    cat("-- Formula (latent variables):", deparse(x$full$reg.formula), fill = TRUE)
+    cat("-- Formula (threshold variables):", deparse(x$full$thresh.formula), fill = TRUE)
+    cat("-- Estimated theta:",x$full$hasdisp, fill=TRUE)
+    cat('\nnested model:\n')
+    cat("-- Formula (latent variables):", deparse(x$nested$reg.formula), fill = TRUE)
+    cat("-- Formula (threshold variables):", deparse(x$nested$thresh.formula), fill = TRUE)
+    cat("-- Estimated theta:",x$nested$hasdisp, fill=TRUE)
+  }
   #uzyc signif
   cat('\nLikelihood ratio test:\n')
   if (length(x$df)) {
@@ -407,7 +407,7 @@ predict.hopit <- function(object, newdata=NULL, type = c('link', 'response', 'th
 #' @usage \method{profile}{hopit}(fitted, ..., scope = 0.15, steps = 101)
 profile.hopit<-function(fitted, ..., scope=0.15, steps=101){
   steps <- floor(steps/2)*2+1
-  if (fitted$hasdisp) COEF <- c(fitted$coef, fitted$coef.ls$theta) else COEF <- fitted$coef
+  if (fitted$hasdisp) COEF <- c(fitted$coef, fitted$coef.ls$logTheta) else COEF <- fitted$coef
   sub <- function(x,y) if (x==1) c(y,COEF[2:length(COEF)]) else if (x==length(COEF)) c(COEF[-length(COEF)],y) else
     c(COEF[1:(x-1)],y,COEF[(x+1):length(COEF)])
   lo <- COEF*(1-scope)

@@ -3,7 +3,7 @@ title: "Analysis of the reporting styles using generalized ordered threshold mod
 author: "Maciej J. Dańko"
 date: "18 XII 2018"
 output:
-  #word_document: default
+  html_document: default
   pdf_document: default
 abstract: The *hopit* package provides R functions to fit and analyze ordered response
   data in the context of reporting styles. In this vignette we describe the formulation
@@ -12,6 +12,7 @@ abstract: The *hopit* package provides R functions to fit and analyze ordered re
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+unlink('vignettes/vignette_cache', recursive = TRUE)
 ```
 
 ## 1. Introduction
@@ -190,14 +191,16 @@ cbind('No survey design'=coef(model2,aslist=TRUE)$reg.par,
 *hopit*() is also able to fit additional theata parameter that controls for "dispersion". Theta is the variance of random gussian noise in probit regression (or shape parameter in logistic regression)
 
 ```{r, echo=TRUE, cache=TRUE}
-model3 <- hopit(reg.formula = health ~ hypertenssion + cholesterol + heart_stroke_respiratory +
+model4 <- hopit(reg.formula = health ~ hypertenssion + cholesterol + heart_stroke_respiratory +
                  poor_mobility_or_grip + depression ,
                thresh.formula = ~ sex + ageclass + country,
                control=list(trace=FALSE),
                overdispersion = TRUE,
                data = healthsurvey)
 
-model3$coef.ls$theta
+unname(exp(model4$coef.ls$logTheta)) #Theta
+
+print(anova(model2,model4), short=TRUE)
 ```
 
 The fit of the model can be asesed using *profile*() function, which calcualte nd plot profile of the log likelihood function around fitted coeficient values.
@@ -208,7 +211,7 @@ profile(model3)
 ## 6. Reporting styles analysis
 
 ```{r, echo=TRUE}
-standardizeCoef(model2, plotf = TRUE)
+standardizeCoef(model2, plotf = TRUE, namesf = function(x) substr(x,1,nchar(x)-3))
 
 latentindex(model2, plotf = TRUE)
 ```

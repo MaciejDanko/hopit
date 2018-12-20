@@ -12,23 +12,28 @@
 #' @param method the method of calcualtion of of latent range .........
 #' @export
 latentindex <- function(model, subset=NULL, plotf = FALSE, crude = FALSE, #scaled = TRUE,
-                        healthlevelsorder = 'decreasing', method = c('observed','theoretical')) {
+                        healthlevelsorder = 'decreasing',
+                        response = c('data','fitted'),
+                        method = c('observed','theoretical')) {
   #0 is the worse possible health, 1 is the best possible health
   method = method[1]
+
+  response <- tolower(response[1])
+  if (response=='data') YY <- model$y_i else if (response=='fitted') YY <- model$Ey_i else stop('Unknown response')
   p <- hopit_ExtractParameters(model)
   if (!length(model$maxlatentrange)) model$maxlatentrange <- sort(hopit_latentrange(model=model, data=data))
   if (!length(model$maxobservedlatentrange)) model$maxobservedlatentrange <- sort(range(hopit_Latent(p$reg.params,model)))
-  if (length(subset) == 0) subset=seq_along(model$y_i)
+  if (length(subset) == 0) subset=seq_along(YY)
   if (crude) {
-    hi <- as.numeric(unclass(model$y_i))
+    hi <- as.numeric(unclass(YY))
     hi <- (hi - min(hi))/(diff(range(hi)))
     if (healthlevelsorder == 'decreasing') hi <- 1-hi else if (healthlevelsorder != 'increasing') stop('Unknown value for healthlevelsorder.')
     hi <- hi[subset]
-    if (plotf) plot(model$y_i[subset], hi,las=3, ylab='Health index')
+    if (plotf) plot(YY[subset], hi,las=3, ylab='Health index')
   } else {
     if (method=='theoretical') r <- model$maxlatentrange else if (method=='observed') r <- model$maxobservedlatentrange
     hi <- (1 - ((model$y_latent_i - r[1]) / diff(r)))[subset]
-    if (plotf) plot(model$y_i[subset], hi,las=3, ylab='Health index')
+    if (plotf) plot(YY[subset], hi,las=3, ylab='Health index')
   }
   if (plotf) invisible(hi) else return(hi)
 }
@@ -55,6 +60,7 @@ healthindex <- latentindex
 standardizeCoef <- function (model, latent.method = c('observed','theoretical'),
                                plotpval = FALSE,
                                plotf = TRUE, mar = c(15, 4, 1, 1), oma = c(0, 0, 0, 0),
+                               YLab = "Disability weight",
                                namesf = identity, ...) {
   latent.method <- latent.method[1]
   p <- hopit_ExtractParameters(model)
@@ -86,7 +92,7 @@ standardizeCoef <- function (model, latent.method = c('observed','theoretical'),
       yr[ind] <- (res+max(res)*0.1)[ind]
       text(rr,yr,paste('P =',pval),srt=90,col=c('white','black')[1+ind])
     }
-    mtext("Disability weight", 2, cex = 1.5, line = 2.5)
+    mtext(YLab, 2, cex = 1.5, line = 2.5)
     suppressWarnings(par(opar))
   }
   if (plotf)
@@ -122,11 +128,12 @@ untable <- function(x) {
   as.matrix(x)
 }
 
+
 #' @keywords internal
 formula2classes <- function(formula, data, sep='_', add.var.names = FALSE, return.matrix = FALSE){
   tmp <- model.frame(formula, data)
   mod.mat <- tmp
-  lv <- lapply(seq_len(NCOL(tmp)),function (k) levels(tmp[,k]))
+  lv <- lapply(seq_len(NCOL(tmp)),function (k) levels(as.factor(tmp[,k])))
   names(lv) <-colnames(tmp)
   tmp2 <- expand.grid(lv)
   if (add.var.names) tmp2 <- sapply(seq_len(NCOL(tmp2)), function (k) paste(colnames(tmp2)[k],'[',tmp2[,k],']',sep=''))
@@ -137,9 +144,10 @@ formula2classes <- function(formula, data, sep='_', add.var.names = FALSE, retur
   if (return.matrix) list(x = tmp, mat = mod.mat, class.mat = tmp2) else tmp
 }
 
-#' Get health index quantiles with respect to specified vaiables
+
+#' L
 #' @description
-#' Get health index quantiles with respect to specified vaiables.
+#' Calculate and plot interquartile ranges, medians and means for latent index for selected grouping variables
 #' @param model a fitted \code{hopit} model.
 #' @param formula a formula containing the variables. It is by default set to threshold formula.
 #' @param data used to fit the model.
@@ -148,11 +156,26 @@ formula2classes <- function(formula, data, sep='_', add.var.names = FALSE, retur
 #' @param sep separator for levls names.
 #' @param mar see \code{\link{par}}.
 #' @param oma see \code{\link{par}}.
+#' @name latentindexStats
 #' @export
-gethealthindexquantiles<-function(model, formula=model$thresh.formula, data=environment(model$thresh.formula),
+latentindexStats<-function(model, formula,
+                                  data=environment(model$thresh.formula),
                                   plotf = TRUE, sep='\n',sort.flag=FALSE,
-                                  mar=c(4,8,1.5,0.5),oma=c(0,0,0,0), healthlevelsorder = 'decreasing'){
-  if (class(formula)=='formula') tmp <- formula2classes(formula, data, sep=sep) else stop('Not implemented.')
+                                  mar=c(4,8,1.5,0.5),oma=c(0,0,0,0),
+                                  XLab = 'Health index',
+                                  healthlevelsorder = 'decreasing'){
+  # If model has defined weights they are used.
+  if (missing(formula)){
+    formula <- model$thresh.formula
+  } else if (class(formula)!='formula') stop('formula must be of type "formula".')
+  tl <- attr(terms(formula),"term.labels")
+  tli <- grep(':',tl,fixed=TRUE)
+  if (length(tli)) {
+    warning('Interactions in forrmula were ignored.')
+    tl <- tl[tli]
+    formula <- update(formula, as.formula(paste('~. -',paste(tl,collapse = '-'))))
+  }
+  tmp <- formula2classes(formula, data, sep=sep)
   D <- t(sapply(levels(tmp),function(k) quantile(healthindex(model, tmp==k))))
   Jh <- floor(model$J/2)
   if (healthlevelsorder != 'decreasing') Jh <- model$J - Jh
@@ -189,12 +212,16 @@ gethealthindexquantiles<-function(model, formula=model$thresh.formula, data=envi
     #lines(M.crude2,rev(seq_along(M.crude2)),type='p',pch=15,col='blue3',cex=1.5)
     abline(v=D0[-c(1,model$J)])
     #text(x=1,y=rev(seq_along(M)),format(M.crude2,digits=3),col='blue3')
-    mtext('Health index',1,cex=1.5,line = 2.5)
+    mtext(XLab,1,cex=1.5,line = 2.5)
     suppressWarnings(par(opar))
   }
   res <- list(q.all=D0, q=D, IQR=IQR, mean = M, mean.crude = M.crude, frac.crude = M.crude2)
   if (plotf) invisible(res) else return(res)
 }
+
+#'@rdname latentindexStats
+healthindexStats <- latentindexStats
+
 
 #' Calcualte threshold cut-points using Jurges' method
 #' @description
@@ -202,13 +229,14 @@ gethealthindexquantiles<-function(model, formula=model$thresh.formula, data=envi
 #' @param model a fitted \code{hopit} model.
 #' @param subset an optional vector specifying a subset of observations.
 #' @param plotf logical indicating if to plot the results.
-#' @param revf logical indicating if self-reported health classes are ordered in increasing order.
+#' @param revf logical indicating if self-reported health classes are ordered in increasing order. ?????
 #' @param healthlevelsorder order of self-reported healh levels. Possible values are \code{'increasing'} and \code{'decreasing'}
 #' @param mar see \code{\link{par}}.
 #' @param oma see \code{\link{par}}.
 #' @keywords internal
-basiccutpoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(0,0,0,0), revf=NULL, simple.plot=TRUE){
-
+basiccutpoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(0,0,0,0), revf=NULL, group.labels.type=c('middle','border','none')){
+  group.labels.type<-tolower(group.labels.type[1])
+  if(group.labels.type %notin%  c('middle','border','none')) stop ('Unknown group.labels.type.',call.=NULL)
   if (length(subset) == 0) subset=seq_along(model$y_i)
   Y <- model$y_i[subset]
   if (length(revf) == 0) {
@@ -231,14 +259,13 @@ basiccutpoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=
     par(mar=mar, oma=oma)
     z<-hist(h.index, 200,xlab='',ylab='' ,
             main='', yaxs='i', col=grey(0.8, alpha = 0.5),border=grey(0.4, alpha = 0.5))
-    if (!simple.plot) {
+    if (group.labels.type == 'border') {
     for (j in seq_along(Nm)) text(x=R1[j],y=(1.1*max(z$counts))/2,labels=Nm[[j]],
                                   srt=90,pos=2,offset=0.67,col=2)
-    } else {
+    } else if (group.labels.type == 'middle'){
       R11=-diff(c(0,R1,1))/2+c(R1,1)+strheight('S',units='figure')/2
       for (j in seq_along(lv)) text(x=R11[j],y=(3*1.1*max(z$counts))/4,labels=lv[j],
                                     srt=90,pos=3,offset=0.67,col=2)
-
     }
     box()
     abline(v=R1,lwd=2,col=2)

@@ -52,6 +52,7 @@ hopit_latentrange <- function (model, data) {
 #' @author Maciej J. Danko
 #' @keywords internal
 hopit_ExtractParameters <- function(model, parameters, parcount = model$parcount){
+  logTheta <- 0
   if (!length(parcount)) stop('Missing parcount in model object.')
   if (missing(parameters)) {
     parameters <- model$coef
@@ -75,9 +76,9 @@ hopit_ExtractParameters <- function(model, parameters, parcount = model$parcount
   }
 
   if (model$hasdisp) {
-    list(reg.params = reg.params, thresh.lambda = thresh.lambda, thresh.gamma = thresh.gamma, theta = parameters[length(parameters)])
+    list(reg.params = reg.params, thresh.lambda = thresh.lambda, thresh.gamma = thresh.gamma, logTheta = parameters[length(parameters)])
   } else {
-    list(reg.params = reg.params, thresh.lambda = thresh.lambda, thresh.gamma = thresh.gamma, theta = 1)
+    list(reg.params = reg.params, thresh.lambda = thresh.lambda, thresh.gamma = thresh.gamma, logTheta = logTheta)
   }
 }
 
@@ -497,7 +498,7 @@ hopit<- function(reg.formula,
   }
 
   coefnames <-  c(reg.names, paste('(L)', interce, sep = '.'), tmp)
-  if (model$hasdisp) coefnames <- c(coefnames, 'Theta')
+  if (model$hasdisp) coefnames <- c(coefnames, 'logTheta')
 
   model$weights <- NULL
   if (length(weights) && length(design)) stop('Multiple weights specification detected. Please use either design or weights parameter.', call.=NULL)
@@ -552,7 +553,6 @@ hopit<- function(reg.formula,
 
   hes <- my.grad(fn = hopit_derivLL, par = model$coef, model=model, eps = 1e-4, collapse = TRUE, negative=FALSE)
   if (model$hasdisp && remove.theta) {
-    cat('.removing theta.')
     hes <- hes[-nrow(hes),-ncol(hes)] #remove theta from vcov
     model$coef <- model$coef[-length(model$coef)] #remove from coef
   }
@@ -564,7 +564,7 @@ hopit<- function(reg.formula,
     model$vcov.basic <- NA
   }
   if (model$control$trace) cat(' done\nCalculating estfun...')
-  if (model$hasdisp && remove.theta) COEF <- c(model$coef,model$coef.ls$theta) else COEF <- model$coef
+  if (model$hasdisp && remove.theta) COEF <- c(model$coef,model$coef.ls$logTheta) else COEF <- model$coef
   model$estfun <- hopit_derivLL(COEF, model, collapse = FALSE)
   if (remove.theta) model$estfun <- model$estfun[,-ncol(model$estfun)]
   if (model$control$trace) cat(' done\n')

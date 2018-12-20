@@ -166,6 +166,7 @@ extractCoef <- function(COEF, model){
 #' importFrom VGAM vglm
 #' @keywords internal
 start.vglm <-function(model, data){
+  logTheta <- 0
   reg.formula <- model$reg.formula
   thresh.formula <- model$thresh.formula
   if (length(thresh.formula)>2) thresh.formula[[2]] <- NULL
@@ -217,7 +218,7 @@ start.vglm <-function(model, data){
   z <- extractCoef(cmv2, model)
   model$vglm.start.ls <- z$start.ls
   model$vglm.start <- z$start
-  if (model$hasdisp) model$vglm.start <- c(model$vglm.start, 1)
+  if (model$hasdisp) model$vglm.start <- c(model$vglm.start, logTheta)
   parcount <- model$parcount
   parcount[1] <- parcount[1] - length(ignored.var) #check!
   list(vglm.model=model,ignored.reg.var=ignored.var,new.reg.formula=reg.formula)
@@ -270,7 +271,8 @@ start.glm<-function(model, data){
 #' @keywords internal
 #' @useDynLib hopit
 #' @importFrom Rcpp evalCpp
-get.vglm.start<-function(model, data, expTheta = 0){
+get.vglm.start<-function(model, data){
+  logTheta <- 0
   if ((!model$method) && (model$start.method=='glm')) {
     m <- suppressWarnings(start.glm(model, data))
     model <- m
@@ -297,8 +299,8 @@ get.vglm.start<-function(model, data, expTheta = 0){
     model$start.ls$gamma.start <-z$thresh_gamma
 
     if (model$hasdisp) {
-      model$start.ls$theta <- expTheta
-      model$start <- c(z$coef, expTheta)
+      model$start.ls$logTheta <- logTheta
+      model$start <- c(z$coef, logTheta)
     } else model$start <- z$coef
 
   } else {

@@ -6,10 +6,12 @@
 \title{Calculate health index}
 \usage{
 latentindex(model, subset = NULL, plotf = FALSE, crude = FALSE,
-  healthlevelsorder = "decreasing", method = c("observed", "theoretical"))
+  healthlevelsorder = "decreasing", response = c("data", "fitted"),
+  method = c("observed", "theoretical"))
 
 healthindex(model, subset = NULL, plotf = FALSE, crude = FALSE,
-  healthlevelsorder = "decreasing", method = c("observed", "theoretical"))
+  healthlevelsorder = "decreasing", response = c("data", "fitted"),
+  method = c("observed", "theoretical"))
 }
 \arguments{
 \item{model}{a fitted \code{hopit} model.}

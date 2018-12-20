@@ -5,7 +5,8 @@
 \title{Calcualte threshold cut-points using Jurges' method}
 \usage{
 basiccutpoints(model, subset = NULL, plotf = TRUE, mar = c(4, 4, 1, 1),
-  oma = c(0, 0, 0, 0), revf = NULL, simple.plot = TRUE)
+  oma = c(0, 0, 0, 0), revf = NULL, group.labels.type = c("middle",
+  "border", "none"))
 }
 \arguments{
 \item{model}{a fitted \code{hopit} model.}
@@ -18,7 +19,7 @@ basiccutpoints(model, subset = NULL, plotf = TRUE, mar = c(4, 4, 1, 1),
 
 \item{oma}{see \code{\link{par}}.}
 
-\item{revf}{logical indicating if self-reported health classes are ordered in increasing order.}
+\item{revf}{logical indicating if self-reported health classes are ordered in increasing order. ?????}
 
 \item{healthlevelsorder}{order of self-reported healh levels. Possible values are \code{'increasing'} and \code{'decreasing'}}
 }
