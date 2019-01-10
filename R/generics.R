@@ -274,10 +274,10 @@ print.anova.hopit <- function(x, ...){
 #' @export
 #' @author Maciej J. Danko
 lrt.hopit <- function(full, nested){
-
   if (!identical(full$design, nested$design)) stop('Models have different survey designs.',call. = NULL)
   if (length(full$coef) + full$hasdisp <= length(nested$coef)+ nested$hasdisp) stop('The "full" model must have more parameters than the "nested" one.',call. = NULL)
-  if (full$LL - nested$LL < -.Machine$double.eps) warning(call. = FALSE, 'The "nested" model has the higher likelihood than the "full" model. Try to improve the fit of the models.')
+  if (abs(full$LL - nested$LL) < .Machine$double.eps^0.6) message(call. = FALSE, 'Negligible differences between log likelihoods.') else
+    if (full$LL - nested$LL < -.Machine$double.eps^0.6) warning(call. = FALSE, 'The "nested" model has the higher likelihood than the "full" model. Try to improve the fit of the models.')
   if (ncol(full$reg.mm) < ncol(nested$reg.mm)) {
     cat('Full model:\n')
     cat("-- Formula (latent variables):", deparse(full$reg.formula), fill = TRUE)

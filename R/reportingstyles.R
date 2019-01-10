@@ -9,16 +9,17 @@
 #' @param plotf logical indicating if to plot summary figure.
 #' @param crude logical indicating if to calculate crude health measure based directly on self reported health levels.
 #' @param healthlevelsorder order of self-reported healh levels. Possible values are \code{'increasing'} and \code{'decreasing'}
+#' @param response X axis plotting option, choose \code{'data'} for raw responses and \code{'fitted'} for model reclasified responses
 #' @param method the method of calcualtion of of latent range .........
 #' @export
 latentindex <- function(model, subset=NULL, plotf = FALSE, crude = FALSE, #scaled = TRUE,
-                        healthlevelsorder = 'decreasing',
+                        healthlevelsorder = c('decreasing','increasing'),
                         response = c('data','fitted'),
                         method = c('observed','theoretical')) {
   #0 is the worse possible health, 1 is the best possible health
-  method = method[1]
-
+  method <- tolower(method[1])
   response <- tolower(response[1])
+  healthlevelsorder <- tolower(healthlevelsorder[1])
   if (response=='data') YY <- model$y_i else if (response=='fitted') YY <- model$Ey_i else stop('Unknown response')
   p <- hopit_ExtractParameters(model)
   if (!length(model$maxlatentrange)) model$maxlatentrange <- sort(hopit_latentrange(model=model, data=data))
@@ -27,11 +28,14 @@ latentindex <- function(model, subset=NULL, plotf = FALSE, crude = FALSE, #scale
   if (crude) {
     hi <- as.numeric(unclass(YY))
     hi <- (hi - min(hi))/(diff(range(hi)))
-    if (healthlevelsorder == 'decreasing') hi <- 1-hi else if (healthlevelsorder != 'increasing') stop('Unknown value for healthlevelsorder.')
+    if (healthlevelsorder == 'decreasing') hi <- 1-hi else
+      if (healthlevelsorder != 'increasing') stop('Unknown value for healthlevelsorder.')
     hi <- hi[subset]
     if (plotf) plot(YY[subset], hi,las=3, ylab='Health index')
   } else {
-    if (method=='theoretical') r <- model$maxlatentrange else if (method=='observed') r <- model$maxobservedlatentrange
+    if (method=='theoretical') r <- model$maxlatentrange else
+      if (method=='observed') r <- model$maxobservedlatentrange else
+        stop ('Unknown method.',call.=NULL)
     hi <- (1 - ((model$y_latent_i - r[1]) / diff(r)))[subset]
     if (plotf) plot(YY[subset], hi,las=3, ylab='Health index')
   }

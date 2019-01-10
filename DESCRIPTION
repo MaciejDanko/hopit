@@ -10,6 +10,8 @@ Description: Hierarchical ordered probit/logit models with application to report
 License: GPL-3
 Encoding: UTF-8
 LazyData: TRUE
+Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.0.1
 SystemRequirements: C++11
-
+Suggests: knitr, rmarkdown, bookdown
+VignetteBuilder: knitr

@@ -19,7 +19,7 @@
 #' @export
 '%notc%' <- function(x, y) !all(match(x, y, nomatch = 0L))
 
-#' REMINDER: PUT HERE c++ FUNCTION
+#' @noRd
 rep_row <- function(mat, times) t(matrix(t(mat), NCOL(mat), NROW(mat) * times))
 
 #' INTERNAL: Calculate special matrices for gradient calaculation

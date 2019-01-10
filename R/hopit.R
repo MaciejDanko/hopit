@@ -14,7 +14,6 @@ hopit_Threshold<-function(thresh.lambda, thresh.gamma, model){
   }
 }
 
-
 #' INTERNAL: Calculate latent variable
 #' @author Maciej J. Danko
 #' @keywords internal
@@ -379,6 +378,14 @@ hopit.control<-function(grad.eps = 3e-5,
 }
 
 
+#' Extract Theta parameter from the model
+#'
+#' @param moodel fitted \code{hopit} model.
+#' @export
+#' @author Maciej J. Danko
+gettheta <- function(model) unname(exp(model$coef.ls$logTheta))
+
+
 #' Fit Generelaized Ordered Choice Threshold Model
 #'
 #' @param reg.formula formula used to model latent process.
@@ -650,3 +657,4 @@ hopit<- function(reg.formula,
 #'   if (asList) return(pr.new) else
 #'     return(c(pr.new$reg.params, pr.new$thresh.lambda, pr.new$thresh.gamma))
 #' }
+
