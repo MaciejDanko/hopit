@@ -33,9 +33,9 @@ Once the model is fitted its estimates (latent variable and threshold coefficien
 
 ## 2. Generalized (hierarchical) ordered threshold model 
 
-Ordered threshold models assumes ordered categorical dependet variable. The generalized ordered threshold models [@Terza1985; @Boes2006; @Green2014] are an extension to the ordered threshold models [@McKelvey1975]. In the latter models the thresholds are constant, wherease generalized models allows thresholds to be dependent on covariates. @GreeneHensher2010 and @Green2014 pointed out that also thresholds must be ordered so that a model has a sense. This motivated Greene and coauthors to call this models **HOPIT** ,which stands for hierarchical ordered probit models.
+Ordered threshold models are used with ordered categorical dependent variables. The generalized ordered threshold models [@Terza1985; @Boes2006; @Green2014] are an extension to the ordered threshold models [@McKelvey1975]. In the latter models the thresholds are constant, whereas generalized models allows thresholds to be dependent on covariates. @GreeneHensher2010 and @Green2014 pointed out that also thresholds must be ordered so that a model has a sense. This motivated Greene and coauthors to call this models **HOPIT**, which stands for hierarchical ordered probit models.
 
-In the the self-rated health example, the response variable is self-rated health and latent variable $h_i$ can depend on different health conditions and diseases (health variables $X$). The variables $X$ are modeled with parallel regression assumption. According to the assumption, coefficients, which describe the relationship between lowest and all higher response categories, are the same as those coefficients, which describe the relationship between another (e.g. adjacent) lowest and the remaining higher response categories. In the considered case $h_i$ is modeled as a linear function of $X$ and their coefficients $\beta$:
+In the the self-rated health example, the response variable is self-rated health and latent variable $h_i$ can depend on different health conditions and diseases (health variables $X$). Variables $X$ are modeled with parallel regression assumption. According to the assumption, coefficients, which describe the relationship between lowest and all higher response categories, are the same as those coefficients, which describe the relationship between another (e.g. adjacent) lowest and the remaining higher response categories. In the considered case $h_i$ is modeled as a linear function of $X$ and their coefficients $\beta$:
 \begin{equation}
 \label{eq:1}
 h_{i} = \sum_{k=1}^K \beta_kX_{i,k} = X'\beta
@@ -92,49 +92,49 @@ where $z_{i,j}$ is an indicator function defined as:
 z_{i,~j} =\begin{cases} 0&for~ y_i=j\\ 1&for~y_i\ne j\end{cases}
 \end{equation}
 
-## 3. Analyzis of reporting styles
+## 3. Analysis of reporting styles
 
 The model estimates are used to determine reporting behavior, i.e in how the continuous latent variable is projected onto categorical response measure. Practically, it is done by comparing actual categorical ordered responses with theoretical ones that are adjusted for heterogeneity in reporting behaviors and are more comparable across individuals.
 
-One of the first steps of the analyzis is standardization of the latent variable to obtain latent index $H_i$.
+One of the first steps of the analysis is standardization of the latent variable to obtain latent index $H_i$.
 
 \begin{equation}
 \label{eq:8}
 H_i = 1-\frac{h_i-\displaystyle\min_i h_i}{\displaystyle\max_i h_i-\displaystyle\min_i h_i}
 \end{equation}
 
-In the self-rated health example $H_i$ is a proxy for true underlying health of an idividual, and varies from 0 representing the (model-based) worst health state to 1 representing the (model-based) best health in the sample. 
+In the self-rated health example $H_i$ is a proxy for true underlying health of an individual, and varies from 0 representing the (model-based) worst health state to 1 representing the (model-based) best health in the sample. 
 
-The predicted latent variable $h_i$ obtained from the model is also used to standardize latent variable coefficients. In the self-rated health example the standardized coefficients are called disability weights [@Jurges2007] $D_k$ and are calcualted for each health variable to provide information about the impact of a specific health measure on the latent index. The disability weight for a health variable is equal to the ratio of corresponding health coefficient and the difference between the lowest and highest values of predicted latent health.
+The predicted latent variable $h_i$ obtained from the model is also used to standardize latent variable coefficients. In the self-rated health example the standardized coefficients are called disability weights $D_k$ [@Jurges2007] and are calculated for each health variable to provide information about the impact of a specific health measure on the latent index. The disability weight for a health variable is equal to the ratio of corresponding health coefficient and the difference between the lowest and highest values of predicted latent health.
 
 \begin{equation}
 \label{eq:9}
 D_k= \frac{\beta_k}{\displaystyle\max_i h_i-\displaystyle\min_i h_i}
 \end{equation}
 
-While the latent index $H_i$ is intend to reflect underlying health, happines or other status across individuals, the standardzied coeficients $D_k$, like disability weights, are computed for an average individual in the study population. The relation between $H_i$ and $D_k$ follows the equation:
+While the latent index $H_i$ is intend to reflect underlying health, happiness or other status across individuals, the standardized coefficients $D_k$, like disability weights, are computed for an average individual in the study population. The relation between $H_i$ and $D_k$ follows the equation:
 
 \begin{equation}
 \label{eq:10}
-H_i = C-\sum_{k=1}^K D_kX_{i,k}, ~~~where~C=\frac{\displaystyle\max_i h_i}{\displaystyle\max_i h_i-\displaystyle\min_i h_i}
+H_i = C-\sum_{k=1}^K D_kX_{i,k}, ~~~\text{where}~C=\frac{\displaystyle\max_i h_i}{\displaystyle\max_i h_i-\displaystyle\min_i h_i}
 \end{equation}
 
-Reporting styles analyzis is based on the reclassification of individuals into new response categories. The classification is based on calculated latent index $H_i$ and is thus adjusted for inter-individual differences in reporting behavior. There are two methods of reclassification: (1) @Jurges2007 percentile method [see also @Rebelo2014] and (2) reclassification based on estimated thresholds.
+Reporting styles analysis is based on the reclassification of individuals into new response categories. The classification is based on calculated latent index $H_i$ and is thus adjusted for inter-individual differences in reporting behavior. There are two methods of reclassification: (1) @Jurges2007 percentile method [see also @Rebelo2014] and (2) reclassification based on estimated thresholds.
 
-The Jurges' percentile method is based on on original distribution of categorical response variable. First for each category $j$ an emprical distribution function is constructed.
+The Jurges' percentile method is based on on original distribution of categorical response variable. First for each category $j$ an empirical distribution function is constructed.
 
 \begin{equation}
 \label{eq:11}
-\hat{F}(j) = \frac{1}{N}\sum_{i=1}^N textbf{1}_{y_i} \leq j
+\hat{F}(j) = \frac{1}{N}\sum_{i=1}^N \textbf{1}_{y_i} \leq j
 \end{equation}
 
-Where $\textbf{1}$ is indicator function taking 1 if the condition is true or 0 otherwise. The calcualted cumulative frequncies of latent index $H_i$ are used as centiles (cut points), so each individual $i$ can be reclassified into new response categories.
+Where $\textbf{1}$ is indicator function taking 1 if the condition is true or 0 otherwise. The calculated cumulative frequencies of latent index $H_i$ are used as percentiles (cut points), so each individual $i$ can be reclassified into new response categories.
 
-In the second case the reclassification is based on eq. 2, so each individual has its own, model-derived cutpoints.
+In the second case the reclassification is based on eq. (2), so each individual has its own, model-derived cut-points.
 
 ## 4. Installing and loading the package
 
-The newest available version of the package is always available fron GitHub. It can be installed using *devtools* package
+The newest available version of the package is always available from GitHub. It can be installed using *devtools* package
 ```{r, echo=TRUE, eval=FALSE}
 library(devtools)
 install_github("maciejdanko/hopit")
@@ -147,14 +147,13 @@ library(hopit)
 ```{r, echo=FALSE,  results='hide', eval=TRUE, include=FALSE}
 g <- capture.output(library(hopit))
 ```
-In examples presented below we will use artificially generated dataset. 
+In examples presented below we will use artificially generated data set. 
 ```{r, echo=TRUE}
 data(healthsurvey)
 head(healthsurvey)
 ```
 
-
-## Fitting Generalized ordered threshold model 
+## 5. Fitting the model using the *hopit*() function
 
 To code presented below fits Generalized ordered probit model 
 
@@ -169,7 +168,7 @@ model1<- hopit(reg.formula = health ~ hypertenssion + high_cholesterol + heart_a
 summary(model1)
 ```
 
-The above model contains 5 dichotomus health variables () and two threshold variables (). It can be futher extended by adding country as a tesholdvariable to better control for contextual differences.
+The above model contains 5 dichotomous health variables () and two threshold variables (). It can be further extended by adding country as a treshold variable to better control for contextual differences.
 
 ```{r, echo=TRUE, cache=TRUE}
 model2<- hopit(reg.formula = health ~ hypertenssion + high_cholesterol + heart_atack_or_stroke +
@@ -202,7 +201,7 @@ model3<- hopit(reg.formula = health ~ hypertenssion + high_cholesterol + heart_a
                control=list(trace=FALSE),
                data = healthsurvey)
 
-anova(model3, model2)
+print(anova(model3,model2), short=TRUE)
 
 ```
 
@@ -229,7 +228,7 @@ cbind('No survey design'=coef(model2,aslist=TRUE)$reg.par,
       'Has survey design'=coef(model2s,aslist=TRUE)$reg.par)
 ```
 
-*hopit*() is also able to fit additional theata parameter that controls for "dispersion". Theta is the variance of random gussian noise in probit regression (or shape parameter in logistic regression)
+*hopit*() is also able to fit additional theata parameter that controls for "dispersion". Theta is the variance of random Gaussian noise in probit regression (or shape parameter in logistic regression)
 
 ```{r, echo=TRUE, cache=TRUE}
 model4 <- hopit(reg.formula = health ~ hypertenssion + high_cholesterol + heart_atack_or_stroke +
@@ -245,12 +244,12 @@ gettheta(model4) #Theta
 print(anova(model2,model4), short=TRUE)
 ```
 
-The fit of the model can be asesed using *profile*() function, which calcualte nd plot profile of the log likelihood function around fitted coeficient values.
+The fit of the model can be assessed using *profile*() function, which calculate nd plot profile of the log likelihood function around fitted coefficient values.
 ```{r, echo=TRUE}
 profile(model3)
 ```
 
-## Reporting styles analysis
+## 6. Analyses of the reporting styles using **hopit** package
 
 Let's look at latent variables of *model2*. 
 
@@ -258,14 +257,14 @@ Let's look at latent variables of *model2*.
 model2$coef.ls$reg.params
 ```
 
-They are not standardized. To standardize them to obtain disabilty weights one can use *standardizeCoef*() function
+They are not standardized. To standardize them to obtain disability weights one can use *standardizeCoef*() function
 
 ```{r, echo=TRUE}
 sc <- standardizeCoef(model2, plotf = TRUE, namesf = function(x) substr(x,1,nchar(x)-3))
 sc
 ```
 
-The *namesf* argument is a function that helps rename the vacriable names. Here, it removes last 3 letters ("yes") which is a reference level of a variable.
+The *namesf* argument is a function that helps rename the variable names. Here, it removes last 3 letters ("yes") which is a reference level of variable.
 
 ```{r, echo=TRUE}
 latentindex(model2, plotf = TRUE, response = "data")
@@ -274,7 +273,7 @@ hi <- latentindex(model2, plotf = TRUE, response = "fitted")
 
 ```
 
-Typically helatindex takes values beetween 0 and 1, for the worse
+Typically helatindex takes values between 0 and 1, for the worse
 
 ```{r, echo=TRUE}
 head(hi)
