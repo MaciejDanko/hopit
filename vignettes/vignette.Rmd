@@ -3,7 +3,6 @@ title: "Analysis of the reporting styles using generalized ordered threshold mod
 author: "Maciej J. Dańko"
 date: "8 I 2019"
 output:
-  html_document: default
   pdf_document: default
 abstract: The *hopit* package provides R functions to fit and analyze ordered response
   data in the context of reporting styles. In this vignette we describe the formulation
@@ -43,6 +42,7 @@ h_{i} = \sum_{k=1}^K \beta_kX_{i,k} = X'\beta
 \end{equation}
 where index $i \in 1...N$ is number of cases (e.g. respondents), $X$ is in the form of model matrix, and $K$ is number of columns in $X$.
 As described above, the categorization (response mechanism) of the latent variable $h_i$ is modeled in terms of thresholds $\alpha_{i,j}$ assuming that thresholds of lower order are never greater than thresholds of higher orders:
+
 \begin{equation}
 \label{eq:2}
 \begin{cases}
@@ -54,6 +54,7 @@ y_i = j~ \Leftrightarrow~ \alpha_{i,j-1} \leq h_i < \alpha_{i,j}\\
 y_i = J~ \Leftrightarrow~ \alpha_{i,J-1} \leq h_i < \alpha_{i,J}\\
 \end{cases}
 \end{equation}
+
 The thresholds (cut point, $\alpha$) are modeled by threshold variables $\gamma$ and intercepts $\lambda$. It is assumed that they model contextual characteristics of the respondent (e.g. country of origin, gender, age, etc. ). Threshold variables are modeled without parallel regression assumption, thus each threshold is modeled by one variable independently [@Boes2006; @Green2014]. 
 
 Different parametrizations of thresholds exist [@Green2014; @Rebelo2014; @Jurges2007]. In the package, @King2004 and @Jurges2007 parametrization is used, which assumes that: 
@@ -91,14 +92,11 @@ where $z_{i,j}$ is an indicator function defined as:
 z_{i,~j} =\begin{cases} 0&for~ y_i=j\\ 1&for~y_i\ne j\end{cases}
 \end{equation}
 
-## Analyses of reporting styles
+## 3. Analyzis of reporting styles
 
-The model estimates are used to determine reporting behavior, i.e in how the continuous latent variable is projected onto categorical response measure. 
+The model estimates are used to determine reporting behavior, i.e in how the continuous latent variable is projected onto categorical response measure. Practically, it is done by comparing actual categorical ordered responses with theoretical ones that are adjusted for heterogeneity in reporting behaviors and are more comparable across individuals.
 
-The analysis of reporting styles is based on comparing actual categorical ordered responses with theoretical ones, which
-... reassigned the respondents to a health category that reflects the original five ratings of SRH, obtaining a categorical health measure that is adjusted for heterogeneity in reporting behaviors and is more comparable across individuals.
-
-One of the first things is standardization of the latent variable by constructing latent index $H_i$.
+One of the first steps of the analyzis is standardization of the latent variable to obtain latent index $H_i$.
 
 \begin{equation}
 \label{eq:8}
@@ -107,36 +105,34 @@ H_i = 1-\frac{h_i-\displaystyle\min_i h_i}{\displaystyle\max_i h_i-\displaystyle
 
 In the self-rated health example $H_i$ is a proxy for true underlying health of an idividual, and varies from 0 representing the (model-based) worst health state to 1 representing the (model-based) best health in the sample. 
 
-The disability weight for each health variable is equal to the ratio of corresponding health coefficient and the difference between the lowest and highest values of predicted latent health.
-
-Next, the predicted latent health values obtained from this process were used to calculate disability weights for each health variable. These provide information about the individual impact of the specific health measures ... on the latent health construct.  
-While the disability weights were computed for an average individual in the study population (i.e. perfect health is reduced to the same extent by the presence of heart attack or other heart problems for all individuals), the  index is intended to reflect underlying health and its variation across individuals. 
-Finally,  was reclassified into a new five-category health measure that is adjusted for inter-individual differences in reporting behavior.  To do so, we followed the original distribution of SRH categories for the entire study population irrespective of other characteristics (Rebelo and Pereira 2014). That is, if 10% of the study participants assessed their health to be very bad, the value of which corresponded to the lowest 10% of the  distribution was used as the cutoff level between the lowest two adjacent categories, i.e. “very bad” and “bad” (see Supplementary Table 1 and Supplementary Figure 1).  Although the original response frequencies were maintained, because we adjusted for heterogeneity in reporting behavior between men and women and across age groups and countries, a study participant who initially perceived her/his health as very bad may actually have been reclassified as having fair health.
-
+The predicted latent variable $h_i$ obtained from the model is also used to standardize latent variable coefficients. In the self-rated health example the standardized coefficients are called disability weights [@Jurges2007] $D_k$ and are calcualted for each health variable to provide information about the impact of a specific health measure on the latent index. The disability weight for a health variable is equal to the ratio of corresponding health coefficient and the difference between the lowest and highest values of predicted latent health.
 
 \begin{equation}
 \label{eq:9}
 D_k= \frac{\beta_k}{\displaystyle\max_i h_i-\displaystyle\min_i h_i}
 \end{equation}
 
-<!-- $$H_i = 1-\frac{\sum_{k=1}^K\beta_kX_{i,k}-\displaystyle\min_i h_i}{\displaystyle\max_i h_i-\displaystyle\min_i h_i}$$ -->
-<!-- $$H_i = 1-\sum_{k=1}^K D_kX_{i,k}+\frac{\displaystyle\min_i h_i}{\displaystyle\max_i h_i-\displaystyle\min_i h_i}$$ -->
+While the latent index $H_i$ is intend to reflect underlying health, happines or other status across individuals, the standardzied coeficients $D_k$, like disability weights, are computed for an average individual in the study population. The relation between $H_i$ and $D_k$ follows the equation:
+
 \begin{equation}
 \label{eq:10}
-H_i = C-\sum_{k=1}^K D_kX_{i,k}
+H_i = C-\sum_{k=1}^K D_kX_{i,k}, ~~~where~C=\frac{\displaystyle\max_i h_i}{\displaystyle\max_i h_i-\displaystyle\min_i h_i}
 \end{equation}
+
+Reporting styles analyzis is based on the reclassification of individuals into new response categories. The classification is based on calculated latent index $H_i$ and is thus adjusted for inter-individual differences in reporting behavior. There are two methods of reclassification: (1) @Jurges2007 percentile method [see also @Rebelo2014] and (2) reclassification based on estimated thresholds.
+
+The Jurges' percentile method is based on on original distribution of categorical response variable. First for each category $j$ an emprical distribution function is constructed.
 
 \begin{equation}
 \label{eq:11}
- C=\frac{\displaystyle\max_i h_i}{\displaystyle\max_i h_i-\displaystyle\min_i h_i}
+\hat{F}(j) = \frac{1}{N}\sum_{i=1}^N textbf{1}_{y_i} \leq j
 \end{equation}
 
-In the package we consider two methods of reclassification individuals into new cattegories. 
-In the first case we calculate 
-Calculating new cut points based on health index percentiles
+Where $\textbf{1}$ is indicator function taking 1 if the condition is true or 0 otherwise. The calcualted cumulative frequncies of latent index $H_i$ are used as centiles (cut points), so each individual $i$ can be reclassified into new response categories.
 
+In the second case the reclassification is based on eq. 2, so each individual has its own, model-derived cutpoints.
 
-## Installing and loading the package
+## 4. Installing and loading the package
 
 The newest available version of the package is always available fron GitHub. It can be installed using *devtools* package
 ```{r, echo=TRUE, eval=FALSE}
