@@ -392,6 +392,7 @@ gettheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' @param thresh.formula formula used to model threshold variable.
 #' Any dependent variable (left side of "~") will be ignored.
 #' @param data a data frame including all modeled variables.
+#' @param decreasing.levels logical indicating if self-reported health classes are ordered in decreasing order.
 #' @param design an optional survey design. Use \code{\link[survey]{svydesign}} function to specify the design.
 #' @param weights an optional weights. Use design to construct survey weights.
 #' @param link the link function. The possible values are \code{"probit"} (default) and \code{"logit"}.
@@ -402,6 +403,7 @@ gettheta <- function(model) unname(exp(model$coef.ls$logTheta))
 hopit<- function(reg.formula,
                  thresh.formula = as.formula('~ 1'), # ~1 not tested!!!
                  data,
+                 decreasing.levels,
                  method = c('hopit','vglm'),
                  overdispersion = FALSE,
                  design = list(),
@@ -410,12 +412,10 @@ hopit<- function(reg.formula,
                  start.method = c('glm','vglm'),
 #                 start = NULL,
                  control = list()){
-
   if (!overdispersion) remove.theta = FALSE else remove.theta = TRUE
   if (missing(data)) data <- environment(reg.formula)
   start.method <- tolower(start.method[1])
-  method <- tolower(method[1])
-  if (method=='vglm') method <- 1 else if (method=='hopit') method <- 0 else stop('Unknown method')
+  method <- check_hopit_method(method)
   link <- match.arg(link)
   control <- do.call("hopit.control", control)
 
@@ -437,30 +437,24 @@ hopit<- function(reg.formula,
   model$method <- as.logical(method)
   model$start.method <- start.method
   model$hasdisp <- overdispersion
-  if (length(thresh.formula)>2L){
-    warning(call. = FALSE, 'The treshold formula should be given without dependent variable.')
-    thresh.formula[[2]] <- NULL
-  }
 
-  reg.formula <- update.formula(reg.formula, '~.+1')
-  if (any(grepl('offset(',as.character(reg.formula[[3]]),fixed=TRUE))) stop('Offset not supported.', call.=NULL)
+  thresh.formula <- check_thresh_formula(thresh.formula)
+  reg.formula <- check_reg_formula(reg.formula)
+
   model$reg.formula <- reg.formula
   model$reg.mm <- as.matrix(model.matrix(reg.formula, data = data))
-  model$reg.lev<-lapply(model.frame(model$reg.formula, data = data), function(k) if (is.factor(k)) as.matrix(table(k)) else 'Not a facor')
+  #model$reg.lev<-lapply(model.frame(model$reg.formula, data = data), function(k) if (is.factor(k)) as.matrix(table(k)) else 'Not a facor')
 
   reg.names <- colnames(model$reg.mm)
-  grpi <- grepl('(Intercept)', colnames(model$reg.mm), fixed = TRUE)
+  grpi <- findintercept(reg.names)
   model$reg.mm <- as.matrix(model$reg.mm[,!grpi])
   reg.names <- reg.names[!grpi]
 
-  thresh.formula <- update.formula(thresh.formula, '~.+1')
-  if (any(grepl('offset(',tolower(as.character(thresh.formula[[2]])),fixed=TRUE))) stop('Offset not supprted.', call.=NULL)
   model$thresh.formula <- thresh.formula
   model$thresh.mm <- as.matrix(model.matrix(thresh.formula, data = data))
-  model$thresh.lev <- lapply(model.frame(model$thresh.formula, data = data), function(k) if (is.factor(k)) as.matrix(table(k)) else 'Not a facor')
+  #model$thresh.lev <- lapply(model.frame(model$thresh.formula, data = data), function(k) if (is.factor(k)) as.matrix(table(k)) else 'Not a facor')
   thresh.names <- colnames(model$thresh.mm)
-
-  grpi <- grepl('(Intercept)', colnames(model$thresh.mm), fixed = TRUE)
+  grpi <- findintercept(thresh.names)
   model$thresh.mm <- as.matrix(model$thresh.mm[,!grpi])
   thresh.names <- thresh.names[!grpi]
   if (any(dim(model$thresh.mm) == 0L)) {
@@ -473,12 +467,14 @@ hopit<- function(reg.formula,
   model$thresh.terms <-attr(terms(as.formula(thresh.formula)),"term.labels")
 
   model$y_i <- model.frame(reg.formula, data = data)[,all.vars(reg.formula[[2]])]
-  if (!is.factor(model$y_i)) stop('Response must be a factor with ordered levels.', call.=NULL)
+  check_response(model$y_i)
+  if (missing(decreasing.levels)) stop('"decreasing.levels" flag must be specified.') else
+    check_decreasing.levels(decreasing.levels, levels(model$y_i))
+  if (!decreasing.levels) model$y_i <- factor(model$y_i, rev(levels(model$y_i)))
   model$y_latent_i <- NA# latent
   model$Ey_i <- NA# ordinal classified utput
   model$J <- length(levels(model$y_i))
   model$N <- length(model$y_i)
-  if (model$J<3L) stop ('Response must have 3 or more levels.', call.=NULL)
 
   model$thresh.extd <- matrix(rep_row(model$thresh.mm, model$J-1),model$N, NCOL(model$thresh.mm)*(model$J-1))
 
@@ -500,18 +496,13 @@ hopit<- function(reg.formula,
   if (model$hasdisp) coefnames <- c(coefnames, 'logTheta')
 
   model$weights <- NULL
-  if (length(weights) && length(design)) stop('Multiple weights specification detected. Please use either design or weights parameter.', call.=NULL)
+  check_design(weights, design, model$N)
   if (length(design)) model$weights <- design$prob else if (length(weights)) model$weights <- weights
   if (!length(model$weights)) {
     model$weights <- rep(1, model$N)
     model$use.weights <- FALSE
   } else model$use.weights <- TRUE
 
-  if (length(model$weights) != model$N) {
-    print(length(model$weights))
-    print(model$N)
-    stop('Vector of survey weights must be of the same length as data.', call.=NULL)
-  }
   model$weights <- as.vector(matrix(model$weights, 1L, model$N))
   #scaling weights
   model$weights <- model$N * model$weights / sum(model$weights)
@@ -558,10 +549,7 @@ hopit<- function(reg.formula,
   model$hessian <- hes
 
   model$vcov.basic <- try(base::solve(-hes), silent = FALSE)
-  if (class(model$vcov) == 'try-error') {
-    warning(call. = FALSE, 'Model is probably unidentifiable, $vcov (variance-covariance matrix) cannot be computed.')
-    model$vcov.basic <- NA
-  }
+  model$vcov.basic <- check_vcov(model$vcov.basic)
   if (model$control$trace) cat(' done\nCalculating estfun...')
   if (model$hasdisp && remove.theta) COEF <- c(model$coef,model$coef.ls$logTheta) else COEF <- model$coef
   model$estfun <- hopit_derivLL(COEF, model, collapse = FALSE)

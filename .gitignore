@@ -6,6 +6,9 @@
 .DS_Store
 script/
 old/
+tmp/
+test/
+# bib/
 
 hopit.Rproj
 # C++ files
@@ -21,7 +24,7 @@ checks/
 /*.Rcheck/
 # produced vignettes
 vignettes/*.html
-vignettes/*.pdf
+# vignettes/*.pdf
 vignettes/*.R
 vignettes/*_cache/
 # OAuth2 token, see https://github.com/hadley/httr/releases/tag/v0.3

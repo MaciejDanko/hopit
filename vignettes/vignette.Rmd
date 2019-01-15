@@ -155,21 +155,22 @@ head(healthsurvey)
 
 ## 5. Fitting the model using the *hopit*() function
 
-To code presented below fits Generalized ordered probit model 
+Generalized ordered probit model can be fitted using *hopit*() function. The function takes two kinds of formulas: (1) *reg.formula* that models the latent variable and (2) *thresh.formula that models thresholds.   
 
 ```{r, echo=TRUE, cache=TRUE} 
 model1<- hopit(reg.formula = health ~ hypertenssion + high_cholesterol + 
                              heart_atack_or_stroke + poor_mobility + very_poor_grip + 
                              depression + respiratory_problems + 
                              IADL_problems + obese + diabetes + other_diseases, 
-                 thresh.formula = ~ sex + ageclass,
+               thresh.formula = ~ sex + ageclass,
+               decreasing.levels = TRUE,
                control=list(trace=FALSE),
                data = healthsurvey)
 
 summary(model1)
 ```
 
-The above model contains 5 dichotomous health variables () and two threshold variables (). It can be further extended by adding country as a treshold variable to better control for contextual differences.
+*model1* contains 11 dichotomous health variables and two threshold variables. It can be further extended by adding country of origin to the treshold formula to better control for cultural differences.
 
 ```{r, echo=TRUE, cache=TRUE}
 model2<- hopit(reg.formula = health ~ hypertenssion + high_cholesterol + 
@@ -177,6 +178,7 @@ model2<- hopit(reg.formula = health ~ hypertenssion + high_cholesterol +
                              very_poor_grip + depression + respiratory_problems + 
                              IADL_problems + obese + diabetes + other_diseases, 
                thresh.formula = ~ sex + ageclass + country,
+               decreasing.levels = TRUE,
                control=list(trace=FALSE),
                data = healthsurvey)
 ```
@@ -193,7 +195,7 @@ or using Likelihood Ratio Test (LRT) as models are nested:
 anova(model2, model1)
 ```
 
-Both reg.formula and thresh.formula allow to specify interactions, e.g. "sex : ageclass" interaction
+Both *reg.formula* and *thresh.formula allow* to specify interactions, like interaction between gender (*sex*) and age (*ageclass*): 
 
 ```{r, echo=TRUE}
 model3<- hopit(reg.formula = health ~ hypertenssion + high_cholesterol + 
@@ -201,6 +203,7 @@ model3<- hopit(reg.formula = health ~ hypertenssion + high_cholesterol +
                              very_poor_grip + depression + respiratory_problems + 
                              IADL_problems + obese + diabetes + other_diseases, 
                thresh.formula = ~ sex * ageclass + country,
+               decreasing.levels = TRUE,
                control=list(trace=FALSE),
                data = healthsurvey)
 
@@ -208,8 +211,8 @@ print(anova(model3,model2), short=TRUE)
 
 ```
 
-The *hopit*() function has also an option to include survey design using *survey* package. 
-The example below shows the fit using simple two level cluster sampling design
+The *hopit*() function has also an option to include survey design using the *survey* package. 
+The example below fit a model using simple two level cluster sampling design
 
 ```{r, echo=TRUE, cache=TRUE}
 design <- svydesign(ids = ~ country + psu, weights = healthsurvey$csw, data = healthsurvey)
@@ -218,54 +221,39 @@ model2s<- hopit(reg.formula = health ~ hypertenssion + high_cholesterol +
                               heart_atack_or_stroke + poor_mobility + 
                               very_poor_grip + depression + respiratory_problems + 
                               IADL_problems + obese + diabetes + other_diseases, 
-               thresh.formula = ~ sex + ageclass + country,
-               design = design,
-               control=list(trace=FALSE),
-               data = healthsurvey)
+                thresh.formula = ~ sex + ageclass + country,
+                decreasing.levels = TRUE,
+                design = design,
+                control=list(trace=FALSE),
+                data = healthsurvey)
 ```
 
-Including survey design could be important as it can affect the results.
-Let's compare coefficients of the latent variable for both models
+Including survey design could be important as it can affect the results, in presented example has however an minor importance, which is seen by comparing coefficients of latent variable for both models:
 
 ```{r, echo=TRUE}
 cbind('No survey design'=coef(model2,aslist=TRUE)$reg.par,
       'Has survey design'=coef(model2s,aslist=TRUE)$reg.par)
 ```
 
-<!-- *hopit*() is also able to fit additional theata parameter that controls for "dispersion". Theta is the variance of random Gaussian noise in probit regression (or shape parameter in logistic regression) -->
+The fit of the model can be assessed using *profile*() function, which calculate and plot profile of the log likelihood function around fitted coefficient values.
 
-<!-- ```{r, echo=TRUE, cache=TRUE} -->
-<!-- model4 <- hopit(reg.formula = health ~ hypertenssion + high_cholesterol + heart_atack_or_stroke + -->
-<!--                                       poor_mobility + very_poor_grip + depression + respiratory_problems +  -->
-<!--                                       IADL_problems + obese + diabetes + other_diseases,  -->
-<!--                thresh.formula = ~ sex + ageclass + country, -->
-<!--                control=list(trace=FALSE), -->
-<!--                overdispersion = TRUE, -->
-<!--                data = healthsurvey) -->
-
-<!-- gettheta(model4) #Theta -->
-
-<!-- print(anova(model2,model4), short=TRUE) -->
-<!-- ``` -->
-
-The fit of the model can be assessed using *profile*() function, which calculate nd plot profile of the log likelihood function around fitted coefficient values.
 ```{r, echo=TRUE}
 profile(model3)
 ```
 
-## 6. Analyses of the reporting styles using **hopit** package
+## 6. Analyses of the reporting styles using *hopit* package
 
 Let's look at latent variables of *model2*. 
 
 ```{r, echo=TRUE}
-model2$coef.ls$reg.params
+model3$coef.ls$reg.params
 ```
 
 They are not standardized. To standardize them to obtain disability weights one can use *standardizeCoef*() function
 
-```{r, echo=TRUE}
+```{r, echo=TRUE, fig.height = 5, fig.width = 5, fig.align = "center"}
 txtfun <- function(x) gsub('_',' ',substr(x,1,nchar(x)-3))
-sc <- standardizeCoef(model2, plotf = TRUE, namesf = txtfun)
+sc <- standardizeCoef(model3, plotf = TRUE, namesf = txtfun)
 sc
 ```
 
@@ -273,20 +261,29 @@ The *namesf* argument is a function that helps rename the variable names. Here, 
 
 The latent index is simply calculated using *latentindex*() function.
 
-```{r, echo=TRUE}
-hi <- latentIndex(model2, plotf = TRUE, response = "data", YLab = 'Health index')
+```{r, echo=TRUE, fig.height = 4, fig.width = 5, fig.align = "center"}
+hi <- latentIndex(model3, plotf = TRUE, response = "data", 
+                  ylab = 'Health index', col='deepskyblue3')
 ```
 
 The boxplot shows reported health status vs. health index. It is also possible to plot expected categorical health status on Y axis calcualted according to the eq. (2). 
 
-```{r, echo=TRUE}
-hi <- latentIndex(model2, plotf = TRUE, response = "fitted", YLab = 'Health index')
+```{r, echo=TRUE, fig.height = 4, fig.width = 5, fig.align = "center"}
+hi <- latentIndex(model3, plotf = TRUE, response = "fitted", 
+                  ylab = 'Health index', col='deepskyblue3')
+```
+
+or using Jürges' method:
+
+```{r, echo=TRUE, fig.height = 4, fig.width = 5, fig.align = "center"}
+hi <- latentIndex(model3, plotf = TRUE, response = "Jurges", 
+                  ylab = 'Health index', col='deepskyblue3')
 ```
 
 Cut-Points
 
-```{r, echo=TRUE}
-z=getCutPoints(model=model2, revf=TRUE)
+```{r, echo=TRUE, fig.height = 4, fig.width = 5, fig.align = "center"}
+z=getCutPoints(model=model3)
 
 # Health index cut-points
 z$cutpoints
@@ -295,18 +292,18 @@ z$cutpoints
 rev(table(z$adjused.health.levels))
 
 #Adjusted health levels for individuals: Estimated model thresholds
-table(model2$Ey_i)
+table(model3$Ey_i)
 
 #Original health levels for individuals
-table(model2$y_i)
+table(model3$y_i)
 
 ```
 
 Health levels
 for pooled countries
-```{r, echo=TRUE, cache=TRUE}
-hl <- getLevels(model=model2, formula=~ sex + ageclass, data = healthsurvey, 
-                      revf=TRUE, sep=' ', plotf=TRUE)
+```{r, echo=TRUE, cache=TRUE, fig.height = 4, fig.width = 6, fig.align = "center"}
+hl <- getLevels(model=model3, formula=~ sex + ageclass, data = healthsurvey, 
+                      sep=' ', plotf=TRUE)
 ```
 
 The differences betweeen between original and adjusted frequncies can be calcualted directly:
@@ -315,31 +312,28 @@ round(100*(hl$original - hl$adjusted),2)
 
 ```
 
-## 7. Bootstraping CI
+## 7. Bootstraping Confidence Intervals
 
 The package offers a function of calculating confidence intervals for a measure derived from the model
 Let's calcualte the difference between original and adjusted frequencies of combined Poor + Fair category
-```{r, echo=TRUE}
+```{r, echo=TRUE, fig.height = 6, fig.width = 5, fig.align = "center"}
 
 # Function to be bootstraped
 diff_BadHealth <- function(model, data) {
   hl <- getLevels(model=model, formula=~ sex + ageclass, data = data, 
-                      revf=TRUE, sep=' ', plotf=FALSE)
+                  sep=' ', plotf=FALSE)
   hl$original[,1] + hl$original[,2] - hl$adjusted[,1]- hl$adjusted[,2]
 }
 
 # Estimate of the difference
-est.org <- diff_BadHealth(model = model2, data = healthsurvey)
+est.org <- diff_BadHealth(model = model3, data = healthsurvey)
 
 # Perform the bootstrap
-B <- boot_latent_hopit(model = model2, data = healthsurvey, diff_BadHealth, nboot = 100)
-B <- sapply(B,'[') # unlist B
-
-# Significance level 
-Alpha <- 0.05
+B <- boot_hopit(model = model3, data = healthsurvey, 
+                func = diff_BadHealth, nboot = 100)
 
 # Calcualte lower and upper bounds using percentile method
-est.CI <- apply(B, 1, quantile, probs = c(Alpha/2, 1-Alpha/2)) 
+est.CI <- boot_hopit_CI(B)
 
 # Plotting the difference and its (assymetrical) confidence intervals
 pmar <- par('mar'); par(mar = c(9.5,pmar[2:4]))

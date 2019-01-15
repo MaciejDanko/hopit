@@ -5,8 +5,8 @@
 \title{Calcualte threshold cut-points using Jurges' method}
 \usage{
 getCutPoints(model, subset = NULL, plotf = TRUE, mar = c(4, 4, 1, 1),
-  oma = c(0, 0, 0, 0), XLab = "Health index", XLab.cex = 1.25,
-  YLab = "Counts", YLab.cex = 1.25, revf = NULL,
+  oma = c(0, 0, 0, 0), XLab = "Health index", XLab.cex = 1.1,
+  YLab = "Counts", YLab.cex = 1.1, decreasing.levels = TRUE,
   group.labels.type = c("middle", "border", "none"))
 }
 \arguments{
@@ -16,11 +16,7 @@ getCutPoints(model, subset = NULL, plotf = TRUE, mar = c(4, 4, 1, 1),
 
 \item{plotf}{logical indicating if to plot the results.}
 
-\item{mar}{see \code{\link{par}}.}
-
-\item{oma}{see \code{\link{par}}.}
-
-\item{revf}{logical indicating if self-reported health classes are ordered in increasing order. ?????}
+\item{mar, oma}{see \code{\link{par}}.}
 
 \item{healthlevelsorder}{order of self-reported healh levels. Possible values are \code{'increasing'} and \code{'decreasing'}}
 }

@@ -5,13 +5,11 @@
 \alias{healthIndex}
 \title{Calculate latent index}
 \usage{
-latentIndex(model, subset = NULL, plotf = FALSE, crude = FALSE,
-  healthlevelsorder = c("decreasing", "increasing"), response = c("data",
-  "fitted"), YLab = "Latent index")
+latentIndex(model, decreasing.levels = TRUE, subset = NULL, plotf = FALSE,
+  response = c("data", "fitted", "Jurges"), ylab = "Latent index", ...)
 
-healthIndex(model, subset = NULL, plotf = FALSE, crude = FALSE,
-  healthlevelsorder = c("decreasing", "increasing"), response = c("data",
-  "fitted"), YLab = "Latent index")
+healthIndex(model, decreasing.levels = TRUE, subset = NULL, plotf = FALSE,
+  response = c("data", "fitted", "Jurges"), ylab = "Latent index", ...)
 }
 \arguments{
 \item{model}{a fitted \code{hopit} model.}
@@ -20,13 +18,11 @@ healthIndex(model, subset = NULL, plotf = FALSE, crude = FALSE,
 
 \item{plotf}{logical indicating if to plot summary figure.}
 
-\item{crude}{logical indicating if to calculate crude health measure based directly on self reported health levels.}
-
-\item{healthlevelsorder}{order of self-reported healh levels. Possible values are \code{'increasing'} and \code{'decreasing'}}
-
 \item{response}{X axis plotting option, choose \code{'data'} for raw responses and \code{'fitted'} for model reclassified responses}
 
-\item{YLab}{a label of y axis.}
+\item{ylab}{a label of y axis.}
+
+\item{healthlevelsorder}{order of self-reported healh levels. Possible values are \code{'increasing'} and \code{'decreasing'}}
 }
 \description{
 Calcualte latent index from the latent variable. It takes values from 0 to 1, where

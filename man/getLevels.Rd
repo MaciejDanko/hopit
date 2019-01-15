@@ -5,9 +5,9 @@
 \title{Calcualte adjusted health levels.}
 \usage{
 getLevels(model, formula = model$thresh.formula,
-  data = environment(model$thresh.formula), revf = NULL,
+  data = environment(model$thresh.formula), decreasing.levels = TRUE,
   sort.flag = FALSE, plotf = TRUE, sep = "_", mar = c(7, 2, 1.5, 0.5),
-  oma = c(0, 3, 0, 0))
+  oma = c(0, 3, 0, 0), YLab = "Fraction [\%]", YLab.cex = 1.1)
 }
 \arguments{
 \item{model}{a fitted \code{hopit} model.}
@@ -16,7 +16,7 @@ getLevels(model, formula = model$thresh.formula,
 
 \item{data}{data used to fit the model.}
 
-\item{revf}{logical indicating if self-reported health classes are ordered in increasing order.}
+\item{decreasing.levels}{logical indicating if self-reported health classes are ordered in increasing order.}
 
 \item{plotf}{logical indicating if to plot the results.}
 

@@ -6,32 +6,30 @@
 \alias{disabilityWeights}
 \title{Standardization of coefficients}
 \usage{
-standardizeCoef(model, plotpval = FALSE, plotf = TRUE, mar = c(15, 4, 1,
-  1), oma = c(0, 0, 0, 0), YLab = "Disability weight", YLab.cex = 1.25,
-  namesf = identity, ...)
+standardizeCoef(model, ordered = TRUE, plotf = FALSE, plotpval = FALSE,
+  mar = c(15, 4, 1, 1), oma = c(0, 0, 0, 0), YLab = "Disability weight",
+  YLab.cex = 1.1, namesf = identity, ...)
 
-standardiseCoef(model, plotpval = FALSE, plotf = TRUE, mar = c(15, 4, 1,
-  1), oma = c(0, 0, 0, 0), YLab = "Disability weight", YLab.cex = 1.25,
-  namesf = identity, ...)
+standardiseCoef(model, ordered = TRUE, plotf = FALSE, plotpval = FALSE,
+  mar = c(15, 4, 1, 1), oma = c(0, 0, 0, 0), YLab = "Disability weight",
+  YLab.cex = 1.1, namesf = identity, ...)
 
-disabilityWeights(model, plotpval = FALSE, plotf = TRUE, mar = c(15, 4, 1,
-  1), oma = c(0, 0, 0, 0), YLab = "Disability weight", YLab.cex = 1.25,
-  namesf = identity, ...)
+disabilityWeights(model, ordered = TRUE, plotf = FALSE, plotpval = FALSE,
+  mar = c(15, 4, 1, 1), oma = c(0, 0, 0, 0), YLab = "Disability weight",
+  YLab.cex = 1.1, namesf = identity, ...)
 }
 \arguments{
 \item{model}{a fitted \code{hopit} model.}
 
-\item{plotpval}{logical indicating if to plot p-values.}
-
 \item{plotf}{logical indicating if to plot results.}
 
-\item{mar}{see \code{\link{par}}.}
+\item{plotpval}{logical indicating if to plot p-values.}
 
-\item{oma}{see \code{\link{par}}.}
+\item{mar, oma}{see \code{\link{par}}.}
 
 \item{YLab, YLab.cex}{labale and size of the label for y axis.}
 
-\item{namesf}{one argument function that modifies names of coeficients.}
+\item{namesf}{vectorof names of coeficients or one argument function that modifies names of coeficients.}
 
 \item{...}{arguments passed to \code{\link{boxplot}}.}
 }

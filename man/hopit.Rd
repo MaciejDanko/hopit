@@ -5,9 +5,9 @@
 \title{Fit Generelaized Ordered Choice Threshold Model}
 \usage{
 hopit(reg.formula, thresh.formula = as.formula("~ 1"), data,
-  method = c("hopit", "vglm"), overdispersion = FALSE, design = list(),
-  weights = NULL, link = c("probit", "logit"), start.method = c("glm",
-  "vglm"), control = list())
+  decreasing.levels, method = c("hopit", "vglm"), overdispersion = FALSE,
+  design = list(), weights = NULL, link = c("probit", "logit"),
+  start.method = c("glm", "vglm"), control = list())
 }
 \arguments{
 \item{reg.formula}{formula used to model latent process.}
@@ -16,6 +16,8 @@ hopit(reg.formula, thresh.formula = as.formula("~ 1"), data,
 Any dependent variable (left side of "~") will be ignored.}
 
 \item{data}{a data frame including all modeled variables.}
+
+\item{decreasing.levels}{logical indicating if self-reported health classes are ordered in decreasing order.}
 
 \item{design}{an optional survey design. Use \code{\link[survey]{svydesign}} function to specify the design.}
 

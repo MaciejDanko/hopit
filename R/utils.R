@@ -79,13 +79,17 @@ Vector2DummyMat<-function(V) sapply(levels(as.factor(V)), function(k) as.factor(
 
 #' @keywords internal
 #' @noRd
-#' @noMd
 untable <- function(x) {
   names(attr(x, "dimnames")) <- c('','')
   as.matrix(x)
 }
 
 #' @keywords internal
+#' @noRd
+findintercept<-function(varnames) grepl('(Intercept)', varnames, fixed = TRUE)
+
+#' @keywords internal
+#' @noRd
 formula2classes <- function(formula, data, sep='_', add.var.names = FALSE, return.matrix = FALSE){
   tmp <- model.frame(formula, data)
   mod.mat <- tmp

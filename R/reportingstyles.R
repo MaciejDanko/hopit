@@ -8,49 +8,34 @@
 #' @param model a fitted \code{hopit} model.
 #' @param subset an optional vector specifying a subset of observations.
 #' @param plotf logical indicating if to plot summary figure.
-#' @param crude logical indicating if to calculate crude health measure based directly on self reported health levels.
 #' @param healthlevelsorder order of self-reported healh levels. Possible values are \code{'increasing'} and \code{'decreasing'}
 #' @param response X axis plotting option, choose \code{'data'} for raw responses and \code{'fitted'} for model reclassified responses
 # #' @param method a method of calcualtion of of latent range and standardization of. For \code{'observed'} (default) health index is
 # #' standardzized using the minimum and maximum observed latent variable, whereas for \code{'theoretical} the minimum of latent range is
 # #' deffined as latent variable for a hypothetical individual heaving no "disabilities", while the maximum of latent range is defined as a
 # #' latent variable for an hypothetical individual having all possible disabilities.
-#' @param YLab a label of y axis.
+#' @param ylab a label of y axis.
 #' @export
-latentIndex <- function(model, subset=NULL, plotf = FALSE, crude = FALSE, #scaled = TRUE,
-                        healthlevelsorder = c('decreasing','increasing'), #put this also in hopit and change to decreased if necessary,
-                        #here it will be removed and read from model$responselevelorder, or even not
-                        response = c('data','fitted'),
-                        #method = c('observed','theoretical'), #leave only observed option in the future
-                        YLab = 'Latent index') {
-  #0 is the worse possible health, 1 is the best possible health
-  #method <- tolower(method[1])
-  response <- tolower(response[1])
-  healthlevelsorder <- tolower(healthlevelsorder[1])
-  if (response=='data') YY <- model$y_i else if (response=='fitted') YY <- model$Ey_i else stop('Unknown response')
-  p <- hopit_ExtractParameters(model)
-  #if (!length(model$maxlatentrange)) model$maxlatentrange <- sort(hopit_latentrange(model=model, data=data))
-  if (!length(model$maxobservedlatentrange)) model$maxobservedlatentrange <- sort(range(hopit_Latent(p$reg.params,model)))
-  if (length(subset) == 0) subset=seq_along(YY)
-  if (crude) {
-    hi <- as.numeric(unclass(YY))
-    hi <- (hi - min(hi))/(diff(range(hi)))
-    if (healthlevelsorder == 'decreasing') hi <- 1-hi else
-      if (healthlevelsorder != 'increasing') stop('Unknown value for healthlevelsorder.')
-    hi <- hi[subset]
-    if (plotf) plot(YY[subset], hi,las=3, ylab=YLab)
-  } else {
-    #if (method=='theoretical') r <- model$maxlatentrange else
-      #if (method=='observed')
-    r <- model$maxobservedlatentrange #else
-    #    stop ('Unknown method.',call.=NULL)
-    hi <- (1 - ((model$y_latent_i - r[1]) / diff(r)))[subset]
-    if (plotf) plot(YY[subset], hi,las=3, ylab=YLab)
-  }
+latentIndex <- function(model, decreasing.levels = TRUE,
+                        subset=NULL, plotf = FALSE,
+                        response = c('data','fitted','Jurges'),
+                        ylab = 'Latent index', ...) {
+  if (length(subset) == 0) subset=seq_len(model$N)
+  r <- range(model$y_latent_i[subset])
+  hi <- (1 - ((model$y_latent_i - r[1]) / diff(r)))[subset]
+    if (plotf) {
+      response <- tolower(response[1])
+      if (response=='data') YY <- model$y_i else if (response=='fitted') YY <- model$Ey_i else if (response=='jurges') {
+        z <- getCutPoints(model=model, decreasing.levels = decreasing.levels, plotf = FALSE)
+        YY <- factor(z$adjused.health.levels,levels(model$y_i))
+      } else stop('Unknown response.',call.=NULL)
+      plot(YY[subset], hi,las=3, ylab=ylab, ...)
+    }
   if (plotf) invisible(hi) else return(hi)
 }
 
 #' @rdname latentIndex
+#' @export
 healthIndex <- latentIndex
 
 #' Standardization of coefficients
@@ -64,41 +49,32 @@ healthIndex <- latentIndex
 # #' @param latent.method see \code{\link{latentindex}}.
 #' @param plotf logical indicating if to plot results.
 #' @param plotpval logical indicating if to plot p-values.
-#' @param mar see \code{\link{par}}.
-#' @param oma see \code{\link{par}}.
+#' @param mar,oma see \code{\link{par}}.
 #' @param YLab,YLab.cex labale and size of the label for y axis.
-#' @param namesf one argument function that modifies names of coeficients.
+#' @param namesf vectorof names of coeficients or one argument function that modifies names of coeficients.
 #' @param ... arguments passed to \code{\link{boxplot}}.
 #' @name standardizeCoef
 #' @export
-standardizeCoef <- function (model, # latent.method = c('observed','theoretical'),
-                               plotpval = FALSE,
-                               plotf = TRUE, mar = c(15, 4, 1, 1), oma = c(0, 0, 0, 0),
-                               YLab = "Disability weight",
-                               YLab.cex = 1.25,
-                               namesf = identity, ...) {
-  #latent.method <- latent.method[1]
-  p <- hopit_ExtractParameters(model)
-  #if (!length(model$maxlatentrange)) stop('maxlatentenrange field not present in the model.') #model$maxlatentrange <- sort(k*hopit_latentrange(model=model, data=data))
-  if (!length(model$maxobservedlatentrange)) stop('maxobservedlatentenrange field not present in the model.') #model$maxobservedlatentrange <- sort(k*range(hopit_Latent(p$reg.params,model)))
+standardizeCoef <- function (model,
+                             ordered = TRUE,
+                             plotf = FALSE,
+                             plotpval = FALSE,
+                             mar = c(15, 4, 1, 1), oma = c(0, 0, 0, 0),
+                             YLab = "Disability weight",
+                             YLab.cex = 1.1,
+                             namesf = identity, ...) {
+
   z <- (model$coef)[seq_len(model$parcount[1])]
-
   if (class(namesf)=='function') names(z) <- namesf(names(z)) else names(z) <- namesf
-  oz <- order(z, decreasing = TRUE)
-  cfm <- z[oz]
-  r <- model$maxobservedlatentrange
 
-  #if (latent.method=='theoretical') r <- model$maxlatentrange else if (latent.method=='observed') r <- model$maxobservedlatentrange
-
-  #if (!force.positive) {
-    #res <- as.matrix((cfm - r[1])/diff(r))
-    res <- as.matrix((cfm)/diff(r))
-  #} else #if (force.positive) {
-  #  res <- as.matrix((cfm - max(r[1],0))/min(diff(r),max(r)))
-  #} else stop('Unknown method.', call. = FALSE)
+  if (ordered) {
+    oz <- order(z, decreasing = TRUE)
+    cfm <- z[oz]
+  } else cfm <- z
+  r <- range(model$y_latent_i)
+  res <- as.matrix((cfm)/diff(r))
 
   if (plotf) {
-
     opar <- par(c("mar", "oma"))
     par(mar = mar, oma = oma)
     rr <- barplot(t(res), las = 3, ...)
@@ -118,26 +94,13 @@ standardizeCoef <- function (model, # latent.method = c('observed','theoretical'
   else return(res)
 }
 
-#'@rdname standardizeCoef
+#' @rdname standardizeCoef
+#' @export
 standardiseCoef<-standardizeCoef
 
-#'@rdname standardizeCoef
+#' @rdname standardizeCoef
+#' @export
 disabilityWeights<-standardizeCoef
-
-# #' @keywords internal
-# rowplot <- function (M,xlim,ylim,xlab='',ylab='',
-#                      labels=rownames(M),col=seq_len(NCOL(M)),
-#                      pch=19,cex=1.5,...){
-#   if (missing(xlim)) xlim <- c(floor(min(M,na.rm=TRUE)*10)/10,ceiling(max(M,na.rm=TRUE)*10)/10)
-#   if (missing(ylim)) ylim <- c(1,NROW(M))
-#   plot(NA,NA, xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab, axes=FALSE,...)
-#   abline(h=seq_len(NROW(M)),lty=3)
-#   for (k in seq_len(NROW(M))) lines(M[k,],rep(k,NCOL(M)),type='p',col=col,pch=pch,cex=cex,...)
-#   axis(1)
-#   axis(2,at=seq_len(NROW(M)),labels=labels,las=1)
-#   box()
-# }
-
 
 #' Calcualte threshold cut-points using Jurges' method
 #' @description
@@ -145,22 +108,15 @@ disabilityWeights<-standardizeCoef
 #' @param model a fitted \code{hopit} model.
 #' @param subset an optional vector specifying a subset of observations.
 #' @param plotf logical indicating if to plot the results.
-#' @param revf logical indicating if self-reported health classes are ordered in increasing order. ?????
 #' @param healthlevelsorder order of self-reported healh levels. Possible values are \code{'increasing'} and \code{'decreasing'}
-#' @param mar see \code{\link{par}}.
-#' @param oma see \code{\link{par}}.
+#' @param mar,oma see \code{\link{par}}.
 #' @export
 getCutPoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(0,0,0,0),
-                         XLab='Health index', XLab.cex=1.25, YLab='Counts', YLab.cex=1.25,
-                           revf=NULL, group.labels.type=c('middle','border','none')){
+                         XLab='Health index', XLab.cex=1.1, YLab='Counts', YLab.cex=1.1,
+                         decreasing.levels=TRUE, group.labels.type=c('middle','border','none')){
   if (length(subset) == 0) subset=seq_along(model$y_i)
   Y <- model$y_i[subset]
-  if (length(revf) == 0) {
-    message(paste('Are the levels',toString(levels(Y)),'sorted in incresing order?'))
-    message('if not please set revf to TRUE.')
-    stop('"revf" must be given',call.=FALSE)
-  }
-  if (revf) dorev <- rev else dorev <- identity
+  if (decreasing.levels) dorev <- rev else dorev <- identity
   h.index <- healthIndex(model, subset, plotf = FALSE)
   tY <- table(Y)
   tmp <- dorev(as.vector(tY))
@@ -204,7 +160,7 @@ getCutPoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(
     }
     adjused.health.levels<- cut(h.index, CIN,labels= dorev(levels(Y)))
   } else adjused.health.levels <- NA
-  res <- list(cutpoints=R1, adjused.health.levels=adjused.health.levels)
+  res <- list(cutpoints=R1, adjused.health.levels=(adjused.health.levels))
   if (plotf) invisible(res) else return(res)
 }
 
@@ -216,19 +172,23 @@ getCutPoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(
 #' @param data data used to fit the model.
 #' @param plotf logical indicating if to plot the results.
 #' @param sep separator for levels names.
-#' @param revf logical indicating if self-reported health classes are ordered in increasing order.
+#' @param decreasing.levels logical indicating if self-reported health classes are ordered in increasing order.
 #' @param mar see \code{\link{par}}.
 #' @param oma see \code{\link{par}}.
 #' @export
 getLevels<-function(model, formula=model$thresh.formula,
-                          data=environment(model$thresh.formula), revf = NULL,
-                          sort.flag=FALSE,
-                          plotf = TRUE, sep='_',mar=c(7,2,1.5,0.5),oma=c(0,3,0,0)){
-  if (class(formula)=='formula') inte_ <- formula2classes(formula, data, sep=sep, return.matrix = TRUE) else stop('Not implemented.')
+                    data=environment(model$thresh.formula),
+                    decreasing.levels = TRUE,
+                    sort.flag = FALSE,
+                    plotf = TRUE, sep='_',
+                    mar = c(7,2,1.5,0.5), oma = c(0,3,0,0),
+                    YLab = 'Fraction [%]',
+                    YLab.cex = 1.1){
+  if (class(formula)=='formula') inte_ <- formula2classes(formula, data, sep=sep, return.matrix = TRUE) else stop('"formula" must be of class formula')
   inte <- inte_$x
   namind <- inte_$class.mat
   nam <- levels(inte)
-  cpall<-getCutPoints(model, plotf = FALSE, revf = revf)
+  cpall<-getCutPoints(model, plotf = FALSE, decreasing.levels = decreasing.levels)
   TAB1 <- round(table(original=model$y_i, adjusted=cpall$adjused.health.levels)*100/length(model$y_i),2)
   tmp <- untable(t(table(factor(model$y_i,levels=levels(cpall$adjused.health.levels)), inte)))
   N1 <- tmp
@@ -258,7 +218,7 @@ getLevels<-function(model, formula=model$thresh.formula,
                                bg=adjustcolor('white',alpha.f=0.4)))
     par(mfrow=c(1,1))
     par(mar=mar,oma=rep(0,4))
-    mtext('Fraction [%]',2,cex=1.5)
+    mtext(YLab,2,cex=YLab.cex)
     suppressWarnings(par(opar))
   }
   res <- list(original= tmp,

@@ -13,7 +13,6 @@ update.latent <-function(model, newregcoef, data, hessian=FALSE){
   names(model$coef) <- coefnames
   colnames(model$thresh.mm) <- thresh.names
   p <- hopit_ExtractParameters(model)
-
   model$alpha <- hopit_Threshold(p$thresh.lambda, p$thresh.gamma, model)
   model$y_latent_i <- hopit_Latent(p$reg.params, model)
   model$maxobservedlatentrange <-  range(model$y_latent_i)
@@ -31,10 +30,8 @@ update.latent <-function(model, newregcoef, data, hessian=FALSE){
     model$hessian <- hes
 
     model$vcov.basic <- try(base::solve(-hes), silent = FALSE)
-    if (class(model$vcov) == 'try-error') {
-      stop(call. = NULL, 'Model is probably unidentifiable, $vcov (variance-covariance matrix) cannot be computed.')
-      model$vcov.basic <- NA
-    }
+    model$vcov.basic <- check_vcov(model$vcov.basic)
+
     if (model$hasdisp && remove.theta) COEF <- c(model$coef,model$coef.ls$logTheta) else COEF <- model$coef
     model$estfun <- hopit_derivLL(COEF, model, collapse = FALSE)
     if (remove.theta) model$estfun <- model$estfun[,-ncol(model$estfun)]
@@ -59,16 +56,41 @@ update.latent <-function(model, newregcoef, data, hessian=FALSE){
 #' Bootstraping hopit model
 #'
 #' @param model a fitted \code{Hopit} model.
-#' @param data data used to fit the model
-#' @param func function to be bootstrapped of the form func(model, data, ...).
+#' @param data data used to fit the model.
+#' @param func function to be bootstrapped of the form \code{func(model, data, ...)}.
 #' @param nboot number of bootstrap replicates.
+#' @param unlist logical indicting if to unlist boot object.
+#' @param ... other parameters passed to the \code{func}.
 #' @importFrom MASS mvrnorm
 #' @author Maciej J. Danko
 #' @export
-boot_latent_hopit<-function(model, data, func, nboot=500, ...){
+boot_hopit<-function(model, data, func, nboot=500, unlist = TRUE, ...){
   N <- seq_len(model$parcount[1])
   if (length(model$vcov)<2) stop(call.=NULL, 'No vcov detected.')
   bootsample <- MASS::mvrnorm(nboot, mu=model$coef[N], Sigma=model$vcov[N,N])
   boots <- lapply(seq_len(nboot), function(k) func(model=update.latent(model, bootsample[k,N],data=data),data=data,...))
+  if (unlist) {
+    boots <- sapply(boots,'[')
+    class(boots)<-'hopit.boot'
+  } else class(boots)<-c('hopit.boot','list')
   boots
+}
+
+#' Calculating Confidence Intervals using percentile method
+#'
+#' @param boot boot object calculated by \code{\link{boot_hopit}} .
+#' @param alpha significance level.
+#' @param bounds one of \code{"both"}, \code{"lo"}, \code{"up"}.
+#' @author Maciej J. Danko
+#' @export
+boot_hopit_CI <- function(boot, alpha = 0.05, bounds=c('both','lo','up')){
+  if (!inherits(boot,'hopit.boot')) stop(call.=NULL, 'boot must be of class "hopit.boot".')
+  bounds <- tolower(bounds[1])
+  if (inherits(boot,'list')) boot <- sapply(boot,'[')
+  probs <- switch(bounds,
+                         up = 1-alpha/2,
+                         lo = alpha/2,
+                         both = c(alpha/2, 1-alpha/2))
+
+  apply(boot, 1, quantile, probs = probs)
 }
