@@ -121,7 +121,7 @@ H_i = C-\sum_{k=1}^K D_kX_{i,k}, ~~~\text{where}~C=\frac{\displaystyle\max_i h_i
 
 Reporting styles analysis is based on the reclassification of individuals into new response categories. The classification is based on calculated latent index $H_i$ and is thus adjusted for inter-individual differences in reporting behavior. There are two methods of reclassification: (1) @Jurges2007 percentile method [see also @Rebelo2014] and (2) reclassification based on estimated thresholds.
 
-The Jurges' percentile method is based on on original distribution of categorical response variable. First for each category $j$ an empirical distribution function is constructed.
+The Jürges' percentile method is based on on original distribution of categorical response variable. First for each category $j$ an empirical distribution function is constructed.
 
 \begin{equation}
 \label{eq:11}
@@ -170,7 +170,20 @@ model1<- hopit(reg.formula = health ~ hypertenssion + high_cholesterol +
 summary(model1)
 ```
 
-*model1* contains 11 dichotomous health variables and two threshold variables. It can be further extended by adding country of origin to the treshold formula to better control for cultural differences.
+*model1* contains 11 dichotomous health variables and two threshold variables. The fitted coefficient can be accessed by *coef*() function
+
+```{r, echo=TRUE}
+# extract parameters in a form of list
+cm1 <- coef(model1, aslist = TRUE)
+
+# types of returned coefficients
+names(cm1)
+
+# latent health variables
+cm1$reg.params
+```
+
+*model1* can be further extended by adding country of origin to the treshold formula to control for cultural differences.
 
 ```{r, echo=TRUE, cache=TRUE}
 model2<- hopit(reg.formula = health ~ hypertenssion + high_cholesterol + 
@@ -195,7 +208,7 @@ or using Likelihood Ratio Test (LRT) as models are nested:
 anova(model2, model1)
 ```
 
-Both *reg.formula* and *thresh.formula allow* to specify interactions, like interaction between gender (*sex*) and age (*ageclass*): 
+Both *reg.formula* and *thresh.formula* allow to specify interactions, like interaction between gender (*sex*) and age (*ageclass*): 
 
 ```{r, echo=TRUE}
 model3<- hopit(reg.formula = health ~ hypertenssion + high_cholesterol + 
@@ -228,14 +241,14 @@ model2s<- hopit(reg.formula = health ~ hypertenssion + high_cholesterol +
                 data = healthsurvey)
 ```
 
-Including survey design could be important as it can affect the results, in presented example has however an minor importance, which is seen by comparing coefficients of latent variable for both models:
+Ignoring survey design could lead to biased results. Here, in presented examples it has however an minor importance, which is seen by comparing coefficients of latent variable for both models:
 
 ```{r, echo=TRUE}
 cbind('No survey design'=coef(model2,aslist=TRUE)$reg.par,
       'Has survey design'=coef(model2s,aslist=TRUE)$reg.par)
 ```
 
-The fit of the model can be assessed using *profile*() function, which calculate and plot profile of the log likelihood function around fitted coefficient values.
+The fit accuracy of the model can be assessed using *profile*() function, which calculate and plot profile of the log likelihood function around fitted coefficient values.
 
 ```{r, echo=TRUE}
 profile(model3)
@@ -243,21 +256,24 @@ profile(model3)
 
 ## 6. Analyses of the reporting styles using *hopit* package
 
-Let's look at latent variables of *model2*. 
+Let's look at latent health variables of *model2*. 
 
 ```{r, echo=TRUE}
 model3$coef.ls$reg.params
 ```
 
-They are not standardized. To standardize them to obtain disability weights one can use *standardizeCoef*() function
+We can standardize them using Jürges' approach [@Jurges2007] to obtain disability weights. The standardization can be doen using *standardizeCoef*() function.
 
 ```{r, echo=TRUE, fig.height = 5, fig.width = 5, fig.align = "center"}
+# A function that modifies coefficient names.  
 txtfun <- function(x) gsub('_',' ',substr(x,1,nchar(x)-3))
+
+# Calcualte and plot disability weights
 sc <- standardizeCoef(model3, plotf = TRUE, namesf = txtfun)
 sc
 ```
 
-The *namesf* argument is a function that helps rename the variable names. Here, it removes last 3 letters ("yes") which is a reference level for each variable and exchanges "_" into spaces in variable names.
+The *namesf* argument is a function or a character vector that is used to rename the coefficent names. Here, it removes last 3 letters ("yes"), which is a reference level for each variable and exchanges "_" with spaces in variable names.
 
 The latent index is simply calculated using *latentindex*() function.
 
@@ -273,14 +289,14 @@ hi <- latentIndex(model3, plotf = TRUE, response = "fitted",
                   ylab = 'Health index', col='deepskyblue3')
 ```
 
-or using Jürges' method:
+or according to Jürges' method:
 
 ```{r, echo=TRUE, fig.height = 4, fig.width = 5, fig.align = "center"}
 hi <- latentIndex(model3, plotf = TRUE, response = "Jurges", 
                   ylab = 'Health index', col='deepskyblue3')
 ```
 
-Cut-Points
+The central part of reporting styles analyses is to determine the cut-points used to calcualte adjusted health status for each individual. The calcualtion and ploting of cut-points is realized by *getCutPoints*() function.
 
 ```{r, echo=TRUE, fig.height = 4, fig.width = 5, fig.align = "center"}
 z=getCutPoints(model=model3)
@@ -289,7 +305,7 @@ z=getCutPoints(model=model3)
 z$cutpoints
 
 #Adjusted health levels for individuals: Jurges method
-rev(table(z$adjused.health.levels))
+table(z$adjused.health.levels)
 
 #Adjusted health levels for individuals: Estimated model thresholds
 table(model3$Ey_i)
@@ -299,14 +315,16 @@ table(model3$y_i)
 
 ```
 
-Health levels
-for pooled countries
+The analysis of health levels is done by *getLevels*() function
+
 ```{r, echo=TRUE, cache=TRUE, fig.height = 4, fig.width = 6, fig.align = "center"}
+# Health levels for combination of age and gender, and pooled country of origin.
 hl <- getLevels(model=model3, formula=~ sex + ageclass, data = healthsurvey, 
                       sep=' ', plotf=TRUE)
 ```
 
-The differences betweeen between original and adjusted frequncies can be calcualted directly:
+The differences between original and adjusted frequncies can be calcualted directly using *getLevels* output:
+
 ```{r, echo=TRUE}
 round(100*(hl$original - hl$adjusted),2)
 
@@ -314,10 +332,9 @@ round(100*(hl$original - hl$adjusted),2)
 
 ## 7. Bootstraping Confidence Intervals
 
-The package offers a function of calculating confidence intervals for a measure derived from the model
-Let's calcualte the difference between original and adjusted frequencies of combined Poor + Fair category
-```{r, echo=TRUE, fig.height = 6, fig.width = 5, fig.align = "center"}
+The package offers functions to calculate confidence intervals for any measure derived from the model. As an example we show calcualtion of confidence intervals  of the difference between original and adjusted frequencies of combined "Poor" + "Fair" healt categories.
 
+```{r, echo=TRUE, fig.height = 6, fig.width = 5, fig.align = "center"}
 # Function to be bootstraped
 diff_BadHealth <- function(model, data) {
   hl <- getLevels(model=model, formula=~ sex + ageclass, data = data, 
