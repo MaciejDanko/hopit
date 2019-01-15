@@ -20,27 +20,27 @@ hopit_Threshold<-function(thresh.lambda, thresh.gamma, model){
 hopit_Latent <- function(reg.params, model = NULL) model$reg.mm %*% (as.matrix(reg.params))
 
 
-#' INTERNAL: Calculate maximum possible latent range
-#' @param model a fitted \code{hopit} model.
-#' @param data a data used to fit the model
-#' @keywords internal
-hopit_latentrange <- function (model, data) {
-
-  cfm <- model$coef[seq_len(model$parcount[1])]
-
-  L <- apply(model$reg.mm,2,function(x)length(unique(x))) -1
-  FACTORS <- as.logical(L==1)
-  if (any(FACTORS)) {
-    d <- cfm[FACTORS]
-    r <- c(sum(d[d<0]), sum(d[d>0]))
-  }
-  if (any(!FACTORS)) {
-    #message('Continous covariate detected, model may not give realistic results.',appendLF = FALSE)
-    d <- matrix(cfm[!FACTORS],length(cfm[!FACTORS]),model$N) * t(model$reg.mm[,!FACTORS])
-    r <- c(min(d[d<0],r), max(r,d[d>0]))
-  }
-  r
-}
+# #' INTERNAL: Calculate maximum possible latent range
+# #' @param model a fitted \code{hopit} model.
+# #' @param data a data used to fit the model
+# #' @keywords internal
+# hopit_latentrange <- function (model, data) {
+#
+#   cfm <- model$coef[seq_len(model$parcount[1])]
+#
+#   L <- apply(model$reg.mm,2,function(x)length(unique(x))) -1
+#   FACTORS <- as.logical(L==1)
+#   if (any(FACTORS)) {
+#     d <- cfm[FACTORS]
+#     r <- c(sum(d[d<0]), sum(d[d>0]))
+#   }
+#   if (any(!FACTORS)) {
+#     #message('Continous covariate detected, model may not give realistic results.',appendLF = FALSE)
+#     d <- matrix(cfm[!FACTORS],length(cfm[!FACTORS]),model$N) * t(model$reg.mm[,!FACTORS])
+#     r <- c(min(d[d<0],r), max(r,d[d>0]))
+#   }
+#   r
+# }
 
 
 #' INTERNAL: Extract model parameters in a form of list
@@ -411,14 +411,6 @@ hopit<- function(reg.formula,
 #                 start = NULL,
                  control = list()){
 
-  my.grad <- function(fn, par, eps, ...){
-    sapply(1L : length(par), function(k){
-      epsi <- rep(0L, length(par))
-      epsi[k] <- eps
-      (fn(par + epsi, ...) - fn(par - epsi, ...))/2/eps
-    })
-  }
-
   if (!overdispersion) remove.theta = FALSE else remove.theta = TRUE
   if (missing(data)) data <- environment(reg.formula)
   start.method <- tolower(start.method[1])
@@ -545,13 +537,13 @@ hopit<- function(reg.formula,
   names(model$coef) <- coefnames
 
   if (model$control$trace) cat(' done\nCalculating maximum latent range...')
-
+  p <- hopit_ExtractParameters(model)
+  model$alpha <- hopit_Threshold(p$thresh.lambda, p$thresh.gamma, model)
   model$Ey_i <- classify.ind(model)
   model$y_latent_i <- hopit_Latent(model$coef[seq_len(model$parcount[1])], model)
-  p <- hopit_ExtractParameters(model)
   model$coef.ls <- p
-  model$maxlatentrange <- sort(hopit_latentrange(model=model, data=data)) #waht is the difference in the context of continuous variables
-  model$maxobservedlatentrange <-  sort(range(hopit_Latent(p$reg.params,model)))
+  #model$maxlatentrange <- sort(hopit_latentrange(model=model, data=data)) #waht is the difference in the context of continuous variables
+  model$maxobservedlatentrange <-  range(model$y_latent_i)
   if (model$control$trace) cat(' done\n')
   model$deviance <- -2 * model$LL
   k <- 2

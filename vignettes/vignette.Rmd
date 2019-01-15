@@ -1,7 +1,7 @@
 ---
-title: "Analysis of the reporting styles using generalized ordered threshold models."
+title: "DRAFT: Analysis of the reporting styles using generalized ordered threshold models."
 author: "Maciej J. Dańko"
-date: "8 I 2019"
+date: "15 I 2019"
 output:
   pdf_document: default
 abstract: The *hopit* package provides R functions to fit and analyze ordered response
@@ -55,7 +55,7 @@ y_i = J~ \Leftrightarrow~ \alpha_{i,J-1} \leq h_i < \alpha_{i,J}\\
 \end{cases}
 \end{equation}
 
-The thresholds (cut point, $\alpha$) are modeled by threshold variables $\gamma$ and intercepts $\lambda$. It is assumed that they model contextual characteristics of the respondent (e.g. country of origin, gender, age, etc. ). Threshold variables are modeled without parallel regression assumption, thus each threshold is modeled by one variable independently [@Boes2006; @Green2014]. 
+The thresholds (cut points, $\alpha$) are modeled by threshold variables $\gamma$ and intercepts $\lambda$. It is assumed that they model contextual characteristics of the respondent (e.g. country of origin, gender, age, etc. ). Threshold variables are modeled without parallel regression assumption, thus each threshold is modeled by a variable independently [@Boes2006; @Green2014]. 
 
 Different parametrizations of thresholds exist [@Green2014; @Rebelo2014; @Jurges2007]. In the package, @King2004 and @Jurges2007 parametrization is used, which assumes that: 
 
@@ -158,9 +158,10 @@ head(healthsurvey)
 To code presented below fits Generalized ordered probit model 
 
 ```{r, echo=TRUE, cache=TRUE} 
-model1<- hopit(reg.formula = health ~ hypertenssion + high_cholesterol + heart_atack_or_stroke +
-                                      poor_mobility + very_poor_grip + depression + respiratory_problems + 
-                                      IADL_problems + obese + diabetes + other_diseases, 
+model1<- hopit(reg.formula = health ~ hypertenssion + high_cholesterol + 
+                             heart_atack_or_stroke + poor_mobility + very_poor_grip + 
+                             depression + respiratory_problems + 
+                             IADL_problems + obese + diabetes + other_diseases, 
                  thresh.formula = ~ sex + ageclass,
                control=list(trace=FALSE),
                data = healthsurvey)
@@ -171,9 +172,10 @@ summary(model1)
 The above model contains 5 dichotomous health variables () and two threshold variables (). It can be further extended by adding country as a treshold variable to better control for contextual differences.
 
 ```{r, echo=TRUE, cache=TRUE}
-model2<- hopit(reg.formula = health ~ hypertenssion + high_cholesterol + heart_atack_or_stroke +
-                                      poor_mobility + very_poor_grip + depression + respiratory_problems + 
-                                      IADL_problems + obese + diabetes + other_diseases, 
+model2<- hopit(reg.formula = health ~ hypertenssion + high_cholesterol + 
+                             heart_atack_or_stroke + poor_mobility + 
+                             very_poor_grip + depression + respiratory_problems + 
+                             IADL_problems + obese + diabetes + other_diseases, 
                thresh.formula = ~ sex + ageclass + country,
                control=list(trace=FALSE),
                data = healthsurvey)
@@ -194,9 +196,10 @@ anova(model2, model1)
 Both reg.formula and thresh.formula allow to specify interactions, e.g. "sex : ageclass" interaction
 
 ```{r, echo=TRUE}
-model3<- hopit(reg.formula = health ~ hypertenssion + high_cholesterol + heart_atack_or_stroke +
-                                      poor_mobility + very_poor_grip + depression + respiratory_problems + 
-                                      IADL_problems + obese + diabetes + other_diseases, 
+model3<- hopit(reg.formula = health ~ hypertenssion + high_cholesterol + 
+                             heart_atack_or_stroke + poor_mobility + 
+                             very_poor_grip + depression + respiratory_problems + 
+                             IADL_problems + obese + diabetes + other_diseases, 
                thresh.formula = ~ sex * ageclass + country,
                control=list(trace=FALSE),
                data = healthsurvey)
@@ -211,9 +214,10 @@ The example below shows the fit using simple two level cluster sampling design
 ```{r, echo=TRUE, cache=TRUE}
 design <- svydesign(ids = ~ country + psu, weights = healthsurvey$csw, data = healthsurvey)
 
-model2s<- hopit(reg.formula = health ~ hypertenssion + high_cholesterol + heart_atack_or_stroke +
-                                      poor_mobility + very_poor_grip + depression + respiratory_problems + 
-                                      IADL_problems + obese + diabetes + other_diseases, 
+model2s<- hopit(reg.formula = health ~ hypertenssion + high_cholesterol + 
+                              heart_atack_or_stroke + poor_mobility + 
+                              very_poor_grip + depression + respiratory_problems + 
+                              IADL_problems + obese + diabetes + other_diseases, 
                thresh.formula = ~ sex + ageclass + country,
                design = design,
                control=list(trace=FALSE),
@@ -228,21 +232,21 @@ cbind('No survey design'=coef(model2,aslist=TRUE)$reg.par,
       'Has survey design'=coef(model2s,aslist=TRUE)$reg.par)
 ```
 
-*hopit*() is also able to fit additional theata parameter that controls for "dispersion". Theta is the variance of random Gaussian noise in probit regression (or shape parameter in logistic regression)
+<!-- *hopit*() is also able to fit additional theata parameter that controls for "dispersion". Theta is the variance of random Gaussian noise in probit regression (or shape parameter in logistic regression) -->
 
-```{r, echo=TRUE, cache=TRUE}
-model4 <- hopit(reg.formula = health ~ hypertenssion + high_cholesterol + heart_atack_or_stroke +
-                                      poor_mobility + very_poor_grip + depression + respiratory_problems + 
-                                      IADL_problems + obese + diabetes + other_diseases, 
-               thresh.formula = ~ sex + ageclass + country,
-               control=list(trace=FALSE),
-               overdispersion = TRUE,
-               data = healthsurvey)
+<!-- ```{r, echo=TRUE, cache=TRUE} -->
+<!-- model4 <- hopit(reg.formula = health ~ hypertenssion + high_cholesterol + heart_atack_or_stroke + -->
+<!--                                       poor_mobility + very_poor_grip + depression + respiratory_problems +  -->
+<!--                                       IADL_problems + obese + diabetes + other_diseases,  -->
+<!--                thresh.formula = ~ sex + ageclass + country, -->
+<!--                control=list(trace=FALSE), -->
+<!--                overdispersion = TRUE, -->
+<!--                data = healthsurvey) -->
 
-gettheta(model4) #Theta
+<!-- gettheta(model4) #Theta -->
 
-print(anova(model2,model4), short=TRUE)
-```
+<!-- print(anova(model2,model4), short=TRUE) -->
+<!-- ``` -->
 
 The fit of the model can be assessed using *profile*() function, which calculate nd plot profile of the log likelihood function around fitted coefficient values.
 ```{r, echo=TRUE}
@@ -260,33 +264,94 @@ model2$coef.ls$reg.params
 They are not standardized. To standardize them to obtain disability weights one can use *standardizeCoef*() function
 
 ```{r, echo=TRUE}
-sc <- standardizeCoef(model2, plotf = TRUE, namesf = function(x) substr(x,1,nchar(x)-3))
+txtfun <- function(x) gsub('_',' ',substr(x,1,nchar(x)-3))
+sc <- standardizeCoef(model2, plotf = TRUE, namesf = txtfun)
 sc
 ```
 
-The *namesf* argument is a function that helps rename the variable names. Here, it removes last 3 letters ("yes") which is a reference level of variable.
+The *namesf* argument is a function that helps rename the variable names. Here, it removes last 3 letters ("yes") which is a reference level for each variable and exchanges "_" into spaces in variable names.
+
+The latent index is simply calculated using *latentindex*() function.
 
 ```{r, echo=TRUE}
-latentindex(model2, plotf = TRUE, response = "data")
+hi <- latentIndex(model2, plotf = TRUE, response = "data", YLab = 'Health index')
+```
 
-hi <- latentindex(model2, plotf = TRUE, response = "fitted")
+The boxplot shows reported health status vs. health index. It is also possible to plot expected categorical health status on Y axis calcualted according to the eq. (2). 
+
+```{r, echo=TRUE}
+hi <- latentIndex(model2, plotf = TRUE, response = "fitted", YLab = 'Health index')
+```
+
+Cut-Points
+
+```{r, echo=TRUE}
+z=getCutPoints(model=model2, revf=TRUE)
+
+# Health index cut-points
+z$cutpoints
+
+#Adjusted health levels for individuals: Jurges method
+rev(table(z$adjused.health.levels))
+
+#Adjusted health levels for individuals: Estimated model thresholds
+table(model2$Ey_i)
+
+#Original health levels for individuals
+table(model2$y_i)
 
 ```
 
-Typically helatindex takes values between 0 and 1, for the worse
-
-```{r, echo=TRUE}
-head(hi)
-range(hi)
+Health levels
+for pooled countries
+```{r, echo=TRUE, cache=TRUE}
+hl <- getLevels(model=model2, formula=~ sex + ageclass, data = healthsurvey, 
+                      revf=TRUE, sep=' ', plotf=TRUE)
 ```
 
+The differences betweeen between original and adjusted frequncies can be calcualted directly:
 ```{r, echo=TRUE}
-hi <- latentindex(model2, plotf = TRUE, response = "fitted", method = "theoretical")
-head(hi)
-range(hi)
+round(100*(hl$original - hl$adjusted),2)
+
 ```
 
-# Summary
+## 7. Bootstraping CI
 
-# References
+The package offers a function of calculating confidence intervals for a measure derived from the model
+Let's calcualte the difference between original and adjusted frequencies of combined Poor + Fair category
+```{r, echo=TRUE}
+
+# Function to be bootstraped
+diff_BadHealth <- function(model, data) {
+  hl <- getLevels(model=model, formula=~ sex + ageclass, data = data, 
+                      revf=TRUE, sep=' ', plotf=FALSE)
+  hl$original[,1] + hl$original[,2] - hl$adjusted[,1]- hl$adjusted[,2]
+}
+
+# Estimate of the difference
+est.org <- diff_BadHealth(model = model2, data = healthsurvey)
+
+# Perform the bootstrap
+B <- boot_latent_hopit(model = model2, data = healthsurvey, diff_BadHealth, nboot = 100)
+B <- sapply(B,'[') # unlist B
+
+# Significance level 
+Alpha <- 0.05
+
+# Calcualte lower and upper bounds using percentile method
+est.CI <- apply(B, 1, quantile, probs = c(Alpha/2, 1-Alpha/2)) 
+
+# Plotting the difference and its (assymetrical) confidence intervals
+pmar <- par('mar'); par(mar = c(9.5,pmar[2:4]))
+m <- max(abs(est.CI))
+pos <- barplot(est.org, names.arg = names(est.org), las = 3, ylab = 'Orginal - Adjusted', 
+               ylim=c(-m, m), density = 20, angle = c(45, -45), col = c('blue', 'orange'))
+for (k in seq_along(pos)) lines(c(pos[k,1],pos[k,1]), est.CI[,k], lwd = 2, col = 2)
+abline(h = 0); box(); par(mar = pmar)
+
+```
+
+The results show that men tend to over-report bad health at ages (50,60] and (50,70], wherease women at ages [70,80) and both sexes at ages (80, 120] under-report bad health.
+
+## 8. References
 

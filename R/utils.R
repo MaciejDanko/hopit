@@ -42,6 +42,19 @@ calcYYY<-function(model){
   model
 }
 
+#' INTERNAL: numerical gradient
+#' @keywords internal
+#' @param fn function
+#' @param par parameters
+#' @param eps epsilon
+#' @param ... other parameters passed to fn
+my.grad <- function(fn, par, eps, ...){
+  sapply(1L : length(par), function(k){
+    epsi <- rep(0L, length(par))
+    epsi[k] <- eps
+    (fn(par + epsi, ...) - fn(par - epsi, ...))/2/eps
+  })
+}
 
 #' INTERNAL: Decode link parmeter
 #' @param model fitted model.
@@ -62,6 +75,30 @@ hopit_c_link<-function(model){
 #' @author Maciej J. Danko
 #' @keywords internal
 Vector2DummyMat<-function(V) sapply(levels(as.factor(V)), function(k) as.factor(V) == k)*1L
+
+
+#' @keywords internal
+#' @noRd
+#' @noMd
+untable <- function(x) {
+  names(attr(x, "dimnames")) <- c('','')
+  as.matrix(x)
+}
+
+#' @keywords internal
+formula2classes <- function(formula, data, sep='_', add.var.names = FALSE, return.matrix = FALSE){
+  tmp <- model.frame(formula, data)
+  mod.mat <- tmp
+  lv <- lapply(seq_len(NCOL(tmp)),function (k) levels(as.factor(tmp[,k])))
+  names(lv) <-colnames(tmp)
+  tmp2 <- expand.grid(lv)
+  if (add.var.names) tmp2 <- sapply(seq_len(NCOL(tmp2)), function (k) paste(colnames(tmp2)[k],'[',tmp2[,k],']',sep=''))
+  nlv <- levels(interaction(as.data.frame(tmp2),sep=sep))
+  if (add.var.names) tmp <- sapply(seq_len(NCOL(tmp)), function (k) paste(colnames(tmp)[k],'[',tmp[,k],']',sep=''))
+  tmp <- interaction(as.data.frame(tmp),sep=sep)
+  tmp <- factor(tmp, levels=nlv)
+  if (return.matrix) list(x = tmp, mat = mod.mat, class.mat = tmp2) else tmp
+}
 
 
 #' INTERNAL: Do cumsum() in each row of a matrix
@@ -102,13 +139,13 @@ data2freq<-function(formula, data, FreqNam='Freq'){
   newd
 }
 
-#' @keywords internal
-unravel <-function(mat, freq)  {
-  mat <- cbind(mat, freq)
-  FreqInd <- NCOL(mat)
-  ls <- apply(mat,1,function(k) ((rep_row(as.matrix(k[-FreqInd]),k[FreqInd]))))
-  do.call('rbind', ls)
-}
+# #' @keywords internal
+# unravel <-function(mat, freq)  {
+#  mat <- cbind(mat, freq)
+#  FreqInd <- NCOL(mat)
+#  ls <- apply(mat,1,function(k) ((rep_row(as.matrix(k[-FreqInd]),k[FreqInd]))))
+#  do.call('rbind', ls)
+#}
 
 #' INTERNAL: Clasify individuals according to the reg.params and calculated thresholds
 #' @keywords internal

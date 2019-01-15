@@ -2,20 +2,20 @@
 % Please edit documentation in R/boot.R
 \name{update.latent}
 \alias{update.latent}
-\title{INTERNAL: Update model according to new parameters}
+\title{INTERNAL : updating model uses new set of latent variable coeficients}
 \usage{
-update.latent(model, newregcoef, data, update.hessian = FALSE)
+update.latent(model, newregcoef, data, hessian = FALSE)
 }
 \arguments{
-\item{model}{a fitted \code{gotm} model.}
+\item{model}{a fitted \code{hopit} model.}
 
-\item{newregcoef}{new coeficients for health variable deffined in model$reg.formula}
+\item{newregcoef}{a new set of latent variable coeficients. Vector of length model$parcount\link{1}.}
 
-\item{data}{data used to fit the model}
+\item{data}{used to fit original model.}
 
-\item{crude}{logical indicating if to re-calculate hessian, variance-covariance matrix, and estfun.}
+\item{hessian}{logical indicating if to calculate estfun, hessian and var-cov matrix.}
 }
 \description{
-INTERNAL: Update model according to new parameters
+INTERNAL : updating model uses new set of latent variable coeficients
 }
 \keyword{internal}

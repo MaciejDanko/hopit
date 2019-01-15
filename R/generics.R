@@ -276,7 +276,7 @@ print.anova.hopit <- function(x, ...){
 lrt.hopit <- function(full, nested){
   if (!identical(full$design, nested$design)) stop('Models have different survey designs.',call. = NULL)
   if (length(full$coef) + full$hasdisp <= length(nested$coef)+ nested$hasdisp) stop('The "full" model must have more parameters than the "nested" one.',call. = NULL)
-  if (abs(full$LL - nested$LL) < .Machine$double.eps^0.6) message(call. = FALSE, 'Negligible differences between log likelihoods.') else
+  if (abs(full$LL - nested$LL) < .Machine$double.eps^0.6) message('Negligible differences between log likelihoods.') else
     if (full$LL - nested$LL < -.Machine$double.eps^0.6) warning(call. = FALSE, 'The "nested" model has the higher likelihood than the "full" model. Try to improve the fit of the models.')
   if (ncol(full$reg.mm) < ncol(nested$reg.mm)) {
     cat('Full model:\n')
@@ -363,37 +363,37 @@ print.lrt.hopit <- function(x, short=FALSE, ...){
 }
 
 
-#' Model predictions
-#'
-#' @param object \code{hopit} object.
-#' @param type the type of prediction required. The default \code{"link"}
-#' is on the scale of linear predictors (latent variable). The alternative \code{"response"}
-#' is on the scale of categorical response variable. The \code{"threshold"}
-#' gives the thresholds for each observation, whereas the \code{"threshold_link"} gives meaningful thresholds
-#' together with latent variable for each observation (a data.frame with fields \code{$left.boundary},
-#' \code{$latent.variable}, and \code{$right.boundary}).
-#' @param unravelFreq logical indicating if to represent results on individual scale if FWeights were used.
-#' @param ...	further arguments passed to or from other methods.
-#' @export
-#' @usage \method{predict}{hopit}(object, newdata=NULL,
-#' type = c('link', 'response', 'threshold', 'threshold_link'),
-#' unravelFreq = TRUE, ...)
-#' @author Maciej J. Danko
-predict.hopit <- function(object, newdata=NULL, type = c('link', 'response', 'threshold', 'threshold_link'),
-                         unravelFreq = TRUE, ...){
-  if (length(newdata)) stop('"new data" not implemented yet.')
-  if (length(object$design$FWeights) && unravelFreq) conv<-function(x) unravel(x,freq=object$design$FWeights) else conv<-identity
-  type <- match.arg(type)
-  if (type == 'latent') type <- 'link'
-  H <- switch(type,
-              link = conv(object$y_latent_i),
-              response = conv(object$Ey_i),
-              threshold = conv(object$alpha),
-              threshold_link = data.frame(left.boundary=conv(col_path(object$alpha, unclass(object$Ey_i)+1)),
-                                          latent.variable=conv(object$y_latent_i),
-                                          right.boundary=conv(col_path(object$alpha, unclass(object$Ey_i)+2))))
-  return(H)
-}
+# #' Model predictions
+# #'
+# #' @param object \code{hopit} object.
+# #' @param type the type of prediction required. The default \code{"link"}
+# #' is on the scale of linear predictors (latent variable). The alternative \code{"response"}
+# #' is on the scale of categorical response variable. The \code{"threshold"}
+# #' gives the thresholds for each observation, whereas the \code{"threshold_link"} gives meaningful thresholds
+# #' together with latent variable for each observation (a data.frame with fields \code{$left.boundary},
+# #' \code{$latent.variable}, and \code{$right.boundary}).
+# #' @param unravelFreq logical indicating if to represent results on individual scale if FWeights were used.
+# #' @param ...	further arguments passed to or from other methods.
+# #' @export
+# #' @usage \method{predict}{hopit}(object, newdata=NULL,
+# #' type = c('link', 'response', 'threshold', 'threshold_link'),
+# #' unravelFreq = TRUE, ...)
+# #' @author Maciej J. Danko
+# predict.hopit <- function(object, newdata=NULL, type = c('link', 'response', 'threshold', 'threshold_link'),
+#                          unravelFreq = TRUE, ...){
+#   if (length(newdata)) stop('"new data" not implemented yet.')
+#   if (length(object$design$FWeights) && unravelFreq) conv<-function(x) unravel(x,freq=object$design$FWeights) else conv<-identity
+#   type <- match.arg(type)
+#   if (type == 'latent') type <- 'link'
+#   H <- switch(type,
+#               link = conv(object$y_latent_i),
+#               response = conv(object$Ey_i),
+#               threshold = conv(object$alpha),
+#               threshold_link = data.frame(left.boundary=conv(col_path(object$alpha, unclass(object$Ey_i)+1)),
+#                                           latent.variable=conv(object$y_latent_i),
+#                                           right.boundary=conv(col_path(object$alpha, unclass(object$Ey_i)+2))))
+#   return(H)
+# }
 
 #' Calculate log likelihood profile for fitted hopit model
 #'

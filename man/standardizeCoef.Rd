@@ -3,20 +3,20 @@
 \name{standardizeCoef}
 \alias{standardizeCoef}
 \alias{standardiseCoef}
-\alias{disabilityweights}
+\alias{disabilityWeights}
 \title{Standardization of coefficients}
 \usage{
-standardizeCoef(model, latent.method = c("observed", "theoretical"),
-  plotpval = FALSE, plotf = TRUE, mar = c(15, 4, 1, 1), oma = c(0, 0, 0,
-  0), YLab = "Disability weight", namesf = identity, ...)
+standardizeCoef(model, plotpval = FALSE, plotf = TRUE, mar = c(15, 4, 1,
+  1), oma = c(0, 0, 0, 0), YLab = "Disability weight", YLab.cex = 1.25,
+  namesf = identity, ...)
 
-standardiseCoef(model, latent.method = c("observed", "theoretical"),
-  plotpval = FALSE, plotf = TRUE, mar = c(15, 4, 1, 1), oma = c(0, 0, 0,
-  0), YLab = "Disability weight", namesf = identity, ...)
+standardiseCoef(model, plotpval = FALSE, plotf = TRUE, mar = c(15, 4, 1,
+  1), oma = c(0, 0, 0, 0), YLab = "Disability weight", YLab.cex = 1.25,
+  namesf = identity, ...)
 
-disabilityweights(model, latent.method = c("observed", "theoretical"),
-  plotpval = FALSE, plotf = TRUE, mar = c(15, 4, 1, 1), oma = c(0, 0, 0,
-  0), YLab = "Disability weight", namesf = identity, ...)
+disabilityWeights(model, plotpval = FALSE, plotf = TRUE, mar = c(15, 4, 1,
+  1), oma = c(0, 0, 0, 0), YLab = "Disability weight", YLab.cex = 1.25,
+  namesf = identity, ...)
 }
 \arguments{
 \item{model}{a fitted \code{hopit} model.}
@@ -29,6 +29,8 @@ disabilityweights(model, latent.method = c("observed", "theoretical"),
 
 \item{oma}{see \code{\link{par}}.}
 
+\item{YLab, YLab.cex}{labale and size of the label for y axis.}
+
 \item{namesf}{one argument function that modifies names of coeficients.}
 
 \item{...}{arguments passed to \code{\link{boxplot}}.}
@@ -40,5 +42,5 @@ of its linear prediction. The range is calcualted as difference between maximum 
 given estimated parameters.
 }
 \seealso{
-\code{\link{healthindex}}
+\code{\link{healthIndex}}
 }
