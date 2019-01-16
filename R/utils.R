@@ -187,17 +187,17 @@ extractCoef <- function(COEF, model){
   xglm.lambda <- sort(COEF[Lind])
   #Rind <- names(COEF) %in% colnames(model$latent.mm)
   Rind <- greplin(names(COEF), colnames(model$latent.mm))
-  xglm.reg <-  COEF[Rind]
-  oi <- order.as.in(a=colnames(model$latent.mm), b=names(xglm.reg))
-  xglm.reg <- - xglm.reg[oi] #remove negative sign in reg
+  xglm.latent <-  COEF[Rind]
+  oi <- order.as.in(a=colnames(model$latent.mm), b=names(xglm.latent))
+  xglm.latent <- - xglm.latent[oi] #remove negative sign in latent
   xglm.gamma <- COEF[!Lind & !Rind]
   thr.ext.nam<-as.character(interaction(expand.grid(seq_len(model$J-1),colnames(model$thresh.mm))[,2:1],sep=':'))
   oi <- order.as.in(a=thr.ext.nam, b=names(xglm.gamma))
   xglm.gamma <- xglm.gamma[oi]
-  list(start.ls = list(latent.params = xglm.reg,
+  list(start.ls = list(latent.params = xglm.latent,
                        thresh.lambda = xglm.lambda,
                        thresh.gamma = xglm.gamma),
-       start <- c(xglm.reg, xglm.lambda, xglm.gamma))
+       start <- c(xglm.latent, xglm.lambda, xglm.gamma))
 }
 
 #' INTERNAL: Use vglm to get starting parameters
@@ -245,17 +245,17 @@ start.vglm <-function(model, data){
   # vglm.lambdas <- sort(cmv2[Lind])
   # #Rind <- names(cmv2) %in% colnames(model$latent.mm)
   # Rind <- greplin(names(cmv2), colnames(model$latent.mm))
-  # vglm.reg <-  cmv2[Rind]
-  # oi <- order.as.in(a=colnames(model$latent.mm), b=names(vglm.reg))
-  # vglm.reg <- - vglm.reg[oi] #remove negative sign in reg
+  # vglm.latent <-  cmv2[Rind]
+  # oi <- order.as.in(a=colnames(model$latent.mm), b=names(vglm.latent))
+  # vglm.latent <- - vglm.latent[oi] #remove negative sign in latent
   # vglm.gamma <- cmv2[!Lind & !Rind]
   # thr.ext.nam<-as.character(interaction(expand.grid(seq_len(model$J-1),colnames(model$thresh.mm))[,2:1],sep=':'))
   # oi <- order.as.in(a=thr.ext.nam, b=names(vglm.gamma))
   # vglm.gamma <- vglm.gamma[oi]
-  # model$vglm.start.ls = list(latent.params = vglm.reg,
+  # model$vglm.start.ls = list(latent.params = vglm.latent,
   #                            thresh.lambda = vglm.lambdas,
   #                            thresh.gamma = vglm.gamma)
-  # model$vglm.start <- c(vglm.reg, vglm.lambdas, vglm.gamma)
+  # model$vglm.start <- c(vglm.latent, vglm.lambdas, vglm.gamma)
   z <- extractCoef(cmv2, model)
   model$vglm.start.ls <- z$start.ls
   model$vglm.start <- z$start
@@ -288,16 +288,19 @@ start.glm<-function(model, data){
     #check convergence
   })
   glm.lambda <-  res[which(grepl('Intercept',rownames(res))),]
-  glm.reg <- res[rownames(res)%in%colnames(model$latent.mm),]
-  #glm.reg <- res[unlist(sapply(attr(terms(model$latent.formula),'term.labels'),grep, x=rownames(res))),]
-  glm.reg <- - rowMeans(glm.reg)
-  thr.ext.nam <-as.character(interaction(expand.grid(seq_len(model$J-1),colnames(model$thresh.mm))[,2:1],sep=':'))
-  # THRn <- attr(terms(model$thresh.formula),'term.labels')
-  res[rownames(res)%in%colnames(model$thresh.mm),]
-  glm.gamma <- as.vector(t(res[rownames(res)%in%colnames(model$thresh.mm),]))
-  names(glm.gamma) <- thr.ext.nam
-  model$glm.start <- c(glm.reg,glm.lambda,glm.gamma)
-  model$glm.start.ls <-list(latent.params = glm.reg,
+  glm.latent <- res[rownames(res)%in%colnames(model$latent.mm),]
+  #glm.latent <- res[unlist(sapply(attr(terms(model$latent.formula),'term.labels'),grep, x=rownames(res))),]
+  glm.latent <- - rowMeans(glm.latent)
+  if (!model$thresh.no.cov) {
+    thr.ext.nam <-as.character(interaction(expand.grid(seq_len(model$J-1),colnames(model$thresh.mm))[,2:1],sep=':'))
+    glm.gamma <- as.vector(t(res[rownames(res)%in%colnames(model$thresh.mm),]))
+    names(glm.gamma) <- thr.ext.nam
+  } else {
+    glm.gamma <- NULL
+  }
+
+  model$glm.start <- c(glm.latent,glm.lambda,glm.gamma)
+  model$glm.start.ls <-list(latent.params = glm.latent,
                             thresh.lambda = glm.lambda,
                             thresh.gamma = glm.gamma)
   model
@@ -326,7 +329,11 @@ get.hopit.start<-function(model, data){
   } else stop(hopit_msg(20),call.=NULL)
 
   if ((!model$method) || (model$start.method=='glm')) {
-    z <- glm2hopit(par.ls$latent.params, par.ls$thresh.lambda, par.ls$thresh.gamma, thresh_1_exp = model$control$thresh.1.exp)
+    if (model$thresh.no.cov){
+      z <- glm2hopit_nogamma(par.ls$latent.params, par.ls$thresh.lambda, thresh_1_exp = model$control$thresh.1.exp)
+    } else {
+      z <- glm2hopit(par.ls$latent.params, par.ls$thresh.lambda, par.ls$thresh.gamma, thresh_1_exp = model$control$thresh.1.exp)
+    }
     if (length(m$ignored.latent.var)){
       ini.mis <- mean(z$latent_params)
       if (any(class(data[,m$ignored.latent.var])!='factor')) stop(hopit_msg(21),call. = NULL)

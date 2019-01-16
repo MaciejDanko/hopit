@@ -1,4 +1,4 @@
-#' INTERNAL: Calculation of model cut-points (threshold)
+#' INTERNAL: Calculation of model cut-points (thresholds)
 #'
 #' @author Maciej J. Danko
 #' @keywords internal
@@ -7,6 +7,7 @@
 #' @useDynLib hopit
 #' @importFrom Rcpp evalCpp
 hopit_Threshold<-function(thresh.lambda, thresh.gamma, model){
+  if (model$thresh.no.cov) thresh.gamma = NA
   if (model$method == 0) {
     getThresholds(model$thresh.mm, thresh.lambda, thresh.gamma, model$thresh.no.cov,
                   thresh_start = model$control$thresh.start, thresh_1_exp = model$control$thresh.1.exp) #RcppEigen
@@ -53,7 +54,7 @@ hopit_Latent <- function(latent.params, model = NULL) model$latent.mm %*% (as.ma
 #' Extract model parameters in form of a list
 #' @param model \code{hopit} object.
 #' @param parameters model parameters (optional). If not delivered then taken from \code{model$coef}.
-#' @param parcount vector with parameters counts for reg, lambda, and gamma.
+#' @param parcount vector with parameters counts for latent, lambda, and gamma.
 #' @author Maciej J. Dańko
 #' @keywords internal
 hopit_ExtractParameters <- function(model, parameters, parcount = model$parcount){
@@ -101,13 +102,13 @@ hopit_ExtractParameters <- function(model, parameters, parcount = model$parcount
 hopit_negLL <- function(parameters=model$coef, model, collapse = TRUE, use_weights = model$use.weights, negative = TRUE){
   link = hopit_c_link(model)
   if (collapse) {
-    LL <- LLFunc(parameters, yi=as.numeric(unclass(model$y_i)),reg_mm=model$latent.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
+    LL <- LLFunc(parameters, yi=as.numeric(unclass(model$y_i)),latent_mm=model$latent.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
                  hasdisp = model$hasdisp,
                  link=link,thresh_no_cov=model$thresh.no.cov, negative=negative, thresh_1_exp = model$control$thresh.1.exp,
                  weights=model$weights,use_weights = use_weights, thresh_start=model$control$thresh.start, out_val = model$control$LL_out_val,
                  method = model$method)
   } else {
-    LL <- LLFuncIndv(parameters, yi=as.numeric(unclass(model$y_i)),reg_mm=model$latent.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
+    LL <- LLFuncIndv(parameters, yi=as.numeric(unclass(model$y_i)),latent_mm=model$latent.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
                      hasdisp = model$hasdisp,
                      link=link,thresh_no_cov=model$thresh.no.cov, negative=negative, thresh_1_exp = model$control$thresh.1.exp,
                      weights=model$weights, thresh_start = model$control$thresh.start, use_weights = use_weights,
@@ -140,13 +141,13 @@ hopit_derivLL <- function(parameters=model$coef, model,
   if (collapse) {
     LLgr <- LLGradFunc(parameters, yi=as.numeric(unclass(model$y_i)), YYY1=model$YYY1, YYY2=model$YYY2,
                        YYY3=model$YYY3[,-model$J],YYY4=model$YYY3[,-1], hasdisp = model$hasdisp,
-                       reg_mm=model$latent.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
+                       latent_mm=model$latent.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
                        link=link,thresh_no_cov=model$thresh.no.cov,negative=negative, thresh_1_exp = model$control$thresh.1.exp,
                        weights=model$weights, thresh_start = model$control$thresh.start, use_weights = use_weights,
                        method = model$method)
   } else {
     LLgr <- LLGradFuncIndv(parameters, yi=as.numeric(unclass(model$y_i)), YYY1=model$YYY1, YYY2=model$YYY2, YYY3=model$YYY3[,-model$J], YYY4=model$YYY3[,-1],
-                           reg_mm=model$latent.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
+                           latent_mm=model$latent.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
                            hasdisp = model$hasdisp,
                            link=link,thresh_no_cov=model$thresh.no.cov, negative=negative, thresh_1_exp = model$control$thresh.1.exp,
                            weights=model$weights,thresh_start = model$control$thresh.start, use_weights = use_weights,
@@ -182,11 +183,11 @@ hopit_fitter <- function(model, start = model$start, use_weights = model$use.wei
 
   LLgr <- function(par, neg = TRUE) LLGradFunc(par, yi=as.numeric(unclass(model$y_i)), YYY1=model$YYY1, YYY2=model$YYY2, YYY3=model$YYY3[,-model$J],
                                                YYY4=model$YYY3[,-1],hasdisp = model$hasdisp,
-                                               reg_mm=model$latent.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
+                                               latent_mm=model$latent.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
                                                link=link,thresh_no_cov=model$thresh.no.cov, negative=neg, thresh_1_exp = model$control$thresh.1.exp,
                                                weights=model$weights, thresh_start=model$control$thresh.start, use_weights = use_weights,
                                                method = model$method)
-  LLfn <- function(par, neg = TRUE) LLFunc(par, yi=as.numeric(unclass(model$y_i)),reg_mm=model$latent.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
+  LLfn <- function(par, neg = TRUE) LLFunc(par, yi=as.numeric(unclass(model$y_i)),latent_mm=model$latent.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
                                            link=link, thresh_no_cov=model$thresh.no.cov, negative=neg, thresh_1_exp = model$control$thresh.1.exp,
                                            weights=model$weights,use_weights = use_weights, thresh_start=model$control$thresh.start,
                                            out_val = model$control$LL_out_val, hasdisp = model$hasdisp, method = model$method)
@@ -212,14 +213,14 @@ hopit_fitter <- function(model, start = model$start, use_weights = model$use.wei
       fit <- list(par = start)
       # sstart=start
       # sstart[length(sstart)]=1
-      # LLFunc(sstart, yi=as.numeric(unclass(model$y_i)),reg_mm=model$latent.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
+      # LLFunc(sstart, yi=as.numeric(unclass(model$y_i)),latent_mm=model$latent.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
       #        link=link, thresh_no_cov=model$thresh.no.cov, negative=TRUE, thresh_1_exp = model$control$thresh.1.exp,
       #        weights=model$weights,use_weights = use_weights, thresh_start=model$control$thresh.start,
       #        out_val = model$control$LL_out_val, hasdisp = TRUE, method = model$method)
       # start=model$start
       # LLGradFunc(start, yi=as.numeric(unclass(model$y_i)), YYY1=model$YYY1, YYY2=model$YYY2, YYY3=model$YYY3[,-model$J],
       #            YYY4=model$YYY3[,-1],hasdisp = TRUE,
-      #            reg_mm=model$latent.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
+      #            latent_mm=model$latent.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
       #            link=link,thresh_no_cov=model$thresh.no.cov, negative=TRUE, thresh_1_exp = model$control$thresh.1.exp,
       #            weights=model$weights, thresh_start=model$control$thresh.start, use_weights = use_weights,
       #            method = model$method)
