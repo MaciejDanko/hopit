@@ -6,9 +6,8 @@
 \usage{
 hopit(latent.formula, thresh.formula = as.formula("~ 1"),
   strata.formula = as.formula("~ 1"), data, decreasing.levels,
-  method = c("hopit", "vglm"), overdispersion = FALSE, design = list(),
-  weights = NULL, link = c("probit", "logit"), start.method = c("glm",
-  "vglm"), control = list())
+  overdispersion = FALSE, design = list(), weights = NULL,
+  link = c("probit", "logit"), control = list())
 }
 \arguments{
 \item{latent.formula}{formula used to model latent variable.}
@@ -19,6 +18,8 @@ Any dependent variable (left side of "~") will be ignored.}
 \item{data}{a data frame including all modeled variables.}
 
 \item{decreasing.levels}{logical indicating if self-reported health classes are ordered in decreasing order.}
+
+\item{overdispersion}{logical indicting if to fit additionalparameter theta modeling a variance of error term.}
 
 \item{design}{an optional survey design. Use \code{\link[survey]{svydesign}} function to specify the design.}
 

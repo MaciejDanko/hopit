@@ -37,23 +37,19 @@ getThresholds <- function(thresh_mm, thresh_lambda, thresh_gamma, thresh_no_cov,
     .Call('_hopit_getThresholds', PACKAGE = 'hopit', thresh_mm, thresh_lambda, thresh_gamma, thresh_no_cov, thresh_start, thresh_1_exp)
 }
 
-VgetThresholds <- function(thresh_mm, thresh_lambda, thresh_gamma, thresh_no_cov, thresh_start) {
-    .Call('_hopit_VgetThresholds', PACKAGE = 'hopit', thresh_mm, thresh_lambda, thresh_gamma, thresh_no_cov, thresh_start)
+LLFunc <- function(parameters, yi, latent_mm, thresh_mm, parcount, hasdisp, link, thresh_no_cov, negative, use_weights, weights, thresh_start, thresh_1_exp, out_val) {
+    .Call('_hopit_LLFunc', PACKAGE = 'hopit', parameters, yi, latent_mm, thresh_mm, parcount, hasdisp, link, thresh_no_cov, negative, use_weights, weights, thresh_start, thresh_1_exp, out_val)
 }
 
-LLFunc <- function(parameters, yi, latent_mm, thresh_mm, parcount, hasdisp, link, thresh_no_cov, negative, use_weights, weights, thresh_start, thresh_1_exp, out_val, method) {
-    .Call('_hopit_LLFunc', PACKAGE = 'hopit', parameters, yi, latent_mm, thresh_mm, parcount, hasdisp, link, thresh_no_cov, negative, use_weights, weights, thresh_start, thresh_1_exp, out_val, method)
+LLFuncIndv <- function(parameters, yi, latent_mm, thresh_mm, parcount, hasdisp, link, thresh_no_cov, negative, use_weights, thresh_start, thresh_1_exp, weights) {
+    .Call('_hopit_LLFuncIndv', PACKAGE = 'hopit', parameters, yi, latent_mm, thresh_mm, parcount, hasdisp, link, thresh_no_cov, negative, use_weights, thresh_start, thresh_1_exp, weights)
 }
 
-LLFuncIndv <- function(parameters, yi, latent_mm, thresh_mm, parcount, hasdisp, link, thresh_no_cov, negative, use_weights, thresh_start, thresh_1_exp, weights, method) {
-    .Call('_hopit_LLFuncIndv', PACKAGE = 'hopit', parameters, yi, latent_mm, thresh_mm, parcount, hasdisp, link, thresh_no_cov, negative, use_weights, thresh_start, thresh_1_exp, weights, method)
+LLGradFunc <- function(parameters, yi, YYY1, YYY2, YYY3, YYY4, latent_mm, thresh_mm, thresh_extd, parcount, hasdisp, link, thresh_no_cov, negative, use_weights, thresh_start, thresh_1_exp, weights) {
+    .Call('_hopit_LLGradFunc', PACKAGE = 'hopit', parameters, yi, YYY1, YYY2, YYY3, YYY4, latent_mm, thresh_mm, thresh_extd, parcount, hasdisp, link, thresh_no_cov, negative, use_weights, thresh_start, thresh_1_exp, weights)
 }
 
-LLGradFunc <- function(parameters, yi, YYY1, YYY2, YYY3, YYY4, latent_mm, thresh_mm, thresh_extd, parcount, hasdisp, link, thresh_no_cov, negative, use_weights, thresh_start, thresh_1_exp, weights, method) {
-    .Call('_hopit_LLGradFunc', PACKAGE = 'hopit', parameters, yi, YYY1, YYY2, YYY3, YYY4, latent_mm, thresh_mm, thresh_extd, parcount, hasdisp, link, thresh_no_cov, negative, use_weights, thresh_start, thresh_1_exp, weights, method)
-}
-
-LLGradFuncIndv <- function(parameters, yi, YYY1, YYY2, YYY3, YYY4, latent_mm, thresh_mm, thresh_extd, parcount, hasdisp, link, thresh_no_cov, negative, use_weights, thresh_start, thresh_1_exp, weights, method) {
-    .Call('_hopit_LLGradFuncIndv', PACKAGE = 'hopit', parameters, yi, YYY1, YYY2, YYY3, YYY4, latent_mm, thresh_mm, thresh_extd, parcount, hasdisp, link, thresh_no_cov, negative, use_weights, thresh_start, thresh_1_exp, weights, method)
+LLGradFuncIndv <- function(parameters, yi, YYY1, YYY2, YYY3, YYY4, latent_mm, thresh_mm, thresh_extd, parcount, hasdisp, link, thresh_no_cov, negative, use_weights, thresh_start, thresh_1_exp, weights) {
+    .Call('_hopit_LLGradFuncIndv', PACKAGE = 'hopit', parameters, yi, YYY1, YYY2, YYY3, YYY4, latent_mm, thresh_mm, thresh_extd, parcount, hasdisp, link, thresh_no_cov, negative, use_weights, thresh_start, thresh_1_exp, weights)
 }
 

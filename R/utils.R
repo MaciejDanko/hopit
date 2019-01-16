@@ -318,17 +318,17 @@ start.glm<-function(model, data){
 #' @importFrom Rcpp evalCpp
 get.hopit.start<-function(model, data){
   logTheta <- 0
-  if ((!model$method) && (model$start.method=='glm')) {
+  #if ((!model$method) && (model$start.method=='glm')) {
     m <- suppressWarnings(start.glm(model, data))
     model <- m
     par.ls <- model$glm.start.ls
-  } else if ((model$method) || (model$start.method=='vglm')) {
-    m <- suppressWarnings(start.vglm(model, data))
-    model <- m$vglm.model
-    par.ls <- model$vglm.start.ls
-  } else stop(hopit_msg(20),call.=NULL)
+  # } else if ((model$method) || (model$start.method=='vglm')) {
+  #   m <- suppressWarnings(start.vglm(model, data))
+  #   model <- m$vglm.model
+  #   par.ls <- model$vglm.start.ls
+  # } else stop(hopit_msg(20),call.=NULL)
 
-  if ((!model$method) || (model$start.method=='glm')) {
+  #if ((!model$method) || (model$start.method=='glm')) {
     if (model$thresh.no.cov){
       z <- glm2hopit_nogamma(par.ls$latent.params, par.ls$thresh.lambda, thresh_1_exp = model$control$thresh.1.exp)
     } else {
@@ -352,10 +352,10 @@ get.hopit.start<-function(model, data){
       model$start <- c(z$coef, logTheta)
     } else model$start <- z$coef
 
-  } else {
-    model$start.ls <- model$vglm.start.ls
-    model$start <- model$vglm.start
-
-  }
+  # } else {
+  #   model$start.ls <- model$vglm.start.ls
+  #   model$start <- model$vglm.start
+  #
+  # }
   model
 }

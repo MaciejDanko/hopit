@@ -20,7 +20,7 @@ hopit_msg <- function(x) switch(x,
   '17' = 'Unknown link function:',
   '18' = '\nThreshold variable(s) detected in reg.formula. Model may be not identifiable.\n', #start.vglm
   '19' = 'Starting points cannot be found using glm method. Try start.method="vglm". ', #start.glm
-  '20' = 'Wrong start method.', #get.hopit.start
+  '20' = 'Wrong start method.', #get.hopit.start  UNUSED
   '21' = 'Threshold-Health variables must be factors.', #get.hopit.start
   '22' = 'boot must be of class "hopit.boot".', #boot
   '23' = 'No vcov detected.', #boot

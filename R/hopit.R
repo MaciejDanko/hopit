@@ -8,13 +8,13 @@
 #' @importFrom Rcpp evalCpp
 hopit_Threshold<-function(thresh.lambda, thresh.gamma, model){
   if (model$thresh.no.cov) thresh.gamma = NA
-  if (model$method == 0) {
+  #if (model$method == 0) {
     getThresholds(model$thresh.mm, thresh.lambda, thresh.gamma, model$thresh.no.cov,
                   thresh_start = model$control$thresh.start, thresh_1_exp = model$control$thresh.1.exp) #RcppEigen
-  } else {
-    VgetThresholds(model$thresh.mm, thresh.lambda, thresh.gamma, model$thresh.no.cov,
-                   thresh_start = model$control$thresh.start) #RcppEigen
-  }
+  # } else {
+  #   VgetThresholds(model$thresh.mm, thresh.lambda, thresh.gamma, model$thresh.no.cov,
+  #                  thresh_start = model$control$thresh.start) #RcppEigen
+  # }
 }
 
 #' INTERNAL: Calculate predicted continous latent measure.
@@ -105,14 +105,14 @@ hopit_negLL <- function(parameters=model$coef, model, collapse = TRUE, use_weigh
     LL <- LLFunc(parameters, yi=as.numeric(unclass(model$y_i)),latent_mm=model$latent.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
                  hasdisp = model$hasdisp,
                  link=link,thresh_no_cov=model$thresh.no.cov, negative=negative, thresh_1_exp = model$control$thresh.1.exp,
-                 weights=model$weights,use_weights = use_weights, thresh_start=model$control$thresh.start, out_val = model$control$LL_out_val,
-                 method = model$method)
+                 weights=model$weights,use_weights = use_weights, thresh_start=model$control$thresh.start, out_val = model$control$LL_out_val) #,
+                 #method = model$method)
   } else {
     LL <- LLFuncIndv(parameters, yi=as.numeric(unclass(model$y_i)),latent_mm=model$latent.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
                      hasdisp = model$hasdisp,
                      link=link,thresh_no_cov=model$thresh.no.cov, negative=negative, thresh_1_exp = model$control$thresh.1.exp,
-                     weights=model$weights, thresh_start = model$control$thresh.start, use_weights = use_weights,
-                     method = model$method)
+                     weights=model$weights, thresh_start = model$control$thresh.start, use_weights = use_weights)#,
+                     #method = model$method)
   }
   if (use_weights) {
     LL <- LL / sum(model$weights) * model$N #scale likelihood
@@ -143,15 +143,15 @@ hopit_derivLL <- function(parameters=model$coef, model,
                        YYY3=model$YYY3[,-model$J],YYY4=model$YYY3[,-1], hasdisp = model$hasdisp,
                        latent_mm=model$latent.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
                        link=link,thresh_no_cov=model$thresh.no.cov,negative=negative, thresh_1_exp = model$control$thresh.1.exp,
-                       weights=model$weights, thresh_start = model$control$thresh.start, use_weights = use_weights,
-                       method = model$method)
+                       weights=model$weights, thresh_start = model$control$thresh.start, use_weights = use_weights)#,
+                       #method = model$method)
   } else {
     LLgr <- LLGradFuncIndv(parameters, yi=as.numeric(unclass(model$y_i)), YYY1=model$YYY1, YYY2=model$YYY2, YYY3=model$YYY3[,-model$J], YYY4=model$YYY3[,-1],
                            latent_mm=model$latent.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
                            hasdisp = model$hasdisp,
                            link=link,thresh_no_cov=model$thresh.no.cov, negative=negative, thresh_1_exp = model$control$thresh.1.exp,
-                           weights=model$weights,thresh_start = model$control$thresh.start, use_weights = use_weights,
-                           method = model$method)
+                           weights=model$weights,thresh_start = model$control$thresh.start, use_weights = use_weights)#,
+                           #method = model$method)
   }
 
   if (use_weights) {
@@ -185,15 +185,15 @@ hopit_fitter <- function(model, start = model$start, use_weights = model$use.wei
                                                YYY4=model$YYY3[,-1],hasdisp = model$hasdisp,
                                                latent_mm=model$latent.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
                                                link=link,thresh_no_cov=model$thresh.no.cov, negative=neg, thresh_1_exp = model$control$thresh.1.exp,
-                                               weights=model$weights, thresh_start=model$control$thresh.start, use_weights = use_weights,
-                                               method = model$method)
+                                               weights=model$weights, thresh_start=model$control$thresh.start, use_weights = use_weights)#,
+                                               #method = model$method)
   LLfn <- function(par, neg = TRUE) LLFunc(par, yi=as.numeric(unclass(model$y_i)),latent_mm=model$latent.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
                                            link=link, thresh_no_cov=model$thresh.no.cov, negative=neg, thresh_1_exp = model$control$thresh.1.exp,
                                            weights=model$weights,use_weights = use_weights, thresh_start=model$control$thresh.start,
-                                           out_val = model$control$LL_out_val, hasdisp = model$hasdisp, method = model$method)
-  if (model$method==0) {
+                                           out_val = model$control$LL_out_val, hasdisp = model$hasdisp)#, method = model$method)
+  # if (model$method==0) {
 
-    #Two methods one after each othe
+    #Two methods one after each other
     fastgradfit <- function(fit, meto){
       #BFGS and CG method
       try({
@@ -239,10 +239,11 @@ hopit_fitter <- function(model, start = model$start, use_weights = model$use.wei
 
     model$coef <- fit$par
     model$LL <- unname(-fit$value)
-  } else {
-    model$coef <- start
-    model$LL <- LLfn(start)
-  }
+
+  #   } else {
+  #   model$coef <- start
+  #   model$LL <- LLfn(start)
+  # }
   # cat('VGLM LL:',model$vglm.LL,'\n')
   # cat('START LL:',LLfn(start, neg=FALSE),'\n')
   # cat('FITTED LL:',LLfn(model$coef, neg=FALSE),'\n')
@@ -321,6 +322,7 @@ gettheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' Any dependent variable (left side of "~") will be ignored.
 #' @param data a data frame including all modeled variables.
 #' @param decreasing.levels logical indicating if self-reported health classes are ordered in decreasing order.
+#' @param overdispersion logical indicting if to fit additionalparameter theta modeling a variance of error term.
 #' @param design an optional survey design. Use \code{\link[survey]{svydesign}} function to specify the design.
 #' @param weights an optional weights. Use design to construct survey weights.
 #' @param link the link function. The possible values are \code{"probit"} (default) and \code{"logit"}.
@@ -333,18 +335,18 @@ hopit<- function(latent.formula,
                  strata.formula = as.formula('~ 1'),
                  data,
                  decreasing.levels,
-                 method = c('hopit','vglm'),
+                 #method = c('hopit','vglm'),
                  overdispersion = FALSE,
                  design = list(),
                  weights = NULL,
                  link = c('probit', 'logit'),
-                 start.method = c('glm','vglm'),
+                 #start.method = c('glm','vglm'),
 #                 start = NULL,
                  control = list()){
   if (!overdispersion) remove.theta = FALSE else remove.theta = TRUE
   if (missing(data)) data <- environment(latent.formula)
-  start.method <- tolower(start.method[1])
-  method <- check_hopit_method(method)
+  #start.method <- tolower(start.method[1])
+  #method <- check_hopit_method(method)
   link <- match.arg(link)
   control <- do.call("hopit.control", control)
 
@@ -363,8 +365,8 @@ hopit<- function(latent.formula,
   model <- NULL
   model$control <- control
   model$link <- link[1]
-  model$method <- as.logical(method)
-  model$start.method <- start.method
+  #model$method <- as.logical(method)
+  #model$start.method <- start.method
   model$hasdisp <- overdispersion
 
   thresh.formula <- check_thresh_formula(thresh.formula)
@@ -463,7 +465,8 @@ hopit<- function(latent.formula,
   #   model$start <- start
   # }
 
-  if (model$control$trace && !model$method) cat(hopit_msg(11))
+  #if (model$control$trace && !model$method) cat(hopit_msg(11))
+  if (model$control$trace) cat(hopit_msg(11))
 
   model <- hopit_fitter(model, start = model$start)
   model$vglm <- NULL

@@ -8,13 +8,13 @@ check_decreasing.levels<-function(decreasing.levels, levels_y_i){
   }
 }
 
-#' @noRd
-#' @keywords internal
-check_hopit_method<-function(method){
-  method <- tolower(method[1])
-  if (method=='vglm') method <- 1 else if (method=='hopit') method <- 0 else stop(call.=NULL, hopit_msg(28))
-  method
-}
+## #' @noRd
+## #' @keywords internal
+## check_hopit_method<-function(method){
+##   method <- tolower(method[1])
+##   if (method=='vglm') method <- 1 else if (method=='hopit') method <- 0 else stop(call.=NULL, hopit_msg(28))
+##   method
+## }
 
 #' @noRd
 #' @keywords internal
