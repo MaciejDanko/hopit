@@ -151,14 +151,14 @@ data2freq<-function(formula, data, FreqNam='Freq'){
 #  do.call('rbind', ls)
 #}
 
-#' INTERNAL: Clasify individuals according to the reg.params and calculated thresholds
+#' INTERNAL: Clasify individuals according to the latent.params and calculated thresholds
 #' @keywords internal
 #' @param model \code{hopit} object.
 classify.ind<-function(model){
   p <- hopit_ExtractParameters(model, model$coef)
   a <- hopit_Threshold(thresh.lambda = p$thresh.lambda, thresh.gamma = p$thresh.gamma,
                       model = model)
-  b <- hopit_Latent(p$reg.params, model)
+  b <- hopit_Latent(p$latent.params, model)
   a_0=a[,-1]
   a_J=a[,-ncol(a)]
   Ey_i <- sapply(1L : model$N, function(k) which((b[k]<a_0[k,]) & (b[k]>=a_J[k,])) )
@@ -185,16 +185,16 @@ greplin<-function(p, x) sapply(p, function(y) any(grepl(y, x, fixed = TRUE)))
 extractCoef <- function(COEF, model){
   Lind <- grepl('Intercept',names(COEF),fixed='TRUE')
   xglm.lambda <- sort(COEF[Lind])
-  #Rind <- names(COEF) %in% colnames(model$reg.mm)
-  Rind <- greplin(names(COEF), colnames(model$reg.mm))
+  #Rind <- names(COEF) %in% colnames(model$latent.mm)
+  Rind <- greplin(names(COEF), colnames(model$latent.mm))
   xglm.reg <-  COEF[Rind]
-  oi <- order.as.in(a=colnames(model$reg.mm), b=names(xglm.reg))
+  oi <- order.as.in(a=colnames(model$latent.mm), b=names(xglm.reg))
   xglm.reg <- - xglm.reg[oi] #remove negative sign in reg
   xglm.gamma <- COEF[!Lind & !Rind]
   thr.ext.nam<-as.character(interaction(expand.grid(seq_len(model$J-1),colnames(model$thresh.mm))[,2:1],sep=':'))
   oi <- order.as.in(a=thr.ext.nam, b=names(xglm.gamma))
   xglm.gamma <- xglm.gamma[oi]
-  list(start.ls = list(reg.params = xglm.reg,
+  list(start.ls = list(latent.params = xglm.reg,
                        thresh.lambda = xglm.lambda,
                        thresh.gamma = xglm.gamma),
        start <- c(xglm.reg, xglm.lambda, xglm.gamma))
@@ -208,12 +208,12 @@ extractCoef <- function(COEF, model){
 #' @keywords internal
 start.vglm <-function(model, data){
   logTheta <- 0
-  reg.formula <- model$reg.formula
+  latent.formula <- model$latent.formula
   thresh.formula <- model$thresh.formula
   if (length(thresh.formula)>2) thresh.formula[[2]] <- NULL
   thrf <- deparse(thresh.formula[[2]])
-  Ynam <- deparse(reg.formula[[2]])
-  tmr <- model$reg.terms
+  Ynam <- deparse(latent.formula[[2]])
+  tmr <- model$latent.terms
   tmt <- model$thresh.terms
   model$J <- length(levels(as.factor(data[,Ynam]))) #update J if not calculated
   #ltmt <- sapply(tmt,function(k) length(levels(as.factor(data[,k]))))-1
@@ -224,10 +224,10 @@ start.vglm <-function(model, data){
   if (any(incc)) {
     message(hopit_msg(18))
     ignored.var<- tmr[incc]
-    reg.formula <- update(reg.formula, paste('~ . ',paste(' -', ignored.var,collapse='')))
+    latent.formula <- update(latent.formula, paste('~ . ',paste(' -', ignored.var,collapse='')))
   } else ignored.var <- NULL
-  big.formula <- update(reg.formula, paste('~ ', thrf,' + . + 1'))
-  Y <<- Vector2DummyMat(data[,paste(reg.formula[[2]])])
+  big.formula <- update(latent.formula, paste('~ ', thrf,' + . + 1'))
+  Y <<- Vector2DummyMat(data[,paste(latent.formula[[2]])])
   w <- model$weights
   data$w <- w
   big.formula[[2]] <- as.name('Y')
@@ -243,16 +243,16 @@ start.vglm <-function(model, data){
   model$vglm.LL<-VGAM::logLik(mv2)
   # Lind <- grepl('Intercept',names(cmv2),fixed='TRUE')
   # vglm.lambdas <- sort(cmv2[Lind])
-  # #Rind <- names(cmv2) %in% colnames(model$reg.mm)
-  # Rind <- greplin(names(cmv2), colnames(model$reg.mm))
+  # #Rind <- names(cmv2) %in% colnames(model$latent.mm)
+  # Rind <- greplin(names(cmv2), colnames(model$latent.mm))
   # vglm.reg <-  cmv2[Rind]
-  # oi <- order.as.in(a=colnames(model$reg.mm), b=names(vglm.reg))
+  # oi <- order.as.in(a=colnames(model$latent.mm), b=names(vglm.reg))
   # vglm.reg <- - vglm.reg[oi] #remove negative sign in reg
   # vglm.gamma <- cmv2[!Lind & !Rind]
   # thr.ext.nam<-as.character(interaction(expand.grid(seq_len(model$J-1),colnames(model$thresh.mm))[,2:1],sep=':'))
   # oi <- order.as.in(a=thr.ext.nam, b=names(vglm.gamma))
   # vglm.gamma <- vglm.gamma[oi]
-  # model$vglm.start.ls = list(reg.params = vglm.reg,
+  # model$vglm.start.ls = list(latent.params = vglm.reg,
   #                            thresh.lambda = vglm.lambdas,
   #                            thresh.gamma = vglm.gamma)
   # model$vglm.start <- c(vglm.reg, vglm.lambdas, vglm.gamma)
@@ -262,7 +262,7 @@ start.vglm <-function(model, data){
   if (model$hasdisp) model$vglm.start <- c(model$vglm.start, logTheta)
   parcount <- model$parcount
   parcount[1] <- parcount[1] - length(ignored.var) #check!
-  list(vglm.model=model,ignored.reg.var=ignored.var,new.reg.formula=reg.formula)
+  list(vglm.model=model,ignored.latent.var=ignored.var,new.latent.formula=latent.formula)
 }
 
 compareStr<-function(s1,s2) sapply(seq_along(s1), function(k) s1[k] == substr(s2[k],1,nchar(s1[k])))
@@ -279,7 +279,7 @@ start.glm<-function(model, data){
   res <- sapply(seq_len(ncol(Y)),function(yi){
     zdat <- data
     zdat$yi <- Y[,yi]
-    f1 <- model$reg.formula
+    f1 <- model$latent.formula
     f1[[2]] <- as.name('yi')
     f1 <- update(f1, paste('.~.+',deparse(model$thresh.formula[[-1]])))
     gl <- glm(f1,data=zdat,family=binomial(link=model$link))
@@ -288,8 +288,8 @@ start.glm<-function(model, data){
     #check convergence
   })
   glm.lambda <-  res[which(grepl('Intercept',rownames(res))),]
-  glm.reg <- res[rownames(res)%in%colnames(model$reg.mm),]
-  #glm.reg <- res[unlist(sapply(attr(terms(model$reg.formula),'term.labels'),grep, x=rownames(res))),]
+  glm.reg <- res[rownames(res)%in%colnames(model$latent.mm),]
+  #glm.reg <- res[unlist(sapply(attr(terms(model$latent.formula),'term.labels'),grep, x=rownames(res))),]
   glm.reg <- - rowMeans(glm.reg)
   thr.ext.nam <-as.character(interaction(expand.grid(seq_len(model$J-1),colnames(model$thresh.mm))[,2:1],sep=':'))
   # THRn <- attr(terms(model$thresh.formula),'term.labels')
@@ -297,7 +297,7 @@ start.glm<-function(model, data){
   glm.gamma <- as.vector(t(res[rownames(res)%in%colnames(model$thresh.mm),]))
   names(glm.gamma) <- thr.ext.nam
   model$glm.start <- c(glm.reg,glm.lambda,glm.gamma)
-  model$glm.start.ls <-list(reg.params = glm.reg,
+  model$glm.start.ls <-list(latent.params = glm.reg,
                             thresh.lambda = glm.lambda,
                             thresh.gamma = glm.gamma)
   model
@@ -326,17 +326,17 @@ get.hopit.start<-function(model, data){
   } else stop(hopit_msg(20),call.=NULL)
 
   if ((!model$method) || (model$start.method=='glm')) {
-    z <- glm2hopit(par.ls$reg.params, par.ls$thresh.lambda, par.ls$thresh.gamma, thresh_1_exp = model$control$thresh.1.exp)
-    if (length(m$ignored.reg.var)){
-      ini.mis <- mean(z$reg_params)
-      if (any(class(data[,m$ignored.reg.var])!='factor')) stop(hopit_msg(21),call. = NULL)
-      npar <- sum(sapply(m$ignored.reg.var, function(k) length(levels(data[,k]))-1))
-      model$reg.formula <- update(m$new.reg.formula,paste('~ . + ',paste(m$ignored.reg.var,collapse='',sep=' + ')))
-      z$reg_params <- c(z$reg_params, rep(ini.mis, npar))
-      z$coef <- c(z$reg_params,z$thresh_lambda,z$thresh_gamma)
+    z <- glm2hopit(par.ls$latent.params, par.ls$thresh.lambda, par.ls$thresh.gamma, thresh_1_exp = model$control$thresh.1.exp)
+    if (length(m$ignored.latent.var)){
+      ini.mis <- mean(z$latent_params)
+      if (any(class(data[,m$ignored.latent.var])!='factor')) stop(hopit_msg(21),call. = NULL)
+      npar <- sum(sapply(m$ignored.latent.var, function(k) length(levels(data[,k]))-1))
+      model$latent.formula <- update(m$new.latent.formula,paste('~ . + ',paste(m$ignored.latent.var,collapse='',sep=' + ')))
+      z$latent_params <- c(z$latent_params, rep(ini.mis, npar))
+      z$coef <- c(z$latent_params,z$thresh_lambda,z$thresh_gamma)
     }
 
-    model$start.ls$reg.params <- z$reg_params
+    model$start.ls$latent.params <- z$latent_params
     model$start.ls$lambda <- z$thresh_lambda
     model$start.ls$gamma.start <-z$thresh_gamma
 

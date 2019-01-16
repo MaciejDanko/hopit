@@ -14,7 +14,7 @@ update.latent <-function(model, newregcoef, data, hessian=FALSE){
   colnames(model$thresh.mm) <- thresh.names
   p <- hopit_ExtractParameters(model)
   model$alpha <- hopit_Threshold(p$thresh.lambda, p$thresh.gamma, model)
-  model$y_latent_i <- hopit_Latent(p$reg.params, model)
+  model$y_latent_i <- hopit_Latent(p$latent.params, model)
   model$maxobservedlatentrange <-  range(model$y_latent_i)
   model$Ey_i <- factor(colSums(sapply(1L : model$N, function(k) model$alpha[k,]<model$y_latent_i[k])),levels=1L:model$J)
   levels(model$Ey_i) <- levels(model$y_i)
@@ -44,7 +44,7 @@ update.latent <-function(model, newregcoef, data, hessian=FALSE){
   }
   if (!length(model$design)) {
     k <- 2
-    model$AIC <- model$deviance + k * (length(model$coef.ls$reg.params)+
+    model$AIC <- model$deviance + k * (length(model$coef.ls$latent.params)+
                                          length(model$coef.ls$thresh.lambda)+
                                          length(model$coef.ls$thresh.gamma)+model$hasdisp)
 

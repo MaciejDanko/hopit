@@ -18,11 +18,11 @@ hopit_Threshold<-function(thresh.lambda, thresh.gamma, model){
 
 #' INTERNAL: Calculate predicted continous latent measure.
 #'
-#' @param reg.params vectors with model parameters.
+#' @param latent.params vectors with model parameters.
 #' @param model a \code{hopit} object
 #' @author Maciej J. Danko
 #' @keywords internal
-hopit_Latent <- function(reg.params, model = NULL) model$reg.mm %*% (as.matrix(reg.params))
+hopit_Latent <- function(latent.params, model = NULL) model$latent.mm %*% (as.matrix(latent.params))
 
 
 # #' INTERNAL: Calculate maximum possible latent range
@@ -33,7 +33,7 @@ hopit_Latent <- function(reg.params, model = NULL) model$reg.mm %*% (as.matrix(r
 #
 #   cfm <- model$coef[seq_len(model$parcount[1])]
 #
-#   L <- apply(model$reg.mm,2,function(x)length(unique(x))) -1
+#   L <- apply(model$latent.mm,2,function(x)length(unique(x))) -1
 #   FACTORS <- as.logical(L==1)
 #   if (any(FACTORS)) {
 #     d <- cfm[FACTORS]
@@ -41,7 +41,7 @@ hopit_Latent <- function(reg.params, model = NULL) model$reg.mm %*% (as.matrix(r
 #   }
 #   if (any(!FACTORS)) {
 #     #message('Continous covariate detected, model may not give realistic results.',appendLF = FALSE)
-#     d <- matrix(cfm[!FACTORS],length(cfm[!FACTORS]),model$N) * t(model$reg.mm[,!FACTORS])
+#     d <- matrix(cfm[!FACTORS],length(cfm[!FACTORS]),model$N) * t(model$latent.mm[,!FACTORS])
 #     r <- c(min(d[d<0],r), max(r,d[d>0]))
 #   }
 #   r
@@ -65,7 +65,7 @@ hopit_ExtractParameters <- function(model, parameters, parcount = model$parcount
   }
   if (length(parameters) != sum(parcount) + model$hasdisp) stop(call.=NULL,hopit_msg(3))
 
-  reg.params <- parameters[1L : parcount[1L]]
+  latent.params <- parameters[1L : parcount[1L]]
   cpc <- cumsum(parcount)
 
   if (parcount[2L]) {
@@ -81,9 +81,9 @@ hopit_ExtractParameters <- function(model, parameters, parcount = model$parcount
   }
 
   if (model$hasdisp) {
-    list(reg.params = reg.params, thresh.lambda = thresh.lambda, thresh.gamma = thresh.gamma, logTheta = parameters[length(parameters)])
+    list(latent.params = latent.params, thresh.lambda = thresh.lambda, thresh.gamma = thresh.gamma, logTheta = parameters[length(parameters)])
   } else {
-    list(reg.params = reg.params, thresh.lambda = thresh.lambda, thresh.gamma = thresh.gamma, logTheta = logTheta)
+    list(latent.params = latent.params, thresh.lambda = thresh.lambda, thresh.gamma = thresh.gamma, logTheta = logTheta)
   }
 }
 
@@ -101,13 +101,13 @@ hopit_ExtractParameters <- function(model, parameters, parcount = model$parcount
 hopit_negLL <- function(parameters=model$coef, model, collapse = TRUE, use_weights = model$use.weights, negative = TRUE){
   link = hopit_c_link(model)
   if (collapse) {
-    LL <- LLFunc(parameters, yi=as.numeric(unclass(model$y_i)),reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
+    LL <- LLFunc(parameters, yi=as.numeric(unclass(model$y_i)),reg_mm=model$latent.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
                  hasdisp = model$hasdisp,
                  link=link,thresh_no_cov=model$thresh.no.cov, negative=negative, thresh_1_exp = model$control$thresh.1.exp,
                  weights=model$weights,use_weights = use_weights, thresh_start=model$control$thresh.start, out_val = model$control$LL_out_val,
                  method = model$method)
   } else {
-    LL <- LLFuncIndv(parameters, yi=as.numeric(unclass(model$y_i)),reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
+    LL <- LLFuncIndv(parameters, yi=as.numeric(unclass(model$y_i)),reg_mm=model$latent.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
                      hasdisp = model$hasdisp,
                      link=link,thresh_no_cov=model$thresh.no.cov, negative=negative, thresh_1_exp = model$control$thresh.1.exp,
                      weights=model$weights, thresh_start = model$control$thresh.start, use_weights = use_weights,
@@ -140,13 +140,13 @@ hopit_derivLL <- function(parameters=model$coef, model,
   if (collapse) {
     LLgr <- LLGradFunc(parameters, yi=as.numeric(unclass(model$y_i)), YYY1=model$YYY1, YYY2=model$YYY2,
                        YYY3=model$YYY3[,-model$J],YYY4=model$YYY3[,-1], hasdisp = model$hasdisp,
-                       reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
+                       reg_mm=model$latent.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
                        link=link,thresh_no_cov=model$thresh.no.cov,negative=negative, thresh_1_exp = model$control$thresh.1.exp,
                        weights=model$weights, thresh_start = model$control$thresh.start, use_weights = use_weights,
                        method = model$method)
   } else {
     LLgr <- LLGradFuncIndv(parameters, yi=as.numeric(unclass(model$y_i)), YYY1=model$YYY1, YYY2=model$YYY2, YYY3=model$YYY3[,-model$J], YYY4=model$YYY3[,-1],
-                           reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
+                           reg_mm=model$latent.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
                            hasdisp = model$hasdisp,
                            link=link,thresh_no_cov=model$thresh.no.cov, negative=negative, thresh_1_exp = model$control$thresh.1.exp,
                            weights=model$weights,thresh_start = model$control$thresh.start, use_weights = use_weights,
@@ -182,11 +182,11 @@ hopit_fitter <- function(model, start = model$start, use_weights = model$use.wei
 
   LLgr <- function(par, neg = TRUE) LLGradFunc(par, yi=as.numeric(unclass(model$y_i)), YYY1=model$YYY1, YYY2=model$YYY2, YYY3=model$YYY3[,-model$J],
                                                YYY4=model$YYY3[,-1],hasdisp = model$hasdisp,
-                                               reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
+                                               reg_mm=model$latent.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
                                                link=link,thresh_no_cov=model$thresh.no.cov, negative=neg, thresh_1_exp = model$control$thresh.1.exp,
                                                weights=model$weights, thresh_start=model$control$thresh.start, use_weights = use_weights,
                                                method = model$method)
-  LLfn <- function(par, neg = TRUE) LLFunc(par, yi=as.numeric(unclass(model$y_i)),reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
+  LLfn <- function(par, neg = TRUE) LLFunc(par, yi=as.numeric(unclass(model$y_i)),reg_mm=model$latent.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
                                            link=link, thresh_no_cov=model$thresh.no.cov, negative=neg, thresh_1_exp = model$control$thresh.1.exp,
                                            weights=model$weights,use_weights = use_weights, thresh_start=model$control$thresh.start,
                                            out_val = model$control$LL_out_val, hasdisp = model$hasdisp, method = model$method)
@@ -212,14 +212,14 @@ hopit_fitter <- function(model, start = model$start, use_weights = model$use.wei
       fit <- list(par = start)
       # sstart=start
       # sstart[length(sstart)]=1
-      # LLFunc(sstart, yi=as.numeric(unclass(model$y_i)),reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
+      # LLFunc(sstart, yi=as.numeric(unclass(model$y_i)),reg_mm=model$latent.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
       #        link=link, thresh_no_cov=model$thresh.no.cov, negative=TRUE, thresh_1_exp = model$control$thresh.1.exp,
       #        weights=model$weights,use_weights = use_weights, thresh_start=model$control$thresh.start,
       #        out_val = model$control$LL_out_val, hasdisp = TRUE, method = model$method)
       # start=model$start
       # LLGradFunc(start, yi=as.numeric(unclass(model$y_i)), YYY1=model$YYY1, YYY2=model$YYY2, YYY3=model$YYY3[,-model$J],
       #            YYY4=model$YYY3[,-1],hasdisp = TRUE,
-      #            reg_mm=model$reg.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
+      #            reg_mm=model$latent.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
       #            link=link,thresh_no_cov=model$thresh.no.cov, negative=TRUE, thresh_1_exp = model$control$thresh.1.exp,
       #            weights=model$weights, thresh_start=model$control$thresh.start, use_weights = use_weights,
       #            method = model$method)
@@ -315,7 +315,7 @@ gettheta <- function(model) unname(exp(model$coef.ls$logTheta))
 
 #' Fit generelaized hierarchical ordered threshold models.
 #'
-#' @param reg.formula formula used to model latent process.
+#' @param latent.formula formula used to model latent variable.
 #' @param thresh.formula formula used to model threshold variable.
 #' Any dependent variable (left side of "~") will be ignored.
 #' @param data a data frame including all modeled variables.
@@ -327,7 +327,7 @@ gettheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' @param control a list with control parameters. See \code{\link{hopit.control}}.
 #' @export
 #' @author Maciej J. Danko
-hopit<- function(reg.formula,
+hopit<- function(latent.formula,
                  thresh.formula = as.formula('~ 1'), # ~1 not tested!!!
                  strata.formula = as.formula('~ 1'),
                  data,
@@ -341,7 +341,7 @@ hopit<- function(reg.formula,
 #                 start = NULL,
                  control = list()){
   if (!overdispersion) remove.theta = FALSE else remove.theta = TRUE
-  if (missing(data)) data <- environment(reg.formula)
+  if (missing(data)) data <- environment(latent.formula)
   start.method <- tolower(start.method[1])
   method <- check_hopit_method(method)
   link <- match.arg(link)
@@ -352,7 +352,7 @@ hopit<- function(reg.formula,
   #     stop ('Model in "start" is not compatible and will not be used.', call.=NULL)
   #   } else {
   #     tmp <- deparse(substitute(start))
-  #     start <- get.start.hopit(object = start, reg.formula = reg.formula,
+  #     start <- get.start.hopit(object = start, latent.formula = latent.formula,
   #                              thresh.formula = thresh.formula,
   #                              data = data, asList = FALSE)
   #     cat('Model "',tmp,'" was used to get starting values.\n',sep='')
@@ -367,7 +367,7 @@ hopit<- function(reg.formula,
   model$hasdisp <- overdispersion
 
   thresh.formula <- check_thresh_formula(thresh.formula)
-  reg.formula <- check_reg_formula(reg.formula)
+  latent.formula <- check_latent_formula(latent.formula)
 
   strata.formula <- check_thresh_formula(strata.formula)
   strata <- attr(terms(strata.formula),'term.labels')
@@ -375,25 +375,25 @@ hopit<- function(reg.formula,
     strata.f <- paste(strata, collapse='+')
     thresh.formula <-update(thresh.formula, paste('.~. +',strata.f))
     if (length(thresh.formula)>2) thresh.formula[[2]] <- NULL
-    reg.formulaA <-update(reg.formula, paste('.~(.) * (',strata.f,')'))
-    reg.formulaB <-update(reg.formula, paste('.~(.) * (',strata.f,') - (',strata.f,')'))
-    m1<-model.matrix(reg.formulaA, data)
-    m2<-model.matrix(reg.formulaB, data)
+    latent.formulaA <-update(latent.formula, paste('.~(.) * (',strata.f,')'))
+    latent.formulaB <-update(latent.formula, paste('.~(.) * (',strata.f,') - (',strata.f,')'))
+    m1<-model.matrix(latent.formulaA, data)
+    m2<-model.matrix(latent.formulaB, data)
     cm1<-colnames(m1)
     rco<-cm1[!(cm1 %in% colnames(m2))]
-    model$reg.mm <- m1[,which(!(cm1 %in% rco))]
-    model$reg.formula <- reg.formulaB
+    model$latent.mm <- m1[,which(!(cm1 %in% rco))]
+    model$latent.formula <- latent.formulaB
     model$strata.formula <- strata.formula
     model$strata <- strata
   } else {
-    model$reg.formula <- reg.formula
-    model$reg.mm <- as.matrix(model.matrix(reg.formula, data = data))
+    model$latent.formula <- latent.formula
+    model$latent.mm <- as.matrix(model.matrix(latent.formula, data = data))
   }
 
-  reg.names <- colnames(model$reg.mm)
-  grpi <- findintercept(reg.names)
-  model$reg.mm <- as.matrix(model$reg.mm[,!grpi])
-  reg.names <- reg.names[!grpi]
+  latent.names <- colnames(model$latent.mm)
+  grpi <- findintercept(latent.names)
+  model$latent.mm <- as.matrix(model$latent.mm[,!grpi])
+  latent.names <- latent.names[!grpi]
 
   model$thresh.formula <- thresh.formula
   model$thresh.mm <- as.matrix(model.matrix(thresh.formula, data = data))
@@ -408,10 +408,10 @@ hopit<- function(reg.formula,
     model$thresh.no.cov <- FALSE
   }
 
-  model$reg.terms <- attr(terms(as.formula(reg.formula)),"term.labels")
+  model$latent.terms <- attr(terms(as.formula(latent.formula)),"term.labels")
   model$thresh.terms <-attr(terms(as.formula(thresh.formula)),"term.labels")
 
-  model$y_i <- model.frame(reg.formula, data = data)[,all.vars(reg.formula[[2]])]
+  model$y_i <- model.frame(latent.formula, data = data)[,all.vars(latent.formula[[2]])]
   check_response(model$y_i)
   if (missing(decreasing.levels)) decreasing.levels = NULL
   check_decreasing.levels(decreasing.levels, levels(model$y_i))
@@ -423,7 +423,7 @@ hopit<- function(reg.formula,
 
   model$thresh.extd <- matrix(rep_row(model$thresh.mm, model$J-1),model$N, NCOL(model$thresh.mm)*(model$J-1))
 
-  Cr <- dim(model$reg.mm)[2L]
+  Cr <- dim(model$latent.mm)[2L]
   Ct <- dim(model$thresh.mm)[2L]
   if (model$thresh.no.cov) Ct <- 0L
   model$parcount <- c(Cr, model$J - 1L, Ct*(model$J - 1L))
@@ -437,7 +437,7 @@ hopit<- function(reg.formula,
     tmp <- paste('(G)', apply(tmp, 1L, paste, sep = '', collapse = '.'), sep = '.')
   }
 
-  coefnames <-  c(reg.names, paste('(L)', interce, sep = '.'), tmp)
+  coefnames <-  c(latent.names, paste('(L)', interce, sep = '.'), tmp)
   if (model$hasdisp) coefnames <- c(coefnames, 'logTheta')
 
   model$weights <- NULL
@@ -519,7 +519,7 @@ hopit<- function(reg.formula,
     if (model$control$trace) cat(hopit_msg(13))
   } else {
     model$vcov <- model$vcov.basic
-    model$AIC <- model$deviance + k * (length(model$coef.ls$reg.params)+
+    model$AIC <- model$deviance + k * (length(model$coef.ls$latent.params)+
                                        length(model$coef.ls$thresh.lambda)+
                                        length(model$coef.ls$thresh.gamma)+model$hasdisp)
     model$misspec <- model$deltabar <- model$eff.p <- NA
@@ -531,36 +531,36 @@ hopit<- function(reg.formula,
 #' #' Get starting parameters from less or more complicated hierarchical models
 #' #'
 #' #' @export
-#' get.start.hopit <- function(object, reg.formula, thresh.formula, data, asList = FALSE){
-#'   old.rf <- object$reg.formula
+#' get.start.hopit <- function(object, latent.formula, thresh.formula, data, asList = FALSE){
+#'   old.rf <- object$latent.formula
 #'   old.tf <- object$thresh.formula
-#'   if (deparse(object$reg.formula[[2]])!=deparse(reg.formula[[2]])) stop('Models have different dependent variables')
+#'   if (deparse(object$latent.formula[[2]])!=deparse(latent.formula[[2]])) stop('Models have different dependent variables')
 #'   if (length(thresh.formula)>2L){
 #'     warning(call. = FALSE, 'The treshold formula should be given without dependent variable.')
 #'     thresh.formula[[2]] <- NULL
 #'   }
 #'   old.rt<-attr(terms(old.rf),"term.labels")
 #'   old.tt<-attr(terms(old.tf),"term.labels")
-#'   new.rt<-attr(terms(as.formula(reg.formula)),"term.labels")
+#'   new.rt<-attr(terms(as.formula(latent.formula)),"term.labels")
 #'   new.tt<-attr(terms(as.formula(thresh.formula)),"term.labels")
 #'   pr <- hopit_ExtractParameters(object)
 #'   pr.new <-pr
 #'   if ((old.rt %c% new.rt) && (new.rt %notc% old.rt)) {
-#'     reg.mm <- model.matrix(reg.formula,data)[,-1]
-#'     pr.new$reg.params <- rep(0, NCOL(reg.mm))
-#'     old.ind <- which(colnames(reg.mm)%in%colnames(object$reg.mm))
-#'     pr.new$reg.params[old.ind] <- pr$reg.params
-#'     names(pr.new$reg.params)[old.ind] <- names(pr$reg.params)
-#'     new.ind <- which(colnames(reg.mm)%notin%colnames(object$reg.mm))
-#'     nnam <- colnames(reg.mm)[new.ind]
-#'     names(pr.new$reg.params)[new.ind] <- nnam
+#'     latent.mm <- model.matrix(latent.formula,data)[,-1]
+#'     pr.new$latent.params <- rep(0, NCOL(latent.mm))
+#'     old.ind <- which(colnames(latent.mm)%in%colnames(object$latent.mm))
+#'     pr.new$latent.params[old.ind] <- pr$latent.params
+#'     names(pr.new$latent.params)[old.ind] <- names(pr$latent.params)
+#'     new.ind <- which(colnames(latent.mm)%notin%colnames(object$latent.mm))
+#'     nnam <- colnames(latent.mm)[new.ind]
+#'     names(pr.new$latent.params)[new.ind] <- nnam
 #'   } else if ((new.rt %c% old.rt) && (old.rt %notc% new.rt)) {
-#'     reg.mm <- model.matrix(reg.formula,data)[,-1]
-#'     rm.ind <- which(colnames(object$reg.mm)%notin%colnames(reg.mm))
-#'     tmp <- pr.new$reg.params[rm.ind]
-#'     pr.new$reg.params <- pr.new$reg.params[-rm.ind]
+#'     latent.mm <- model.matrix(latent.formula,data)[,-1]
+#'     rm.ind <- which(colnames(object$latent.mm)%notin%colnames(latent.mm))
+#'     tmp <- pr.new$latent.params[rm.ind]
+#'     pr.new$latent.params <- pr.new$latent.params[-rm.ind]
 #'     pr.new$thresh.lambda[1] <- pr.new$thresh.lambda[1] -
-#'       mean(object$reg.mm[,rm.ind] * rep_row(tmp, NROW(reg.mm))) * length(tmp)
+#'       mean(object$latent.mm[,rm.ind] * rep_row(tmp, NROW(latent.mm))) * length(tmp)
 #'   }
 #'   if ((old.tt %c% new.tt) && (new.tt %notc% old.tt)){
 #'     thresh.mm <- model.matrix(thresh.formula,data)[,-1]
@@ -580,6 +580,6 @@ hopit<- function(reg.formula,
 #'       mean(object$thresh.mm[,rm.ind] * rep_row(tmp, NROW(thresh.mm))) * length(tmp)
 #'   }
 #'   if (asList) return(pr.new) else
-#'     return(c(pr.new$reg.params, pr.new$thresh.lambda, pr.new$thresh.gamma))
+#'     return(c(pr.new$latent.params, pr.new$thresh.lambda, pr.new$thresh.gamma))
 #' }
 

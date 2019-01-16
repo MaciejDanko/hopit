@@ -4,10 +4,10 @@
 \alias{hopit_Latent}
 \title{INTERNAL: Calculate predicted continous latent measure.}
 \usage{
-hopit_Latent(reg.params, model = NULL)
+hopit_Latent(latent.params, model = NULL)
 }
 \arguments{
-\item{reg.params}{vectors with model parameters.}
+\item{latent.params}{vectors with model parameters.}
 
 \item{model}{a \code{hopit} object}
 }

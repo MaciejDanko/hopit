@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{classify.ind}
 \alias{classify.ind}
-\title{INTERNAL: Clasify individuals according to the reg.params and calculated thresholds}
+\title{INTERNAL: Clasify individuals according to the latent.params and calculated thresholds}
 \usage{
 classify.ind(model)
 }
@@ -10,6 +10,6 @@ classify.ind(model)
 \item{model}{\code{hopit} object.}
 }
 \description{
-INTERNAL: Clasify individuals according to the reg.params and calculated thresholds
+INTERNAL: Clasify individuals according to the latent.params and calculated thresholds
 }
 \keyword{internal}

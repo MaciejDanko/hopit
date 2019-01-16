@@ -44,11 +44,11 @@ check_strata_formula <- function(strata.formula){
 
 #' @noRd
 #' @keywords internal
-check_reg_formula <- function(reg.formula){
-  reg.formula <- as.formula(reg.formula)
-  reg.formula <- update.formula(reg.formula, '~.+1')
-  if (any(grepl('offset(',as.character(reg.formula[[3]]),fixed=TRUE))) stop(hopit_msg(31), call.=NULL)
-  reg.formula
+check_latent_formula <- function(latent.formula){
+  latent.formula <- as.formula(latent.formula)
+  latent.formula <- update.formula(latent.formula, '~.+1')
+  if (any(grepl('offset(',as.character(latent.formula[[3]]),fixed=TRUE))) stop(hopit_msg(31), call.=NULL)
+  latent.formula
 }
 
 #' @noRd

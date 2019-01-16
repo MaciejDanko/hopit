@@ -1,7 +1,7 @@
 ---
 title: "DRAFT: Analysis of the reporting styles using generalized ordered threshold models."
 author: "Maciej J. Dańko"
-date: "15 I 2019"
+date: "16 I 2019"
 output:
   pdf_document: default
 abstract: The *hopit* package provides R functions to fit and analyze ordered response
@@ -155,10 +155,10 @@ head(healthsurvey)
 
 ## 5. Fitting the model using the *hopit*() function
 
-Generalized ordered probit model can be fitted using *hopit*() function. The function takes two kinds of formulas: (1) *reg.formula* that models the latent variable and (2) *thresh.formula that models thresholds.   
+Generalized ordered probit model can be fitted using *hopit*() function. The function takes two kinds of formulas: (1) *latent.formula* that models the latent variable and (2) *thresh.formula that models thresholds.   
 
 ```{r, echo=TRUE, cache=TRUE} 
-model1<- hopit(reg.formula = health ~ hypertenssion + high_cholesterol + 
+model1<- hopit(latent.formula = health ~ hypertenssion + high_cholesterol + 
                              heart_atack_or_stroke + poor_mobility + very_poor_grip + 
                              depression + respiratory_problems + 
                              IADL_problems + obese + diabetes + other_diseases, 
@@ -180,13 +180,13 @@ cm1 <- coef(model1, aslist = TRUE)
 names(cm1)
 
 # latent health variables
-cm1$reg.params
+cm1$latent.params
 ```
 
 *model1* can be further extended by adding country of origin to the treshold formula to control for cultural differences.
 
 ```{r, echo=TRUE, cache=TRUE}
-model2<- hopit(reg.formula = health ~ hypertenssion + high_cholesterol + 
+model2<- hopit(latent.formula = health ~ hypertenssion + high_cholesterol + 
                              heart_atack_or_stroke + poor_mobility + 
                              very_poor_grip + depression + respiratory_problems + 
                              IADL_problems + obese + diabetes + other_diseases, 
@@ -208,10 +208,10 @@ or using Likelihood Ratio Test (LRT) as models are nested:
 anova(model2, model1)
 ```
 
-Both *reg.formula* and *thresh.formula* allow to specify interactions, like interaction between gender (*sex*) and age (*ageclass*): 
+Both *latent.formula* and *thresh.formula* allow to specify interactions, like interaction between gender (*sex*) and age (*ageclass*): 
 
 ```{r, echo=TRUE}
-model3<- hopit(reg.formula = health ~ hypertenssion * high_cholesterol + 
+model3<- hopit(latent.formula = health ~ hypertenssion * high_cholesterol + 
                              heart_atack_or_stroke + poor_mobility + 
                              very_poor_grip + depression + respiratory_problems + 
                              IADL_problems + obese + diabetes + other_diseases, 
@@ -230,7 +230,7 @@ The example below fit a model using simple two level cluster sampling design
 ```{r, echo=TRUE, cache=TRUE}
 design <- svydesign(ids = ~ country + psu, weights = healthsurvey$csw, data = healthsurvey)
 
-model2s<- hopit(reg.formula = health ~ hypertenssion + high_cholesterol + 
+model2s<- hopit(latent.formula = health ~ hypertenssion + high_cholesterol + 
                               heart_atack_or_stroke + poor_mobility + 
                               very_poor_grip + depression + respiratory_problems + 
                               IADL_problems + obese + diabetes + other_diseases, 
@@ -244,8 +244,8 @@ model2s<- hopit(reg.formula = health ~ hypertenssion + high_cholesterol +
 Ignoring survey design could lead to biased results. Here, in presented examples it has however an minor importance, which is seen by comparing coefficients of latent variable for both models:
 
 ```{r, echo=TRUE}
-cbind('No survey design'=coef(model2,aslist=TRUE)$reg.par,
-      'Has survey design'=coef(model2s,aslist=TRUE)$reg.par)
+cbind('No survey design'=coef(model2,aslist=TRUE)$latent.par,
+      'Has survey design'=coef(model2s,aslist=TRUE)$latent.par)
 ```
 
 The fit accuracy of the model can be assessed using *profile*() function, which calculate and plot profile of the log likelihood function around fitted coefficient values.
@@ -259,7 +259,7 @@ profile(model3)
 Let's look at latent health variables of *model2*. 
 
 ```{r, echo=TRUE}
-model3$coef.ls$reg.params
+model3$coef.ls$latent.params
 ```
 
 We can standardize them using Jürges' approach [@Jurges2007] to obtain disability weights. The standardization can be doen using *standardizeCoef*() function.

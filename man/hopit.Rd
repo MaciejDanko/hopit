@@ -4,14 +4,14 @@
 \alias{hopit}
 \title{Fit generelaized hierarchical ordered threshold models.}
 \usage{
-hopit(reg.formula, thresh.formula = as.formula("~ 1"),
+hopit(latent.formula, thresh.formula = as.formula("~ 1"),
   strata.formula = as.formula("~ 1"), data, decreasing.levels,
   method = c("hopit", "vglm"), overdispersion = FALSE, design = list(),
   weights = NULL, link = c("probit", "logit"), start.method = c("glm",
   "vglm"), control = list())
 }
 \arguments{
-\item{reg.formula}{formula used to model latent process.}
+\item{latent.formula}{formula used to model latent variable.}
 
 \item{thresh.formula}{formula used to model threshold variable.
 Any dependent variable (left side of "~") will be ignored.}

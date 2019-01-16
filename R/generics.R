@@ -21,14 +21,14 @@ coef.hopit <- function(object, aslist = FALSE, ...)  if (aslist) object$coef.ls 
 #' @keywords internal
 #' @author Maciej J. Danko
 print.hopit<-function(x, ...){
-  cat(hopit_msg(65), deparse(x$reg.formula), fill = TRUE)
+  cat(hopit_msg(65), deparse(x$latent.formula), fill = TRUE)
   cat(hopit_msg(66), deparse(x$thresh.formula), fill = TRUE)
   cat(hopit_msg(72), x$link, fill = TRUE)
   cat(hopit_msg(73), x$N, fill = TRUE)
   cat(hopit_msg(74), toString(levels(x$y_i)), fill = TRUE)
   if (x$hasdisp) cat(hopi_msg(77), x$coef[length(x$coef)], fill = TRUE)
   cat(hopit_msg(78))
-  print(x$coef.ls$reg.params)
+  print(x$coef.ls$latent.params)
   cat(hopit_msg(79))
   print(x$coef.ls$thresh.lambda)
   if(length(x$coef.ls$thresh.gamma)){
@@ -147,7 +147,7 @@ summary.hopit <- function(object, robust.se = TRUE, ...){
 #' @author Maciej J. Danko
 print.summary.hopit <- function(x, ...){
   model <- x$model
-  cat(hopit_msg(65), deparse(model$reg.formula), fill = TRUE)
+  cat(hopit_msg(65), deparse(model$latent.formula), fill = TRUE)
   cat(hopit_msg(66), deparse(model$thresh.formula), fill = TRUE)
   cat(hopit_msg(72), model$link, fill = TRUE)
   cat(hopit_msg(73), model$N, fill = TRUE)
@@ -278,11 +278,11 @@ lrt.hopit <- function(full, nested){
   if (length(full$coef) + full$hasdisp <= length(nested$coef)+ nested$hasdisp) stop(hopit_msg(52),call. = NULL)
   if (abs(full$LL - nested$LL) < .Machine$double.eps^0.6) message(hopit_msg(53)) else
     if (full$LL - nested$LL < -.Machine$double.eps^0.6) warning(call. = FALSE, hopit_msg(54))
-  if (ncol(full$reg.mm) < ncol(nested$reg.mm)) {
+  if (ncol(full$latent.mm) < ncol(nested$latent.mm)) {
     cat(hopit_msg(64))
-    cat("--",hopit_msg(65), deparse(full$reg.formula), fill = TRUE)
+    cat("--",hopit_msg(65), deparse(full$latent.formula), fill = TRUE)
     cat(hopit_msg(67))
-    cat("--",hopit_msg(65), deparse(nested$reg.formula), fill = TRUE)
+    cat("--",hopit_msg(65), deparse(nested$latent.formula), fill = TRUE)
     stop(hopit_msg(68))
   }
   if (ncol(full$thresh.mm) < ncol(nested$thresh.mm)) {
@@ -294,8 +294,8 @@ lrt.hopit <- function(full, nested){
   }
   if ((full$hasdisp) < (nested$hasdisp)) stop(hopit_msg(55))
 
-  if ((ncol(full$reg.mm)) &&  (ncol(nested$reg.mm)))
-    if (!(all(colnames(nested$reg.mm) %in% colnames(full$reg.mm)))) warning(call. = FALSE, hopit_msg(56))
+  if ((ncol(full$latent.mm)) &&  (ncol(nested$latent.mm)))
+    if (!(all(colnames(nested$latent.mm) %in% colnames(full$latent.mm)))) warning(call. = FALSE, hopit_msg(56))
   if ((ncol(full$thresh.mm)) &&  (ncol(nested$thresh.mm)))
     if (!(all(colnames(nested$thresh.mm) %in% colnames(full$thresh.mm)))) warning(call. = FALSE, hopit_msg(57))
 
@@ -303,7 +303,7 @@ lrt.hopit <- function(full, nested){
   #df.diff <- length(full$coef) - length(nested$coef) + length(full$coef.ls$logTheta) - length(nested$coef.ls$logTheta)
 
   if (!length(full$design)) {
-    df.diff <- length(full$coef.ls$reg.params) - length(nested$coef.ls$reg.params) +
+    df.diff <- length(full$coef.ls$latent.params) - length(nested$coef.ls$latent.params) +
       length(full$coef.ls$thresh.lambda) - length(nested$coef.ls$thresh.lambda) +
       length(full$coef.ls$thresh.gamma) - length(nested$coef.ls$thresh.gamma) +
       (full$hasdisp) - (nested$hasdisp)
@@ -339,11 +339,11 @@ lrt.hopit <- function(full, nested){
 print.lrt.hopit <- function(x, short=FALSE, ...){
   if (!short) {
     cat(hopit_msg(64))
-    cat("--", hopit_msg(65), deparse(x$full$reg.formula), fill = TRUE)
+    cat("--", hopit_msg(65), deparse(x$full$latent.formula), fill = TRUE)
     cat("--",hopit_msg(66), deparse(x$full$thresh.formula), fill = TRUE)
     cat("--",hopit_msg(70),x$full$hasdisp, fill=TRUE)
     cat(hopit_msg(67))
-    cat("--",hopit_msg(65), deparse(x$nested$reg.formula), fill = TRUE)
+    cat("--",hopit_msg(65), deparse(x$nested$latent.formula), fill = TRUE)
     cat("--",hopit_msg(66), deparse(x$nested$thresh.formula), fill = TRUE)
     cat("--",hopit_msg(70),x$nested$hasdisp, fill=TRUE)
   }
