@@ -9,7 +9,7 @@ update.latent(model, newregcoef, data, hessian = FALSE)
 \arguments{
 \item{model}{a fitted \code{hopit} model.}
 
-\item{newregcoef}{a new set of latent variable coeficients. Vector of length model$parcount\link{1}.}
+\item{newregcoef}{a new set of latent variable coeficients. Vector of length of first element of model$parcount.}
 
 \item{data}{used to fit original model.}
 
@@ -17,5 +17,8 @@ update.latent(model, newregcoef, data, hessian = FALSE)
 }
 \description{
 INTERNAL : updating model uses new set of latent variable coeficients
+}
+\author{
+Maciej J. Danko
 }
 \keyword{internal}

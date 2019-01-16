@@ -15,4 +15,7 @@ updated model
 \description{
 INTERNAL: Decode link parmeter
 }
+\author{
+Maciej J. Danko
+}
 \keyword{internal}

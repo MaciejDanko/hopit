@@ -9,9 +9,9 @@
 \arguments{
 \item{object}{\code{hopit} object.}
 
-\item{...}{additional objects of the same type.}
+\item{...}{additional objects of the class \code{hopit}.}
 
-\item{k}{numeric, the penalty per parameter to be used; the default k = 2 is the classical AIC.}
+\item{k}{a penalty per parameter to be used; the default k = 2 is the classical AIC.}
 }
 \description{
 Extracts Akaike Information Criterion from the fitted model

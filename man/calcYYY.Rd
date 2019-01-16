@@ -15,4 +15,7 @@ updated model
 \description{
 INTERNAL: Calculate special matrices for gradient calaculation
 }
+\author{
+Maciej J. Danko
+}
 \keyword{internal}

@@ -7,7 +7,8 @@
 getLevels(model, formula = model$thresh.formula,
   data = environment(model$thresh.formula), decreasing.levels = TRUE,
   sort.flag = FALSE, plotf = TRUE, sep = "_", mar = c(7, 2, 1.5, 0.5),
-  oma = c(0, 3, 0, 0), YLab = "Fraction [\%]", YLab.cex = 1.1)
+  oma = c(0, 3, 0, 0), YLab = "Fraction [\%]", YLab.cex = 1.1,
+  legbg = adjustcolor("white", alpha.f = 0.4), legbty = "o")
 }
 \arguments{
 \item{model}{a fitted \code{hopit} model.}
@@ -18,14 +19,23 @@ getLevels(model, formula = model$thresh.formula,
 
 \item{decreasing.levels}{logical indicating if self-reported health classes are ordered in increasing order.}
 
+\item{sort.flag}{logical indicating if to sort the levels.}
+
 \item{plotf}{logical indicating if to plot the results.}
 
 \item{sep}{separator for levels names.}
 
-\item{mar}{see \code{\link{par}}.}
+\item{mar, oma}{see \code{\link{par}}.}
 
-\item{oma}{see \code{\link{par}}.}
+\item{YLab, YLab.cex}{label and size of the label for y axis.}
+
+\item{legbg}{legend background color. See \code{bg} parameter in \code{\link{legend}}.}
+
+\item{legbty}{legend box type. See \code{bty} parameter in \code{\link{legend}}.}
 }
 \description{
 Calcualte adjusted health levels according to th Jurges' method.
+}
+\author{
+Maciej J. Danko
 }

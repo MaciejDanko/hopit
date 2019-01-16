@@ -7,7 +7,7 @@
 lrt.hopit(full, nested)
 }
 \arguments{
-\item{full, }{nested {Models to be compared.}}
+\item{full, nested}{Models to be compared.}
 }
 \description{
 Likelihood ratio test for a pair of models

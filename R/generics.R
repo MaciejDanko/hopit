@@ -48,21 +48,12 @@ print.hopit<-function(x, ...){
 #' @param object \code{hopit} object.
 #' @param robust.vcov logical indicating if to use sandwich estimator to calculate variance-covariance matrix.
 #' If survey deign is detected than this option is ignored.
-#' @param control a list with control parameters. See \code{\link{hopit.control}}.
-# @param robust.method method of calculation of log-likelihood gradient.
-# Set \code{"grad"} (default) for numerical gradient or \code{"working"}
-# for the method based on working residuals.
-# The latter one is an experimental method so warning will apear.
-# robust.method = c("grad","working")
-#' @param ...	further arguments passed to or from other methods.
-#' @importFrom survey svyrecvar
+#' @param ... further arguments passed to or from other methods.
 #' @export
 #' @usage \method{vcov}{hopit}(object, robust.vcov, ...)
 #' @keywords internal
 #' @author Maciej J. Danko
 vcov.hopit<-function(object, robust.vcov, ...){
-  #robust.method <- tolower(robust.method[1])
-  #if (!(robust.method %in% c("grad","working"))) stop('Unknown method.')
   z <- object$vcov
   if (class(z) == "try-error") stop(paste(hopit_msg(37),attr(z,"condition"),sep=''),call.=NULL)
   if (!length(z)) stop(hopit_msg(38),call.=NULL)
@@ -86,13 +77,14 @@ vcov.hopit<-function(object, robust.vcov, ...){
 #' Print object calculated by \code{\link{vcov.hopit}}
 #'
 #' @param x \code{hopit} object
-#' @param ...	further arguments passed to or from other methods.
+#' @param digits see \code{\link{print.default}}
+#' @param ... further arguments passed to or from other methods.
 #' @usage \method{print}{vcov.hopit}(x, digits = 3L, ...)
 #' @keywords internal
 #' @export
 print.vcov.hopit <- function(x, digits = 3L, ...){
   cat(hopit_msg(40))
-  print.default(x)
+  print.default(x, digits = digits, ...)
   if (attr(x, 'survey.design')) cat(hopit_msg(41))
   if (!is.na(attr(x, 'robust.vcov')) && attr(x, 'robust.vcov')) cat(hopit_msg(42))
   invisible(NULL)
@@ -105,12 +97,7 @@ print.vcov.hopit <- function(x, digits = 3L, ...){
 #' @param robust.se logical indicating if to use robust standard errors based on the sandwich estimator.
 #' If survey deign is detected than this option is ignored.
 #' @param control a list with control parameters. See \code{\link{hopit.control}}.
-# @param robust.method method of calculation of log-likelihood gradient.
-# Set \code{"grad"} (default) for numerical gradient or \code{"working"}
-# for the method based on working residuals.
-# The latter one is an experimental method so warning will apear.
-# robust.method = c("grad","working")
-#' @param ...	further arguments passed to or from other methods.
+#' @param ... further arguments passed to or from other methods.
 #' @export
 #' @author Maciej J. Danko
 #' @useDynLib hopit
@@ -167,13 +154,12 @@ print.summary.hopit <- function(x, ...){
 #' Extracts log likelihood of the fitted model
 #'
 #' @param object \code{hopit} object.
-#' @param ...	additional objects of the same type.
+#' @param ... additional objects of the class \code{hopit}.
 #' @keywords internal
 #' @export
 #' @usage \method{logLik}{hopit}(object, ...)
 #' @author Maciej J. Danko
 logLik.hopit<-function(object, ...) {
-  #if (length(object$design$PSU)) warning(call. = FALSE, 'The LogLik function is currently not supported for survey design, the value may be biased.')
   objects <- list(object, ...)
   tmp <- deparse(substitute(list(object, ...)))
   ob.nam <- gsub(' ', '', strsplit(substring(tmp, 6L, nchar(tmp) - 1L), ',', fixed = TRUE)[[1L]])
@@ -185,8 +171,8 @@ logLik.hopit<-function(object, ...) {
 #' Extracts Akaike Information Criterion from the fitted model
 #'
 #' @param object \code{hopit} object.
-#' @param k	numeric, the penalty per parameter to be used; the default k = 2 is the classical AIC.
-#' @param ...	additional objects of the same type.
+#' @param k a penalty per parameter to be used; the default k = 2 is the classical AIC.
+#' @param ... additional objects of the class \code{hopit}.
 #' @keywords internal
 #' @export
 #' @usage \method{AIC}{hopit}(object, ..., k = 2L)
@@ -269,7 +255,7 @@ print.anova.hopit <- function(x, ...){
 
 #' Likelihood ratio test for a pair of models
 #'
-#' @param full, nested {Models to be compared.}
+#' @param full,nested Models to be compared.
 #' @keywords internal
 #' @export
 #' @author Maciej J. Danko
@@ -300,7 +286,6 @@ lrt.hopit <- function(full, nested){
     if (!(all(colnames(nested$thresh.mm) %in% colnames(full$thresh.mm)))) warning(call. = FALSE, hopit_msg(57))
 
   stat <- 2L*( logLik.hopit(full) - logLik.hopit(nested))
-  #df.diff <- length(full$coef) - length(nested$coef) + length(full$coef.ls$logTheta) - length(nested$coef.ls$logTheta)
 
   if (!length(full$design)) {
     df.diff <- length(full$coef.ls$latent.params) - length(nested$coef.ls$latent.params) +
@@ -308,20 +293,11 @@ lrt.hopit <- function(full, nested){
       length(full$coef.ls$thresh.gamma) - length(nested$coef.ls$thresh.gamma) +
       (full$hasdisp) - (nested$hasdisp)
     p <- 1L - pchisq(stat, df.diff)
-    scalef <- NULL
   } else {
     stop(hopit_msg(58), call=NULL)
-    # ....
-    # misspec <- eigen(solve(V0) %*% V, only.values = TRUE)$values
-    #
-    # p <- survey::pchisqsum(stat, rep(1, length(misspec)), misspec,
-    #                        method = "sad", lower.tail = FALSE)
-    # print(c(p1,p2))
-    # df.diff <- NULL
-    # scalef <- full$misspec/mean(full$misspec)
   }
 
-  z <- list(chisq = stat, df = df.diff, pval = p, scalef<-scalef, full = full, nested = nested)
+  z <- list(chisq = stat, df = df.diff, pval = p, full = full, nested = nested)
   class(z) <- 'lrt.hopit'
   z
 }
@@ -334,9 +310,9 @@ lrt.hopit <- function(full, nested){
 #' @param ...	further arguments passed to or from other methods.
 #' @keywords internal
 #' @export
-#' @usage \method{print}{lrt.hopit}(x, ...)
+#' @usage \method{print}{lrt.hopit}(x, short = FALSE, ...)
 #' @author Maciej J. Danko
-print.lrt.hopit <- function(x, short=FALSE, ...){
+print.lrt.hopit <- function(x, short = FALSE, ...){
   if (!short) {
     cat(hopit_msg(64))
     cat("--", hopit_msg(65), deparse(x$full$latent.formula), fill = TRUE)
@@ -362,38 +338,6 @@ print.lrt.hopit <- function(x, short=FALSE, ...){
   invisible(NULL)
 }
 
-
-# #' Model predictions
-# #'
-# #' @param object \code{hopit} object.
-# #' @param type the type of prediction required. The default \code{"link"}
-# #' is on the scale of linear predictors (latent variable). The alternative \code{"response"}
-# #' is on the scale of categorical response variable. The \code{"threshold"}
-# #' gives the thresholds for each observation, whereas the \code{"threshold_link"} gives meaningful thresholds
-# #' together with latent variable for each observation (a data.frame with fields \code{$left.boundary},
-# #' \code{$latent.variable}, and \code{$right.boundary}).
-# #' @param unravelFreq logical indicating if to represent results on individual scale if FWeights were used.
-# #' @param ...	further arguments passed to or from other methods.
-# #' @export
-# #' @usage \method{predict}{hopit}(object, newdata=NULL,
-# #' type = c('link', 'response', 'threshold', 'threshold_link'),
-# #' unravelFreq = TRUE, ...)
-# #' @author Maciej J. Danko
-# predict.hopit <- function(object, newdata=NULL, type = c('link', 'response', 'threshold', 'threshold_link'),
-#                          unravelFreq = TRUE, ...){
-#   if (length(newdata)) stop('"new data" not implemented yet.')
-#   if (length(object$design$FWeights) && unravelFreq) conv<-function(x) unravel(x,freq=object$design$FWeights) else conv<-identity
-#   type <- match.arg(type)
-#   if (type == 'latent') type <- 'link'
-#   H <- switch(type,
-#               link = conv(object$y_latent_i),
-#               response = conv(object$Ey_i),
-#               threshold = conv(object$alpha),
-#               threshold_link = data.frame(left.boundary=conv(col_path(object$alpha, unclass(object$Ey_i)+1)),
-#                                           latent.variable=conv(object$y_latent_i),
-#                                           right.boundary=conv(col_path(object$alpha, unclass(object$Ey_i)+2))))
-#   return(H)
-# }
 
 #' Calculate log likelihood profile for fitted hopit model
 #'

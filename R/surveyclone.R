@@ -1,5 +1,7 @@
 #' survey:::htvar.matrix clone
+#'
 #' @keywords internal
+#' @param xcheck,Dcheck internal parameters.
 #' @author Thomas Lumley
 #' @importFrom Matrix crossprod
 clone.of.htvar.matrix <- function (xcheck, Dcheck) {
@@ -13,6 +15,8 @@ clone.of.htvar.matrix <- function (xcheck, Dcheck) {
 }
 
 #' survey:::ygvar.matrix clone
+#'
+#' @param xcheck,Dcheck internal parameters.
 #' @keywords internal
 #' @author Thomas Lumley
 clone.of.ygvar.matrix <-function (xcheck, Dcheck)
@@ -29,6 +33,8 @@ clone.of.ygvar.matrix <-function (xcheck, Dcheck)
 }
 
 #' survey:::ppsvar clone
+#'
+#' @param x,design internal parameters.
 #' @keywords internal
 #' @author Thomas Lumley
 clone.of.ppsvar<-function (x, design)
@@ -65,13 +71,13 @@ clone.of.ppsvar<-function (x, design)
 }
 
 #' Calculation of variance-covariance matrix for specified survey design
+#'
 #' @keywords internal
-#' @param object a hopit object
-#' @param design a survey.design object
-#' @author Thomas Lumley, modified by Maciej J. Dańko
+#' @param Ainv a variance-covariance matrix.
+#' @param estfun LL gradient function.
+#' @param design a survey.design object.
+#' @author Thomas Lumley, modified by Maciej J. Danko
 svy.varcoef.hopit <- function (Ainv, estfun, design) {
-  # Ainv <- object$vcov #summary(glm.object)$cov.unscaled
-  # estfun <- object$estfun #model.matrix(glm.object) * resid(glm.object, "working") *
   if (inherits(design, "survey.design2"))
     V <- survey::svyrecvar(estfun %*% Ainv, design$cluster, design$strata,
                            design$fpc, postStrata = design$postStrata)

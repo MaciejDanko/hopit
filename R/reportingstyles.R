@@ -1,20 +1,16 @@
 #' Calculate latent index
 #' @description
 #' Calcualte latent index from the latent variable. It takes values from 0 to 1, where
-#' zero is prescribed to the worse possible state (maximum posible value fo the latent variable;
-#' all conditions/diseases with negative effects on health are present) and 1 is prescribed
-#' to the best possible health (calculated analogically).
-# WRONG DESCRIPTION
+#' zero is prescribed to the worse predicted state (maximal observed value fo the latent variable) and 1 is prescribed
+#' to the best predicted health (minimal observed value fo the latent variable).
 #' @param model a fitted \code{hopit} model.
+#' @param decreasing.levels logical indicating if self-reported (e.g. health) classes are ordered in decreasing order.
 #' @param subset an optional vector specifying a subset of observations.
 #' @param plotf logical indicating if to plot summary figure.
-#' @param healthlevelsorder order of self-reported healh levels. Possible values are \code{'increasing'} and \code{'decreasing'}
 #' @param response X axis plotting option, choose \code{'data'} for raw responses and \code{'fitted'} for model reclassified responses
-# #' @param method a method of calcualtion of of latent range and standardization of. For \code{'observed'} (default) health index is
-# #' standardzized using the minimum and maximum observed latent variable, whereas for \code{'theoretical} the minimum of latent range is
-# #' deffined as latent variable for a hypothetical individual heaving no "disabilities", while the maximum of latent range is defined as a
-# #' latent variable for an hypothetical individual having all possible disabilities.
 #' @param ylab a label of y axis.
+#' @param ... futher parameters passedto the \code{\link{plot}} function.
+#' @author Maciej J. Danko
 #' @export
 latentIndex <- function(model, decreasing.levels = TRUE,
                         subset = NULL, plotf = FALSE,
@@ -34,9 +30,11 @@ latentIndex <- function(model, decreasing.levels = TRUE,
   if (plotf) invisible(hi) else return(hi)
 }
 
+
 #' @rdname latentIndex
 #' @export
 healthIndex <- latentIndex
+
 
 #' Standardization of coefficients
 #' @description
@@ -46,14 +44,15 @@ healthIndex <- latentIndex
 #' given estimated parameters.
 #' @seealso \code{\link{healthIndex}}
 #' @param model a fitted \code{hopit} model.
-# #' @param latent.method see \code{\link{latentindex}}.
+#' @param ordered logical indicating if to order the disability weights.
 #' @param plotf logical indicating if to plot results.
 #' @param plotpval logical indicating if to plot p-values.
 #' @param mar,oma see \code{\link{par}}.
-#' @param YLab,YLab.cex labale and size of the label for y axis.
+#' @param YLab,YLab.cex label and size of the label for y axis.
 #' @param namesf vectorof names of coeficients or one argument function that modifies names of coeficients.
 #' @param ... arguments passed to \code{\link{boxplot}}.
 #' @name standardizeCoef
+#' @author Maciej J. Danko
 #' @export
 standardizeCoef <- function (model,
                              ordered = TRUE,
@@ -94,23 +93,30 @@ standardizeCoef <- function (model,
   else return(res)
 }
 
+
 #' @rdname standardizeCoef
 #' @export
 standardiseCoef<-standardizeCoef
+
 
 #' @rdname standardizeCoef
 #' @export
 disabilityWeights<-standardizeCoef
 
+
 #' Calcualte threshold cut-points using Jurges' method
 #' @description
 #' Calcualte threshold cut-points using Jurges' method.
 #' @param model a fitted \code{hopit} model.
+#' @param decreasing.levels logical indicating if self-reported health classes are ordered in decreasing order.
 #' @param subset an optional vector specifying a subset of observations.
 #' @param plotf logical indicating if to plot the results.
-#' @param healthlevelsorder order of self-reported healh levels. Possible values are \code{'increasing'} and \code{'decreasing'}
+#' @param XLab,XLab.cex label and size of the label for x axis.
+#' @param YLab,YLab.cex label and size of the label for y axis.
 #' @param mar,oma see \code{\link{par}}.
+#' @param group.labels.type position of the legend. One of \code{middel}, \code{border}, or \code{none}.
 #' @export
+#' @author Maciej J. Danko
 getCutPoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(0,0,0,0),
                          XLab='Health index', XLab.cex=1.1, YLab='Counts', YLab.cex=1.1,
                          decreasing.levels=TRUE, group.labels.type=c('middle','border','none')){
@@ -164,6 +170,7 @@ getCutPoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(
   if (plotf) invisible(res) else return(res)
 }
 
+
 #' Calcualte adjusted health levels.
 #' @description
 #' Calcualte adjusted health levels according to th Jurges' method.
@@ -173,17 +180,24 @@ getCutPoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(
 #' @param plotf logical indicating if to plot the results.
 #' @param sep separator for levels names.
 #' @param decreasing.levels logical indicating if self-reported health classes are ordered in increasing order.
-#' @param mar see \code{\link{par}}.
-#' @param oma see \code{\link{par}}.
+#' @param sort.flag logical indicating if to sort the levels.
+#' @param mar,oma see \code{\link{par}}.
+#' @param YLab,YLab.cex label and size of the label for y axis.
+#' @param legbg legend background color. See \code{bg} parameter in \code{\link{legend}}.
+#' @param legbty legend box type. See \code{bty} parameter in \code{\link{legend}}.
+#' @author Maciej J. Danko
 #' @export
 getLevels<-function(model, formula=model$thresh.formula,
-                    data=environment(model$thresh.formula),
+                    data = environment(model$thresh.formula),
                     decreasing.levels = TRUE,
                     sort.flag = FALSE,
                     plotf = TRUE, sep='_',
                     mar = c(7,2,1.5,0.5), oma = c(0,3,0,0),
                     YLab = 'Fraction [%]',
-                    YLab.cex = 1.1){
+                    YLab.cex = 1.1,
+                    legbg = adjustcolor('white',alpha.f=0.4),
+                    legbty = 'o'
+                    ){
   if (class(formula)=='formula') inte_ <- formula2classes(formula, data, sep=sep, return.matrix = TRUE) else
     stop(call.=NULL, hopit_msg(86))
   inte <- inte_$x
@@ -216,7 +230,7 @@ getLevels<-function(model, formula=model$thresh.formula,
     barplot(t(tmp),las=3,main='Original')
     barplot(t(tmp2),las=3,main='Adjusted', legend.text=TRUE,
             args.legend = list(x='center', box.col=NA,
-                               bg=adjustcolor('white',alpha.f=0.4)))
+                               bg=legbg, bty=legbty))
     par(mfrow=c(1,1))
     par(mar=mar,oma=rep(0,4))
     mtext(YLab,2,cex=YLab.cex)
@@ -235,5 +249,3 @@ getLevels<-function(model, formula=model$thresh.formula,
   class(res) <- 'healthlevels'
   if (plotf) invisible(res) else return(res)
 }
-
-

@@ -2,7 +2,7 @@
 % Please edit documentation in R/hopit.R
 \name{hopit_ExtractParameters}
 \alias{hopit_ExtractParameters}
-\title{INTERNAL: Extract model parameters in form of a list}
+\title{INTERNAL: Extract model parameters as a list}
 \usage{
 hopit_ExtractParameters(model, parameters, parcount = model$parcount)
 }
@@ -14,9 +14,9 @@ hopit_ExtractParameters(model, parameters, parcount = model$parcount)
 \item{parcount}{vector with parameters counts for latent, lambda, and gamma.}
 }
 \description{
-Extract model parameters in form of a list
+Extract model parameters as a list
 }
 \author{
-Maciej J. Dańko
+Maciej J. Danko
 }
 \keyword{internal}

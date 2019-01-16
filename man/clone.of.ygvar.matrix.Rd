@@ -6,6 +6,9 @@
 \usage{
 clone.of.ygvar.matrix(xcheck, Dcheck)
 }
+\arguments{
+\item{xcheck, Dcheck}{internal parameters.}
+}
 \description{
 survey:::ygvar.matrix clone
 }

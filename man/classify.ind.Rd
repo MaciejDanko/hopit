@@ -12,4 +12,7 @@ classify.ind(model)
 \description{
 INTERNAL: Clasify individuals according to the latent.params and calculated thresholds
 }
+\author{
+Maciej J. Danko
+}
 \keyword{internal}

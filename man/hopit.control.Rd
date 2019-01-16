@@ -20,7 +20,7 @@ hopit.control(grad.eps = 3e-05, bgfs.maxit = 10000, cg.maxit = 10000,
 \item{nlm.gradtol, nlm.steptol}{tolerance at which the scaled gradient is considered close enough to zero and
 minimum allowable relative step length. See \code{\link{nlm}}.}
 
-\item{fit.methods}{either 'CG' or 'BFGS', or both. See \code{\link{optim}}.}
+\item{fit.methods}{either 'CG' or 'BFGS'. See \code{\link{optim}}.}
 
 \item{quick.fit}{logical, if TRUE extensive \code{nlm} optimization method is ignored and only BFGS and CG methods are run.}
 

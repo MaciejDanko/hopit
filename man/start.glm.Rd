@@ -13,9 +13,11 @@
 }
 \value{
 updated model
-importFrom VGAM vglm
 }
 \description{
 INTERNAL: Use glm to get starting parameters
+}
+\author{
+Maciej J. Danko
 }
 \keyword{internal}

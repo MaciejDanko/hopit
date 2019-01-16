@@ -13,8 +13,6 @@
 If survey deign is detected than this option is ignored.}
 
 \item{...}{further arguments passed to or from other methods.}
-
-\item{control}{a list with control parameters. See \code{\link{hopit.control}}.}
 }
 \description{
 Extracting variance-covariance matrix from the fitted hopit

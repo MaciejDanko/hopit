@@ -18,8 +18,17 @@ getCutPoints(model, subset = NULL, plotf = TRUE, mar = c(4, 4, 1, 1),
 
 \item{mar, oma}{see \code{\link{par}}.}
 
-\item{healthlevelsorder}{order of self-reported healh levels. Possible values are \code{'increasing'} and \code{'decreasing'}}
+\item{XLab, XLab.cex}{label and size of the label for x axis.}
+
+\item{YLab, YLab.cex}{label and size of the label for y axis.}
+
+\item{decreasing.levels}{logical indicating if self-reported health classes are ordered in decreasing order.}
+
+\item{group.labels.type}{position of the legend. One of \code{middel}, \code{border}, or \code{none}.}
 }
 \description{
 Calcualte threshold cut-points using Jurges' method.
+}
+\author{
+Maciej J. Danko
 }

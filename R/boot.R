@@ -1,11 +1,12 @@
 #' INTERNAL : updating model uses new set of latent variable coeficients
 #'
-#' @keywords internal
 #' @param model a fitted \code{hopit} model.
-#' @param newregcoef a new set of latent variable coeficients. Vector of length model$parcount[1].
+#' @param newregcoef a new set of latent variable coeficients. Vector of length of first element of model$parcount.
 #' @param data used to fit original model.
 #' @param hessian logical indicating if to calculate estfun, hessian and var-cov matrix.
-update.latent <-function(model, newregcoef, data, hessian=FALSE){
+#' @author Maciej J. Danko
+#' @keywords internal
+update.latent <- function(model, newregcoef, data, hessian=FALSE){
   coefnames <- names(model$coef)
   thresh.names <- colnames(model$thresh.mm)
   model$coef[seq_len(model$parcount[1])] <- newregcoef

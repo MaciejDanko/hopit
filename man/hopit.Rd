@@ -5,7 +5,7 @@
 \title{Fit generelaized hierarchical ordered threshold models.}
 \usage{
 hopit(latent.formula, thresh.formula = as.formula("~ 1"),
-  strata.formula = as.formula("~ 1"), data, decreasing.levels,
+  strata.formula = as.formula("~ 1"), data, decreasing.levels, start = NULL,
   overdispersion = FALSE, design = list(), weights = NULL,
   link = c("probit", "logit"), control = list())
 }
@@ -15,9 +15,14 @@ hopit(latent.formula, thresh.formula = as.formula("~ 1"),
 \item{thresh.formula}{formula used to model threshold variable.
 Any dependent variable (left side of "~") will be ignored.}
 
+\item{strata.formula}{formula used to model threshold variable.
+Any dependent variable (left side of "~") will be ignored.}
+
 \item{data}{a data frame including all modeled variables.}
 
 \item{decreasing.levels}{logical indicating if self-reported health classes are ordered in decreasing order.}
+
+\item{start}{a vector with starting values in the form \code{c(latent_parameters, threshold_lambdas, threshold_gammas)}}
 
 \item{overdispersion}{logical indicting if to fit additionalparameter theta modeling a variance of error term.}
 

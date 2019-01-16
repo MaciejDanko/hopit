@@ -9,6 +9,8 @@
 \arguments{
 \item{x}{\code{hopit} object}
 
+\item{digits}{see \code{\link{print.default}}}
+
 \item{...}{further arguments passed to or from other methods.}
 }
 \description{

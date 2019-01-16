@@ -21,13 +21,15 @@ disabilityWeights(model, ordered = TRUE, plotf = FALSE, plotpval = FALSE,
 \arguments{
 \item{model}{a fitted \code{hopit} model.}
 
+\item{ordered}{logical indicating if to order the disability weights.}
+
 \item{plotf}{logical indicating if to plot results.}
 
 \item{plotpval}{logical indicating if to plot p-values.}
 
 \item{mar, oma}{see \code{\link{par}}.}
 
-\item{YLab, YLab.cex}{labale and size of the label for y axis.}
+\item{YLab, YLab.cex}{label and size of the label for y axis.}
 
 \item{namesf}{vectorof names of coeficients or one argument function that modifies names of coeficients.}
 
@@ -41,4 +43,7 @@ given estimated parameters.
 }
 \seealso{
 \code{\link{healthIndex}}
+}
+\author{
+Maciej J. Danko
 }

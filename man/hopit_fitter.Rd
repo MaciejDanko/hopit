@@ -2,7 +2,7 @@
 % Please edit documentation in R/hopit.R
 \name{hopit_fitter}
 \alias{hopit_fitter}
-\title{INTERNAL: Fit \code{hopit}}
+\title{INTERNAL: Fit \code{hopit} model given a starting parameters}
 \usage{
 hopit_fitter(model, start = model$start, use_weights = model$use.weights)
 }
@@ -17,6 +17,6 @@ hopit_fitter(model, start = model$start, use_weights = model$use.weights)
 Fit the model.
 }
 \author{
-Maciej J. Dańko
+Maciej J. Danko
 }
 \keyword{internal}

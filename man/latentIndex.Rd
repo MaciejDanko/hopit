@@ -14,6 +14,8 @@ healthIndex(model, decreasing.levels = TRUE, subset = NULL, plotf = FALSE,
 \arguments{
 \item{model}{a fitted \code{hopit} model.}
 
+\item{decreasing.levels}{logical indicating if self-reported (e.g. health) classes are ordered in decreasing order.}
+
 \item{subset}{an optional vector specifying a subset of observations.}
 
 \item{plotf}{logical indicating if to plot summary figure.}
@@ -22,11 +24,13 @@ healthIndex(model, decreasing.levels = TRUE, subset = NULL, plotf = FALSE,
 
 \item{ylab}{a label of y axis.}
 
-\item{healthlevelsorder}{order of self-reported healh levels. Possible values are \code{'increasing'} and \code{'decreasing'}}
+\item{...}{futher parameters passedto the \code{\link{plot}} function.}
 }
 \description{
 Calcualte latent index from the latent variable. It takes values from 0 to 1, where
-zero is prescribed to the worse possible state (maximum posible value fo the latent variable;
-all conditions/diseases with negative effects on health are present) and 1 is prescribed
-to the best possible health (calculated analogically).
+zero is prescribed to the worse predicted state (maximal observed value fo the latent variable) and 1 is prescribed
+to the best predicted health (minimal observed value fo the latent variable).
+}
+\author{
+Maciej J. Danko
 }

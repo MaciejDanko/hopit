@@ -6,6 +6,9 @@
 \usage{
 clone.of.ppsvar(x, design)
 }
+\arguments{
+\item{x, design}{internal parameters.}
+}
 \description{
 survey:::ppsvar clone
 }

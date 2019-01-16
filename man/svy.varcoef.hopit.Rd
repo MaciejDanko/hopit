@@ -7,14 +7,16 @@
 svy.varcoef.hopit(Ainv, estfun, design)
 }
 \arguments{
-\item{design}{a survey.design object}
+\item{Ainv}{a variance-covariance matrix.}
 
-\item{object}{a hopit object}
+\item{estfun}{LL gradient function.}
+
+\item{design}{a survey.design object.}
 }
 \description{
 Calculation of variance-covariance matrix for specified survey design
 }
 \author{
-Thomas Lumley, modified by Maciej J. Dańko
+Thomas Lumley, modified by Maciej J. Danko
 }
 \keyword{internal}

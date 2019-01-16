@@ -4,7 +4,7 @@
 \alias{print.lrt.hopit}
 \title{Print object calculated by \code{\link{lrt.hopit}}}
 \usage{
-\method{print}{lrt.hopit}(x, ...)
+\method{print}{lrt.hopit}(x, short = FALSE, ...)
 }
 \arguments{
 \item{x}{object obtained from \code{\link{lrt.hopit}}}

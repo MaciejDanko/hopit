@@ -12,4 +12,7 @@ cumsum_row(mat)
 \description{
 INTERNAL: Do cumsum() in each row of a matrix
 }
+\author{
+Maciej J. Danko
+}
 \keyword{internal}

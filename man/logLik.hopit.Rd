@@ -9,7 +9,7 @@
 \arguments{
 \item{object}{\code{hopit} object.}
 
-\item{...}{additional objects of the same type.}
+\item{...}{additional objects of the class \code{hopit}.}
 }
 \description{
 Extracts log likelihood of the fitted model

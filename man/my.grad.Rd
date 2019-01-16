@@ -18,4 +18,7 @@ my.grad(fn, par, eps, ...)
 \description{
 INTERNAL: numerical gradient
 }
+\author{
+Maciej J. Danko
+}
 \keyword{internal}

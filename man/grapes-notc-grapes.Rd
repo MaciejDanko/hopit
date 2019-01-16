@@ -2,13 +2,16 @@
 % Please edit documentation in R/utils.R
 \name{\%notc\%}
 \alias{\%notc\%}
-\title{Not \%notc\% function}
+\title{Not \%c\% function}
 \usage{
 x \%notc\% y
 }
 \arguments{
-\item{x, }{y numeric vectors}
+\item{x, y}{numeric vectors}
 }
 \description{
-Not \%notc\% function
+Not \%c\% function
+}
+\author{
+Maciej J. Danko
 }

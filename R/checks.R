@@ -8,13 +8,6 @@ check_decreasing.levels<-function(decreasing.levels, levels_y_i){
   }
 }
 
-## #' @noRd
-## #' @keywords internal
-## check_hopit_method<-function(method){
-##   method <- tolower(method[1])
-##   if (method=='vglm') method <- 1 else if (method=='hopit') method <- 0 else stop(call.=NULL, hopit_msg(28))
-##   method
-## }
 
 #' @noRd
 #' @keywords internal
@@ -29,6 +22,7 @@ check_thresh_formula <- function(thresh.formula){
   thresh.formula
 }
 
+
 #' @noRd
 #' @keywords internal
 check_strata_formula <- function(strata.formula){
@@ -42,6 +36,7 @@ check_strata_formula <- function(strata.formula){
   strata.formula
 }
 
+
 #' @noRd
 #' @keywords internal
 check_latent_formula <- function(latent.formula){
@@ -50,6 +45,7 @@ check_latent_formula <- function(latent.formula){
   if (any(grepl('offset(',as.character(latent.formula[[3]]),fixed=TRUE))) stop(hopit_msg(31), call.=NULL)
   latent.formula
 }
+
 
 #' @noRd
 #' @keywords internal
@@ -61,12 +57,14 @@ check_vcov<-function(vcov){
   vcov
 }
 
+
 #' @noRd
 #' @keywords internal
 check_response<-function(response){
   if (!is.factor(response)) stop(hopit_msg(33), call.=NULL)
   if (length(levels(response))<3L) stop (hopit_msg(34), call.=NULL)
 }
+
 
 #' @noRd
 #' @keywords internal

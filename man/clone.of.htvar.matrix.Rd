@@ -6,6 +6,9 @@
 \usage{
 clone.of.htvar.matrix(xcheck, Dcheck)
 }
+\arguments{
+\item{xcheck, Dcheck}{internal parameters.}
+}
 \description{
 survey:::htvar.matrix clone
 }
