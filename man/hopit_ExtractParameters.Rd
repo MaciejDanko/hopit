@@ -2,19 +2,21 @@
 % Please edit documentation in R/hopit.R
 \name{hopit_ExtractParameters}
 \alias{hopit_ExtractParameters}
-\title{INTERNAL: Extract model parameters in a form of list}
+\title{INTERNAL: Extract model parameters in form of a list}
 \usage{
 hopit_ExtractParameters(model, parameters, parcount = model$parcount)
 }
 \arguments{
-\item{model}{\code{hopit} object}
+\item{model}{\code{hopit} object.}
 
-\item{parameters}{model parameters (optional). If not delivered then taken from \code{model$coef}}
+\item{parameters}{model parameters (optional). If not delivered then taken from \code{model$coef}.}
+
+\item{parcount}{vector with parameters counts for reg, lambda, and gamma.}
 }
 \description{
-Extract model parameters in a form of a list
+Extract model parameters in form of a list
 }
 \author{
-Maciej J. Danko
+Maciej J. Dańko
 }
 \keyword{internal}

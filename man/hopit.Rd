@@ -2,12 +2,13 @@
 % Please edit documentation in R/hopit.R
 \name{hopit}
 \alias{hopit}
-\title{Fit Generelaized Ordered Choice Threshold Model}
+\title{Fit generelaized hierarchical ordered threshold models.}
 \usage{
-hopit(reg.formula, thresh.formula = as.formula("~ 1"), data,
-  decreasing.levels, method = c("hopit", "vglm"), overdispersion = FALSE,
-  design = list(), weights = NULL, link = c("probit", "logit"),
-  start.method = c("glm", "vglm"), control = list())
+hopit(reg.formula, thresh.formula = as.formula("~ 1"),
+  strata.formula = as.formula("~ 1"), data, decreasing.levels,
+  method = c("hopit", "vglm"), overdispersion = FALSE, design = list(),
+  weights = NULL, link = c("probit", "logit"), start.method = c("glm",
+  "vglm"), control = list())
 }
 \arguments{
 \item{reg.formula}{formula used to model latent process.}
@@ -28,7 +29,7 @@ Any dependent variable (left side of "~") will be ignored.}
 \item{control}{a list with control parameters. See \code{\link{hopit.control}}.}
 }
 \description{
-Fit Generelaized Ordered Choice Threshold Model
+Fit generelaized hierarchical ordered threshold models.
 }
 \author{
 Maciej J. Danko

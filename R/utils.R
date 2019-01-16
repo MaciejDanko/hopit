@@ -64,7 +64,7 @@ hopit_c_link<-function(model){
   model$link <- tolower(model$link)
   if (model$link %in% c('probit','logit')){
     if (model$link=='probit') link=0 else link=1
-  } else stop(paste('Unknown link function:',model$link),call. = NULL)
+  } else stop(paste(hopit_msg(17),model$link),call. = NULL)
   link
 }
 
@@ -222,7 +222,7 @@ start.vglm <-function(model, data){
   if (!length(model$weights)) model$weights <- rep(1,model$N)
   incc <- tmr %in% tmt
   if (any(incc)) {
-    message('\nThreshold variable(s) detected in reg.formula. Model may be not identifiable.\n')
+    message(hopit_msg(18))
     ignored.var<- tmr[incc]
     reg.formula <- update(reg.formula, paste('~ . ',paste(' -', ignored.var,collapse='')))
   } else ignored.var <- NULL
@@ -283,12 +283,13 @@ start.glm<-function(model, data){
     f1[[2]] <- as.name('yi')
     f1 <- update(f1, paste('.~.+',deparse(model$thresh.formula[[-1]])))
     gl <- glm(f1,data=zdat,family=binomial(link=model$link))
-    if (!gl$converged) stop('Starting points cannot be found using glm method. Try start.method="vglm". ', call.=NULL)
+    if (!gl$converged) stop(hopit_msg(19), call.=NULL)
     gl$coef
     #check convergence
   })
   glm.lambda <-  res[which(grepl('Intercept',rownames(res))),]
-  glm.reg <- res[unlist(sapply(attr(terms(model$reg.formula),'term.labels'),grep, x=rownames(res))),]
+  glm.reg <- res[rownames(res)%in%colnames(model$reg.mm),]
+  #glm.reg <- res[unlist(sapply(attr(terms(model$reg.formula),'term.labels'),grep, x=rownames(res))),]
   glm.reg <- - rowMeans(glm.reg)
   thr.ext.nam <-as.character(interaction(expand.grid(seq_len(model$J-1),colnames(model$thresh.mm))[,2:1],sep=':'))
   # THRn <- attr(terms(model$thresh.formula),'term.labels')
@@ -312,7 +313,7 @@ start.glm<-function(model, data){
 #' @keywords internal
 #' @useDynLib hopit
 #' @importFrom Rcpp evalCpp
-get.vglm.start<-function(model, data){
+get.hopit.start<-function(model, data){
   logTheta <- 0
   if ((!model$method) && (model$start.method=='glm')) {
     m <- suppressWarnings(start.glm(model, data))
@@ -322,13 +323,13 @@ get.vglm.start<-function(model, data){
     m <- suppressWarnings(start.vglm(model, data))
     model <- m$vglm.model
     par.ls <- model$vglm.start.ls
-  } else stop('Wrong start method.',call.=NULL)
+  } else stop(hopit_msg(20),call.=NULL)
 
   if ((!model$method) || (model$start.method=='glm')) {
-    z <- vglm2hopit(par.ls$reg.params, par.ls$thresh.lambda, par.ls$thresh.gamma, thresh_1_exp = model$control$thresh.1.exp)
+    z <- glm2hopit(par.ls$reg.params, par.ls$thresh.lambda, par.ls$thresh.gamma, thresh_1_exp = model$control$thresh.1.exp)
     if (length(m$ignored.reg.var)){
       ini.mis <- mean(z$reg_params)
-      if (any(class(data[,m$ignored.reg.var])!='factor')) stop('Threshold-Health variables must be a factors',call. = NULL)
+      if (any(class(data[,m$ignored.reg.var])!='factor')) stop(hopit_msg(21),call. = NULL)
       npar <- sum(sapply(m$ignored.reg.var, function(k) length(levels(data[,k]))-1))
       model$reg.formula <- update(m$new.reg.formula,paste('~ . + ',paste(m$ignored.reg.var,collapse='',sep=' + ')))
       z$reg_params <- c(z$reg_params, rep(ini.mis, npar))

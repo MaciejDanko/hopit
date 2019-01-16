@@ -134,7 +134,7 @@ Eigen::VectorXd extract_elements(const Eigen::VectorXi x,
 
 // [[Rcpp::depends(RcppEigen)]]
 // [[Rcpp::export]]
-SEXP vglm2hopit(const Eigen::VectorXd reg_params,
+SEXP glm2hopit(const Eigen::VectorXd reg_params,
                           const Eigen::VectorXd thresh_lambda,
                           const Eigen::VectorXd thresh_gamma,
                           const int thresh_1_exp){

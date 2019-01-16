@@ -17,7 +17,7 @@
 #' @param ylab a label of y axis.
 #' @export
 latentIndex <- function(model, decreasing.levels = TRUE,
-                        subset=NULL, plotf = FALSE,
+                        subset = NULL, plotf = FALSE,
                         response = c('data','fitted','Jurges'),
                         ylab = 'Latent index', ...) {
   if (length(subset) == 0) subset=seq_len(model$N)
@@ -28,7 +28,7 @@ latentIndex <- function(model, decreasing.levels = TRUE,
       if (response=='data') YY <- model$y_i else if (response=='fitted') YY <- model$Ey_i else if (response=='jurges') {
         z <- getCutPoints(model=model, decreasing.levels = decreasing.levels, plotf = FALSE)
         YY <- factor(z$adjused.health.levels,levels(model$y_i))
-      } else stop('Unknown response.',call.=NULL)
+      } else stop(hopit_msg(83),call.=NULL)
       plot(YY[subset], hi,las=3, ylab=ylab, ...)
     }
   if (plotf) invisible(hi) else return(hi)
@@ -128,7 +128,7 @@ getCutPoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(
   Nm <- sapply(Nm, function(k) bquote(bold(.(k))))
   if (plotf) {
     group.labels.type<-tolower(group.labels.type[1])
-    if(group.labels.type %notin%  c('middle','border','none')) stop ('Unknown group.labels.type.',call.=NULL)
+    if(group.labels.type %notin%  c('middle','border','none')) stop (hopit_msg(84),call.=NULL)
     opar <- par(c('mar','oma'))
     par(mar=mar, oma=oma)
     z<-hist(h.index, 200,xlab='',ylab='' ,
@@ -154,7 +154,7 @@ getCutPoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(
       for (k in ind) CIN[ind]=CIN[ind-1]
     }
     if (anyDuplicated(CIN)) {
-      warning('Some cut-points are NA or duplicated.')
+      warning(hopit_msg(85), call.=NA)
       CIN <- CIN + cumsum(duplicated(CIN)*CIN/1e7)
       CIN <- CIN / max(CIN)
     }
@@ -184,7 +184,8 @@ getLevels<-function(model, formula=model$thresh.formula,
                     mar = c(7,2,1.5,0.5), oma = c(0,3,0,0),
                     YLab = 'Fraction [%]',
                     YLab.cex = 1.1){
-  if (class(formula)=='formula') inte_ <- formula2classes(formula, data, sep=sep, return.matrix = TRUE) else stop('"formula" must be of class formula')
+  if (class(formula)=='formula') inte_ <- formula2classes(formula, data, sep=sep, return.matrix = TRUE) else
+    stop(call.=NULL, hopit_msg(86))
   inte <- inte_$x
   namind <- inte_$class.mat
   nam <- levels(inte)

@@ -1,7 +1,9 @@
-#' INTERNAL: Calculation of cut-points (threshold)
+#' INTERNAL: Calculation of model cut-points (threshold)
 #'
 #' @author Maciej J. Danko
 #' @keywords internal
+#' @param thresh.lambda,thresh.gamma vectors with model parameters.
+#' @param model a \code{hopit} object
 #' @useDynLib hopit
 #' @importFrom Rcpp evalCpp
 hopit_Threshold<-function(thresh.lambda, thresh.gamma, model){
@@ -14,7 +16,10 @@ hopit_Threshold<-function(thresh.lambda, thresh.gamma, model){
   }
 }
 
-#' INTERNAL: Calculate latent variable
+#' INTERNAL: Calculate predicted continous latent measure.
+#'
+#' @param reg.params vectors with model parameters.
+#' @param model a \code{hopit} object
 #' @author Maciej J. Danko
 #' @keywords internal
 hopit_Latent <- function(reg.params, model = NULL) model$reg.mm %*% (as.matrix(reg.params))
@@ -43,21 +48,22 @@ hopit_Latent <- function(reg.params, model = NULL) model$reg.mm %*% (as.matrix(r
 # }
 
 
-#' INTERNAL: Extract model parameters in a form of list
+#' INTERNAL: Extract model parameters in form of a list
 #'
-#' Extract model parameters in a form of a list
-#' @param model \code{hopit} object
-#' @param parameters model parameters (optional). If not delivered then taken from \code{model$coef}
-#' @author Maciej J. Danko
+#' Extract model parameters in form of a list
+#' @param model \code{hopit} object.
+#' @param parameters model parameters (optional). If not delivered then taken from \code{model$coef}.
+#' @param parcount vector with parameters counts for reg, lambda, and gamma.
+#' @author Maciej J. Dańko
 #' @keywords internal
 hopit_ExtractParameters <- function(model, parameters, parcount = model$parcount){
   logTheta <- 0
-  if (!length(parcount)) stop('Missing parcount in model object.')
+  if (!length(parcount)) stop(call.=NULL, hopit_msg(1))
   if (missing(parameters)) {
     parameters <- model$coef
-    if (!length(parameters)) stop('Missing (estimated) parameters.')
+    if (!length(parameters)) stop(hopit_msg(2))
   }
-  if (length(parameters) != sum(parcount) + model$hasdisp) stop('Wrong number of parameters.')
+  if (length(parameters) != sum(parcount) + model$hasdisp) stop(call.=NULL,hopit_msg(3))
 
   reg.params <- parameters[1L : parcount[1L]]
   cpc <- cumsum(parcount)
@@ -65,7 +71,7 @@ hopit_ExtractParameters <- function(model, parameters, parcount = model$parcount
   if (parcount[2L]) {
     thresh.lambda <- parameters[(cpc[1L] + 1L) : cpc[2L]]
   } else {
-    stop('Lambda must be given.')
+    stop(call.=NULL, hopit_msg(4))
   }
 
   if (parcount[3L]) {
@@ -83,6 +89,11 @@ hopit_ExtractParameters <- function(model, parameters, parcount = model$parcount
 
 
 #' INTERNAL: The log likelihood function
+#' @param parameters model parameters (optional). If not delivered then taken from \code{model$coef}.
+#' @param model \code{hopit} object.
+#' @param collapse a logical indicating if to sum individula LL contributions.
+#' @param use_weights a logical indicating if to use model weights.
+#' @param negative a logicalindicating if to return -LL or LL.
 #' @author Maciej J. Danko
 #' @keywords internal
 #' @useDynLib hopit
@@ -110,6 +121,11 @@ hopit_negLL <- function(parameters=model$coef, model, collapse = TRUE, use_weigh
 
 
 #' INTERNAL: The gradient of the log likelihood function
+#' @param parameters model parameters (optional). If not delivered then taken from \code{model$coef}.
+#' @param model \code{hopit} object.
+#' @param collapse a logical indicating if to sum individula LL contributions.
+#' @param use_weights a logical indicating if to use model weights.
+#' @param negative a logicalindicating if to return -LL or LL.
 #' @author Maciej J. Danko
 #' @keywords internal
 #' @useDynLib hopit
@@ -149,8 +165,8 @@ hopit_derivLL <- function(parameters=model$coef, model,
 #' Fit the model.
 #' @param model \code{hopit} object
 #' @param start starting parameters
-#' @param control a list with control parameters. See \code{\link{hopit.control}}.
-#' @author Maciej J. Danko
+#' @param use_weights a logical indicating if to use model weights.
+#' @author Maciej J. Dańko
 #' @keywords internal
 #' @useDynLib hopit
 #' @importFrom Rcpp evalCpp
@@ -213,12 +229,12 @@ hopit_fitter <- function(model, start = model$start, use_weights = model$use.wei
       if ('BFGS' %in% control$fit.methods) fit <- fastgradfit(fit, meto = 'BFGS')
       if (!model$control$quick.fit || !length(fit$par)) {
         if (!length(fit$par)) fit$par <- start
-        if (model$control$trace) cat(' done\nImproving fit with nlm...')
+        if (model$control$trace) cat(hopit_msg(5))
         fit <- suppressWarnings(nlm(f = LLfn, p=fit$par, gradtol = model$control$nlm.gradtol, steptol = model$control$nlm.steptol, hessian = FALSE, iterlim=model$control$nlm.maxit))
         fit <- list(par=fit$estimate, value=fit$minimum)
       }
     }, silent = FALSE)
-    if (class(z) == "try-error") stop('Optimization cannot continue.')
+    if (class(z) == "try-error") stop(call.=NULL, hopit_msg(6))
 
     model$coef <- fit$par
     model$LL <- unname(-fit$value)
@@ -237,109 +253,20 @@ hopit_fitter <- function(model, start = model$start, use_weights = model$use.wei
 }
 
 
-#' survey:::htvar.matrix clone
-#' @keywords internal
-#' @author Thomas Lumley
-#' @importFrom Matrix crossprod
-clone.of.htvar.matrix <- function (xcheck, Dcheck) {
-  if (is.null(dim(xcheck)))
-    xcheck <- as.matrix(xcheck)
-  rval <- apply(xcheck, 2, function(xicheck) apply(xcheck, 2, function(xjcheck) as.matrix(Matrix::crossprod(xicheck,
-                                                                                                            Dcheck %*% xjcheck))))
-  if (is.null(dim(rval)))
-    dim(rval) <- c(1, 1)
-  rval
-}
-
-#' survey:::ygvar.matrix clone
-#' @keywords internal
-#' @author Thomas Lumley
-clone.of.ygvar.matrix <-function (xcheck, Dcheck)
-{
-  ht <- clone.of.htvar.matrix(xcheck, Dcheck)
-  if (is.null(dim(xcheck))) {
-    corr <- sum(Dcheck %*% (xcheck * xcheck))
-  }
-  else {
-    corr <- apply(xcheck, 2, function(xicheck) apply(xcheck,
-                                                     2, function(xjcheck) sum(Dcheck %*% (xicheck * xjcheck))))
-  }
-  rval <- ht - corr
-}
-
-#' survey:::ppsvar clone
-#' @keywords internal
-#' @author Thomas Lumley
-clone.of.ppsvar<-function (x, design)
-{
-  postStrata <- design$postStrata
-  est <- design$variance
-  if (!is.null(postStrata)) {
-    for (psvar in postStrata) {
-      if (inherits(psvar, "greg_calibration")) {
-        if (psvar$stage == 0) {
-          y <- qr.resid(psvar$qr, y/psvar$w) * psvar$w
-        }
-        else {
-          stop("calibration within clusters not yet available for PPS designs")
-        }
-      }
-      else {
-        psw <- attr(psvar, "weights")
-        postStrata <- as.factor(psvar)
-        psmeans <- rowsum(y/psw, psvar, reorder = TRUE)/as.vector(table(factor(psvar)))
-        x <- y - psmeans[match(psvar, sort(unique(psvar))),
-                         ] * psw
-      }
-    }
-  }
-  dcheck <- design$dcheck
-  if (length(dcheck) != 1)
-    stop("Multistage not implemented yet")
-  rval <- switch(est, HT = clone.of.htvar.matrix(rowsum(x, dcheck[[1]]$id,
-                                                        reorder = FALSE), dcheck[[1]]$dcheck),
-                 YG = clone.of.ygvar.matrix(rowsum(x, dcheck[[1]]$id, reorder = FALSE), dcheck[[1]]$dcheck),
-                 stop("can't happen"))
-  rval
-}
-
-#' Calculation of variance-covariance matrix for specified survey design
-#' @keywords internal
-#' @param object a hopit object
-#' @param design a survey.design object
-#' @author Thomas Lumley, modified by Maciej J. Dańko
-svy.varcoef.hopit <- function (Ainv, estfun, design) {
-  # Ainv <- object$vcov #summary(glm.object)$cov.unscaled
-  # estfun <- object$estfun #model.matrix(glm.object) * resid(glm.object, "working") *
-  if (inherits(design, "survey.design2"))
-    V <- survey::svyrecvar(estfun %*% Ainv, design$cluster, design$strata,
-                           design$fpc, postStrata = design$postStrata)
-  else if (inherits(design, "twophase"))
-    V <- survey::twophasevar(estfun %*% Ainv, design)
-  else if (inherits(design, "twophase2"))
-    V <- survey::twophase2var(estfun %*% Ainv, design)
-  else if (inherits(design, "pps"))
-    V <- clone.of.ppsvar(estfun %*% Ainv, design)
-  else V <-survey::svyCprod(estfun %*% Ainv, design$strata, design$cluster[[1]],
-                            design$fpc, design$nPSU, design$certainty, design$postStrata)
-  if (inherits(design, "svyrep.design")) {
-    Vtest <- vcov(survey::svymean(estfun %*% Ainv*design$prob, design)) * length(design$prob)^2
-    if (max(abs(Vtest-V)) > 1e-4) warning('Something wrong with survey package.')
-  }
-}
-
-
 #' Auxiliary for controlling \code{hopit} fitting
 #'
 #' @description
 #' Auxiliary function for controlling \code{hopit} fitting. Use this function to set control
 #' parameters of the \code{\link{hopit}} and other related functions.
-#' @param grad.eps epsilon for hessian function.
-#' @param quick.fit logical, if TRUE extensive optimization methods are ignored and only BFGS and CG methods are run.
-#' @param trace logical, if to trace model fitting
-#' @param thresh.start internal parameter (threshold 0), under developement, do not change.
-#' @param thresh.1.exp internal parameter (logical if to exponentiate threshold function at threshold 1), under developement, do not change.
-#' @param LL_out_val internal parameter (LL value returned if LL cannot be computed), under developement, do not change.
+#' @param grad.eps epsilon for numerical hessian function.
+#' @param quick.fit logical, if TRUE extensive \code{nlm} optimization method is ignored and only BFGS and CG methods are run.
+#' @param bgfs.maxit,cg.maxit,nlm.maxit the maximum number of iterations. See \code{\link{optim}} and \code{\link{nlm}} for details.
+#' @param bgfs.reltol,cg.reltol relative convergence tolerance. See \code{\link{optim}} for details.
+#' @param nlm.gradtol,nlm.steptol tolerance at which the scaled gradient is considered close enough to zero and
+#' minimum allowable relative step length. See \code{\link{nlm}}.
+#' @param fit.methods either 'CG' or 'BFGS', or both. See \code{\link{optim}}.
+#' @param trace logical, if to trace model fitting.
+#' @param LL_out_val,thresh.1.exp,thresh.start internal parameters under developement, do not change.
 #' @seealso \code{\link{hopit}}
 #' @author Maciej J. Danko
 #' @export
@@ -358,8 +285,8 @@ hopit.control<-function(grad.eps = 3e-5,
                         thresh.1.exp = FALSE,
                         LL_out_val = -Inf){
 
-  if (!length(fit.methods)) stop('Please specify fit method',call. = NULL) else fit.methods <- toupper(fit.methods)
-  if (any(fit.methods %notin% c('CG','BFGS'))) stop ('Unknown fit method.',call.=NULL)
+  if (!length(fit.methods)) stop(hopit_msg(8),call. = NULL) else fit.methods <- toupper(fit.methods)
+  if (any(fit.methods %notin% c('CG','BFGS'))) stop (hopit_msg(9),call.=NULL)
 
   list(grad.eps = grad.eps,
        bgfs.maxit = bgfs.maxit,
@@ -378,7 +305,7 @@ hopit.control<-function(grad.eps = 3e-5,
 }
 
 
-#' Extract Theta parameter from the model
+#' Extract Theta parameter from the \code{hopit} model
 #'
 #' @param moodel fitted \code{hopit} model.
 #' @export
@@ -386,7 +313,7 @@ hopit.control<-function(grad.eps = 3e-5,
 gettheta <- function(model) unname(exp(model$coef.ls$logTheta))
 
 
-#' Fit Generelaized Ordered Choice Threshold Model
+#' Fit generelaized hierarchical ordered threshold models.
 #'
 #' @param reg.formula formula used to model latent process.
 #' @param thresh.formula formula used to model threshold variable.
@@ -402,6 +329,7 @@ gettheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' @author Maciej J. Danko
 hopit<- function(reg.formula,
                  thresh.formula = as.formula('~ 1'), # ~1 not tested!!!
+                 strata.formula = as.formula('~ 1'),
                  data,
                  decreasing.levels,
                  method = c('hopit','vglm'),
@@ -433,7 +361,7 @@ hopit<- function(reg.formula,
 
   model <- NULL
   model$control <- control
-  model$link <- link
+  model$link <- link[1]
   model$method <- as.logical(method)
   model$start.method <- start.method
   model$hasdisp <- overdispersion
@@ -441,9 +369,26 @@ hopit<- function(reg.formula,
   thresh.formula <- check_thresh_formula(thresh.formula)
   reg.formula <- check_reg_formula(reg.formula)
 
-  model$reg.formula <- reg.formula
-  model$reg.mm <- as.matrix(model.matrix(reg.formula, data = data))
-  #model$reg.lev<-lapply(model.frame(model$reg.formula, data = data), function(k) if (is.factor(k)) as.matrix(table(k)) else 'Not a facor')
+  strata.formula <- check_thresh_formula(strata.formula)
+  strata <- attr(terms(strata.formula),'term.labels')
+  if (length(strata)) {
+    strata.f <- paste(strata, collapse='+')
+    thresh.formula <-update(thresh.formula, paste('.~. +',strata.f))
+    if (length(thresh.formula)>2) thresh.formula[[2]] <- NULL
+    reg.formulaA <-update(reg.formula, paste('.~(.) * (',strata.f,')'))
+    reg.formulaB <-update(reg.formula, paste('.~(.) * (',strata.f,') - (',strata.f,')'))
+    m1<-model.matrix(reg.formulaA, data)
+    m2<-model.matrix(reg.formulaB, data)
+    cm1<-colnames(m1)
+    rco<-cm1[!(cm1 %in% colnames(m2))]
+    model$reg.mm <- m1[,which(!(cm1 %in% rco))]
+    model$reg.formula <- reg.formulaB
+    model$strata.formula <- strata.formula
+    model$strata <- strata
+  } else {
+    model$reg.formula <- reg.formula
+    model$reg.mm <- as.matrix(model.matrix(reg.formula, data = data))
+  }
 
   reg.names <- colnames(model$reg.mm)
   grpi <- findintercept(reg.names)
@@ -468,11 +413,11 @@ hopit<- function(reg.formula,
 
   model$y_i <- model.frame(reg.formula, data = data)[,all.vars(reg.formula[[2]])]
   check_response(model$y_i)
-  if (missing(decreasing.levels)) stop('"decreasing.levels" flag must be specified.') else
-    check_decreasing.levels(decreasing.levels, levels(model$y_i))
+  if (missing(decreasing.levels)) decreasing.levels = NULL
+  check_decreasing.levels(decreasing.levels, levels(model$y_i))
   if (!decreasing.levels) model$y_i <- factor(model$y_i, rev(levels(model$y_i)))
-  model$y_latent_i <- NA# latent
-  model$Ey_i <- NA# ordinal classified utput
+  model$y_latent_i <- NA # latent
+  model$Ey_i <- NA # ordinal classified utput
   model$J <- length(levels(model$y_i))
   model$N <- length(model$y_i)
 
@@ -511,13 +456,13 @@ hopit<- function(reg.formula,
   model <- calcYYY(model)
 
   # if (!length(start)) {
-  if (model$control$trace) cat('Calculating starting parameters...')
-  model <- suppressWarnings(get.vglm.start(model, data))
+  if (model$control$trace) cat(hopit_msg(10))
+  model <- suppressWarnings(get.hopit.start(model, data)) #rename this function get.hopit.start
   # } else {
   #   model$start <- start
   # }
 
-  if (model$control$trace && !model$method) cat(' done\nFitting the model...')
+  if (model$control$trace && !model$method) cat(hopit_msg(11))
 
   model <- hopit_fitter(model, start = model$start)
   model$vglm <- NULL
@@ -527,7 +472,7 @@ hopit<- function(reg.formula,
   colnames(model$thresh.mm) <- thresh.names
   names(model$coef) <- coefnames
 
-  if (model$control$trace) cat(' done\nCalculating maximum latent range...')
+  if (model$control$trace) cat(hopit_msg(12))
   p <- hopit_ExtractParameters(model)
   model$alpha <- hopit_Threshold(p$thresh.lambda, p$thresh.gamma, model)
   model$Ey_i <- classify.ind(model)
@@ -535,11 +480,11 @@ hopit<- function(reg.formula,
   model$coef.ls <- p
   #model$maxlatentrange <- sort(hopit_latentrange(model=model, data=data)) #waht is the difference in the context of continuous variables
   model$maxobservedlatentrange <-  range(model$y_latent_i)
-  if (model$control$trace) cat(' done\n')
+  if (model$control$trace) cat(hopit_msg(13))
   model$deviance <- -2 * model$LL
   k <- 2
 
-  if (model$control$trace) cat('Calculating hessian...')
+  if (model$control$trace) cat(hopit_msg(14))
 
   hes <- my.grad(fn = hopit_derivLL, par = model$coef, model=model, eps = 1e-4, collapse = TRUE, negative=FALSE)
   if (model$hasdisp && remove.theta) {
@@ -550,14 +495,14 @@ hopit<- function(reg.formula,
 
   model$vcov.basic <- try(base::solve(-hes), silent = FALSE)
   model$vcov.basic <- check_vcov(model$vcov.basic)
-  if (model$control$trace) cat(' done\nCalculating estfun...')
+  if (model$control$trace) cat(hopit_msg(15))
   if (model$hasdisp && remove.theta) COEF <- c(model$coef,model$coef.ls$logTheta) else COEF <- model$coef
   model$estfun <- hopit_derivLL(COEF, model, collapse = FALSE)
   if (remove.theta) model$estfun <- model$estfun[,-ncol(model$estfun)]
-  if (model$control$trace) cat(' done\n')
+  if (model$control$trace) cat(hopit_msg(13))
 
   if (length(model$design)) {
-    if (model$control$trace) cat('Including survey design...')
+    if (model$control$trace) cat(hopit_msg(16))
     model$vcov <- svy.varcoef.hopit(model$vcov.basic, model$estfun, design)
 
     # model$misspec <- try(base::eigen(base::solve(model$vcov.basic) %*% model$vcov, only.values = TRUE)$values, silent = TRUE)
@@ -571,7 +516,7 @@ hopit<- function(reg.formula,
     # }
     #model$df.residual <- survey::degf(design) + 1 - length(model$coef[!is.na(model$coef)])
     model$misspec <- model$deltabar <- model$eff.p <- model$AIC <- NA
-    if (model$control$trace) cat(' done\n')
+    if (model$control$trace) cat(hopit_msg(13))
   } else {
     model$vcov <- model$vcov.basic
     model$AIC <- model$deviance + k * (length(model$coef.ls$reg.params)+

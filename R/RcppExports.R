@@ -21,8 +21,8 @@ colpath <- function(m, v, offset) {
     .Call('_hopit_colpath', PACKAGE = 'hopit', m, v, offset)
 }
 
-vglm2hopit <- function(reg_params, thresh_lambda, thresh_gamma, thresh_1_exp) {
-    .Call('_hopit_vglm2hopit', PACKAGE = 'hopit', reg_params, thresh_lambda, thresh_gamma, thresh_1_exp)
+glm2hopit <- function(reg_params, thresh_lambda, thresh_gamma, thresh_1_exp) {
+    .Call('_hopit_glm2hopit', PACKAGE = 'hopit', reg_params, thresh_lambda, thresh_gamma, thresh_1_exp)
 }
 
 ind_reg_thresh <- function(thresh_mm, thresh_lambda, thresh_gamma) {

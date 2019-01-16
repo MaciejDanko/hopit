@@ -21,22 +21,22 @@ coef.hopit <- function(object, aslist = FALSE, ...)  if (aslist) object$coef.ls 
 #' @keywords internal
 #' @author Maciej J. Danko
 print.hopit<-function(x, ...){
-  cat("Formula (latent variables):", deparse(x$reg.formula), fill = TRUE)
-  cat("Formula (threshold variables):", deparse(x$thresh.formula), fill = TRUE)
-  cat('Link:', x$link, fill = TRUE)
-  cat('Number of cases:', x$N, fill = TRUE)
-  cat('Response levels:', toString(levels(x$y_i)), fill = TRUE)
-  if (x$hasdisp) cat('Dispersion parameter (Theta):', x$coef[length(x$coef)], fill = TRUE)
-  cat('\nCoefficients of the latent variable:\n')
+  cat(hopit_msg(65), deparse(x$reg.formula), fill = TRUE)
+  cat(hopit_msg(66), deparse(x$thresh.formula), fill = TRUE)
+  cat(hopit_msg(72), x$link, fill = TRUE)
+  cat(hopit_msg(73), x$N, fill = TRUE)
+  cat(hopit_msg(74), toString(levels(x$y_i)), fill = TRUE)
+  if (x$hasdisp) cat(hopi_msg(77), x$coef[length(x$coef)], fill = TRUE)
+  cat(hopit_msg(78))
   print(x$coef.ls$reg.params)
-  cat('\nThreshold coefficents (Lambda):\n')
+  cat(hopit_msg(79))
   print(x$coef.ls$thresh.lambda)
   if(length(x$coef.ls$thresh.gamma)){
-    cat('\nThreshold coefficients (Gamma):\n')
+    cat(hopit_msg(80))
     print(x$coef.ls$thresh.gamma)
   }
   #if(length(x$coef.ls$logTheta)){
-    if (x$hasdisp) cat('\nTheta:\n') else cat('\nFixed Theta:\n')
+    if (x$hasdisp) cat(hopit_msg(82)) else cat(hopit_msg(81))
     cat(exp(x$coef.ls$logTheta),'\n')
   #}
   invisible(NULL)
@@ -64,11 +64,11 @@ vcov.hopit<-function(object, robust.vcov, ...){
   #robust.method <- tolower(robust.method[1])
   #if (!(robust.method %in% c("grad","working"))) stop('Unknown method.')
   z <- object$vcov
-  if (class(z) == "try-error") stop(paste('Cannot compute variance-covariance matrix:\n',attr(z,"condition"),sep=''),call.=NULL)
-  if (!length(z)) stop('Hessian was not calculated.')
+  if (class(z) == "try-error") stop(paste(hopit_msg(37),attr(z,"condition"),sep=''),call.=NULL)
+  if (!length(z)) stop(hopit_msg(38),call.=NULL)
   if (length(object$design)){
     if (!missing(robust.vcov) && (robust.vcov)) {
-      warning(call. = FALSE, '"robust.vcov" ignored, survey design was detected.')
+      warning(call. = FALSE, hopit_msg(39))
       robust.vcov <- NA
     }
   } else {
@@ -91,10 +91,10 @@ vcov.hopit<-function(object, robust.vcov, ...){
 #' @keywords internal
 #' @export
 print.vcov.hopit <- function(x, digits = 3L, ...){
-  cat('Variance-covariance matrix:\n')
+  cat(hopit_msg(40))
   print.default(x)
-  if (attr(x, 'survey.design')) cat('\nVariance-covariance matrix adjusted for survey design.\n')
-  if (!is.na(attr(x, 'robust.vcov')) && attr(x, 'robust.vcov')) cat('\nVariance-covariance matrix based on sandwich estimmator.\n')
+  if (attr(x, 'survey.design')) cat(hopit_msg(41))
+  if (!is.na(attr(x, 'robust.vcov')) && attr(x, 'robust.vcov')) cat(hopit_msg(42))
   invisible(NULL)
 }
 
@@ -120,14 +120,14 @@ print.vcov.hopit <- function(x, digits = 3L, ...){
 summary.hopit <- function(object, robust.se = TRUE, ...){
   varcov <- vcov(object, robust.se, ...)
   dvcov <- diag(varcov)
-  if (any(dvcov<0)) warning('Negative variaces detected, try different robust.se/survey options and check the fit!')
+  if (any(dvcov<0)) warning(hopit_msg(43),call.=NA)
   SE <- suppressWarnings(sqrt(abs(dvcov)))
   if (length(object$design)){
-    cat('Survey weights detected. Standard errors was adjusted for survey design.\n')
+    cat(hopit_msg(44))
   }
   if ((!robust.se) && (any(is.na(SE))) && !(length(object$design)))
-    warning(call. = FALSE, 'Problem with some standard errors, please try option "robust.se" == TRUE.')
-  if (length(object$coef) != length(SE)) stop('Something wrong.',call.=NULL)
+    warning(call. = FALSE, hopit_msg(45))
+  if (length(object$coef) != length(SE)) stop(hopit_msg(46),call.=NULL)
   tstat <-  object$coef/SE
   pvalue <- pstdnorm(-abs(tstat))  * 2L
   table1 <- data.frame(Estimate = object$coef, 'Std. Error' = SE, 'z value' = tstat, 'Pr(>|z|)' = pvalue, check.names = FALSE)
@@ -147,17 +147,17 @@ summary.hopit <- function(object, robust.se = TRUE, ...){
 #' @author Maciej J. Danko
 print.summary.hopit <- function(x, ...){
   model <- x$model
-  cat("Formula (latent variable):", deparse(model$reg.formula), fill = TRUE)
-  cat("Formula (threshold):", deparse(model$thresh.formula), fill = TRUE)
-  cat('\nLink:', model$link, fill = TRUE)
-  cat('Number of cases:', model$N, fill = TRUE)
-  cat('Response levels:', toString(levels(model$y_i)), fill = TRUE)
-  if(x$robust.se) cat('\nRobust SE were used (sandwich estimator of varcov).\n')
+  cat(hopit_msg(65), deparse(model$reg.formula), fill = TRUE)
+  cat(hopit_msg(66), deparse(model$thresh.formula), fill = TRUE)
+  cat(hopit_msg(72), model$link, fill = TRUE)
+  cat(hopit_msg(73), model$N, fill = TRUE)
+  cat(hopit_msg(74), toString(levels(model$y_i)), fill = TRUE)
+  if(x$robust.se) cat(hopit_msg(71))
   cat('\n')
   printCoefmat(x = x$coef, P.values = TRUE, has.Pvalue = TRUE, digits = 4L, dig.tst = 2L)
-  cat('\nTheta:', exp(model$coef.ls$logTheta), fill = TRUE)
-  cat('\nLog-likelihood:', model$LL, fill = TRUE)
-  cat('\nDeviance:', model$deviance, fill = TRUE)
+  cat(hopit_msg(70), exp(model$coef.ls$logTheta), fill = TRUE)
+  cat(hopit_msg(75), model$LL, fill = TRUE)
+  cat(hopit_msg(76), model$deviance, fill = TRUE)
   if (!length(model$design)) cat('AIC:', AIC.hopit(model), fill = TRUE)
   cat('\n')
   invisible(NULL)
@@ -196,7 +196,7 @@ AIC.hopit<-function(object, ..., k = 2L) {
   tmp <- deparse(substitute(list(object, ...)))
   ob.nam <- gsub(' ', '', strsplit(substring(tmp, 6L, nchar(tmp) - 1L), ',', fixed = TRUE)[[1L]])
   res <- sapply(objects,function(object) if (!length(object$design)) object$AIC else
-    stop('AIC for models with survey design not implemented yet.', call=NULL))
+    stop(hopit_msg(47), call=NULL))
   names(res) <- ob.nam
   res
 }
@@ -222,7 +222,7 @@ anova.hopit<-function(object, ..., method = c('sequential', 'with.first'), direc
     objects <- list(object, ...)
     tmp <- deparse(substitute(list(object, ...)))
     ob.nam <- gsub(' ', '', strsplit(substring(tmp, 6L, nchar(tmp) - 1L), ',', fixed = TRUE)[[1L]])
-  } else  stop('At least two objects must be listed.')
+  } else  stop(hopit_msg(48))
   if (length(objects) == 2L){
     if(length(objects[[1L]]$coef)+objects[[1L]]$hasdisp>length(objects[[2L]]$coef)+objects[[2L]]$hasdisp) {
       return(lrt.hopit(objects[[1L]], objects[[2L]]))
@@ -232,7 +232,8 @@ anova.hopit<-function(object, ..., method = c('sequential', 'with.first'), direc
   } else {
     out <- NULL
     rna <- NULL
-    if (direction == 'increasing') objects <- objects[length(objects) : 1L] else if (direction != 'decreasing') stop('Unknown direction.')
+    if (direction == 'increasing') objects <- objects[length(objects) : 1L] else if (direction != 'decreasing')
+      stop(call.=NULL, hopit_msg(50))
     for (k in 1L : (length(objects) - 1L)) {
       if (tolower(method) == 'sequential'){
         tmp <- lrt.hopit(objects[[k]], objects[[k + 1L]]) # try models mut be of decreasing complexity, silent = F
@@ -261,8 +262,7 @@ anova.hopit<-function(object, ..., method = c('sequential', 'with.first'), direc
 #' @author Maciej J. Danko
 #' @usage \method{print}{anova.hopit}(x, ...)
 print.anova.hopit <- function(x, ...){
-  cat('Anova (LRTs):\n')
-  cat('Method: "', x$method, '"\n\n', sep = '')
+  cat(hopit_msg(49), x$method, '"\n\n', sep = '')
   printCoefmat(x$table, signif.stars = TRUE, P.values = TRUE, has.Pvalue = TRUE, digits = 5L, dig.tst = 3L, tst.ind = 1L)
   invisible(NULL)
 }
@@ -274,30 +274,30 @@ print.anova.hopit <- function(x, ...){
 #' @export
 #' @author Maciej J. Danko
 lrt.hopit <- function(full, nested){
-  if (!identical(full$design, nested$design)) stop('Models have different survey designs.',call. = NULL)
-  if (length(full$coef) + full$hasdisp <= length(nested$coef)+ nested$hasdisp) stop('The "full" model must have more parameters than the "nested" one.',call. = NULL)
-  if (abs(full$LL - nested$LL) < .Machine$double.eps^0.6) message('Negligible differences between log likelihoods.') else
-    if (full$LL - nested$LL < -.Machine$double.eps^0.6) warning(call. = FALSE, 'The "nested" model has the higher likelihood than the "full" model. Try to improve the fit of the models.')
+  if (!identical(full$design, nested$design)) stop(hopit_msg(51),call. = NULL)
+  if (length(full$coef) + full$hasdisp <= length(nested$coef)+ nested$hasdisp) stop(hopit_msg(52),call. = NULL)
+  if (abs(full$LL - nested$LL) < .Machine$double.eps^0.6) message(hopit_msg(53)) else
+    if (full$LL - nested$LL < -.Machine$double.eps^0.6) warning(call. = FALSE, hopit_msg(54))
   if (ncol(full$reg.mm) < ncol(nested$reg.mm)) {
-    cat('Full model:\n')
-    cat("-- Formula (latent variables):", deparse(full$reg.formula), fill = TRUE)
-    cat('\nNested model:\n')
-    cat("-- Formula (latent variables):", deparse(nested$reg.formula), fill = TRUE)
-    stop('The latent formulas are not nested.')
+    cat(hopit_msg(64))
+    cat("--",hopit_msg(65), deparse(full$reg.formula), fill = TRUE)
+    cat(hopit_msg(67))
+    cat("--",hopit_msg(65), deparse(nested$reg.formula), fill = TRUE)
+    stop(hopit_msg(68))
   }
   if (ncol(full$thresh.mm) < ncol(nested$thresh.mm)) {
-    cat('Full model:\n')
-    cat("-- Formula (threshold variables):", deparse(full$thresh.formula), fill = TRUE)
-    cat('\nNested model:\n')
-    cat("-- Formula (threshold variables):", deparse(nested$thresh.formula), fill = TRUE)
-    stop('The threshold formulas are not nested.')
+    cat(hopit_msg(64))
+    cat("--",hopit_msg(66), deparse(full$thresh.formula), fill = TRUE)
+    cat(hopit_msg(67))
+    cat("--",hopit_msg(66), deparse(nested$thresh.formula), fill = TRUE)
+    stop(hopit_msg(69))
   }
-  if ((full$hasdisp) < (nested$hasdisp)) stop('Theta params are not nested.')
+  if ((full$hasdisp) < (nested$hasdisp)) stop(hopit_msg(55))
 
   if ((ncol(full$reg.mm)) &&  (ncol(nested$reg.mm)))
-    if (!(all(colnames(nested$reg.mm) %in% colnames(full$reg.mm)))) warning(call. = FALSE, 'Models use probably different (non-nested) data sets (latent variable formula).')
+    if (!(all(colnames(nested$reg.mm) %in% colnames(full$reg.mm)))) warning(call. = FALSE, hopit_msg(56))
   if ((ncol(full$thresh.mm)) &&  (ncol(nested$thresh.mm)))
-    if (!(all(colnames(nested$thresh.mm) %in% colnames(full$thresh.mm)))) warning(call. = FALSE, 'Models use probably different (non-nested) data sets (latent variable formula).')
+    if (!(all(colnames(nested$thresh.mm) %in% colnames(full$thresh.mm)))) warning(call. = FALSE, hopit_msg(57))
 
   stat <- 2L*( logLik.hopit(full) - logLik.hopit(nested))
   #df.diff <- length(full$coef) - length(nested$coef) + length(full$coef.ls$logTheta) - length(nested$coef.ls$logTheta)
@@ -310,7 +310,7 @@ lrt.hopit <- function(full, nested){
     p <- 1L - pchisq(stat, df.diff)
     scalef <- NULL
   } else {
-    stop('LRT for models with survey design not implemented yet.', call=NULL)
+    stop(hopit_msg(58), call=NULL)
     # ....
     # misspec <- eigen(solve(V0) %*% V, only.values = TRUE)$values
     #
@@ -338,17 +338,17 @@ lrt.hopit <- function(full, nested){
 #' @author Maciej J. Danko
 print.lrt.hopit <- function(x, short=FALSE, ...){
   if (!short) {
-    cat('full model:\n')
-    cat("-- Formula (latent variables):", deparse(x$full$reg.formula), fill = TRUE)
-    cat("-- Formula (threshold variables):", deparse(x$full$thresh.formula), fill = TRUE)
-    cat("-- Estimated theta:",x$full$hasdisp, fill=TRUE)
-    cat('\nnested model:\n')
-    cat("-- Formula (latent variables):", deparse(x$nested$reg.formula), fill = TRUE)
-    cat("-- Formula (threshold variables):", deparse(x$nested$thresh.formula), fill = TRUE)
-    cat("-- Estimated theta:",x$nested$hasdisp, fill=TRUE)
+    cat(hopit_msg(64))
+    cat("--", hopit_msg(65), deparse(x$full$reg.formula), fill = TRUE)
+    cat("--",hopit_msg(66), deparse(x$full$thresh.formula), fill = TRUE)
+    cat("--",hopit_msg(70),x$full$hasdisp, fill=TRUE)
+    cat(hopit_msg(67))
+    cat("--",hopit_msg(65), deparse(x$nested$reg.formula), fill = TRUE)
+    cat("--",hopit_msg(66), deparse(x$nested$thresh.formula), fill = TRUE)
+    cat("--",hopit_msg(70),x$nested$hasdisp, fill=TRUE)
   }
   #uzyc signif
-  cat('\nLikelihood ratio test:\n')
+  cat(hopit_msg(59))
   if (length(x$df)) {
     out <- t(as.matrix(c('Chi^2' = unname(x$chisq), df = unname(x$df), 'Pr(>Chi^2)' = unname(x$pval))))
     out2 <- NULL
@@ -358,7 +358,7 @@ print.lrt.hopit <- function(x, short=FALSE, ...){
   }
   row.names(out) <- ''
   printCoefmat(out, signif.stars = TRUE, P.values = TRUE, has.Pvalue = TRUE, digits = 5L, dig.tst = 3L, tst.ind = 1L)
-  if (length(out2)) print(paste('Scale factors',out2))
+  if (length(out2)) print(paste(hopit_msg(63),out2))
   invisible(NULL)
 }
 
@@ -464,10 +464,10 @@ print.profile.hopit<-function(x, ..., plotf = TRUE){
   test <- apply(x,2,which.max)==floor(nrow(x)/2)+1
   if(plotf) plot.profile.hopit(x, ...)
   if (any(!test)) {
-    message('Log likelihood maximum not reached.')
-    message(paste('Problem in:',paste(names(test)[!test],sep='',collapse = ',  ')))
+    message(hopit_msg(60))
+    message(paste(hopit_msg(61),paste(names(test)[!test],sep='',collapse = ',  ')))
   } else {
-    cat('All parameters seem to be at arg.max (optimum).\n')
+    cat(hopit_msg(62))
   }
 }
 

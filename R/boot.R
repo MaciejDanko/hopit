@@ -66,7 +66,7 @@ update.latent <-function(model, newregcoef, data, hessian=FALSE){
 #' @export
 boot_hopit<-function(model, data, func, nboot=500, unlist = TRUE, ...){
   N <- seq_len(model$parcount[1])
-  if (length(model$vcov)<2) stop(call.=NULL, 'No vcov detected.')
+  if (length(model$vcov)<2) stop(call.=NULL, hopit_msg(23))
   bootsample <- MASS::mvrnorm(nboot, mu=model$coef[N], Sigma=model$vcov[N,N])
   boots <- lapply(seq_len(nboot), function(k) func(model=update.latent(model, bootsample[k,N],data=data),data=data,...))
   if (unlist) {
@@ -84,7 +84,7 @@ boot_hopit<-function(model, data, func, nboot=500, unlist = TRUE, ...){
 #' @author Maciej J. Danko
 #' @export
 boot_hopit_CI <- function(boot, alpha = 0.05, bounds=c('both','lo','up')){
-  if (!inherits(boot,'hopit.boot')) stop(call.=NULL, 'boot must be of class "hopit.boot".')
+  if (!inherits(boot,'hopit.boot')) stop(call.=NULL, hopit_msg(22))
   bounds <- tolower(bounds[1])
   if (inherits(boot,'list')) boot <- sapply(boot,'[')
   probs <- switch(bounds,

@@ -11,17 +11,22 @@ hopit.control(grad.eps = 3e-05, bgfs.maxit = 10000, cg.maxit = 10000,
   thresh.1.exp = FALSE, LL_out_val = -Inf)
 }
 \arguments{
-\item{grad.eps}{epsilon for hessian function.}
+\item{grad.eps}{epsilon for numerical hessian function.}
 
-\item{quick.fit}{logical, if TRUE extensive optimization methods are ignored and only BFGS and CG methods are run.}
+\item{bgfs.maxit, cg.maxit, nlm.maxit}{the maximum number of iterations. See \code{\link{optim}} and \code{\link{nlm}} for details.}
 
-\item{trace}{logical, if to trace model fitting}
+\item{bgfs.reltol, cg.reltol}{relative convergence tolerance. See \code{\link{optim}} for details.}
 
-\item{thresh.start}{internal parameter (threshold 0), under developement, do not change.}
+\item{nlm.gradtol, nlm.steptol}{tolerance at which the scaled gradient is considered close enough to zero and
+minimum allowable relative step length. See \code{\link{nlm}}.}
 
-\item{thresh.1.exp}{internal parameter (logical if to exponentiate threshold function at threshold 1), under developement, do not change.}
+\item{fit.methods}{either 'CG' or 'BFGS', or both. See \code{\link{optim}}.}
 
-\item{LL_out_val}{internal parameter (LL value returned if LL cannot be computed), under developement, do not change.}
+\item{quick.fit}{logical, if TRUE extensive \code{nlm} optimization method is ignored and only BFGS and CG methods are run.}
+
+\item{trace}{logical, if to trace model fitting.}
+
+\item{LL_out_val, thresh.1.exp, thresh.start}{internal parameters under developement, do not change.}
 }
 \description{
 Auxiliary function for controlling \code{hopit} fitting. Use this function to set control

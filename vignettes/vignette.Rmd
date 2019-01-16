@@ -211,7 +211,7 @@ anova(model2, model1)
 Both *reg.formula* and *thresh.formula* allow to specify interactions, like interaction between gender (*sex*) and age (*ageclass*): 
 
 ```{r, echo=TRUE}
-model3<- hopit(reg.formula = health ~ hypertenssion + high_cholesterol + 
+model3<- hopit(reg.formula = health ~ hypertenssion * high_cholesterol + 
                              heart_atack_or_stroke + poor_mobility + 
                              very_poor_grip + depression + respiratory_problems + 
                              IADL_problems + obese + diabetes + other_diseases, 

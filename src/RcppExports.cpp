@@ -63,9 +63,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// vglm2hopit
-SEXP vglm2hopit(const Eigen::VectorXd reg_params, const Eigen::VectorXd thresh_lambda, const Eigen::VectorXd thresh_gamma, const int thresh_1_exp);
-RcppExport SEXP _hopit_vglm2hopit(SEXP reg_paramsSEXP, SEXP thresh_lambdaSEXP, SEXP thresh_gammaSEXP, SEXP thresh_1_expSEXP) {
+// glm2hopit
+SEXP glm2hopit(const Eigen::VectorXd reg_params, const Eigen::VectorXd thresh_lambda, const Eigen::VectorXd thresh_gamma, const int thresh_1_exp);
+RcppExport SEXP _hopit_glm2hopit(SEXP reg_paramsSEXP, SEXP thresh_lambdaSEXP, SEXP thresh_gammaSEXP, SEXP thresh_1_expSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -73,7 +73,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const Eigen::VectorXd >::type thresh_lambda(thresh_lambdaSEXP);
     Rcpp::traits::input_parameter< const Eigen::VectorXd >::type thresh_gamma(thresh_gammaSEXP);
     Rcpp::traits::input_parameter< const int >::type thresh_1_exp(thresh_1_expSEXP);
-    rcpp_result_gen = Rcpp::wrap(vglm2hopit(reg_params, thresh_lambda, thresh_gamma, thresh_1_exp));
+    rcpp_result_gen = Rcpp::wrap(glm2hopit(reg_params, thresh_lambda, thresh_gamma, thresh_1_exp));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -235,7 +235,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_hopit_dstdlogis", (DL_FUNC) &_hopit_dstdlogis, 1},
     {"_hopit_pstdlogis", (DL_FUNC) &_hopit_pstdlogis, 1},
     {"_hopit_colpath", (DL_FUNC) &_hopit_colpath, 3},
-    {"_hopit_vglm2hopit", (DL_FUNC) &_hopit_vglm2hopit, 4},
+    {"_hopit_glm2hopit", (DL_FUNC) &_hopit_glm2hopit, 4},
     {"_hopit_ind_reg_thresh", (DL_FUNC) &_hopit_ind_reg_thresh, 3},
     {"_hopit_getThresholds", (DL_FUNC) &_hopit_getThresholds, 6},
     {"_hopit_VgetThresholds", (DL_FUNC) &_hopit_VgetThresholds, 5},

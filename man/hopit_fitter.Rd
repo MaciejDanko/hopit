@@ -11,12 +11,12 @@ hopit_fitter(model, start = model$start, use_weights = model$use.weights)
 
 \item{start}{starting parameters}
 
-\item{control}{a list with control parameters. See \code{\link{hopit.control}}.}
+\item{use_weights}{a logical indicating if to use model weights.}
 }
 \description{
 Fit the model.
 }
 \author{
-Maciej J. Danko
+Maciej J. Dańko
 }
 \keyword{internal}

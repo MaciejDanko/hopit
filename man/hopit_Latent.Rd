@@ -2,12 +2,17 @@
 % Please edit documentation in R/hopit.R
 \name{hopit_Latent}
 \alias{hopit_Latent}
-\title{INTERNAL: Calculate latent variable}
+\title{INTERNAL: Calculate predicted continous latent measure.}
 \usage{
 hopit_Latent(reg.params, model = NULL)
 }
+\arguments{
+\item{reg.params}{vectors with model parameters.}
+
+\item{model}{a \code{hopit} object}
+}
 \description{
-INTERNAL: Calculate latent variable
+INTERNAL: Calculate predicted continous latent measure.
 }
 \author{
 Maciej J. Danko

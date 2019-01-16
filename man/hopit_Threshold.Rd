@@ -2,12 +2,17 @@
 % Please edit documentation in R/hopit.R
 \name{hopit_Threshold}
 \alias{hopit_Threshold}
-\title{INTERNAL: Calculation of cut-points (threshold)}
+\title{INTERNAL: Calculation of model cut-points (threshold)}
 \usage{
 hopit_Threshold(thresh.lambda, thresh.gamma, model)
 }
+\arguments{
+\item{thresh.lambda, thresh.gamma}{vectors with model parameters.}
+
+\item{model}{a \code{hopit} object}
+}
 \description{
-INTERNAL: Calculation of cut-points (threshold)
+INTERNAL: Calculation of model cut-points (threshold)
 }
 \author{
 Maciej J. Danko

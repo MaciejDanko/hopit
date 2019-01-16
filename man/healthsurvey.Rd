@@ -19,10 +19,10 @@
 \item{very_poor_grip}{Cannot perform grip strength? Yes or No}
 \item{depression}{has depression? Yes or No}
 \item{other_diseases}{has other diseases? Yes or No}
-\item{contHM}{a continous health marker}
 \item{sex}{sex/gender: woman or man}
 \item{ageclass}{categorized age: [50,60), [60,70), [70,80), [80,120)}
 \item{education}{two levels of education: primary or lower and secondary or higher}
+\item{contHM}{a continous health measure}
 \item{country}{country: X, Y, or Z}
 \item{csw}{cross-sectional survey weights}
 \item{psu}{primary statistical unit}
