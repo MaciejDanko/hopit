@@ -5,7 +5,7 @@ hopit_msg <- function(x) switch(x,
   '2'  = 'Missing model coefficients.',
   '3'  = 'Wrong number of parameters.',
   '4'  = 'Lambda must be given.',
-  '5'  = ' done\nImproving fit using nlm method...',
+  '5'  = 'Improving fit using nlm method...',
   '6'  = 'Optimization cannot continue.',
   '7'  = 'Something is wrong with the survey package.',
   '8'  = 'Please specify the method of fit',
@@ -19,7 +19,7 @@ hopit_msg <- function(x) switch(x,
   '16' = 'Including survey design...',
   '17' = 'Unknown link function:',
   '18' = '\nThreshold variable(s) detected in reg.formula. Model may be not identifiable.\n', #start.vglm
-  '19' = 'Starting points cannot be found using glm method. Try start.method="vglm". ', #start.glm
+  '19' = 'Starting set of parameters cannot be found using glm method.', #start.glm
   '20' = 'Wrong start method.', #get.hopit.start  UNUSED
   '21' = 'Threshold-Health variables must be factors.', #get.hopit.start
   '22' = 'boot must be of class "hopit.boot".', #boot
@@ -79,7 +79,7 @@ hopit_msg <- function(x) switch(x,
   '76' = 'Deviance:', #generics
   '77' = 'Dispersion parameter (Theta):', #generics
   '78' = '\nCoefficients of the latent variable:\n', #generics
-  '79' = '\nThreshold coefficents (Lambda):\n', #generics
+  '79' = '\nThreshold coefficients (Lambda):\n', #generics
   '80' = '\nThreshold coefficients (Gamma):\n', #generics
   '81' = '\nFixed Theta:\n', #generics
   '82' = '\nTheta:\n', #generics

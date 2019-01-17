@@ -20,7 +20,6 @@
 #'   \item{sex}{sex/gender: woman or man}
 #'   \item{ageclass}{categorized age: [50,60), [60,70), [70,80), [80,120)}
 #'   \item{education}{two levels of education: primary or lower and secondary or higher}
-#'   \item{contHM}{a continous health measure}
 #'   \item{country}{country: X, Y, or Z}
 #'   \item{csw}{cross-sectional survey weights}
 #'   \item{psu}{primary statistical unit}
@@ -31,6 +30,8 @@
 #' combiantion of diseases, coditions, sex, age, education, reported health, etc.
 #' The structure of the data and some probabilities were inspired by WAVE1 SHARE database
 #' (DOIs: 10.6103/SHARE.w1.600), see Börsch-Supan et al for methodological details (Börsch-Supan et al. 2013).
+#'
+#' The SHARE data collection has been primarily funded by the European Commission through FP5 (QLK6-CT-2001-00360), FP6 (SHARE-I3: RII-CT-2006-062193, COMPARE: CIT5-CT-2005-028857, SHARELIFE: CIT4-CT-2006-028812) and FP7 (SHARE-PREP: N°211909, SHARE-LEAP: N°227822, SHARE M4: N°261982). Additional funding from the German Ministry of Education and Research, the Max Planck Society for the Advancement of Science, the U.S. National Institute on Aging (U01_AG09740-13S2, P01_AG005842, P01_AG08291, P30_AG12815, R21_AG025169, Y1-AG-4553-01, IAG_BSR06-11, OGHA_04-064, HHSN271201300071C) and from various national funding sources is gratefully acknowledged (see www.share-project.org).
 #'
 #' None of the records represent any true record/individual of SHARE database
 #'

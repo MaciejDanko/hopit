@@ -203,7 +203,7 @@ hopit_fitter <- function(model, start = model$start, use_weights = model$use.wei
     if ('BFGS' %in% control$fit.methods) fit <- fastgradfit(fit, meto = 'BFGS')
     if (!model$control$quick.fit || !length(fit$par)) {
       if (!length(fit$par)) fit$par <- start
-      if (model$control$trace) cat(hopit_msg(5))
+      if (model$control$trace) cat(hopit_msg(13),hopit_msg(5),sep='')
       fit <- suppressWarnings(nlm(f = LLfn, p=fit$par, gradtol = model$control$nlm.gradtol, steptol = model$control$nlm.steptol, hessian = FALSE, iterlim=model$control$nlm.maxit))
       fit <- list(par=fit$estimate, value=fit$minimum)
     }
@@ -285,7 +285,9 @@ gettheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' @param latent.formula formula used to model latent variable.
 #' @param thresh.formula formula used to model threshold variable.
 #' Any dependent variable (left side of "~") will be ignored.
-#' @param strata.formula formula used to model threshold variable.
+#' @param strata.formula formula used to model "stratified" latent variables.
+#' Each term in this formula will be interacted with all latent variables.
+#' Each term will be added to \code{threshold.formula}, while interaction will be added to the \code{latent.formula}.
 #' Any dependent variable (left side of "~") will be ignored.
 #' @param data a data frame including all modeled variables.
 #' @param decreasing.levels logical indicating if self-reported health classes are ordered in decreasing order.
@@ -293,13 +295,14 @@ gettheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' @param design an optional survey design. Use \code{\link[survey]{svydesign}} function to specify the design.
 #' @param weights an optional weights. Use design to construct survey weights.
 #' @param link the link function. The possible values are \code{"probit"} (default) and \code{"logit"}.
-#' @param start a vector with starting values in the form \code{c(latent_parameters, threshold_lambdas, threshold_gammas)}
+#' @param start a vector with starting values in the form \code{c(latent_parameters, threshold_lambdas, threshold_gammas)}.
 #' @param control a list with control parameters. See \code{\link{hopit.control}}.
+#'
 #' @export
 #' @author Maciej J. Danko
 hopit<- function(latent.formula,
-                 thresh.formula = as.formula('~ 1'), # ~1 not tested!!!
-                 strata.formula = as.formula('~ 1'),
+                 thresh.formula = ~ 1,
+                 strata.formula = ~ 1,
                  data,
                  decreasing.levels,
                  start = NULL,
