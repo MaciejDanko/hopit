@@ -297,7 +297,10 @@ gettheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' @param link the link function. The possible values are \code{"probit"} (default) and \code{"logit"}.
 #' @param start a vector with starting values in the form \code{c(latent_parameters, threshold_lambdas, threshold_gammas)}.
 #' @param control a list with control parameters. See \code{\link{hopit.control}}.
+#' @details
+#' See \insertCite{Jurges2007;textual}{hopit}
 #'
+#' @references \insertAllCited{}
 #' @export
 #' @author Maciej J. Danko
 hopit<- function(latent.formula,

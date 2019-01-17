@@ -39,6 +39,12 @@ Any dependent variable (left side of "~") will be ignored.}
 \description{
 Fit generelaized hierarchical ordered threshold models.
 }
+\details{
+See \insertCite{Jurges2007;textual}{hopit}
+}
+\references{
+\insertAllCited{}
+}
 \author{
 Maciej J. Danko
 }

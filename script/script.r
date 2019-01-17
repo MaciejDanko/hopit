@@ -17,6 +17,6 @@ devtools::check()
 devtools::document()
 #devtools::source_package()
 #healthsurvey
-#browseVignettes("hopit")
+browseVignettes("hopit")
 
 #R CMD Rd2dvi --pdf --title='Test of hopit' -o /tmp/hopit.pdf man/*.Rd

@@ -9,7 +9,11 @@
 \arguments{
 \item{x}{\code{profile.hopit} object.}
 
-\item{...}{arguments to be passed to \code{plot}() function (see \code{\link{par}}).}
+\item{...}{arguments to be passed to \code{\link{plot}}() function (see \code{\link{par}}).}
+
+\item{ylim}{see \code{\link{plot}}}
+
+\item{relative}{logical indicating if \code{ylim} on each panel should be the same (\code{TRUE}) or not (\code{FALSE})}
 
 \item{leg.cex}{character expansion factor relative to current \code{par("cex")} (see \code{\link{legend}}).}
 

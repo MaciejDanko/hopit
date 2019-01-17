@@ -3,9 +3,10 @@ title: "Analysis of the reporting styles using generalized ordered probit models
 author: "Maciej J. Dańko"
 date: "17 I 2019"
 output:
-  pdf_document: default
-  # highlight: tango
-   # number_sections: yes
+  pdf_document: 
+    highlight: tango
+    number_sections: no
+    toc: no
 fontsize: 11pt
 geometry: margin=1.1in
 abstract: The *hopit* package provides R functions to fit and analyze ordered response
@@ -15,7 +16,7 @@ vignette: >
   %\VignetteIndexEntry{Introduction to hopit}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-bibliography: [../BIBLIOGRAPHY.bib]
+bibliography: ../inst/REFERENCES.bib
 biblio-style: apalike
 link-citations: true
 ---

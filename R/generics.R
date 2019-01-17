@@ -374,19 +374,22 @@ profile.hopit<-function(fitted, ..., scope=0.15, steps=101){
 #' @param x \code{profile.hopit} object.
 #' @param leg.cex character expansion factor relative to current \code{par("cex")} (see \code{\link{legend}}).
 #' @param leg.col the color used for the legend text.
-#' @param ... arguments to be passed to \code{plot}() function (see \code{\link{par}}).
+#' @param ylim see \code{\link{plot}}
+#' @param relative logical indicating if \code{ylim} on each panel should be the same (\code{TRUE}) or not (\code{FALSE})
+#' @param ... arguments to be passed to \code{\link{plot}}() function (see \code{\link{par}}).
 #' @export
 #' @keywords internal
 #' @usage \method{plot}{profile.hopit}(x, ..., leg.cex = 0.85, leg.col = 'blue4')
 #' @author Maciej J. Danko
-plot.profile.hopit<-function(x, ..., leg.cex = 0.85, leg.col = 'blue4'){
+plot.profile.hopit<-function(x, ..., ylim = NULL, relative = FALSE, leg.cex = 0.85, leg.col = 'blue4'){
   z <- sqrt(ncol(x))
   zy <- round(z)
   zx <- ceiling(z)
   spar <- par(c('mfrow','mar'))
   par(mfrow=c(zx,zy),mar=c(0,0,0,0))
+  if (relative) ylim <- range(x)
   for (j in seq_len(ncol(x))) {
-    plot(x[,j],type='l',axes='F', ...)
+    plot(x[,j],type='l',axes='F', ylim = ylim, ...)
     abline(v=floor(nrow(x)/2)+1,col=2,lty=2)
     legend('bottom',colnames(x)[j], bty='n',cex=leg.cex, text.col=leg.col)
     box()
