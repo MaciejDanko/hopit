@@ -6,6 +6,7 @@ tinytex::tlmgr(c("info", "--list", "--only-installed", "--data", "name"))
 load("~/Documents/R-PRJ/hopit/data/healthsurvey.rda")
 devtools::use_data(healthsurvey, overwrite = TRUE)
 roxygen2::roxygenise()
+
 devtools::clean_vignettes()
 devtools::build_vignettes()
 tinytex::tlmgr()
