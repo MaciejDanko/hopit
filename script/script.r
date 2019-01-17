@@ -2,7 +2,7 @@
 library(tinytex)
 #RcppEigen::RcppEigen.package.skeleton()
 #tinytex::install_tinytex(force=TRUE)
-tinytex::tlmgr(c("info", "--list", "--only-installed", "--data", "name"))
+#tinytex::tlmgr(c("info", "--list", "--only-installed", "--data", "name"))
 load("~/Documents/R-PRJ/hopit/data/healthsurvey.rda")
 devtools::use_data(healthsurvey, overwrite = TRUE)
 roxygen2::roxygenise()
