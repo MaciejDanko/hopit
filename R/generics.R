@@ -199,7 +199,9 @@ AIC.hopit<-function(object, ..., k = 2L) {
 #' @usage \method{anova}{hopit}(object, ..., method = c("sequential", "with.first"),
 #' direction = c("decreasing", "increasing"))
 #' @export
+#' @return \code{lrt.hopit} or \code{anova.hopit} objects.
 #' @author Maciej J. Danko
+#' @seealso \code{\link{print.anova.hopit}}, \code{\link{print.lrt.hopit}}, \code{\link{lrt.hopit}}, \code{\link{hopit}}.
 anova.hopit<-function(object, ..., method = c('sequential', 'with.first'), direction = c('decreasing', 'increasing')){
 
   method <- match.arg(method)
@@ -247,6 +249,7 @@ anova.hopit<-function(object, ..., method = c('sequential', 'with.first'), direc
 #' @export
 #' @author Maciej J. Danko
 #' @usage \method{print}{anova.hopit}(x, ...)
+#' @seealso \code{\link{anova.hopit}}, \code{\link{hopit}}.
 print.anova.hopit <- function(x, ...){
   cat(hopit_msg(49), x$method, '"\n\n', sep = '')
   printCoefmat(x$table, signif.stars = TRUE, P.values = TRUE, has.Pvalue = TRUE, digits = 5L, dig.tst = 3L, tst.ind = 1L)
@@ -259,6 +262,7 @@ print.anova.hopit <- function(x, ...){
 #' @keywords internal
 #' @export
 #' @author Maciej J. Danko
+#' @seealso \code{\link{print.lrt.hopit}}, \code{\link{anova.hopit}}, \code{\link{hopit}}.
 lrt.hopit <- function(full, nested){
   if (!identical(full$design, nested$design)) stop(hopit_msg(51),call. = NULL)
   if (length(full$coef) + full$hasdisp <= length(nested$coef)+ nested$hasdisp) stop(hopit_msg(52),call. = NULL)
@@ -312,6 +316,7 @@ lrt.hopit <- function(full, nested){
 #' @export
 #' @usage \method{print}{lrt.hopit}(x, short = FALSE, ...)
 #' @author Maciej J. Danko
+#' @seealso \code{\link{lrt.hopit}}, \code{\link{anova.hopit}}, \code{\link{hopit}}.
 print.lrt.hopit <- function(x, short = FALSE, ...){
   if (!short) {
     cat(hopit_msg(64))
@@ -349,6 +354,7 @@ print.lrt.hopit <- function(x, short = FALSE, ...){
 #' @keywords internal
 #' @author Maciej J. Danko
 #' @usage \method{profile}{hopit}(fitted, ..., scope = 0.15, steps = 101)
+#' @seealso \code{\link{plot.profile.hopit}}, \code{\link{print.profile.hopit}}, \code{\link{hopit}}
 profile.hopit<-function(fitted, ..., scope=0.15, steps=101){
   steps <- floor(steps/2)*2+1
   if (fitted$hasdisp) COEF <- c(fitted$coef, fitted$coef.ls$logTheta) else COEF <- fitted$coef
@@ -381,6 +387,7 @@ profile.hopit<-function(fitted, ..., scope=0.15, steps=101){
 #' @keywords internal
 #' @usage \method{plot}{profile.hopit}(x, ..., leg.cex = 0.85, leg.col = 'blue4')
 #' @author Maciej J. Danko
+#' @seealso \code{\link{profile.hopit}}, \code{\link{print.profile.hopit}}, \code{\link{hopit}}
 plot.profile.hopit<-function(x, ..., ylim = NULL, relative = FALSE, leg.cex = 0.85, leg.col = 'blue4'){
   z <- sqrt(ncol(x))
   zy <- round(z)
@@ -407,6 +414,7 @@ plot.profile.hopit<-function(x, ..., ylim = NULL, relative = FALSE, leg.cex = 0.
 #' @keywords internal
 #' @usage \method{print}{profile.hopit}(x, ..., plotf = TRUE)
 #' @author Maciej J. Danko
+#' @seealso \code{\link{profile.hopit}}, \code{\link{plot.profile.hopit}}, \code{\link{hopit}}
 print.profile.hopit<-function(x, ..., plotf = TRUE){
   test <- apply(x,2,which.max)==floor(nrow(x)/2)+1
   if(plotf) plot.profile.hopit(x, ...)

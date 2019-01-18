@@ -18,6 +18,9 @@
 \description{
 Calculate log likelihood profile for fitted hopit model
 }
+\seealso{
+\code{\link{plot.profile.hopit}}, \code{\link{print.profile.hopit}}, \code{\link{hopit}}
+}
 \author{
 Maciej J. Danko
 }

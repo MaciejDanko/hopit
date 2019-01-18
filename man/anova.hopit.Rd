@@ -17,8 +17,14 @@ direction = c("decreasing", "increasing"))
 
 \item{direction}{determine if complexity of listed models is \code{"increasing"} or \code{"decreasing"} (default).}
 }
+\value{
+\code{lrt.hopit} or \code{anova.hopit} objects.
+}
 \description{
 Compute likelihood rato test for two or more \code{hopit} objecs.
+}
+\seealso{
+\code{\link{print.anova.hopit}}, \code{\link{print.lrt.hopit}}, \code{\link{lrt.hopit}}, \code{\link{hopit}}.
 }
 \author{
 Maciej J. Danko

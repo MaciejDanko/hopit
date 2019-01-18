@@ -12,6 +12,9 @@ lrt.hopit(full, nested)
 \description{
 Likelihood ratio test for a pair of models
 }
+\seealso{
+\code{\link{print.lrt.hopit}}, \code{\link{anova.hopit}}, \code{\link{hopit}}.
+}
 \author{
 Maciej J. Danko
 }

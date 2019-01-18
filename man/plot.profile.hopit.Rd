@@ -22,6 +22,9 @@
 \description{
 Plot method for profile.hopit object.
 }
+\seealso{
+\code{\link{profile.hopit}}, \code{\link{print.profile.hopit}}, \code{\link{hopit}}
+}
 \author{
 Maciej J. Danko
 }

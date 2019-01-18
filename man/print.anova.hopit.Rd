@@ -14,6 +14,9 @@
 \description{
 Print object calcuated by \code{\link{anova.hopit}}
 }
+\seealso{
+\code{\link{anova.hopit}}, \code{\link{hopit}}.
+}
 \author{
 Maciej J. Danko
 }

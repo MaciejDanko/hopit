@@ -24,11 +24,12 @@ Any dependent variable (left side of "~") will be ignored.}
 
 \item{decreasing.levels}{logical indicating if self-reported health classes are ordered in decreasing order.}
 
-\item{start}{a vector with starting values in the form \code{c(latent_parameters, threshold_lambdas, threshold_gammas)}.}
+\item{start}{a vector with starting coefficient values in the form \code{c(latent_parameters, threshold_lambdas, threshold_gammas)}.}
 
-\item{overdispersion}{logical indicting if to fit additionalparameter theta modeling a variance of error term.}
+\item{overdispersion}{logical indicting if to fit additional parameter theta modeling a variance of the error term.}
 
-\item{design}{an optional survey design. Use \code{\link[survey]{svydesign}} function to specify the design.}
+\item{design}{an optional survey design. Use \code{\link[survey]{svydesign}} function to specify the design.
+The design cannot be speciffied together with parameter \code{weights}.}
 
 \item{weights}{an optional weights. Use design to construct survey weights.}
 
@@ -37,7 +38,37 @@ Any dependent variable (left side of "~") will be ignored.}
 \item{control}{a list with control parameters. See \code{\link{hopit.control}}.}
 }
 \value{
-a \code{hopit} object that is used by other functions.
+a \code{hopit} object used by other functions and methods. The object is a list with following components:
+\item{control}{ a list with control parameters. See \code{\link{hopit.control}}.}
+\item{link}{ used link funtion.}
+\item{hasdisp}{ logical, was overdispersion modeled?}
+\item{latent.formula}{ used latent formula.}
+\item{latent.mm}{ latent model matrix.}
+\item{latent.terms}{ used latent variables.}
+\item{thresh.formula}{ used threshold formula.}
+\item{thresh.mm}{ threshold model matrix.}
+\item{thresh.extd}{ threshold extended model matrix.}
+\item{thresh.terms}{ used threshold variables.}
+\item{thresh.no.cov}{ logical, are gamma parameters present?}
+\item{parcount}{ 3-element vector with number of parmeters for latent latent variable (beta),
+threshold intercept (lambda), and threshold covariates (gamma).}
+\item{coef}{ vector with coefficients.}
+\item{coef.ls}{ coefficients as a list.}
+\item{start}{ vector with starting vlues of coefficients.}
+\item{alpha}{ estimated individual-specific thresholds.}
+\item{y_i}{ response variable.}
+\item{y_latent_i}{ predicted latent measure.}
+\item{Ey_i}{ predicted categorical response.}
+\item{J}{ number of response levels.}
+\item{N}{ number of observations.}
+\item{deviance}{ deviance.}
+\item{LL}{ log likelihood.}
+\item{AIC}{ AIC for models without survey design.}
+\item{vcov}{ variance-covariance matrix.}
+\item{hessian}{ hessian matrix.}
+\item{estfun}{ gradient of log likelihood at estimated coefficient values.}
+\item{YYY1,YYY2,YY3}{ internal objects used for calcualtion gradient and hessian functions.}
+\item{use.weights,vcov.basic,glm.start,glm.start.ls}{ other internal objects.}
 }
 \description{
 The ordered response data classifies a measure of interest into ordered categories collected during a survey.
@@ -87,22 +118,25 @@ The fitted \emph{hopit} model is used to analyse reporting styles. See \code{\li
 \code{\link{getCutPoints}}, and \code{\link{getLevels}}.
 }
 \details{
-The function fits generelaized hierarchical ordered threshold models, which ca be used to analyse reporting styles.\cr
+The function fits generelaized hierarchical ordered threshold models.\cr
 
-\code{latent.formula} models latent variable. \cr
+\code{latent.formula} models latent variable.
 if the response variable is self-rated health then latent measure can depend on different health
 conditions and diseases (latent variables are called health variables).
-Health variables are modeled with parallel regression assumption. According to the assumption, coefficients,
+Latent variables are modeled with parallel regression assumption. According to the assumption, coefficients,
 which describe the relationship between lowest and all higher response categories, are the same as those coefficients,
 which describe the relationship between another (e.g. adjacent) lowest and the remaining higher response categories.
 The predicted latent variable is modeled as a linear function of health variables and corresponding coefficients.\cr
 
-\code{thresh.formula} models threshold variable. \cr
+\code{thresh.formula} models threshold variable.
 The thresholds (cut points, \code{alpha}) are modeled by threshold variables \code{gamma} and intercepts \code{lambda}.
 It is assumed that they model contextual characteristics of the respondent (e.g. country, gender, age, etc. ).
 Threshold variables are modeled without parallel regression assumption, thus each threshold is modeled by
 a variable independently \insertCite{Boes2006,Green2014}{hopit}.
-\code{*hopit*}() function uses parametrization of tresholds proposed by \insertCite{Jurges2007;textual}{hopit}.\cr
+\code{hopit}() function uses parametrization of tresholds proposed by \insertCite{Jurges2007;textual}{hopit}.\cr
+
+\code{decreasing.levels} it is the logical that determines the ordering of levels of the categorical response variable.
+It is always good to check first the ordering of the levels before starting (see example 1)\cr
 }
 \examples{
 # DATA
@@ -113,7 +147,7 @@ levels(healthsurvey$health)
 
 # Example 1 ---------------------
 
-# the order is decreasing (from best health to the worst health)
+# the order is decreasing (from the best health to the worst health)
 # so we set: decreasing.levels = TRUE
 # fitting the model:
 model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
@@ -207,14 +241,19 @@ print(anova(model1, model4), short = TRUE)
 \insertAllCited{}
 }
 \seealso{
-\code{\link{profile.hopit}}
-\code{\link{coef.hopit}}
-\code{\link{hopit.control}}
-\code{\link{anova.hopit}}
-\code{\link{svydesign}{survey}}
-\code{\link{standardizeCoef}}
-\code{\link{latentIndex}}
-\code{\link{getCutPoints}}
+\code{\link{coef.hopit}},
+\code{\link{profile.hopit}},
+\code{\link{hopit.control}},
+\code{\link{anova.hopit}},
+\code{\link{vcov.hopit}},
+\code{\link{logLik.hopit}},
+\code{\link{AIC.hopit}},
+\code{\link{summary.hopit}},
+\code{\link[survey]{svydesign}}, \cr\cr
+For reporting styles analysis see:\cr
+\code{\link{standardizeCoef}},
+\code{\link{latentIndex}},
+\code{\link{getCutPoints}},
 \code{\link{getLevels}}.
 }
 \author{
