@@ -3,7 +3,7 @@
 \name{coef.hopit}
 \alias{coef.hopit}
 \alias{coefficients.hopit}
-\title{Extracting coefficients of fitted \code{hopit} object}
+\title{Extracting coefficients of the fitted \code{hopit} model}
 \usage{
 \method{coef}{hopit}(object, aslist = FALSE, ...)
 }
@@ -16,7 +16,7 @@ related to latent variable, threshold lambdas, and threshold gammas.}
 \item{...}{further arguments passed to or from other methods.}
 }
 \description{
-Extracting coefficients of fitted \code{hopit} object
+Extracting coefficients of the fitted \code{hopit} model
 }
 \author{
 Maciej J. Danko

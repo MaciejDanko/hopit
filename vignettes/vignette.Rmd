@@ -8,7 +8,7 @@ output:
     number_sections: no
     toc: no
 fontsize: 11pt
-geometry: margin=1.1in
+geometry: margin=1.0in
 abstract: The *hopit* package provides R functions to fit and analyze ordered response
   data in the context of reporting styles. In this vignette we describe the formulation
   and fit of *hopit* models as well as functions used to analyse reporting styles. 
@@ -34,7 +34,7 @@ The ordered response data classifies a measure of interest into ordered categori
 
 Practically, it is assumed that when responding to a survey question about their general happiness, health, feeling, attitude or other status, participants assess their true value of this unobserved continuous variable, and project it to a provided discrete scale. The thresholds that each individual uses to categorize their true status into a specific response option may be affected by the choice of a reference group, earlier life experiences, and cross-cultural differences in using scales, and thus, may differ across individuals depending on their gender, age, cultural background, education, and personality traits, among other factors.
 
-From the modeling perspective, one of the main tasks is to compute this continuous estimate of individuals’ underlying, latent measure based on several specific characteristics of the considered response (e.g. health variables or happiness variables) and accounting also for variations in reporting across socio-demographic and cultural groups. More specifically, to build the latent, underlying measure a generalized hierarchical ordered threshold model is fitted, which regresses the reported status/attitude/feeling on two sets of independent variables [@Boes2006; @Green2014]. When a dependent reported ordered variable is self-rated health status then the first set of variables - health variables - assesses individuals’ specific aspects of health, and might include chronic conditions, mobility level, difficulties with a range of daily activities, performance on grip strength test, anthropometric measures, lifestyle behaviors, etc. Using the second set of independent variables (threshold variables), the model also adjusts for the differences across socio-demographic and cultural groups like cultural background, gender, age, education, etc. [@King2004; @Jurges2007; but see @Rebelo2014].
+From the reporting-styles modeling perspective, one of the main tasks is to compute this continuous estimate of individuals’ underlying, latent measure based on several specific characteristics of the considered response (e.g. health variables or happiness variables) and accounting also for variations in reporting across socio-demographic and cultural groups. More specifically, to build the latent, underlying measure a generalized hierarchical ordered threshold model is fitted, which regresses the reported status/attitude/feeling on two sets of independent variables [@Boes2006; @Green2014]. When a dependent reported ordered variable is self-rated health status then the first set of variables - health variables - assesses individuals’ specific aspects of health, and might include chronic conditions, mobility level, difficulties with a range of daily activities, performance on grip strength test, anthropometric measures, lifestyle behaviors, etc. Using the second set of independent variables (threshold variables), the model also adjusts for the differences across socio-demographic and cultural groups like cultural background, gender, age, education, etc. [@King2004; @Jurges2007; but see @Rebelo2014].
 
 Once the model is fitted its estimates (latent measure and threshold coefficients) can be used to calculate the differences in reporting styles among groups of people having different contextual characteristics realized by calculation of differences between expected and reported ordinal response measures [@Jurges2007]. 
 
@@ -171,6 +171,11 @@ The first variable on the list (*health*) is an categorical self-reported health
 Generalized ordered probit model can be fitted using *hopit*() function. The function takes two kinds of formulas: (1) *latent.formula* that models the impact of latent variables on categorical health and (2) *thresh.formula that models thresholds.   
 
 ```{r, echo=TRUE, cache=TRUE} 
+# first determine the order of the dependent variable
+levels(healthsurvey$health)
+
+# the order is decreasing (from best health to the worst health)
+# so we set: decreasing.levels = TRUE
 model1<- hopit(latent.formula = health ~ hypertenssion + high_cholesterol + 
                              heart_atack_or_stroke + poor_mobility + very_poor_grip + 
                              depression + respiratory_problems + 
@@ -192,7 +197,7 @@ cm1 <- coef(model1, aslist = TRUE)
 # names of returned coefficients
 names(cm1)
 
-# latent health variables
+# extracting latent health coefficients
 cm1$latent.params
 ```
 
@@ -200,9 +205,9 @@ cm1$latent.params
 
 ```{r, echo=TRUE, cache=TRUE}
 model2<- hopit(latent.formula = health ~ hypertenssion + high_cholesterol + 
-                             heart_atack_or_stroke + poor_mobility + 
-                             very_poor_grip + depression + respiratory_problems + 
-                             IADL_problems + obese + diabetes + other_diseases, 
+                      heart_atack_or_stroke + poor_mobility + 
+                      very_poor_grip + depression + respiratory_problems + 
+                      IADL_problems + obese + diabetes + other_diseases, 
                thresh.formula = ~ sex + ageclass + country,
                decreasing.levels = TRUE,
                control=list(trace=FALSE),
@@ -224,10 +229,10 @@ anova(model2, model1)
 Both *latent.formula* and *thresh.formula* allow to specify interactions, like interaction between gender (*sex*) and age (*ageclass*): 
 
 ```{r, echo=TRUE}
-model3<- hopit(latent.formula = health ~ hypertenssion * high_cholesterol + 
-                             heart_atack_or_stroke + poor_mobility + 
-                             very_poor_grip + depression + respiratory_problems + 
-                             IADL_problems + obese + diabetes + other_diseases, 
+model3<- hopit(latent.formula = health ~ hypertenssion + high_cholesterol + 
+                      heart_atack_or_stroke + poor_mobility + 
+                      very_poor_grip + depression + respiratory_problems + 
+                      IADL_problems + obese + diabetes + other_diseases, 
                thresh.formula = ~ sex * ageclass + country,
                decreasing.levels = TRUE,
                control=list(trace=FALSE),
@@ -241,12 +246,13 @@ The *hopit*() function has also an option to include survey design using the *su
 The example below fit a model using simple two level cluster sampling design.
 
 ```{r, echo=TRUE, cache=TRUE}
-design <- svydesign(ids = ~ country + psu, weights = healthsurvey$csw, data = healthsurvey)
+design <- svydesign(ids = ~ country + psu, weights = healthsurvey$csw, 
+                    data = healthsurvey)
 
 model2s<- hopit(latent.formula = health ~ hypertenssion + high_cholesterol + 
-                              heart_atack_or_stroke + poor_mobility + 
-                              very_poor_grip + depression + respiratory_problems + 
-                              IADL_problems + obese + diabetes + other_diseases, 
+                       heart_atack_or_stroke + poor_mobility + 
+                       very_poor_grip + depression + respiratory_problems + 
+                       IADL_problems + obese + diabetes + other_diseases, 
                 thresh.formula = ~ sex + ageclass + country,
                 decreasing.levels = TRUE,
                 design = design,
@@ -269,7 +275,7 @@ profile(model3)
 
 ## 6. Analyses of the reporting styles using *hopit* package
 
-Let's look at latent health variables of *model2*. 
+Let's look at latent health variables of *model3*. 
 
 ```{r, echo=TRUE}
 model3$coef.ls$latent.params

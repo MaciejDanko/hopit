@@ -1,4 +1,4 @@
-#' Extracting coefficients of fitted \code{hopit} object
+#' Extracting coefficients of the fitted \code{hopit} model
 #'
 #' @param object \code{hopit} object.
 #' @param aslist logical indicating if model coefficients should be returned as a list of three vectors

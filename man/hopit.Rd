@@ -2,7 +2,7 @@
 % Please edit documentation in R/hopit.R
 \name{hopit}
 \alias{hopit}
-\title{Fit generelaized hierarchical ordered threshold models.}
+\title{Generelaized hierarchical ordered threshold models.}
 \usage{
 hopit(latent.formula, thresh.formula = ~1, strata.formula = ~1, data,
   decreasing.levels, start = NULL, overdispersion = FALSE,
@@ -36,14 +36,186 @@ Any dependent variable (left side of "~") will be ignored.}
 
 \item{control}{a list with control parameters. See \code{\link{hopit.control}}.}
 }
+\value{
+a \code{hopit} object that is used by other functions.
+}
 \description{
-Fit generelaized hierarchical ordered threshold models.
+The ordered response data classifies a measure of interest into ordered categories collected during a survey.
+If the dependent variable is a happiness then a respondent typically answers a question:
+“Taking all things together, would you say you are ...? “ and have some response options e.g.
+"very happy", "pretty happy", "not too happy", "very unhappy" \insertCite{Liao2005}{hopit}.
+Similarly if interviewees are asked to evaluate their health in general (e.g. “Would you say your health is ...?”)
+they may choose among several categories, e.g. very good, good, fair, bad, and very bad
+\insertCite{King2004,Jurges2007,Rebelo2014}{hopit}. In political sciences a respondent may be
+asked for an opinion about recent legislation (e.g. “Rate your feelings about the proposed legislation")
+and asked to choose among several categories "strongly oppose", "mildly oppose", "indifferent",
+"mildly support", "strongly support" \insertCite{GreeneHensher2010}{hopit}.
+It is easy to imagine other multi-level ordinal variables that might by use during the survey and
+to which methodology described below could be applied with.\cr
+
+Practically, it is assumed that when responding to a survey question about their general happiness,
+health, feeling, attitude or other status, participants assess their true value of this
+unobserved continuous variable, and project it to a provided discrete scale.
+The thresholds that each individual uses to categorize their true status into a specific response
+option may be affected by the choice of a reference group, earlier life experiences, and cross-cultural
+differences in using scales, and thus, may differ across individuals depending on their gender,
+age, cultural background, education, and personality traits, among other factors.\cr
+
+From the reporting-styles modeling perspective, one of the main tasks is to compute this continuous estimate of individuals’
+underlying, latent measure based on several specific characteristics of the considered response
+(e.g. health variables or happiness variables) and accounting also for variations in reporting across
+socio-demographic and cultural groups. More specifically, to build the latent, underlying measure
+a generalized hierarchical ordered threshold model is fitted, which regresses the reported
+status/attitude/feeling on two sets of independent variables \insertCite{Boes2006,Green2014}{hopit}.
+When a dependent reported ordered variable is self-rated health status then the first set of variables
+(health variables) assesses individuals’ specific aspects of health, and might include chronic conditions,
+mobility level, difficulties with a range of daily activities, performance on grip strength test,
+anthropometric measures, lifestyle behaviors, etc. Using the second set of independent variables
+(threshold variables), the model also adjusts for the differences across socio-demographic and cultural
+groups like cultural background, gender, age, education, etc. \insertCite{King2004,Jurges2007}{hopit}.\cr
+
+Ordered threshold models are used to fit ordered categorical dependent variables.
+The generalized ordered threshold models \insertCite{Terza1985,Boes2006,Green2014}{hopit}
+are an extension to the ordered threshold models \insertCite{McKelvey1975}{hopit}.
+In the latter models the thresholds are constant, whereas generalized models allows
+thresholds to be dependent on covariates.
+\insertCite{GreeneHensher2010,Green2014;textual}{hopit} pointed out that also
+thresholds must be ordered so that a model has a sense.
+This motivated Greene and coauthors to call this models \emph{HOPIT}, which stands for hierarchical ordered probit models.
+
+The fitted \emph{hopit} model is used to analyse reporting styles. See \code{\link{standardizeCoef}}, \code{\link{latentIndex}},
+\code{\link{getCutPoints}}, and \code{\link{getLevels}}.
 }
 \details{
-See \insertCite{Jurges2007;textual}{hopit}
+The function fits generelaized hierarchical ordered threshold models, which ca be used to analyse reporting styles.\cr
+
+\code{latent.formula} models latent variable. \cr
+if the response variable is self-rated health then latent measure can depend on different health
+conditions and diseases (latent variables are called health variables).
+Health variables are modeled with parallel regression assumption. According to the assumption, coefficients,
+which describe the relationship between lowest and all higher response categories, are the same as those coefficients,
+which describe the relationship between another (e.g. adjacent) lowest and the remaining higher response categories.
+The predicted latent variable is modeled as a linear function of health variables and corresponding coefficients.\cr
+
+\code{thresh.formula} models threshold variable. \cr
+The thresholds (cut points, \code{alpha}) are modeled by threshold variables \code{gamma} and intercepts \code{lambda}.
+It is assumed that they model contextual characteristics of the respondent (e.g. country, gender, age, etc. ).
+Threshold variables are modeled without parallel regression assumption, thus each threshold is modeled by
+a variable independently \insertCite{Boes2006,Green2014}{hopit}.
+\code{*hopit*}() function uses parametrization of tresholds proposed by \insertCite{Jurges2007;textual}{hopit}.\cr
+}
+\examples{
+# DATA
+data(healthsurvey)
+
+# first determine the order of the dependent variable
+levels(healthsurvey$health)
+
+# Example 1 ---------------------
+
+# the order is decreasing (from best health to the worst health)
+# so we set: decreasing.levels = TRUE
+# fitting the model:
+model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
+                heart_atack_or_stroke + poor_mobility + very_poor_grip +
+                depression + respiratory_problems +
+                IADL_problems + obese + diabetes + other_diseases,
+              thresh.formula = ~ sex + ageclass + country,
+              decreasing.levels = TRUE,
+              control = list(trace = FALSE),
+              data = healthsurvey)
+
+# summarize the fit:
+summary(model1)
+
+# extract parameters in a form of list
+cm1 <- coef(model1, aslist = TRUE)
+
+# names of returned coefficients
+names(cm1)
+
+# extracting latent health coefficients
+cm1$latent.params
+
+# Checking the fit
+profile(model1)
+
+# Example 2 ---------------------
+
+# incorporating survey design
+design <- svydesign(ids = ~ country + psu, weights = healthsurvey$csw,
+data = healthsurvey)
+
+model2 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
+                  heart_atack_or_stroke + poor_mobility +
+                  very_poor_grip + depression + respiratory_problems +
+                  IADL_problems + obese + diabetes + other_diseases,
+                thresh.formula = ~ sex + ageclass + country,
+                decreasing.levels = TRUE,
+                design = design,
+                control = list(trace = FALSE),
+                data = healthsurvey)
+
+compare latent variables
+cbind('No survey design' = coef(model1, aslist = TRUE)$latent.par,
+'Has survey design' = coef(model2, aslist = TRUE)$latent.par)
+
+# Example 3 ---------------------
+
+# using strata.formula
+model3 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
+                heart_atack_or_stroke + poor_mobility + very_poor_grip +
+                depression + respiratory_problems +
+                IADL_problems + obese + diabetes + other_diseases,
+              thresh.formula = ~ sex + ageclass + country,
+              strata.formula = ~ sex,
+              decreasing.levels = TRUE,
+              control = list(trace = FALSE),
+              data = healthsurvey)
+
+# print the model:
+coef(model3, aslist = TRUE)$latent.params
+
+# compare fit of model1 and model 3
+# Likelihood Ratio Test
+anova(model1, model3)
+
+# AIC
+AIC(model1, model3)
+
+# Example 4 ---------------------
+
+# model with overdispersion
+model4 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
+                heart_atack_or_stroke + poor_mobility + very_poor_grip +
+                depression + respiratory_problems +
+                IADL_problems + obese + diabetes + other_diseases,
+              thresh.formula = ~ sex + ageclass + country,
+              overdispersion = TRUE,
+              decreasing.levels = TRUE,
+              control = list(trace = FALSE),
+              data = healthsurvey)
+
+# estimated variance of the error term:
+getTheta(model4)
+
+# compare fit of model1 and model4
+# Likelihood Ratio Test
+print(anova(model1, model4), short = TRUE)
 }
 \references{
 \insertAllCited{}
+}
+\seealso{
+\code{\link{profile.hopit}}
+\code{\link{coef.hopit}}
+\code{\link{hopit.control}}
+\code{\link{anova.hopit}}
+\code{\link{svydesign}{survey}}
+\code{\link{standardizeCoef}}
+\code{\link{latentIndex}}
+\code{\link{getCutPoints}}
+\code{\link{getLevels}}.
 }
 \author{
 Maciej J. Danko

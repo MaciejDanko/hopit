@@ -3,10 +3,13 @@ library(tinytex)
 #RcppEigen::RcppEigen.package.skeleton()
 #tinytex::install_tinytex(force=TRUE)
 #tinytex::tlmgr(c("info", "--list", "--only-installed", "--data", "name"))
-load("~/Documents/R-PRJ/hopit/data/healthsurvey.rda")
+
+{load("~/Documents/R-PRJ/hopit/data/healthsurvey.rda")
 healthsurvey$contHM <- NULL
 devtools::use_data(healthsurvey, overwrite = TRUE)
 roxygen2::roxygenise()
+}
+
 #R CMD INSTALL --no-multiarch --with-keep.source hopit
 devtools::clean_vignettes()
 devtools::build_vignettes()
