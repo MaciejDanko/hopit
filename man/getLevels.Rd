@@ -2,7 +2,7 @@
 % Please edit documentation in R/reportingstyles.R
 \name{getLevels}
 \alias{getLevels}
-\title{Calcualte adjusted health levels.}
+\title{Summarize adjusted and original response levels.}
 \usage{
 getLevels(model, formula = model$thresh.formula,
   data = environment(model$thresh.formula), decreasing.levels = TRUE,
@@ -13,7 +13,7 @@ getLevels(model, formula = model$thresh.formula,
 \arguments{
 \item{model}{a fitted \code{hopit} model.}
 
-\item{formula}{a formula containing the variables. It is by default set to threshold formula.}
+\item{formula}{a formula containing the grouping variables. It is by default set to threshold formula.}
 
 \item{data}{data used to fit the model.}
 
@@ -33,8 +33,19 @@ getLevels(model, formula = model$thresh.formula,
 
 \item{legbty}{legend box type. See \code{bty} parameter in \code{\link{legend}}.}
 }
+\value{
+a list with following components:
+\item{original}{ .}
+\item{adjused}{ .}
+\item{N.original}{ .}
+\item{N.adjused}{ .}
+\item{I.original}{ .}
+\item{I.adjused}{ .}
+\item{tab}{ .}
+\item{mat}{ .}
+}
 \description{
-Calcualte adjusted health levels according to th Jurges' method.
+Summarize adjusted and original response levels
 }
 \author{
 Maciej J. Danko

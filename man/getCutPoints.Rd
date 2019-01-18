@@ -26,6 +26,11 @@ getCutPoints(model, subset = NULL, plotf = TRUE, mar = c(4, 4, 1, 1),
 
 \item{group.labels.type}{position of the legend. One of \code{middel}, \code{border}, or \code{none}.}
 }
+\value{
+a list with following components:
+\item{cutpoints}{ cutpoints for adjusted categorical response levels with corresponding percentiles of latent index.}
+\item{adjused.levels}{ adjusted categorical response levels for each individual.}
+}
 \description{
 Calcualte threshold cut-points using Jurges' method.
 }

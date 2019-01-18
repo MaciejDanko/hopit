@@ -36,8 +36,8 @@ disabilityWeights(model, ordered = TRUE, plotf = FALSE, plotpval = FALSE,
 \item{...}{arguments passed to \code{\link{boxplot}}.}
 }
 \description{
-Calculate standardized coeficients - disability weights
-computed as the regression parameters from the generalised ordered probit model divided by the maximum possible range
+Calculate standardized coefficients - disability weights
+computed as the latent coefficients from the generalised ordered probit model divided by the maximum possible range
 of its linear prediction. The range is calcualted as difference between maximum and minimum possible value of the latent variable
 given estimated parameters.
 }

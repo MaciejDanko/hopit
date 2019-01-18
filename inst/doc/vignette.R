@@ -126,7 +126,7 @@ z=getCutPoints(model=model3)
 z$cutpoints
 
 #Adjusted health levels for individuals: Jurges method
-rev(table(z$adjused.health.levels))
+rev(table(z$adjused.levels))
 
 #Original health levels for individuals
 table(model3$y_i)
@@ -137,7 +137,7 @@ table(model3$Ey_i)
 ## ---- echo=TRUE, cache=TRUE, fig.height = 4, fig.width = 6, fig.align = "center"----
 # Health levels for combination of age and gender, and pooled country of origin.
 hl <- getLevels(model=model3, formula=~ sex + ageclass, data = healthsurvey, 
-                      sep=' ', plotf=TRUE, legbty = 'n')
+                      sep=' ', plotf=TRUE)
 
 ## ---- echo=TRUE----------------------------------------------------------
 round(100*(hl$original - hl$adjusted),2)

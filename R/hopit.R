@@ -466,7 +466,7 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #'                 control = list(trace = FALSE),
 #'                 data = healthsurvey)
 #'
-#' compare latent variables
+#' # compare latent variables
 #' cbind('No survey design' = coef(model1, aslist = TRUE)$latent.par,
 #' 'Has survey design' = coef(model2, aslist = TRUE)$latent.par)
 #'

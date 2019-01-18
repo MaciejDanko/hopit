@@ -23,7 +23,7 @@ latentIndex <- function(model, decreasing.levels = TRUE,
       response <- tolower(response[1])
       if (response=='data') YY <- model$y_i else if (response=='fitted') YY <- model$Ey_i else if (response=='jurges') {
         z <- getCutPoints(model=model, decreasing.levels = decreasing.levels, plotf = FALSE)
-        YY <- factor(z$adjused.health.levels,levels(model$y_i))
+        YY <- factor(z$adjused.levels,levels(model$y_i))
       } else stop(hopit_msg(83),call.=NULL)
       plot(YY[subset], hi,las=3, ylab=ylab, ...)
     }
@@ -38,8 +38,8 @@ healthIndex <- latentIndex
 
 #' Standardization of coefficients
 #' @description
-#' Calculate standardized coeficients - disability weights
-#' computed as the regression parameters from the generalised ordered probit model divided by the maximum possible range
+#' Calculate standardized coefficients - disability weights
+#' computed as the latent coefficients from the generalised ordered probit model divided by the maximum possible range
 #' of its linear prediction. The range is calcualted as difference between maximum and minimum possible value of the latent variable
 #' given estimated parameters.
 #' @seealso \code{\link{healthIndex}}
@@ -115,6 +115,9 @@ disabilityWeights<-standardizeCoef
 #' @param YLab,YLab.cex label and size of the label for y axis.
 #' @param mar,oma see \code{\link{par}}.
 #' @param group.labels.type position of the legend. One of \code{middel}, \code{border}, or \code{none}.
+#' @return a list with following components:
+#'  \item{cutpoints}{ cutpoints for adjusted categorical response levels with corresponding percentiles of latent index.}
+#'  \item{adjused.levels}{ adjusted categorical response levels for each individual.}
 #' @export
 #' @author Maciej J. Danko
 getCutPoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(0,0,0,0),
@@ -164,18 +167,18 @@ getCutPoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(
       CIN <- CIN + cumsum(duplicated(CIN)*CIN/1e7)
       CIN <- CIN / max(CIN)
     }
-    adjused.health.levels<- cut(h.index, CIN,labels= dorev(levels(Y)))
-  } else adjused.health.levels <- NA
-  res <- list(cutpoints=R1, adjused.health.levels=(adjused.health.levels))
+    adjused.levels<- cut(h.index, CIN,labels= dorev(levels(Y)))
+  } else adjused.levels <- NA
+  res <- list(cutpoints=R1, adjused.levels=(adjused.levels))
   if (plotf) invisible(res) else return(res)
 }
 
 
-#' Calcualte adjusted health levels.
+#' Summarize adjusted and original response levels.
 #' @description
-#' Calcualte adjusted health levels according to th Jurges' method.
+#' Summarize adjusted and original response levels
 #' @param model a fitted \code{hopit} model.
-#' @param formula a formula containing the variables. It is by default set to threshold formula.
+#' @param formula a formula containing the grouping variables. It is by default set to threshold formula.
 #' @param data data used to fit the model.
 #' @param plotf logical indicating if to plot the results.
 #' @param sep separator for levels names.
@@ -185,9 +188,19 @@ getCutPoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(
 #' @param YLab,YLab.cex label and size of the label for y axis.
 #' @param legbg legend background color. See \code{bg} parameter in \code{\link{legend}}.
 #' @param legbty legend box type. See \code{bty} parameter in \code{\link{legend}}.
+#' @return a list with following components:
+#'  \item{original}{ .}
+#'  \item{adjused}{ .}
+#'  \item{N.original}{ .}
+#'  \item{N.adjused}{ .}
+#'  \item{I.original}{ .}
+#'  \item{I.adjused}{ .}
+#'  \item{tab}{ .}
+#'  \item{mat}{ .}
 #' @author Maciej J. Danko
 #' @export
-getLevels<-function(model, formula=model$thresh.formula,
+getLevels<-function(model,
+                    formula=model$thresh.formula,
                     data = environment(model$thresh.formula),
                     decreasing.levels = TRUE,
                     sort.flag = FALSE,
@@ -204,8 +217,8 @@ getLevels<-function(model, formula=model$thresh.formula,
   namind <- inte_$class.mat
   nam <- levels(inte)
   cpall<-getCutPoints(model, plotf = FALSE, decreasing.levels = decreasing.levels)
-  TAB1 <- round(table(original=model$y_i, adjusted=cpall$adjused.health.levels)*100/length(model$y_i),2)
-  tmp <- untable(t(table(factor(model$y_i,levels=levels(cpall$adjused.health.levels)), inte)))
+  TAB1 <- round(table(original=model$y_i, adjusted=cpall$adjused.levels)*100/length(model$y_i),2)
+  tmp <- untable(t(table(factor(model$y_i,levels=levels(cpall$adjused.levels)), inte)))
   N1 <- tmp
   tmp <-tmp/rowSums(tmp)
   if (sort.flag) {
@@ -214,7 +227,7 @@ getLevels<-function(model, formula=model$thresh.formula,
     orignalind <- namind[oD1,]
   } else orignalind <- namind
 
-  tmp2 <- untable(t(table(cpall$adjused.health.levels, inte)))
+  tmp2 <- untable(t(table(cpall$adjused.levels, inte)))
   N2 <- tmp2
   tmp2 <- tmp2/rowSums(tmp2)
   if (sort.flag) {
@@ -245,7 +258,7 @@ getLevels<-function(model, formula=model$thresh.formula,
               I.adjusted= adjustedind,
               mat=cbind(inte_$mat,
                       original= model$y_i,
-                      adjusted= cpall$adjused.health.levels))
+                      adjusted= cpall$adjused.levels))
   class(res) <- 'healthlevels'
   if (plotf) invisible(res) else return(res)
 }
