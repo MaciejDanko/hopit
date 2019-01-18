@@ -352,9 +352,9 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' @param latent.formula formula used to model latent variable.
 #' @param thresh.formula formula used to model threshold variable.
 #' Any dependent variable (left side of "~") will be ignored.
-#' @param strata.formula formula used to model "stratified" latent variables.
-#' Each term in this formula will be interacted with all latent variables.
-#' Each term will be added to \code{threshold.formula}, while interaction will be added to the \code{latent.formula}.
+#' @param strata.formula formula used to model interactions between threshold and latent variables.
+#' Each term in this formula will be interacted with all latent variables then and added to the \code{latent.formula}.
+#' Each term in this formula will be also added to \code{threshold.formula}.
 #' Any dependent variable (left side of "~") will be ignored.
 #' @param data a data frame including all modeled variables.
 #' @param decreasing.levels logical indicating if self-reported health classes are ordered in decreasing order.
@@ -393,8 +393,8 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #'  \item{AIC}{ AIC for models without survey design.}
 #'  \item{vcov}{ variance-covariance matrix.}
 #'  \item{hessian}{ hessian matrix.}
-#'  \item{estfun}{ gradient of log likelihood at estimated coefficient values.}
-#'  \item{YYY1,YYY2,YY3}{ internal objects used for calcualtion gradient and hessian functions.}
+#'  \item{estfun}{ gradient of the log likelihood function at estimated coefficient values.}
+#'  \item{YYY1,YYY2,YY3}{ internal objects used for calcualtion of gradient and hessian functions.}
 #'  \item{use.weights,vcov.basic,glm.start,glm.start.ls}{ other internal objects.}
 #' @references \insertAllCited{}
 #' @export
