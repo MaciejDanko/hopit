@@ -126,14 +126,13 @@ z=getCutPoints(model=model3)
 z$cutpoints
 
 #Adjusted health levels for individuals: Jurges method
-table(z$adjused.health.levels)
-
-#Adjusted health levels for individuals: Estimated model thresholds
-table(model3$Ey_i)
+rev(table(z$adjused.health.levels))
 
 #Original health levels for individuals
 table(model3$y_i)
 
+#Adjusted health levels for individuals: Estimated model thresholds
+table(model3$Ey_i)
 
 ## ---- echo=TRUE, cache=TRUE, fig.height = 4, fig.width = 6, fig.align = "center"----
 # Health levels for combination of age and gender, and pooled country of origin.

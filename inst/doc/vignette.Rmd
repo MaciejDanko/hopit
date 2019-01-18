@@ -324,14 +324,13 @@ z=getCutPoints(model=model3)
 z$cutpoints
 
 #Adjusted health levels for individuals: Jurges method
-table(z$adjused.health.levels)
-
-#Adjusted health levels for individuals: Estimated model thresholds
-table(model3$Ey_i)
+rev(table(z$adjused.health.levels))
 
 #Original health levels for individuals
 table(model3$y_i)
 
+#Adjusted health levels for individuals: Estimated model thresholds
+table(model3$Ey_i)
 ```
 
 The analysis of health levels is done by *getLevels*() function
