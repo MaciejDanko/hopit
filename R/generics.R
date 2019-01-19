@@ -238,6 +238,9 @@ AIC.hopit<-function(object, ..., k = 2L) {
 #' # print results in shorter form
 #' print(lrt1, short = TRUE)
 #'
+#' # equivalently
+#' lrt.hopit(model2, model1)
+#'
 #' # Example 2 ---------------------
 #'
 #' # fitting additional nested models
@@ -332,13 +335,53 @@ print.anova.hopit <- function(x, ...){
   invisible(NULL)
 }
 
+
 #' Likelihood ratio test for a pair of models
 #'
 #' @param full,nested Models to be compared.
 #' @keywords internal
+#' @return a vector with results of the test
 #' @export
 #' @author Maciej J. Danko
 #' @seealso \code{\link{print.lrt.hopit}}, \code{\link{anova.hopit}}, \code{\link{hopit}}.
+#' @examples
+#' # DATA
+#' data(healthsurvey)
+#'
+#' # the order of response levels is decreasing (from the best health to the worst health)
+#' levels(healthsurvey$health)
+#'
+#' # Example 1 ---------------------
+#'
+#' # fitting two nested models
+#' model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
+#'                 heart_atack_or_stroke + poor_mobility + very_poor_grip +
+#'                 depression + respiratory_problems +
+#'                 IADL_problems + obese + diabetes + other_diseases,
+#'               thresh.formula = ~ sex + ageclass + country,
+#'               decreasing.levels = TRUE,
+#'               control = list(trace = FALSE),
+#'               data = healthsurvey)
+#'
+#' # model with interaction between hypertenssion and high_cholesterol
+#' model2 <- hopit(latent.formula = health ~ hypertenssion * high_cholesterol +
+#'                 heart_atack_or_stroke + poor_mobility + very_poor_grip +
+#'                 depression + respiratory_problems +
+#'                 IADL_problems + obese + diabetes + other_diseases,
+#'               thresh.formula = ~ sex + ageclass + country,
+#'               decreasing.levels = TRUE,
+#'               control = list(trace = FALSE),
+#'               data = healthsurvey)
+#'
+#' # Likelihood ratio test
+#' lrt1 <- lrt.hopit(full = model2, nested = model1)
+#' lrt1
+#'
+#' # print results in shorter form
+#' print(lrt1, short = TRUE)
+#'
+#' # equivalently
+#' print(anova(model2, model1), short = TRUE)
 lrt.hopit <- function(full, nested){
   if (!identical(full$design, nested$design)) stop(hopit_msg(51),call. = NULL)
   if (length(full$coef) + full$hasdisp <= length(nested$coef)+ nested$hasdisp) stop(hopit_msg(52),call. = NULL)

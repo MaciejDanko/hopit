@@ -59,6 +59,9 @@ lrt1
 # print results in shorter form
 print(lrt1, short = TRUE)
 
+# equivalently
+lrt.hopit(model2, model1)
+
 # Example 2 ---------------------
 
 # fitting additional nested models

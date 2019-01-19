@@ -9,8 +9,50 @@ lrt.hopit(full, nested)
 \arguments{
 \item{full, nested}{Models to be compared.}
 }
+\value{
+a vector with results of the test
+}
 \description{
 Likelihood ratio test for a pair of models
+}
+\examples{
+# DATA
+data(healthsurvey)
+
+# the order of response levels is decreasing (from the best health to the worst health)
+levels(healthsurvey$health)
+
+# Example 1 ---------------------
+
+# fitting two nested models
+model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
+                heart_atack_or_stroke + poor_mobility + very_poor_grip +
+                depression + respiratory_problems +
+                IADL_problems + obese + diabetes + other_diseases,
+              thresh.formula = ~ sex + ageclass + country,
+              decreasing.levels = TRUE,
+              control = list(trace = FALSE),
+              data = healthsurvey)
+
+# model with interaction between hypertenssion and high_cholesterol
+model2 <- hopit(latent.formula = health ~ hypertenssion * high_cholesterol +
+                heart_atack_or_stroke + poor_mobility + very_poor_grip +
+                depression + respiratory_problems +
+                IADL_problems + obese + diabetes + other_diseases,
+              thresh.formula = ~ sex + ageclass + country,
+              decreasing.levels = TRUE,
+              control = list(trace = FALSE),
+              data = healthsurvey)
+
+# Likelihood ratio test
+lrt1 <- lrt.hopit(full = model2, nested = model1)
+lrt1
+
+# print results in shorter form
+print(lrt1, short = TRUE)
+
+# equivalently
+print(anova(model2, model1), short = TRUE)
 }
 \seealso{
 \code{\link{print.lrt.hopit}}, \code{\link{anova.hopit}}, \code{\link{hopit}}.
