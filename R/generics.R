@@ -187,25 +187,95 @@ AIC.hopit<-function(object, ..., k = 2L) {
   res
 }
 
-#' LRT Tables
+#' Likelihood Ratio Test Tables
 #'
 #' Compute likelihood rato test for two or more \code{hopit} objecs.
 #' @param object an object containing the results returned by a \code{hopit}.
 #' @param ...	additional objects of the same type.
 #' @param method the method of model comparison. Choose \code{"sequential"} for 1-2, 2-3, 3-4, ... comparisons or
-#' \code{"with.first"} for 1-2, 1-3, 1-4, ... comparisons.
+#' \code{"with.most.complex"} for 1-2, 1-3, 1-4, ... comparisons, where 1 is the most complex model.
 #' @param direction determine if complexity of listed models is \code{"increasing"} or \code{"decreasing"} (default).
 # @keywords internal
-#' @usage \method{anova}{hopit}(object, ..., method = c("sequential", "with.first"),
+#' @usage \method{anova}{hopit}(object, ..., method = c("sequential", "with.most.complex", 'with.least.complex'),
 #' direction = c("decreasing", "increasing"))
 #' @export
-#' @return \code{lrt.hopit} or \code{anova.hopit} objects.
+#' @return a vector or a matrix with results of the test(s).
 #' @author Maciej J. Danko
 #' @seealso \code{\link{print.anova.hopit}}, \code{\link{print.lrt.hopit}}, \code{\link{lrt.hopit}}, \code{\link{hopit}}.
-anova.hopit<-function(object, ..., method = c('sequential', 'with.first'), direction = c('decreasing', 'increasing')){
+#' @examples
+#' # DATA
+#' data(healthsurvey)
+#'
+#' # the order of response levels is decreasing (from the best health to the worst health)
+#' levels(healthsurvey$health)
+#'
+#' # Example 1 ---------------------
+#'
+#' # fitting two nested models
+#' model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
+#'                 heart_atack_or_stroke + poor_mobility + very_poor_grip +
+#'                 depression + respiratory_problems +
+#'                 IADL_problems + obese + diabetes + other_diseases,
+#'               thresh.formula = ~ sex + ageclass + country,
+#'               decreasing.levels = TRUE,
+#'               control = list(trace = FALSE),
+#'               data = healthsurvey)
+#'
+#' # model with interaction between hypertenssion and high_cholesterol
+#' model2 <- hopit(latent.formula = health ~ hypertenssion * high_cholesterol +
+#'                 heart_atack_or_stroke + poor_mobility + very_poor_grip +
+#'                 depression + respiratory_problems +
+#'                 IADL_problems + obese + diabetes + other_diseases,
+#'               thresh.formula = ~ sex + ageclass + country,
+#'               decreasing.levels = TRUE,
+#'               control = list(trace = FALSE),
+#'               data = healthsurvey)
+#'
+#' # Likelihood ratio test
+#' lrt1 <- anova(model1, model2)
+#' lrt1
+#'
+#' # print results in shorter form
+#' print(lrt1, short = TRUE)
+#'
+#' # Example 2 ---------------------
+#'
+#' # fitting additional nested models
+#' model3 <- hopit(latent.formula = health ~ hypertenssion * high_cholesterol +
+#'                 heart_atack_or_stroke + poor_mobility + very_poor_grip +
+#'                 depression + respiratory_problems +
+#'                 IADL_problems + obese * diabetes + other_diseases,
+#'               thresh.formula = ~ sex + ageclass + country,
+#'               decreasing.levels = TRUE,
+#'               control = list(trace = FALSE),
+#'               data = healthsurvey)
+#'
+#' model4 <- hopit(latent.formula = health ~ hypertenssion * high_cholesterol +
+#'                 heart_atack_or_stroke + poor_mobility + very_poor_grip +
+#'                 depression + respiratory_problems +
+#'                 IADL_problems + obese * diabetes + other_diseases,
+#'               thresh.formula = ~ sex * ageclass + country,
+#'               decreasing.levels = TRUE,
+#'               control = list(trace = FALSE),
+#'               data = healthsurvey)
+#'
+#' # sequential likelihood ratio tests
+#' # model complexity increases so direction = "increasing"
+#' anova(model1, model2, model3, model4,
+#'       direction = "increasing", method = "sequential")
+#'
+#' # likelihood ratio tests of the most complex model with the rest
+#' anova(model1, model2, model3, model4,
+#'       direction = "increasing", method = "with.most.complex")
+#'
+#' # likelihood ratio tests of the least complex model with the rest
+#' anova(model1, model2, model3, model4,
+#'       direction = "increasing", method = "with.least.complex")
+anova.hopit<-function(object, ..., method = c('sequential', 'with.most.complex', 'with.least.complex'),
+                      direction = c('decreasing', 'increasing')){
 
-  method <- match.arg(method)
-  direction <- match.arg(direction)
+  method <- tolower(match.arg(method))
+  direction <- tolower(match.arg(direction))
   if (length(list(object, ...)) > 1L) {
     objects <- list(object, ...)
     tmp <- deparse(substitute(list(object, ...)))
@@ -220,17 +290,23 @@ anova.hopit<-function(object, ..., method = c('sequential', 'with.first'), direc
   } else {
     out <- NULL
     rna <- NULL
-    if (direction == 'increasing') objects <- objects[length(objects) : 1L] else if (direction != 'decreasing')
+    if (direction == 'increasing') {
+      objects <- rev(objects)
+      ob.nam  <- rev(ob.nam)
+    } else if (direction != 'decreasing')
       stop(call.=NULL, hopit_msg(50))
     for (k in 1L : (length(objects) - 1L)) {
-      if (tolower(method) == 'sequential'){
-        tmp <- lrt.hopit(objects[[k]], objects[[k + 1L]]) # try models mut be of decreasing complexity, silent = F
+      if (method == 'sequential'){
+        tmp <- lrt.hopit(objects[[k]], objects[[k + 1L]]) # try models must be of decreasing complexity, silent = F
         rna <- c(rna, paste(ob.nam[k], 'vs.', ob.nam[k + 1L], sep = ' '))
-      } else if (tolower(method) == 'with.first') {
+      } else if (method == 'with.most.complex') {
         tmp <- lrt.hopit(objects[[1L]], objects[[k + 1L]]) # the first model must be the most complex,  silent = F
-        rna <- c(rna, paste(ob.nam[1L], 'vs', ob.nam[k + 1L], sep = ''))
-      } else
-        out <- rbind(out, c('Chi^2' = tmp$chisq, df = tmp$df, 'Pr(>Chi^2)' = tmp$pval))
+        rna <- c(rna, paste(ob.nam[1L], 'vs.', ob.nam[k + 1L], sep = ' '))
+      } else if (method == 'with.least.complex') {
+        tmp <- lrt.hopit(objects[[k]], objects[[length(objects)]]) # the first model must be the most complex,  silent = F
+        rna <- c(rna, paste( ob.nam[k], 'vs.', ob.nam[length(objects)], sep = ' '))
+      }
+      out <- rbind(out, c('Chi^2' = tmp$chisq, df = tmp$df, 'Pr(>Chi^2)' = tmp$pval))
     }
     rownames(out) <- rna
     if (direction == 'increasing') out <- out[dim(out)[1L] : 1L,]

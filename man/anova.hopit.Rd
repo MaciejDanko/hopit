@@ -2,9 +2,9 @@
 % Please edit documentation in R/generics.R
 \name{anova.hopit}
 \alias{anova.hopit}
-\title{LRT Tables}
+\title{Likelihood Ratio Test Tables}
 \usage{
-\method{anova}{hopit}(object, ..., method = c("sequential", "with.first"),
+\method{anova}{hopit}(object, ..., method = c("sequential", "with.most.complex", 'with.least.complex'),
 direction = c("decreasing", "increasing"))
 }
 \arguments{
@@ -13,15 +13,85 @@ direction = c("decreasing", "increasing"))
 \item{...}{additional objects of the same type.}
 
 \item{method}{the method of model comparison. Choose \code{"sequential"} for 1-2, 2-3, 3-4, ... comparisons or
-\code{"with.first"} for 1-2, 1-3, 1-4, ... comparisons.}
+\code{"with.most.complex"} for 1-2, 1-3, 1-4, ... comparisons, where 1 is the most complex model.}
 
 \item{direction}{determine if complexity of listed models is \code{"increasing"} or \code{"decreasing"} (default).}
 }
 \value{
-\code{lrt.hopit} or \code{anova.hopit} objects.
+a vector or a matrix with results of the test(s).
 }
 \description{
 Compute likelihood rato test for two or more \code{hopit} objecs.
+}
+\examples{
+# DATA
+data(healthsurvey)
+
+# the order of response levels is decreasing (from the best health to the worst health)
+levels(healthsurvey$health)
+
+# Example 1 ---------------------
+
+# fitting two nested models
+model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
+                heart_atack_or_stroke + poor_mobility + very_poor_grip +
+                depression + respiratory_problems +
+                IADL_problems + obese + diabetes + other_diseases,
+              thresh.formula = ~ sex + ageclass + country,
+              decreasing.levels = TRUE,
+              control = list(trace = FALSE),
+              data = healthsurvey)
+
+# model with interaction between hypertenssion and high_cholesterol
+model2 <- hopit(latent.formula = health ~ hypertenssion * high_cholesterol +
+                heart_atack_or_stroke + poor_mobility + very_poor_grip +
+                depression + respiratory_problems +
+                IADL_problems + obese + diabetes + other_diseases,
+              thresh.formula = ~ sex + ageclass + country,
+              decreasing.levels = TRUE,
+              control = list(trace = FALSE),
+              data = healthsurvey)
+
+# Likelihood ratio test
+lrt1 <- anova(model1, model2)
+lrt1
+
+# print results in shorter form
+print(lrt1, short = TRUE)
+
+# Example 2 ---------------------
+
+# fitting additional nested models
+model3 <- hopit(latent.formula = health ~ hypertenssion * high_cholesterol +
+                heart_atack_or_stroke + poor_mobility + very_poor_grip +
+                depression + respiratory_problems +
+                IADL_problems + obese * diabetes + other_diseases,
+              thresh.formula = ~ sex + ageclass + country,
+              decreasing.levels = TRUE,
+              control = list(trace = FALSE),
+              data = healthsurvey)
+
+model4 <- hopit(latent.formula = health ~ hypertenssion * high_cholesterol +
+                heart_atack_or_stroke + poor_mobility + very_poor_grip +
+                depression + respiratory_problems +
+                IADL_problems + obese * diabetes + other_diseases,
+              thresh.formula = ~ sex * ageclass + country,
+              decreasing.levels = TRUE,
+              control = list(trace = FALSE),
+              data = healthsurvey)
+
+# sequential likelihood ratio tests
+# model complexity increases so direction = "increasing"
+anova(model1, model2, model3, model4,
+      direction = "increasing", method = "sequential")
+
+# likelihood ratio tests of the most complex model with the rest
+anova(model1, model2, model3, model4,
+      direction = "increasing", method = "with.most.complex")
+
+# likelihood ratio tests of the least complex model with the rest
+anova(model1, model2, model3, model4,
+      direction = "increasing", method = "with.least.complex")
 }
 \seealso{
 \code{\link{print.anova.hopit}}, \code{\link{print.lrt.hopit}}, \code{\link{lrt.hopit}}, \code{\link{hopit}}.
