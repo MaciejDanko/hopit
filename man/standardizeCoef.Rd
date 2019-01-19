@@ -35,14 +35,45 @@ disabilityWeights(model, ordered = TRUE, plotf = FALSE, plotpval = FALSE,
 
 \item{...}{arguments passed to \code{\link{boxplot}}.}
 }
+\value{
+a vector with standardized coefficients.
+}
 \description{
 Calculate standardized coefficients - disability weights
 computed as the latent coefficients from the generalised ordered probit model divided by the maximum possible range
 of its linear prediction. The range is calcualted as difference between maximum and minimum possible value of the latent variable
 given estimated parameters.
 }
+\examples{
+# DATA
+data(healthsurvey)
+
+# the order of response levels is decreasing (from the best health to the worst health)
+levels(healthsurvey$health)
+
+# Example 1 ---------------------
+
+# fitting a model
+model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
+                heart_atack_or_stroke + poor_mobility + very_poor_grip +
+                depression + respiratory_problems +
+                IADL_problems + obese + diabetes + other_diseases,
+              thresh.formula = ~ sex + ageclass + country,
+              decreasing.levels = TRUE,
+              control = list(trace = FALSE),
+              data = healthsurvey)
+
+# A function that modifies coefficient names.
+txtfun <- function(x) gsub('_',' ',substr(x,1,nchar(x)-3))
+
+# Calcualte and plot disability weights
+sc <- standardizeCoef(model1, plotf = TRUE, namesf = txtfun)
+sc
+}
 \seealso{
 \code{\link{healthIndex}}
+
+\code{\link{latentIndex}}, \code{\link{getCutPoints}}, \code{\link{getLevels}}, \code{\link{hopit}}.
 }
 \author{
 Maciej J. Danko

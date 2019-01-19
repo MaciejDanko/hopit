@@ -1,7 +1,7 @@
 #' @noRd
 #' @keywords internal
 hopit_msg <- function(x) switch(x,
-  '1'  = 'Missing parcount in model object.',
+  '1'  = 'Missing "$parcount" in model object.',
   '2'  = 'Missing model coefficients.',
   '3'  = 'Wrong number of parameters.',
   '4'  = 'Lambda must be given.',

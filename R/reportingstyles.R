@@ -10,8 +10,46 @@
 #' @param response X axis plotting option, choose \code{'data'} for raw responses and \code{'fitted'} for model reclassified responses
 #' @param ylab a label of y axis.
 #' @param ... futher parameters passedto the \code{\link{plot}} function.
+#' @return a vector with latent index for each individual.
 #' @author Maciej J. Danko
 #' @export
+#' @seealso \code{\link{standardizeCoef}}, \code{\link{getCutPoints}}, \code{\link{getLevels}}, \code{\link{hopit}}.
+#' @examples
+#' # DATA
+#' data(healthsurvey)
+#'
+#' # the order of response levels is decreasing (from the best health to the worst health)
+#' levels(healthsurvey$health)
+#'
+#' # Example 1 ---------------------
+#'
+#' # fitting a model
+#' model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
+#'                 heart_atack_or_stroke + poor_mobility + very_poor_grip +
+#'                 depression + respiratory_problems +
+#'                 IADL_problems + obese + diabetes + other_diseases,
+#'               thresh.formula = ~ sex + ageclass + country,
+#'               decreasing.levels = TRUE,
+#'               control = list(trace = FALSE),
+#'               data = healthsurvey)
+#'
+#' # calculate health index and plotting reported health status
+#' # vs. health index.
+#' hi <- latentIndex(model1, plotf = TRUE, response = "data",
+#'                   ylab = 'Health index', col='deepskyblue3')
+#'
+#' # a simple histogram of the function output
+#' hist(hi)
+#'
+#' # calculate health index and plotting adjusted health status (@Jurges2007)
+#' # vs. health index.
+#' latentIndex(model3, plotf = TRUE, response = "Jurges",
+#'                  ylab = 'Health index', col='deepskyblue3')
+#'
+#' # calculate health index and plotting predicted health status
+#' # vs. health index.
+#' latentIndex(model3, plotf = TRUE, response = "fitted",
+#'                  ylab = 'Health index', col='deepskyblue3')
 latentIndex <- function(model, decreasing.levels = TRUE,
                         subset = NULL, plotf = FALSE,
                         response = c('data','fitted','Jurges'),
@@ -52,8 +90,35 @@ healthIndex <- latentIndex
 #' @param namesf vectorof names of coeficients or one argument function that modifies names of coeficients.
 #' @param ... arguments passed to \code{\link{boxplot}}.
 #' @name standardizeCoef
+#' @return a vector with standardized coefficients.
 #' @author Maciej J. Danko
 #' @export
+#' @seealso \code{\link{latentIndex}}, \code{\link{getCutPoints}}, \code{\link{getLevels}}, \code{\link{hopit}}.
+#' @examples
+#' # DATA
+#' data(healthsurvey)
+#'
+#' # the order of response levels is decreasing (from the best health to the worst health)
+#' levels(healthsurvey$health)
+#'
+#' # Example 1 ---------------------
+#'
+#' # fitting a model
+#' model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
+#'                 heart_atack_or_stroke + poor_mobility + very_poor_grip +
+#'                 depression + respiratory_problems +
+#'                 IADL_problems + obese + diabetes + other_diseases,
+#'               thresh.formula = ~ sex + ageclass + country,
+#'               decreasing.levels = TRUE,
+#'               control = list(trace = FALSE),
+#'               data = healthsurvey)
+#'
+#' # A function that modifies coefficient names.
+#' txtfun <- function(x) gsub('_',' ',substr(x,1,nchar(x)-3))
+#'
+#' # Calcualte and plot disability weights
+#' sc <- standardizeCoef(model1, plotf = TRUE, namesf = txtfun)
+#' sc
 standardizeCoef <- function (model,
                              ordered = TRUE,
                              plotf = FALSE,

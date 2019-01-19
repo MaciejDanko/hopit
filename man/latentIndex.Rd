@@ -26,10 +26,53 @@ healthIndex(model, decreasing.levels = TRUE, subset = NULL, plotf = FALSE,
 
 \item{...}{futher parameters passedto the \code{\link{plot}} function.}
 }
+\value{
+a vector with latent index for each individual.
+}
 \description{
 Calcualte latent index from the latent variable. It takes values from 0 to 1, where
 zero is prescribed to the worse predicted state (maximal observed value fo the latent variable) and 1 is prescribed
 to the best predicted health (minimal observed value fo the latent variable).
+}
+\examples{
+# DATA
+data(healthsurvey)
+
+# the order of response levels is decreasing (from the best health to the worst health)
+levels(healthsurvey$health)
+
+# Example 1 ---------------------
+
+# fitting a model
+model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
+                heart_atack_or_stroke + poor_mobility + very_poor_grip +
+                depression + respiratory_problems +
+                IADL_problems + obese + diabetes + other_diseases,
+              thresh.formula = ~ sex + ageclass + country,
+              decreasing.levels = TRUE,
+              control = list(trace = FALSE),
+              data = healthsurvey)
+
+# calculate health index and plotting reported health status
+# vs. health index.
+hi <- latentIndex(model1, plotf = TRUE, response = "data",
+                  ylab = 'Health index', col='deepskyblue3')
+
+# a simple histogram of the function output
+hist(hi)
+
+# calculate health index and plotting adjusted health status (@Jurges2007)
+# vs. health index.
+latentIndex(model3, plotf = TRUE, response = "Jurges",
+                 ylab = 'Health index', col='deepskyblue3')
+
+# calculate health index and plotting predicted health status
+# vs. health index.
+latentIndex(model3, plotf = TRUE, response = "fitted",
+                 ylab = 'Health index', col='deepskyblue3')
+}
+\seealso{
+\code{\link{standardizeCoef}}, \code{\link{getCutPoints}}, \code{\link{getLevels}}, \code{\link{hopit}}.
 }
 \author{
 Maciej J. Danko
