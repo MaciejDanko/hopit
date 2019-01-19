@@ -61,15 +61,18 @@ hi <- latentIndex(model1, plotf = TRUE, response = "data",
 # a simple histogram of the function output
 hist(hi)
 
-# calculate health index and plotting adjusted health status (@Jurges2007)
+# calculate health index and plotting adjusted health status (Jurges 2007)
 # vs. health index.
-latentIndex(model3, plotf = TRUE, response = "Jurges",
+latentIndex(model1, plotf = TRUE, response = "Jurges",
                  ylab = 'Health index', col='deepskyblue3')
 
 # calculate health index and plotting predicted health status
 # vs. health index.
-latentIndex(model3, plotf = TRUE, response = "fitted",
+latentIndex(model1, plotf = TRUE, response = "fitted",
                  ylab = 'Health index', col='deepskyblue3')
+}
+\references{
+\insertRef{Jurges2007}{hopit}
 }
 \seealso{
 \code{\link{standardizeCoef}}, \code{\link{getCutPoints}}, \code{\link{getLevels}}, \code{\link{hopit}}.

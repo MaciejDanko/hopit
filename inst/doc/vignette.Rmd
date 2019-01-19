@@ -318,18 +318,18 @@ hi <- latentIndex(model3, plotf = TRUE, response = "Jurges",
 The central part of reporting styles analyses is to determine the cut-points used to calculate adjusted health status for each individual. The calculation and plotting of cut-points is realized by *getCutPoints*() function.
 
 ```{r, echo=TRUE, fig.height = 4, fig.width = 5, fig.align = "center"}
-z=getCutPoints(model=model3)
+z <- getCutPoints(model=model3)
 
 # Health index cut-points
 z$cutpoints
 
-#Adjusted health levels for individuals: Jurges method
+# Adjusted health levels for individuals: Jurges method
 rev(table(z$adjused.levels))
 
-#Original health levels for individuals
+# Original health levels for individuals
 table(model3$y_i)
 
-#Adjusted health levels for individuals: Estimated model thresholds
+# Adjusted health levels for individuals: Estimated model thresholds
 table(model3$Ey_i)
 ```
 

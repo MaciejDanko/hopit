@@ -70,9 +70,10 @@ txtfun <- function(x) gsub('_',' ',substr(x,1,nchar(x)-3))
 sc <- standardizeCoef(model1, plotf = TRUE, namesf = txtfun)
 sc
 }
+\references{
+\insertRef{Jurges2007}{hopit}
+}
 \seealso{
-\code{\link{healthIndex}}
-
 \code{\link{latentIndex}}, \code{\link{getCutPoints}}, \code{\link{getLevels}}, \code{\link{hopit}}.
 }
 \author{

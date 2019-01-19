@@ -120,18 +120,18 @@ hi <- latentIndex(model3, plotf = TRUE, response = "Jurges",
                   ylab = 'Health index', col='deepskyblue3')
 
 ## ---- echo=TRUE, fig.height = 4, fig.width = 5, fig.align = "center"-----
-z=getCutPoints(model=model3)
+z <- getCutPoints(model=model3)
 
 # Health index cut-points
 z$cutpoints
 
-#Adjusted health levels for individuals: Jurges method
+# Adjusted health levels for individuals: Jurges method
 rev(table(z$adjused.levels))
 
-#Original health levels for individuals
+# Original health levels for individuals
 table(model3$y_i)
 
-#Adjusted health levels for individuals: Estimated model thresholds
+# Adjusted health levels for individuals: Estimated model thresholds
 table(model3$Ey_i)
 
 ## ---- echo=TRUE, cache=TRUE, fig.height = 4, fig.width = 6, fig.align = "center"----

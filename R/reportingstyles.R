@@ -11,6 +11,7 @@
 #' @param ylab a label of y axis.
 #' @param ... futher parameters passedto the \code{\link{plot}} function.
 #' @return a vector with latent index for each individual.
+#' @references \insertRef{Jurges2007}{hopit}
 #' @author Maciej J. Danko
 #' @export
 #' @seealso \code{\link{standardizeCoef}}, \code{\link{getCutPoints}}, \code{\link{getLevels}}, \code{\link{hopit}}.
@@ -41,14 +42,14 @@
 #' # a simple histogram of the function output
 #' hist(hi)
 #'
-#' # calculate health index and plotting adjusted health status (@Jurges2007)
+#' # calculate health index and plotting adjusted health status (Jurges 2007)
 #' # vs. health index.
-#' latentIndex(model3, plotf = TRUE, response = "Jurges",
+#' latentIndex(model1, plotf = TRUE, response = "Jurges",
 #'                  ylab = 'Health index', col='deepskyblue3')
 #'
 #' # calculate health index and plotting predicted health status
 #' # vs. health index.
-#' latentIndex(model3, plotf = TRUE, response = "fitted",
+#' latentIndex(model1, plotf = TRUE, response = "fitted",
 #'                  ylab = 'Health index', col='deepskyblue3')
 latentIndex <- function(model, decreasing.levels = TRUE,
                         subset = NULL, plotf = FALSE,
@@ -58,7 +59,7 @@ latentIndex <- function(model, decreasing.levels = TRUE,
   r <- range(model$y_latent_i[subset])
   hi <- (1 - ((model$y_latent_i - r[1]) / diff(r)))[subset]
     if (plotf) {
-      response <- tolower(response[1])
+      response <- tolower(match.arg(response))
       if (response=='data') YY <- model$y_i else if (response=='fitted') YY <- model$Ey_i else if (response=='jurges') {
         z <- getCutPoints(model=model, decreasing.levels = decreasing.levels, plotf = FALSE)
         YY <- factor(z$adjused.levels,levels(model$y_i))
@@ -80,7 +81,6 @@ healthIndex <- latentIndex
 #' computed as the latent coefficients from the generalised ordered probit model divided by the maximum possible range
 #' of its linear prediction. The range is calcualted as difference between maximum and minimum possible value of the latent variable
 #' given estimated parameters.
-#' @seealso \code{\link{healthIndex}}
 #' @param model a fitted \code{hopit} model.
 #' @param ordered logical indicating if to order the disability weights.
 #' @param plotf logical indicating if to plot results.
@@ -91,6 +91,7 @@ healthIndex <- latentIndex
 #' @param ... arguments passed to \code{\link{boxplot}}.
 #' @name standardizeCoef
 #' @return a vector with standardized coefficients.
+#' @references \insertRef{Jurges2007}{hopit}
 #' @author Maciej J. Danko
 #' @export
 #' @seealso \code{\link{latentIndex}}, \code{\link{getCutPoints}}, \code{\link{getLevels}}, \code{\link{hopit}}.
@@ -183,8 +184,41 @@ disabilityWeights<-standardizeCoef
 #' @return a list with following components:
 #'  \item{cutpoints}{ cutpoints for adjusted categorical response levels with corresponding percentiles of latent index.}
 #'  \item{adjused.levels}{ adjusted categorical response levels for each individual.}
-#' @export
+#' @references \insertRef{Jurges2007}{hopit}
 #' @author Maciej J. Danko
+#' @export
+#' @seealso \code{\link{latentIndex}}, \code{\link{standardiseCoef}}, \code{\link{getLevels}}, \code{\link{hopit}}.
+#' @examples
+#' # DATA
+#' data(healthsurvey)
+#'
+#' # the order of response levels is decreasing (from the best health to the worst health)
+#' levels(healthsurvey$health)
+#'
+#' # Example 1 ---------------------
+#'
+#' # fitting a model
+#' model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
+#'                 heart_atack_or_stroke + poor_mobility + very_poor_grip +
+#'                 depression + respiratory_problems +
+#'                 IADL_problems + obese + diabetes + other_diseases,
+#'               thresh.formula = ~ sex + ageclass + country,
+#'               decreasing.levels = TRUE,
+#'               control = list(trace = FALSE),
+#'               data = healthsurvey)
+#'
+#' # Health index cut-points
+#' z <- getCutPoints(model = model1)
+#' z$cutpoints
+#'
+#' # Adjusted health levels for individuals: Jurges method
+#' rev(table(z$adjused.levels))
+#'
+#' # Original health levels for individuals
+#' table(model1$y_i)
+#'
+#' # Adjusted health levels for individuals: Estimated model thresholds
+#' table(model1$Ey_i)
 getCutPoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(0,0,0,0),
                          XLab='Health index', XLab.cex=1.1, YLab='Counts', YLab.cex=1.1,
                          decreasing.levels=TRUE, group.labels.type=c('middle','border','none')){

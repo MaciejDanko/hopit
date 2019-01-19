@@ -34,6 +34,44 @@ a list with following components:
 \description{
 Calcualte threshold cut-points using Jurges' method.
 }
+\examples{
+# DATA
+data(healthsurvey)
+
+# the order of response levels is decreasing (from the best health to the worst health)
+levels(healthsurvey$health)
+
+# Example 1 ---------------------
+
+# fitting a model
+model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
+                heart_atack_or_stroke + poor_mobility + very_poor_grip +
+                depression + respiratory_problems +
+                IADL_problems + obese + diabetes + other_diseases,
+              thresh.formula = ~ sex + ageclass + country,
+              decreasing.levels = TRUE,
+              control = list(trace = FALSE),
+              data = healthsurvey)
+
+# Health index cut-points
+z <- getCutPoints(model = model1)
+z$cutpoints
+
+# Adjusted health levels for individuals: Jurges method
+rev(table(z$adjused.levels))
+
+# Original health levels for individuals
+table(model1$y_i)
+
+# Adjusted health levels for individuals: Estimated model thresholds
+table(model1$Ey_i)
+}
+\references{
+\insertRef{Jurges2007}{hopit}
+}
+\seealso{
+\code{\link{latentIndex}}, \code{\link{standardiseCoef}}, \code{\link{getLevels}}, \code{\link{hopit}}.
+}
 \author{
 Maciej J. Danko
 }
