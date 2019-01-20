@@ -16,6 +16,12 @@ boot_hopit_CI(boot, alpha = 0.05, bounds = c("both", "lo", "up"))
 \description{
 Calculating Confidence Intervals using percentile method
 }
+\examples{
+# see examples in boot_hopit() function.
+}
+\seealso{
+\code{\link{boot_hopit}}, \code{\link{getLevels}}, \code{\link{getCutPoints}}, \code{\link{latentIndex}}, \code{\link{standardiseCoef}}, \code{\link{hopit}}.
+}
 \author{
 Maciej J. Danko
 }

@@ -4,7 +4,8 @@
 \alias{boot_hopit}
 \title{Bootstraping hopit model}
 \usage{
-boot_hopit(model, data, func, nboot = 500, unlist = TRUE, ...)
+boot_hopit(model, data, func, nboot = 500, unlist = TRUE,
+  boot.only.latent = TRUE, ...)
 }
 \arguments{
 \item{model}{a fitted \code{Hopit} model.}
@@ -17,10 +18,82 @@ boot_hopit(model, data, func, nboot = 500, unlist = TRUE, ...)
 
 \item{unlist}{logical indicting if to unlist boot object.}
 
+\item{boot.only.latent}{logical indicating if to perform the bootstrap only on latent variables.}
+
 \item{...}{other parameters passed to the \code{func}.}
 }
+\value{
+a list with bootstraped elements.
+}
 \description{
-Bootstraping hopit model
+\code{boot_hopit} performs bootstrap of a function dependent on fitted model.
+In each of the bootstrap repetitions a set of new model coefficients is drawn from the multivariate normal distribution,
+assuming originally estimated model coefficients (see \code{\link{coef.hopit}})
+as a mean and using model variance-covariance matrix (see \code{\link{vcov.hopit}}).
+The drawn coefficients are then used to calculate the measure of interest using a function delivered by \code{func} parameter.
+}
+\examples{
+# DATA
+data(healthsurvey)
+
+# the order of response levels is decreasing (from the best health to the worst health)
+levels(healthsurvey$health)
+
+# fitting a model
+model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
+                heart_atack_or_stroke + poor_mobility + very_poor_grip +
+                depression + respiratory_problems +
+                IADL_problems + obese + diabetes + other_diseases,
+              thresh.formula = ~ sex + ageclass + country,
+              decreasing.levels = TRUE,
+              control = list(trace = FALSE),
+              data = healthsurvey)
+
+# Example 1 ---------------------
+# Bootstraping cutpoints
+
+# Function to be bootstraped
+cutpoints <-  function(model, data) getCutPoints(model, plotf = FALSE)$cutpoints
+B <- boot_hopit(model = model1, data = healthsurvey,
+                func = cutpoints, nboot = 100)
+
+# Calcualte lower and upper bounds using percentile method
+cutpoints.CI <- boot_hopit_CI(B)
+
+# print estimated cutpoints and their confidence intervals
+cutpoints(model1, healthsurvey)
+cutpoints.CI
+
+# Example 2 ---------------------
+# Bootstraping health levels differences
+
+# Function to be bootstraped
+diff_BadHealth <- function(model, data) {
+  hl <- getLevels(model = model, formula=~ sex + ageclass, data = data,
+                  sep=' ', plotf=FALSE)
+  hl$original[,1] + hl$original[,2] - hl$adjusted[,1]- hl$adjusted[,2]
+}
+
+# Estimate of the difference
+est.org <- diff_BadHealth(model = model3, data = healthsurvey)
+
+# Perform the bootstrap
+B <- boot_hopit(model = model1, data = healthsurvey,
+                func = diff_BadHealth, nboot = 100)
+
+# Calcualte lower and upper bounds using percentile method
+est.CI <- boot_hopit_CI(B)
+
+# Plotting the difference and its (assymetrical) confidence intervals
+pmar <- par('mar'); par(mar = c(9.5,pmar[2:4]))
+m <- max(abs(est.CI))
+pos <- barplot(est.org, names.arg = names(est.org), las = 3, ylab = 'Orginal - Adjusted',
+               ylim=c(-m, m), density = 20, angle = c(45, -45), col = c('blue', 'orange'))
+for (k in seq_along(pos)) lines(c(pos[k,1],pos[k,1]), est.CI[,k], lwd = 2, col = 2)
+abline(h = 0); box(); par(mar = pmar)
+}
+\seealso{
+\code{\link{boot_hopit_CI}}, \code{\link{getLevels}}, \code{\link{getCutPoints}}, \code{\link{latentIndex}}, \code{\link{standardiseCoef}}, \code{\link{hopit}}.
 }
 \author{
 Maciej J. Danko

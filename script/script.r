@@ -26,4 +26,4 @@ browseVignettes("hopit")
 
 #R CMD Rd2dvi --pdf --title='Test of hopit' -o /tmp/hopit.pdf man/*.Rd
 
-R CMD Rd2pdf --title="Package `hopit'" -o ~/Documents/R-PRJ/hopit/inst/doc/hopit.pdf man/*.Rd
+R CMD Rd2pdf --title="Package `hopit'" -o ~/Documents/R-PRJ/hopit/hopit.pdf man/*.Rd
