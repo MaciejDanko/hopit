@@ -28,7 +28,7 @@ unlink('vignettes/vignette_cache', recursive = TRUE)
 
 ## 1. Introduction
 
-*hopit* is an open source software library written in R programming language [@Rteam2019]. The *hopit* package provides versatile methods to fit and analyze ordered response data in the context of self reporting styles.
+*hopit* is an open source software library written in R [@Rteam2019] and C++ [@RcppEigen2013; @Rcpp2011] languages. The *hopit* package provides versatile methods to fit and analyze ordered response data in the context of self reporting styles.
 
 The ordered response data classifies a measure of interest into ordered categories collected during a survey. If the dependent variable is a happiness then a respondent typically answers a question: “Taking all things together, would you say you are ...? “ and have some response options e.g. "very happy", "pretty happy", "not too happy", "very unhappy" [@Liao2005]. Similarly if interviewees are asked to evaluate their health in general (e.g. “Would you say your health is ...?”) they may choose among several categories, e.g. very good, good, fair, bad, and very bad [@King2004; @Jurges2007; @Rebelo2014]. In political sciences a respondent may be asked for an opinion about recent legislation (e.g. “Rate your feelings about the proposed legislation") and asked to choose among several categories "strongly oppose", "mildly oppose", "indifferent", "mildly support", "strongly support" [@GreeneHensher2010]. It is easy to imagine other multi-level ordinal variables that might by use during the survey and to which methodology described below could be applied with.
 

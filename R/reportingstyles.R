@@ -288,16 +288,86 @@ getCutPoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(
 #' @param legbg legend background color. See \code{bg} parameter in \code{\link{legend}}.
 #' @param legbty legend box type. See \code{bty} parameter in \code{\link{legend}}.
 #' @return a list with following components:
-#'  \item{original}{ .}
-#'  \item{adjused}{ .}
-#'  \item{N.original}{ .}
-#'  \item{N.adjused}{ .}
-#'  \item{I.original}{ .}
-#'  \item{I.adjused}{ .}
-#'  \item{tab}{ .}
-#'  \item{mat}{ .}
+#'  \item{original}{ frequencies of original response levels for selected groups/categories.}
+#'  \item{adjused}{ frequencies of adusted response levels (Jurges 2007 method) for selected groups/categories.}
+#'  \item{N.original}{ numbers of original response levels for selected groups/categories.}
+#'  \item{N.adjused}{ numbers of adusted response levels (Jurges 2007 method) for selected groups/categories.}
+#'  \item{categories}{ selected groups/categories usedin summary.}
+#'  \item{tab}{ original vs. adjusted contingency table.}
+#'  \item{mat}{ a matrix with columns: grouping variables, original response levels, adjusted response levels.
+#'  Each row coresponds to a single individual from the data used to fit the model.}
+#' @references \insertRef{Jurges2007}{hopit}
 #' @author Maciej J. Danko
 #' @export
+#' @seealso \code{\link{getCutPoints}}, \code{\link{latentIndex}}, \code{\link{standardiseCoef}}, \code{\link{hopit}}.
+#' @examples
+#' # DATA
+#' data(healthsurvey)
+#'
+#' # the order of response levels is decreasing (from the best health to the worst health)
+#' levels(healthsurvey$health)
+#'
+#' # fitting a model
+#' model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
+#'                 heart_atack_or_stroke + poor_mobility + very_poor_grip +
+#'                 depression + respiratory_problems +
+#'                 IADL_problems + obese + diabetes + other_diseases,
+#'               thresh.formula = ~ sex + ageclass + country,
+#'               decreasing.levels = TRUE,
+#'               control = list(trace = FALSE),
+#'               data = healthsurvey)
+#'
+#' # Example 1 ---------------------
+#'
+#' # summary by country
+#' hl <- getLevels(model=model1, formula=~ country,
+#'                 data = healthsurvey,
+#'                 sep=' ', plotf=TRUE)
+#'
+#' # differences in frequencies beetwen original and adjusted health levels
+#' round(100*(hl$original - hl$adjusted),2)
+#'
+#' # extract good and bad health (combine levels)
+#' Org <- cbind(bad = rowSums(hl$original[,1:2]), good = rowSums(hl$original[,4:5]))
+#' Adj <- cbind(bad = rowSums(hl$adjusted[,1:2]), good = rowSums(hl$adjusted[,4:5]))
+#' round(100*(Org - Adj),2)
+#'
+#' # plot the differences
+#' barplot(t(Org - Adj), beside = TRUE, density = 20, angle = c(-45, 45),
+#'         col = c('pink4', 'green2'), ylab = 'Original - adjusted reported health frequencies')
+#' abline(h = 0); box()
+#' legend('top', c('Bad health','Good health'), density = 20, angle = c(-45, 45),
+#'        fill = c('pink4', 'green2'), bty = 'n', cex = 1.2)
+#'
+#' # in country X the bad health seems to be over-reported and good health under reported,
+#' # in contry Z the good health is highly over-reported.
+#'
+#' # Example 2 ---------------------
+#'
+#' # summary by gender and age
+#' hl <- getLevels(model = model1, formula=~ sex + ageclass,
+#'                 data = healthsurvey,
+#'                 sep=' ', plotf=TRUE)
+#'
+#' # differences in frequencies beetwen original and adjusted health levels
+#' round(100*(hl$original - hl$adjusted),2)
+#'
+#' # extract good health levels (combined "Very good" and "Excelent" levels)
+#' Org <- rowSums(hl$original[,4:5])
+#' Adj <- rowSums(hl$adjusted[,4:5])
+#' round(100*(Org - Adj),2)
+#'
+#' pmar <- par('mar'); par(mar = c(9.5, pmar[2:4]))
+#' barplot(Org-Adj, ylab = 'Original - adjusted reported good health frequencies', las = 3,
+#'         density = 20, angle = c(45, -45), col = c('blue', 'orange'))
+#' abline(h = 0); box(); par(mar = pmar)
+#' legend('top', c('Man','Woman'), density = 20, angle = c(-45, 45),
+#'        fill = c('blue', 'orange'), bty = 'n', cex = 1.2)
+#'
+#' # the results show that women in general tends to over-report good health.
+#' # men in ages 50-59 greatly under-report good health.
+#'
+#' # more examples can be found in the description of boot.hopit() function.
 getLevels<-function(model,
                     formula=model$thresh.formula,
                     data = environment(model$thresh.formula),
@@ -315,7 +385,7 @@ getLevels<-function(model,
   inte <- inte_$x
   namind <- inte_$class.mat
   nam <- levels(inte)
-  cpall<-getCutPoints(model, plotf = FALSE, decreasing.levels = decreasing.levels)
+  cpall <- getCutPoints(model, plotf = FALSE, decreasing.levels = decreasing.levels)
   TAB1 <- round(table(original=model$y_i, adjusted=cpall$adjused.levels)*100/length(model$y_i),2)
   tmp <- untable(t(table(factor(model$y_i,levels=levels(cpall$adjused.levels)), inte)))
   N1 <- tmp
@@ -353,8 +423,7 @@ getLevels<-function(model,
               tab= TAB1,
               N.original= N1,
               N.adjusted= N2,
-              I.orignal= orignalind,
-              I.adjusted= adjustedind,
+              categories = orignalind, # = adjustedind
               mat=cbind(inte_$mat,
                       original= model$y_i,
                       adjusted= cpall$adjused.levels))

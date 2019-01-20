@@ -1,5 +1,7 @@
 #
 library(tinytex)
+library(roxygen2)
+library(Rdpack)
 #RcppEigen::RcppEigen.package.skeleton()
 #tinytex::install_tinytex(force=TRUE)
 #tinytex::tlmgr(c("info", "--list", "--only-installed", "--data", "name"))
@@ -24,4 +26,4 @@ browseVignettes("hopit")
 
 #R CMD Rd2dvi --pdf --title='Test of hopit' -o /tmp/hopit.pdf man/*.Rd
 
-R CMD Rd2pdf --title="Package `hopit'" -o ~/Documents/R-PRJ/hopit/inst/hopit.pdf man/*.Rd
+R CMD Rd2pdf --title="Package `hopit'" -o ~/Documents/R-PRJ/hopit/inst/doc/hopit.pdf man/*.Rd
