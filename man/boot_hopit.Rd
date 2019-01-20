@@ -5,7 +5,7 @@
 \title{Bootstraping hopit model}
 \usage{
 boot_hopit(model, data, func, nboot = 500, unlist = TRUE,
-  boot.only.latent = TRUE, ...)
+  boot.only.latent = TRUE, robust.vcov = TRUE, ...)
 }
 \arguments{
 \item{model}{a fitted \code{Hopit} model.}
@@ -19,6 +19,8 @@ boot_hopit(model, data, func, nboot = 500, unlist = TRUE,
 \item{unlist}{logical indicting if to unlist boot object.}
 
 \item{boot.only.latent}{logical indicating if to perform the bootstrap only on latent variables.}
+
+\item{robust.vcov}{see \code{\link{vcov.hopit}}.}
 
 \item{...}{other parameters passed to the \code{func}.}
 }

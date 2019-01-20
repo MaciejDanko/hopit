@@ -67,6 +67,7 @@ update.latent <- function(model, newregcoef, data, hessian=FALSE){
 #' @param nboot number of bootstrap replicates.
 #' @param unlist logical indicting if to unlist boot object.
 #' @param boot.only.latent logical indicating if to perform the bootstrap only on latent variables.
+#' @param robust.vcov see \code{\link{vcov.hopit}}.
 #' @param ... other parameters passed to the \code{func}.
 #' @importFrom MASS mvrnorm
 #' @author Maciej J. Danko
@@ -132,15 +133,17 @@ update.latent <- function(model, newregcoef, data, hessian=FALSE){
 #'                ylim=c(-m, m), density = 20, angle = c(45, -45), col = c('blue', 'orange'))
 #' for (k in seq_along(pos)) lines(c(pos[k,1],pos[k,1]), est.CI[,k], lwd = 2, col = 2)
 #' abline(h = 0); box(); par(mar = pmar)
-boot_hopit<-function(model, data, func, nboot=500, unlist = TRUE, boot.only.latent = TRUE, ...){
-  if (boot.only.latent) N <- seq_len(model$parcount[1]) else N <- nrow(model$vcov)
-  if (length(model$vcov)<2) stop(call.=NULL, hopit_msg(23))
-  bootsample <- MASS::mvrnorm(nboot, mu=model$coef[N], Sigma=model$vcov[N,N])
-  boots <- lapply(seq_len(nboot), function(k) func(model=update.latent(model, bootsample[k,N],data=data),data=data,...))
+boot_hopit<-function(model, data, func, nboot=500, unlist = TRUE, boot.only.latent = TRUE, robust.vcov = TRUE, ...){
+  VCOV <- vcov.hopit(model, robust.vcov)
+  if (boot.only.latent) N <- seq_len(model$parcount[1]) else N <- nrow(VCOV)
+  if (length(VCOV) < 2) stop(call. = NULL, hopit_msg(23))
+  bootsample <- MASS::mvrnorm(nboot, mu = model$coef[N], Sigma = VCOV[N,N])
+  boots <- lapply(seq_len(nboot), function(k) func(model = update.latent(model,
+                                                   bootsample[k,N],data = data), data = data, ...))
   if (unlist) {
     boots <- sapply(boots,'[')
-    class(boots)<-'hopit.boot'
-  } else class(boots)<-c('hopit.boot','list')
+    class(boots) <- 'hopit.boot'
+  } else class(boots) <- c('hopit.boot', 'list')
   boots
 }
 
