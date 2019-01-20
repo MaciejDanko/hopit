@@ -27,7 +27,7 @@ You can track (and contribute to) the development of `hopit` at https://github.c
    ```
 
 ## Intro
-Get started with `hopit` by checking the [vignette](https://github.com/MaciejDanko/hopit/tree/master/inst/doc/Vignette.pdf) 
+Get started with `hopit` by checking the [vignette](https://github.com/MaciejDanko/hopit/tree/master/inst/doc/vignette.pdf) 
  ```R
  browseVignettes(package = "hopit") 
  ```
