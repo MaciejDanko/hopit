@@ -6,7 +6,6 @@ cache: packages
 warnings_are_errors: true
 
 before_install:
-  - sudo tlmgr update --self
   - sudo tlmgr install framed
 
 os:
