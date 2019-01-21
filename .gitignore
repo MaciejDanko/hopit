@@ -38,3 +38,5 @@ vignettes/*_cache/
 script/
 script
 # inst/doc
+
+travis.yml
