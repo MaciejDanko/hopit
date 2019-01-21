@@ -6,8 +6,8 @@
 \usage{
 hopit.control(grad.eps = 3e-05, bgfs.maxit = 10000, cg.maxit = 10000,
   nlm.maxit = 150, bgfs.reltol = 5e-10, cg.reltol = 5e-10,
-  nlm.gradtol = 1e-07, nlm.steptol = 1e-07, fit.methods = c("CG", "BFGS"),
-  quick.fit = TRUE, trace = TRUE, thresh.start = -Inf,
+  nlm.gradtol = 1e-07, nlm.steptol = 1e-07, fit.methods = c("CG",
+  "BFGS"), quick.fit = TRUE, trace = TRUE, thresh.start = -Inf,
   thresh.1.exp = FALSE, LL_out_val = -Inf)
 }
 \arguments{

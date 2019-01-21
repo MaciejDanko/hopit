@@ -4,7 +4,8 @@
 \alias{hopit_fitter}
 \title{INTERNAL: Fit \code{hopit} model given a starting parameters}
 \usage{
-hopit_fitter(model, start = model$start, use_weights = model$use.weights)
+hopit_fitter(model, start = model$start,
+  use_weights = model$use.weights)
 }
 \arguments{
 \item{model}{a \code{hopit} object.}

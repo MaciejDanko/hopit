@@ -9,6 +9,7 @@
 #' @keywords internal
 #' @author Maciej J. Danko
 #' @aliases coefficients.hopit
+#' @method coef hopit
 coef.hopit <- function(object, aslist = FALSE, ...)  if (aslist) object$coef.ls else object$coef
 
 
@@ -20,6 +21,7 @@ coef.hopit <- function(object, aslist = FALSE, ...)  if (aslist) object$coef.ls 
 #' @usage \method{print}{hopit}(x, ...)
 #' @keywords internal
 #' @author Maciej J. Danko
+#' @method coef hopit
 print.hopit<-function(x, ...){
   cat(hopit_msg(65), deparse(x$latent.formula), fill = TRUE)
   cat(hopit_msg(66), deparse(x$thresh.formula), fill = TRUE)
@@ -53,6 +55,7 @@ print.hopit<-function(x, ...){
 #' @usage \method{vcov}{hopit}(object, robust.vcov, ...)
 #' @keywords internal
 #' @author Maciej J. Danko
+#' @method vcov hopit
 vcov.hopit<-function(object, robust.vcov, ...){
   z <- object$vcov
   if (class(z) == "try-error") stop(paste(hopit_msg(37),attr(z,"condition"),sep=''),call.=NULL)

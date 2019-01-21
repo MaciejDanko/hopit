@@ -4,8 +4,8 @@
 \alias{hopit}
 \title{Generalized hierarchical ordered threshold models.}
 \usage{
-hopit(latent.formula, thresh.formula = ~1, crossinter.formula = ~1, data,
-  decreasing.levels, start = NULL, overdispersion = FALSE,
+hopit(latent.formula, thresh.formula = ~1, crossinter.formula = ~1,
+  data, decreasing.levels, start = NULL, overdispersion = FALSE,
   design = list(), weights = NULL, link = c("probit", "logit"),
   control = list())
 }

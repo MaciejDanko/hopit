@@ -6,17 +6,17 @@
 \alias{disabilityWeights}
 \title{Standardization of coefficients}
 \usage{
-standardizeCoef(model, ordered = TRUE, plotf = FALSE, plotpval = FALSE,
-  mar = c(15, 4, 1, 1), oma = c(0, 0, 0, 0), YLab = "Disability weight",
-  YLab.cex = 1.1, namesf = identity, ...)
+standardizeCoef(model, ordered = TRUE, plotf = FALSE,
+  plotpval = FALSE, mar = c(15, 4, 1, 1), oma = c(0, 0, 0, 0),
+  YLab = "Disability weight", YLab.cex = 1.1, namesf = identity, ...)
 
-standardiseCoef(model, ordered = TRUE, plotf = FALSE, plotpval = FALSE,
-  mar = c(15, 4, 1, 1), oma = c(0, 0, 0, 0), YLab = "Disability weight",
-  YLab.cex = 1.1, namesf = identity, ...)
+standardiseCoef(model, ordered = TRUE, plotf = FALSE,
+  plotpval = FALSE, mar = c(15, 4, 1, 1), oma = c(0, 0, 0, 0),
+  YLab = "Disability weight", YLab.cex = 1.1, namesf = identity, ...)
 
-disabilityWeights(model, ordered = TRUE, plotf = FALSE, plotpval = FALSE,
-  mar = c(15, 4, 1, 1), oma = c(0, 0, 0, 0), YLab = "Disability weight",
-  YLab.cex = 1.1, namesf = identity, ...)
+disabilityWeights(model, ordered = TRUE, plotf = FALSE,
+  plotpval = FALSE, mar = c(15, 4, 1, 1), oma = c(0, 0, 0, 0),
+  YLab = "Disability weight", YLab.cex = 1.1, namesf = identity, ...)
 }
 \arguments{
 \item{model}{a fitted \code{hopit} model.}

@@ -5,11 +5,13 @@
 \alias{healthIndex}
 \title{Calculate latent index}
 \usage{
-latentIndex(model, decreasing.levels = TRUE, subset = NULL, plotf = FALSE,
-  response = c("data", "fitted", "Jurges"), ylab = "Latent index", ...)
+latentIndex(model, decreasing.levels = TRUE, subset = NULL,
+  plotf = FALSE, response = c("data", "fitted", "Jurges"),
+  ylab = "Latent index", ...)
 
-healthIndex(model, decreasing.levels = TRUE, subset = NULL, plotf = FALSE,
-  response = c("data", "fitted", "Jurges"), ylab = "Latent index", ...)
+healthIndex(model, decreasing.levels = TRUE, subset = NULL,
+  plotf = FALSE, response = c("data", "fitted", "Jurges"),
+  ylab = "Latent index", ...)
 }
 \arguments{
 \item{model}{a fitted \code{hopit} model.}
