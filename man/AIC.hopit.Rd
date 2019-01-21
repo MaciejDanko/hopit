@@ -7,7 +7,7 @@
 \method{AIC}{hopit}(object, ..., k = 2L)
 }
 \arguments{
-\item{object}{\code{hopit} object.}
+\item{object}{an \code{hopit} object.}
 
 \item{...}{additional objects of the class \code{hopit}.}
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/reportingstyles.R
 \name{getCutPoints}
 \alias{getCutPoints}
-\title{Calcualte threshold cut-points using Jurges' method}
+\title{Calculate threshold cut-points using Jurges' method}
 \usage{
 getCutPoints(model, subset = NULL, plotf = TRUE, mar = c(4, 4, 1, 1),
   oma = c(0, 0, 0, 0), XLab = "Health index", XLab.cex = 1.1,
@@ -14,7 +14,7 @@ getCutPoints(model, subset = NULL, plotf = TRUE, mar = c(4, 4, 1, 1),
 
 \item{subset}{an optional vector specifying a subset of observations.}
 
-\item{plotf}{logical indicating if to plot the results.}
+\item{plotf}{a logical indicating if to plot the results.}
 
 \item{mar, oma}{see \code{\link{par}}.}
 
@@ -32,7 +32,7 @@ a list with following components:
 \item{adjused.levels}{ adjusted categorical response levels for each individual.}
 }
 \description{
-Calcualte threshold cut-points using Jurges' method.
+Calculate threshold cut-points using Jurges' method.
 }
 \examples{
 # DATA
@@ -44,8 +44,8 @@ levels(healthsurvey$health)
 # Example 1 ---------------------
 
 # fitting a model
-model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
-                heart_atack_or_stroke + poor_mobility + very_poor_grip +
+model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+                heart_attack_or_stroke + poor_mobility + very_poor_grip +
                 depression + respiratory_problems +
                 IADL_problems + obese + diabetes + other_diseases,
               thresh.formula = ~ sex + ageclass + country,
@@ -53,17 +53,17 @@ model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
               control = list(trace = FALSE),
               data = healthsurvey)
 
-# Health index cut-points
+# health index cut-points
 z <- getCutPoints(model = model1)
 z$cutpoints
 
-# Adjusted health levels for individuals: Jurges method
+# adjusted health levels for individuals: Jurges method
 rev(table(z$adjused.levels))
 
-# Original health levels for individuals
+# original health levels for individuals
 table(model1$y_i)
 
-# Adjusted health levels for individuals: Estimated model thresholds
+# adjusted health levels for individuals: Estimated model thresholds
 table(model1$Ey_i)
 }
 \references{

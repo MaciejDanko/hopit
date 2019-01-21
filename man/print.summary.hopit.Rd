@@ -2,17 +2,17 @@
 % Please edit documentation in R/generics.R
 \name{print.summary.hopit}
 \alias{print.summary.hopit}
-\title{Print object calculated by \code{\link{summary.hopit}}}
+\title{Print an object calculated by \code{\link{summary.hopit}}}
 \usage{
 \method{print}{summary.hopit}(x, ...)
 }
 \arguments{
-\item{x}{object created with \code{\link{summary.hopit}}}
+\item{x}{an object created with \code{\link{summary.hopit}}.}
 
 \item{...}{further arguments passed to or from other methods.}
 }
 \description{
-Print object calculated by \code{\link{summary.hopit}}
+Print an object calculated by \code{\link{summary.hopit}}
 }
 \author{
 Maciej J. Danko

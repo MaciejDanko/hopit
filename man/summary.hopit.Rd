@@ -7,7 +7,7 @@
 \method{summary}{hopit}(object, robust.se = TRUE, ...)
 }
 \arguments{
-\item{object}{\code{hopit} object.}
+\item{object}{an \code{hopit} object.}
 
 \item{robust.se}{logical indicating if to use robust standard errors based on the sandwich estimator.
 If survey deign is detected than this option is ignored.}

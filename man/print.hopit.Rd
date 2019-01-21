@@ -2,17 +2,17 @@
 % Please edit documentation in R/generics.R
 \name{print.hopit}
 \alias{print.hopit}
-\title{Printing basic information about fitted hopit}
+\title{Printing basic information about fitted \code{hopit} model}
 \usage{
 \method{print}{hopit}(x, ...)
 }
 \arguments{
-\item{x}{\code{hopit} object.}
+\item{x}{an \code{hopit} object.}
 
 \item{...}{further arguments passed to or from other methods.}
 }
 \description{
-Printing basic information about fitted hopit
+Printing basic information about fitted \code{hopit} model
 }
 \author{
 Maciej J. Danko

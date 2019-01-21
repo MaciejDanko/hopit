@@ -9,7 +9,7 @@ hopit_Threshold(thresh.lambda, thresh.gamma, model)
 \arguments{
 \item{thresh.lambda, thresh.gamma}{vectors with model parameters.}
 
-\item{model}{a \code{hopit} object}
+\item{model}{a \code{hopit} object.}
 }
 \description{
 INTERNAL: Calculate model cut-points (thresholds)

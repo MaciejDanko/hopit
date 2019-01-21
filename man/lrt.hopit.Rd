@@ -7,10 +7,10 @@
 lrt.hopit(full, nested)
 }
 \arguments{
-\item{full, nested}{Models to be compared.}
+\item{full, nested}{models to be compared.}
 }
 \value{
-a vector with results of the test
+a vector with results of the test.
 }
 \description{
 Likelihood ratio test for a pair of models
@@ -25,8 +25,8 @@ levels(healthsurvey$health)
 # Example 1 ---------------------
 
 # fitting two nested models
-model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
-                heart_atack_or_stroke + poor_mobility + very_poor_grip +
+model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+                heart_attack_or_stroke + poor_mobility + very_poor_grip +
                 depression + respiratory_problems +
                 IADL_problems + obese + diabetes + other_diseases,
               thresh.formula = ~ sex + ageclass + country,
@@ -34,9 +34,9 @@ model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
               control = list(trace = FALSE),
               data = healthsurvey)
 
-# model with interaction between hypertenssion and high_cholesterol
-model2 <- hopit(latent.formula = health ~ hypertenssion * high_cholesterol +
-                heart_atack_or_stroke + poor_mobility + very_poor_grip +
+# model with interaction between hypertension and high_cholesterol
+model2 <- hopit(latent.formula = health ~ hypertension * high_cholesterol +
+                heart_attack_or_stroke + poor_mobility + very_poor_grip +
                 depression + respiratory_problems +
                 IADL_problems + obese + diabetes + other_diseases,
               thresh.formula = ~ sex + ageclass + country,

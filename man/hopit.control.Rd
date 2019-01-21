@@ -2,7 +2,7 @@
 % Please edit documentation in R/hopit.R
 \name{hopit.control}
 \alias{hopit.control}
-\title{Auxiliary for controlling \code{hopit} fitting}
+\title{Auxiliary for controlling the fitting of \code{hopit} model}
 \usage{
 hopit.control(grad.eps = 3e-05, bgfs.maxit = 10000, cg.maxit = 10000,
   nlm.maxit = 150, bgfs.reltol = 5e-10, cg.reltol = 5e-10,
@@ -11,7 +11,7 @@ hopit.control(grad.eps = 3e-05, bgfs.maxit = 10000, cg.maxit = 10000,
   thresh.1.exp = FALSE, LL_out_val = -Inf)
 }
 \arguments{
-\item{grad.eps}{epsilon for numerical hessian function.}
+\item{grad.eps}{epsilon for numerical Hessian function.}
 
 \item{bgfs.maxit, cg.maxit, nlm.maxit}{the maximum number of iterations. See \code{\link{optim}} and \code{\link{nlm}} for details.}
 
@@ -26,10 +26,10 @@ minimum allowable relative step length. See \code{\link{nlm}}.}
 
 \item{trace}{logical, if to trace model fitting.}
 
-\item{LL_out_val, thresh.1.exp, thresh.start}{internal parameters under developement, do not change.}
+\item{LL_out_val, thresh.1.exp, thresh.start}{internal parameters under development, do not change.}
 }
 \description{
-Auxiliary function for controlling \code{hopit} fitting. Use this function to set control
+Auxiliary function for controlling the fitting of \code{hopit} model. Use this function to set control
 parameters of the \code{\link{hopit}} and other related functions.
 }
 \seealso{

@@ -2,21 +2,21 @@
 % Please edit documentation in R/boot.R
 \name{update.latent}
 \alias{update.latent}
-\title{INTERNAL : updating model uses new set of latent variable coeficients}
+\title{INTERNAL : updating model uses new set of latent variable coefficients}
 \usage{
 update.latent(model, newregcoef, data, hessian = FALSE)
 }
 \arguments{
 \item{model}{a fitted \code{hopit} model.}
 
-\item{newregcoef}{a new set of latent variable coeficients. Vector of length of first element of model$parcount.}
+\item{newregcoef}{a new set of latent variable coefficients. Vector of length of first element of model$parcount.}
 
 \item{data}{used to fit original model.}
 
-\item{hessian}{logical indicating if to calculate estfun, hessian and var-cov matrix.}
+\item{hessian}{logical indicating if to calculate log likelihood gradient (estfun), Hessian and variance-covariance matrix.}
 }
 \description{
-INTERNAL : updating model uses new set of latent variable coeficients
+INTERNAL : updating model uses new set of latent variable coefficients
 }
 \author{
 Maciej J. Danko

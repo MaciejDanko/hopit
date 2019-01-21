@@ -2,17 +2,17 @@
 % Please edit documentation in R/generics.R
 \name{logLik.hopit}
 \alias{logLik.hopit}
-\title{Extracts log likelihood of the fitted model}
+\title{Extracts a log likelihood of the fitted model}
 \usage{
 \method{logLik}{hopit}(object, ...)
 }
 \arguments{
-\item{object}{\code{hopit} object.}
+\item{object}{an \code{hopit} object.}
 
 \item{...}{additional objects of the class \code{hopit}.}
 }
 \description{
-Extracts log likelihood of the fitted model
+Extracts a log likelihood of the fitted model
 }
 \author{
 Maciej J. Danko

@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{get.hopit.start}
 \alias{get.hopit.start}
-\title{INTERNAL: Translate vglm to hopit start parameters}
+\title{INTERNAL: Translate glm() to hopit() start parameters}
 \usage{
 get.hopit.start(model, data)
 }
@@ -12,10 +12,10 @@ get.hopit.start(model, data)
 \item{data}{data.frame with data used to fit the model.}
 }
 \value{
-updated model
+updated \code{hopit} model.
 }
 \description{
-INTERNAL: Translate vglm to hopit start parameters
+INTERNAL: Translate glm() to hopit() start parameters
 }
 \author{
 Maciej J. Danko

@@ -2,19 +2,19 @@
 % Please edit documentation in R/generics.R
 \name{print.lrt.hopit}
 \alias{print.lrt.hopit}
-\title{Print object calculated by \code{\link{lrt.hopit}}}
+\title{Print an  object calculated by \code{\link{lrt.hopit}}}
 \usage{
 \method{print}{lrt.hopit}(x, short = FALSE, ...)
 }
 \arguments{
-\item{x}{object obtained from \code{\link{lrt.hopit}}}
+\item{x}{an object obtained from \code{\link{lrt.hopit}}.}
 
-\item{short}{logical, shortened description}
+\item{short}{logical indicating if to show shortened description.}
 
 \item{...}{further arguments passed to or from other methods.}
 }
 \description{
-Print object calculated by \code{\link{lrt.hopit}}
+Print an  object calculated by \code{\link{lrt.hopit}}
 }
 \seealso{
 \code{\link{lrt.hopit}}, \code{\link{anova.hopit}}, \code{\link{hopit}}.

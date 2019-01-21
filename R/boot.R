@@ -1,12 +1,12 @@
-#' INTERNAL : updating model uses new set of latent variable coeficients
+#' INTERNAL : updating model uses new set of latent variable coefficients
 #'
 #' @param model a fitted \code{hopit} model.
-#' @param newregcoef a new set of latent variable coeficients. Vector of length of first element of model$parcount.
+#' @param newregcoef a new set of latent variable coefficients. Vector of length of first element of model$parcount.
 #' @param data used to fit original model.
-#' @param hessian logical indicating if to calculate estfun, hessian and var-cov matrix.
+#' @param hessian logical indicating if to calculate log likelihood gradient (estfun), Hessian and variance-covariance matrix.
 #' @author Maciej J. Danko
 #' @keywords internal
-update.latent <- function(model, newregcoef, data, hessian=FALSE){
+update.latent <- function(model, newregcoef, data, hessian =FALSE){
   coefnames <- names(model$coef)
   thresh.names <- colnames(model$thresh.mm)
   model$coef[seq_len(model$parcount[1])] <- newregcoef
@@ -54,14 +54,14 @@ update.latent <- function(model, newregcoef, data, hessian=FALSE){
   return(model)
 }
 
-#' Bootstraping hopit model
+#' Bootstrapping hopit model
 #'
 #' \code{boot_hopit} performs bootstrap of a function dependent on fitted model.
 #' In each of the bootstrap repetitions a set of new model coefficients is drawn from the multivariate normal distribution,
 #' assuming originally estimated model coefficients (see \code{\link{coef.hopit}})
 #' as a mean and using model variance-covariance matrix (see \code{\link{vcov.hopit}}).
 #' The drawn coefficients are then used to calculate the measure of interest using a function delivered by \code{func} parameter.
-#' @param model a fitted \code{Hopit} model.
+#' @param model a fitted \code{hopit} model.
 #' @param data data used to fit the model.
 #' @param func function to be bootstrapped of the form \code{func(model, data, ...)}.
 #' @param nboot number of bootstrap replicates.
@@ -71,7 +71,7 @@ update.latent <- function(model, newregcoef, data, hessian=FALSE){
 #' @param ... other parameters passed to the \code{func}.
 #' @importFrom MASS mvrnorm
 #' @author Maciej J. Danko
-#' @return a list with bootstraped elements.
+#' @return a list with bootstrapped elements.
 #' @export
 #' @seealso \code{\link{boot_hopit_CI}}, \code{\link{getLevels}}, \code{\link{getCutPoints}}, \code{\link{latentIndex}}, \code{\link{standardiseCoef}}, \code{\link{hopit}}.
 #' @examples
@@ -82,8 +82,8 @@ update.latent <- function(model, newregcoef, data, hessian=FALSE){
 #' levels(healthsurvey$health)
 #'
 #' # fitting a model
-#' model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
-#'                 heart_atack_or_stroke + poor_mobility + very_poor_grip +
+#' model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+#'                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
 #'                 depression + respiratory_problems +
 #'                 IADL_problems + obese + diabetes + other_diseases,
 #'               thresh.formula = ~ sex + ageclass + country,
@@ -92,14 +92,14 @@ update.latent <- function(model, newregcoef, data, hessian=FALSE){
 #'               data = healthsurvey)
 #'
 #' # Example 1 ---------------------
-#' # Bootstraping cutpoints
+#' # Bootstrapping cut-points
 #'
-#' # Function to be bootstraped
+#' # Function to be bootstrapped
 #' cutpoints <-  function(model, data) getCutPoints(model, plotf = FALSE)$cutpoints
 #' B <- boot_hopit(model = model1, data = healthsurvey,
 #'                 func = cutpoints, nboot = 100)
 #'
-#' # Calcualte lower and upper bounds using percentile method
+#' # Calculate lower and upper bounds using percentile method
 #' cutpoints.CI <- boot_hopit_CI(B)
 #'
 #' # print estimated cutpoints and their confidence intervals
@@ -107,7 +107,7 @@ update.latent <- function(model, newregcoef, data, hessian=FALSE){
 #' cutpoints.CI
 #'
 #' # Example 2 ---------------------
-#' # Bootstraping health levels differences
+#' # Bootstrapping health levels differences
 #'
 #' # Function to be bootstraped
 #' diff_BadHealth <- function(model, data) {
@@ -123,23 +123,25 @@ update.latent <- function(model, newregcoef, data, hessian=FALSE){
 #' B <- boot_hopit(model = model1, data = healthsurvey,
 #'                 func = diff_BadHealth, nboot = 100)
 #'
-#' # Calcualte lower and upper bounds using percentile method
+#' # Calculate lower and upper bounds using percentile method
 #' est.CI <- boot_hopit_CI(B)
 #'
-#' # Plotting the difference and its (assymetrical) confidence intervals
+#' # Plotting the difference and its (asymmetrical) confidence intervals
 #' pmar <- par('mar'); par(mar = c(9.5,pmar[2:4]))
 #' m <- max(abs(est.CI))
 #' pos <- barplot(est.org, names.arg = names(est.org), las = 3, ylab = 'Orginal - Adjusted',
 #'                ylim=c(-m, m), density = 20, angle = c(45, -45), col = c('blue', 'orange'))
 #' for (k in seq_along(pos)) lines(c(pos[k,1],pos[k,1]), est.CI[,k], lwd = 2, col = 2)
 #' abline(h = 0); box(); par(mar = pmar)
-boot_hopit<-function(model, data, func, nboot=500, unlist = TRUE, boot.only.latent = TRUE, robust.vcov = TRUE, ...){
+boot_hopit<-function(model, data, func, nboot = 500, unlist = TRUE,
+                     boot.only.latent = TRUE, robust.vcov = TRUE, ...){
   VCOV <- vcov.hopit(model, robust.vcov)
   if (boot.only.latent) N <- seq_len(model$parcount[1]) else N <- nrow(VCOV)
   if (length(VCOV) < 2) stop(call. = NULL, hopit_msg(23))
   bootsample <- MASS::mvrnorm(nboot, mu = model$coef[N], Sigma = VCOV[N,N])
-  boots <- lapply(seq_len(nboot), function(k) func(model = update.latent(model,
-                                                   bootsample[k,N],data = data), data = data, ...))
+  boots <- lapply(seq_len(nboot), function(k)
+    func(model = update.latent(model,
+                 bootsample[k,N],data = data), data = data, ...))
   if (unlist) {
     boots <- sapply(boots,'[')
     class(boots) <- 'hopit.boot'
@@ -147,9 +149,9 @@ boot_hopit<-function(model, data, func, nboot=500, unlist = TRUE, boot.only.late
   boots
 }
 
-#' Calculating Confidence Intervals using percentile method
+#' Calculating confidence intervals of a boot object using percentile method
 #'
-#' @param boot boot object calculated by \code{\link{boot_hopit}} .
+#' @param boot a boot object calculated by \code{\link{boot_hopit}} .
 #' @param alpha significance level.
 #' @param bounds one of \code{"both"}, \code{"lo"}, \code{"up"}.
 #' @author Maciej J. Danko
@@ -157,14 +159,14 @@ boot_hopit<-function(model, data, func, nboot=500, unlist = TRUE, boot.only.late
 #' @export
 #' @examples
 #' # see examples in boot_hopit() function.
-boot_hopit_CI <- function(boot, alpha = 0.05, bounds=c('both','lo','up')){
+boot_hopit_CI <- function(boot, alpha = 0.05, bounds = c('both', 'lo', 'up')){
   if (!inherits(boot,'hopit.boot')) stop(call.=NULL, hopit_msg(22))
   bounds <- tolower(bounds[1])
   if (inherits(boot,'list')) boot <- sapply(boot,'[')
   probs <- switch(bounds,
-                         up = 1-alpha/2,
-                         lo = alpha/2,
-                         both = c(alpha/2, 1-alpha/2))
+                  up = 1-alpha/2,
+                  lo = alpha/2,
+                  both = c(alpha/2, 1-alpha/2))
 
   apply(boot, 1, quantile, probs = probs)
 }

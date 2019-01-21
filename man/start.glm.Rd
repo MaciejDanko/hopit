@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{start.glm}
 \alias{start.glm}
-\title{INTERNAL: Use glm to get starting parameters}
+\title{INTERNAL: Use glm() to get starting parameters}
 \usage{
 \method{start}{glm}(model, data)
 }
@@ -12,10 +12,10 @@
 \item{data}{data.frame with data used to fit the model.}
 }
 \value{
-updated model
+updated \code{hopit} model.
 }
 \description{
-INTERNAL: Use glm to get starting parameters
+INTERNAL: Use glm() to get starting parameters
 }
 \author{
 Maciej J. Danko

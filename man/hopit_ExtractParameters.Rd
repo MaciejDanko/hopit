@@ -14,7 +14,7 @@ hopit_ExtractParameters(model, parameters, parcount = model$parcount)
 \item{parcount}{vector with parameters counts for latent, lambda, and gamma.}
 }
 \description{
-Extract model parameters as a list
+Extract model parameters as a list.
 }
 \author{
 Maciej J. Danko

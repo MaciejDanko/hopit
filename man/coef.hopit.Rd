@@ -8,7 +8,7 @@
 \method{coef}{hopit}(object, aslist = FALSE, ...)
 }
 \arguments{
-\item{object}{\code{hopit} object.}
+\item{object}{an \code{hopit} object.}
 
 \item{aslist}{logical indicating if model coefficients should be returned as a list of three vectors
 related to latent variable, threshold lambdas, and threshold gammas.}

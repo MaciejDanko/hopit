@@ -2,21 +2,21 @@
 % Please edit documentation in R/generics.R
 \name{profile.hopit}
 \alias{profile.hopit}
-\title{Calculate log likelihood profile for fitted hopit model}
+\title{Calculate log likelihood profile for fitted \code{hopit} model}
 \usage{
 \method{profile}{hopit}(fitted, ..., scope = 0.15, steps = 101)
 }
 \arguments{
-\item{fitted}{\code{hopit} object. Fitted model.}
+\item{fitted}{an \code{hopit} object (a fitted model).}
 
 \item{...}{unused now.}
 
-\item{scope}{value (fraction) defining plotting range for a coeficient. The range is \code{c(coef \* (1-scope), coef \* (1+scope))}.}
+\item{scope}{value (fraction) defining plotting range for a coefficient. The range is \code{c(coef \* (1-scope), coef \* (1+scope))}.}
 
-\item{steps}{at how many equaly spaced points calcualte the log likelihood function for each coeficient.}
+\item{steps}{at how many equally spaced points calculate the log likelihood function for each coefficient.}
 }
 \description{
-Calculate log likelihood profile for fitted hopit model
+Calculate log likelihood profile for fitted \code{hopit} model
 }
 \seealso{
 \code{\link{plot.profile.hopit}}, \code{\link{print.profile.hopit}}, \code{\link{hopit}}

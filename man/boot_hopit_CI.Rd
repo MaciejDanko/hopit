@@ -2,19 +2,19 @@
 % Please edit documentation in R/boot.R
 \name{boot_hopit_CI}
 \alias{boot_hopit_CI}
-\title{Calculating Confidence Intervals using percentile method}
+\title{Calculating confidence intervals of a boot object using percentile method}
 \usage{
 boot_hopit_CI(boot, alpha = 0.05, bounds = c("both", "lo", "up"))
 }
 \arguments{
-\item{boot}{boot object calculated by \code{\link{boot_hopit}} .}
+\item{boot}{a boot object calculated by \code{\link{boot_hopit}} .}
 
 \item{alpha}{significance level.}
 
 \item{bounds}{one of \code{"both"}, \code{"lo"}, \code{"up"}.}
 }
 \description{
-Calculating Confidence Intervals using percentile method
+Calculating confidence intervals of a boot object using percentile method
 }
 \examples{
 # see examples in boot_hopit() function.

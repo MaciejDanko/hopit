@@ -1,7 +1,7 @@
 #' Calculate latent index
 #' @description
-#' Calcualte latent index from the latent variable. It takes values from 0 to 1, where
-#' zero is prescribed to the worse predicted state (maximal observed value fo the latent variable) and 1 is prescribed
+#' Calculate latent index from the latent variable. It takes values from 0 to 1, where
+#' zero is prescribed to the worse predicted state (maximal observed value for the latent variable) and 1 is prescribed
 #' to the best predicted health (minimal observed value fo the latent variable).
 #' @param model a fitted \code{hopit} model.
 #' @param decreasing.levels logical indicating if self-reported (e.g. health) classes are ordered in decreasing order.
@@ -9,7 +9,7 @@
 #' @param plotf logical indicating if to plot summary figure.
 #' @param response X axis plotting option, choose \code{'data'} for raw responses and \code{'fitted'} for model reclassified responses
 #' @param ylab a label of y axis.
-#' @param ... futher parameters passedto the \code{\link{plot}} function.
+#' @param ... further parameters passed to the \code{\link{plot}} function.
 #' @return a vector with latent index for each individual.
 #' @references \insertRef{Jurges2007}{hopit}
 #' @author Maciej J. Danko
@@ -25,8 +25,8 @@
 #' # Example 1 ---------------------
 #'
 #' # fitting a model
-#' model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
-#'                 heart_atack_or_stroke + poor_mobility + very_poor_grip +
+#' model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+#'                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
 #'                 depression + respiratory_problems +
 #'                 IADL_problems + obese + diabetes + other_diseases,
 #'               thresh.formula = ~ sex + ageclass + country,
@@ -58,14 +58,14 @@ latentIndex <- function(model, decreasing.levels = TRUE,
   if (length(subset) == 0) subset=seq_len(model$N)
   r <- range(model$y_latent_i[subset])
   hi <- (1 - ((model$y_latent_i - r[1]) / diff(r)))[subset]
-    if (plotf) {
-      response <- tolower(match.arg(response))
-      if (response=='data') YY <- model$y_i else if (response=='fitted') YY <- model$Ey_i else if (response=='jurges') {
-        z <- getCutPoints(model=model, decreasing.levels = decreasing.levels, plotf = FALSE)
-        YY <- factor(z$adjused.levels,levels(model$y_i))
-      } else stop(hopit_msg(83),call.=NULL)
-      plot(YY[subset], hi,las=3, ylab=ylab, ...)
-    }
+  if (plotf) {
+    response <- tolower(match.arg(response))
+    if (response=='data') YY <- model$y_i else if (response=='fitted') YY <- model$Ey_i else if (response=='jurges') {
+      z <- getCutPoints(model=model, decreasing.levels = decreasing.levels, plotf = FALSE)
+      YY <- factor(z$adjused.levels,levels(model$y_i))
+    } else stop(hopit_msg(83),call.=NULL)
+    plot(YY[subset], hi,las=3, ylab=ylab, ...)
+  }
   if (plotf) invisible(hi) else return(hi)
 }
 
@@ -79,7 +79,7 @@ healthIndex <- latentIndex
 #' @description
 #' Calculate standardized coefficients - disability weights
 #' computed as the latent coefficients from the generalised ordered probit model divided by the maximum possible range
-#' of its linear prediction. The range is calcualted as difference between maximum and minimum possible value of the latent variable
+#' of its linear prediction. The range is calculated as difference between maximum and minimum possible value of the latent variable
 #' given estimated parameters.
 #' @param model a fitted \code{hopit} model.
 #' @param ordered logical indicating if to order the disability weights.
@@ -87,7 +87,7 @@ healthIndex <- latentIndex
 #' @param plotpval logical indicating if to plot p-values.
 #' @param mar,oma see \code{\link{par}}.
 #' @param YLab,YLab.cex label and size of the label for y axis.
-#' @param namesf vectorof names of coeficients or one argument function that modifies names of coeficients.
+#' @param namesf  a vector of names of coefficients or one argument function that modifies names of coefficients.
 #' @param ... arguments passed to \code{\link{boxplot}}.
 #' @name standardizeCoef
 #' @return a vector with standardized coefficients.
@@ -105,8 +105,8 @@ healthIndex <- latentIndex
 #' # Example 1 ---------------------
 #'
 #' # fitting a model
-#' model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
-#'                 heart_atack_or_stroke + poor_mobility + very_poor_grip +
+#' model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+#'                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
 #'                 depression + respiratory_problems +
 #'                 IADL_problems + obese + diabetes + other_diseases,
 #'               thresh.formula = ~ sex + ageclass + country,
@@ -117,7 +117,7 @@ healthIndex <- latentIndex
 #' # A function that modifies coefficient names.
 #' txtfun <- function(x) gsub('_',' ',substr(x,1,nchar(x)-3))
 #'
-#' # Calcualte and plot disability weights
+#' # Calculate and plot disability weights
 #' sc <- standardizeCoef(model1, plotf = TRUE, namesf = txtfun)
 #' sc
 standardizeCoef <- function (model,
@@ -170,13 +170,13 @@ standardiseCoef<-standardizeCoef
 disabilityWeights<-standardizeCoef
 
 
-#' Calcualte threshold cut-points using Jurges' method
+#' Calculate threshold cut-points using Jurges' method
 #' @description
-#' Calcualte threshold cut-points using Jurges' method.
+#' Calculate threshold cut-points using Jurges' method.
 #' @param model a fitted \code{hopit} model.
 #' @param decreasing.levels logical indicating if self-reported health classes are ordered in decreasing order.
 #' @param subset an optional vector specifying a subset of observations.
-#' @param plotf logical indicating if to plot the results.
+#' @param plotf a logical indicating if to plot the results.
 #' @param XLab,XLab.cex label and size of the label for x axis.
 #' @param YLab,YLab.cex label and size of the label for y axis.
 #' @param mar,oma see \code{\link{par}}.
@@ -198,8 +198,8 @@ disabilityWeights<-standardizeCoef
 #' # Example 1 ---------------------
 #'
 #' # fitting a model
-#' model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
-#'                 heart_atack_or_stroke + poor_mobility + very_poor_grip +
+#' model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+#'                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
 #'                 depression + respiratory_problems +
 #'                 IADL_problems + obese + diabetes + other_diseases,
 #'               thresh.formula = ~ sex + ageclass + country,
@@ -207,17 +207,17 @@ disabilityWeights<-standardizeCoef
 #'               control = list(trace = FALSE),
 #'               data = healthsurvey)
 #'
-#' # Health index cut-points
+#' # health index cut-points
 #' z <- getCutPoints(model = model1)
 #' z$cutpoints
 #'
-#' # Adjusted health levels for individuals: Jurges method
+#' # adjusted health levels for individuals: Jurges method
 #' rev(table(z$adjused.levels))
 #'
-#' # Original health levels for individuals
+#' # original health levels for individuals
 #' table(model1$y_i)
 #'
-#' # Adjusted health levels for individuals: Estimated model thresholds
+#' # adjusted health levels for individuals: Estimated model thresholds
 #' table(model1$Ey_i)
 getCutPoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(0,0,0,0),
                          XLab='Health index', XLab.cex=1.1, YLab='Counts', YLab.cex=1.1,
@@ -242,8 +242,8 @@ getCutPoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(
     z<-hist(h.index, 200,xlab='',ylab='' ,
             main='', yaxs='i', col=grey(0.8, alpha = 0.5),border=grey(0.4, alpha = 0.5))
     if (group.labels.type == 'border') {
-    for (j in seq_along(Nm)) text(x=R1[j],y=(1.1*max(z$counts))/2,labels=Nm[[j]],
-                                  srt=90,pos=2,offset=0.67,col=2)
+      for (j in seq_along(Nm)) text(x=R1[j],y=(1.1*max(z$counts))/2,labels=Nm[[j]],
+                                    srt=90,pos=2,offset=0.67,col=2)
     } else if (group.labels.type == 'middle'){
       R11=-diff(c(0,R1,1))/2+c(R1,1)+strheight('S',units='figure')/2
       for (j in seq_along(lv)) text(x=R11[j],y=(3*1.1*max(z$counts))/4,labels=lv[j],
@@ -279,7 +279,7 @@ getCutPoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(
 #' @param model a fitted \code{hopit} model.
 #' @param formula a formula containing the grouping variables. It is by default set to threshold formula.
 #' @param data data used to fit the model.
-#' @param plotf logical indicating if to plot the results.
+#' @param plotf a logical indicating if to plot the results.
 #' @param sep separator for levels names.
 #' @param decreasing.levels logical indicating if self-reported health classes are ordered in increasing order.
 #' @param sort.flag logical indicating if to sort the levels.
@@ -289,13 +289,13 @@ getCutPoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(
 #' @param legbty legend box type. See \code{bty} parameter in \code{\link{legend}}.
 #' @return a list with following components:
 #'  \item{original}{ frequencies of original response levels for selected groups/categories.}
-#'  \item{adjused}{ frequencies of adusted response levels (Jurges 2007 method) for selected groups/categories.}
+#'  \item{adjusted}{ frequencies of adjusted response levels (Jurges 2007 method) for selected groups/categories.}
 #'  \item{N.original}{ numbers of original response levels for selected groups/categories.}
-#'  \item{N.adjused}{ numbers of adusted response levels (Jurges 2007 method) for selected groups/categories.}
-#'  \item{categories}{ selected groups/categories usedin summary.}
+#'  \item{N.adjusted}{ numbers of adjusted response levels (Jurges 2007 method) for selected groups/categories.}
+#'  \item{categories}{ selected groups/categories used in summary.}
 #'  \item{tab}{ original vs. adjusted contingency table.}
 #'  \item{mat}{ a matrix with columns: grouping variables, original response levels, adjusted response levels.
-#'  Each row coresponds to a single individual from the data used to fit the model.}
+#'  Each row corresponds to a single individual from the data used to fit the model.}
 #' @references \insertRef{Jurges2007}{hopit}
 #' @author Maciej J. Danko
 #' @export
@@ -308,8 +308,8 @@ getCutPoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(
 #' levels(healthsurvey$health)
 #'
 #' # fitting a model
-#' model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
-#'                 heart_atack_or_stroke + poor_mobility + very_poor_grip +
+#' model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+#'                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
 #'                 depression + respiratory_problems +
 #'                 IADL_problems + obese + diabetes + other_diseases,
 #'               thresh.formula = ~ sex + ageclass + country,
@@ -324,7 +324,7 @@ getCutPoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(
 #'                 data = healthsurvey,
 #'                 sep=' ', plotf=TRUE)
 #'
-#' # differences in frequencies beetwen original and adjusted health levels
+#' # differences in frequencies between original and adjusted health levels
 #' round(100*(hl$original - hl$adjusted),2)
 #'
 #' # extract good and bad health (combine levels)
@@ -340,7 +340,7 @@ getCutPoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(
 #'        fill = c('pink4', 'green2'), bty = 'n', cex = 1.2)
 #'
 #' # in country X the bad health seems to be over-reported and good health under reported,
-#' # in contry Z the good health is highly over-reported.
+#' # in country Z the good health is highly over-reported.
 #'
 #' # Example 2 ---------------------
 #'
@@ -349,7 +349,7 @@ getCutPoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(
 #'                 data = healthsurvey,
 #'                 sep=' ', plotf=TRUE)
 #'
-#' # differences in frequencies beetwen original and adjusted health levels
+#' # differences in frequencies between original and adjusted health levels
 #' round(100*(hl$original - hl$adjusted),2)
 #'
 #' # extract good health levels (combined "Very good" and "Excelent" levels)
@@ -379,7 +379,7 @@ getLevels<-function(model,
                     YLab.cex = 1.1,
                     legbg = adjustcolor('white',alpha.f=0.4),
                     legbty = 'o'
-                    ){
+){
   if (class(formula)=='formula') inte_ <- formula2classes(formula, data, sep=sep, return.matrix = TRUE) else
     stop(call.=NULL, hopit_msg(86))
   inte <- inte_$x
@@ -425,8 +425,8 @@ getLevels<-function(model,
               N.adjusted= N2,
               categories = orignalind, # = adjustedind
               mat=cbind(inte_$mat,
-                      original= model$y_i,
-                      adjusted= cpall$adjused.levels))
+                        original= model$y_i,
+                        adjusted= cpall$adjused.levels))
   class(res) <- 'healthlevels'
   if (plotf) invisible(res) else return(res)
 }

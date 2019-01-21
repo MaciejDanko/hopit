@@ -25,8 +25,8 @@ levels(healthsurvey$health)
 
 # the order is decreasing (from best health to the worst health)
 # so we set: decreasing.levels = TRUE
-model1<- hopit(latent.formula = health ~ hypertenssion + high_cholesterol + 
-                             heart_atack_or_stroke + poor_mobility + very_poor_grip + 
+model1<- hopit(latent.formula = health ~ hypertension + high_cholesterol + 
+                             heart_attack_or_stroke + poor_mobility + very_poor_grip + 
                              depression + respiratory_problems + 
                              IADL_problems + obese + diabetes + other_diseases, 
                thresh.formula = ~ sex + ageclass,
@@ -47,8 +47,8 @@ names(cm1)
 cm1$latent.params
 
 ## ---- echo=TRUE, cache=TRUE----------------------------------------------
-model2<- hopit(latent.formula = health ~ hypertenssion + high_cholesterol + 
-                      heart_atack_or_stroke + poor_mobility + 
+model2<- hopit(latent.formula = health ~ hypertension + high_cholesterol + 
+                      heart_attack_or_stroke + poor_mobility + 
                       very_poor_grip + depression + respiratory_problems + 
                       IADL_problems + obese + diabetes + other_diseases, 
                thresh.formula = ~ sex + ageclass + country,
@@ -63,8 +63,8 @@ AIC(model2, model1)
 anova(model2, model1)
 
 ## ---- echo=TRUE----------------------------------------------------------
-model3<- hopit(latent.formula = health ~ hypertenssion + high_cholesterol + 
-                      heart_atack_or_stroke + poor_mobility + 
+model3<- hopit(latent.formula = health ~ hypertension + high_cholesterol + 
+                      heart_attack_or_stroke + poor_mobility + 
                       very_poor_grip + depression + respiratory_problems + 
                       IADL_problems + obese + diabetes + other_diseases, 
                thresh.formula = ~ sex * ageclass + country,
@@ -76,8 +76,8 @@ print(anova(model3,model2), short=TRUE)
 
 
 ## ---- echo=TRUE----------------------------------------------------------
-model4<- hopit(latent.formula = health ~ hypertenssion + high_cholesterol + 
-                      heart_atack_or_stroke + poor_mobility + 
+model4<- hopit(latent.formula = health ~ hypertension + high_cholesterol + 
+                      heart_attack_or_stroke + poor_mobility + 
                       very_poor_grip + depression + respiratory_problems + 
                       IADL_problems + obese + diabetes + other_diseases, 
                thresh.formula = ~ sex * ageclass + country,
@@ -93,8 +93,8 @@ print(anova(model3,model4), short=TRUE)
 design <- svydesign(ids = ~ country + psu, weights = healthsurvey$csw, 
                     data = healthsurvey)
 
-model2s<- hopit(latent.formula = health ~ hypertenssion + high_cholesterol + 
-                       heart_atack_or_stroke + poor_mobility + 
+model2s<- hopit(latent.formula = health ~ hypertension + high_cholesterol + 
+                       heart_attack_or_stroke + poor_mobility + 
                        very_poor_grip + depression + respiratory_problems + 
                        IADL_problems + obese + diabetes + other_diseases, 
                 thresh.formula = ~ sex + ageclass + country,

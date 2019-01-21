@@ -21,7 +21,7 @@ getLevels(model, formula = model$thresh.formula,
 
 \item{sort.flag}{logical indicating if to sort the levels.}
 
-\item{plotf}{logical indicating if to plot the results.}
+\item{plotf}{a logical indicating if to plot the results.}
 
 \item{sep}{separator for levels names.}
 
@@ -36,13 +36,13 @@ getLevels(model, formula = model$thresh.formula,
 \value{
 a list with following components:
 \item{original}{ frequencies of original response levels for selected groups/categories.}
-\item{adjused}{ frequencies of adusted response levels (Jurges 2007 method) for selected groups/categories.}
+\item{adjusted}{ frequencies of adjusted response levels (Jurges 2007 method) for selected groups/categories.}
 \item{N.original}{ numbers of original response levels for selected groups/categories.}
-\item{N.adjused}{ numbers of adusted response levels (Jurges 2007 method) for selected groups/categories.}
-\item{categories}{ selected groups/categories usedin summary.}
+\item{N.adjusted}{ numbers of adjusted response levels (Jurges 2007 method) for selected groups/categories.}
+\item{categories}{ selected groups/categories used in summary.}
 \item{tab}{ original vs. adjusted contingency table.}
 \item{mat}{ a matrix with columns: grouping variables, original response levels, adjusted response levels.
-Each row coresponds to a single individual from the data used to fit the model.}
+Each row corresponds to a single individual from the data used to fit the model.}
 }
 \description{
 Summarize adjusted and original response levels
@@ -55,8 +55,8 @@ data(healthsurvey)
 levels(healthsurvey$health)
 
 # fitting a model
-model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
-                heart_atack_or_stroke + poor_mobility + very_poor_grip +
+model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+                heart_attack_or_stroke + poor_mobility + very_poor_grip +
                 depression + respiratory_problems +
                 IADL_problems + obese + diabetes + other_diseases,
               thresh.formula = ~ sex + ageclass + country,
@@ -71,7 +71,7 @@ hl <- getLevels(model=model1, formula=~ country,
                 data = healthsurvey,
                 sep=' ', plotf=TRUE)
 
-# differences in frequencies beetwen original and adjusted health levels
+# differences in frequencies between original and adjusted health levels
 round(100*(hl$original - hl$adjusted),2)
 
 # extract good and bad health (combine levels)
@@ -87,7 +87,7 @@ legend('top', c('Bad health','Good health'), density = 20, angle = c(-45, 45),
        fill = c('pink4', 'green2'), bty = 'n', cex = 1.2)
 
 # in country X the bad health seems to be over-reported and good health under reported,
-# in contry Z the good health is highly over-reported.
+# in country Z the good health is highly over-reported.
 
 # Example 2 ---------------------
 
@@ -96,7 +96,7 @@ hl <- getLevels(model = model1, formula=~ sex + ageclass,
                 data = healthsurvey,
                 sep=' ', plotf=TRUE)
 
-# differences in frequencies beetwen original and adjusted health levels
+# differences in frequencies between original and adjusted health levels
 round(100*(hl$original - hl$adjusted),2)
 
 # extract good health levels (combined "Very good" and "Excelent" levels)

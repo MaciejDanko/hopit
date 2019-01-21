@@ -2,12 +2,12 @@
 % Please edit documentation in R/generics.R
 \name{plot.profile.hopit}
 \alias{plot.profile.hopit}
-\title{Plot log likelihood profile for profile.hopit object}
+\title{Plot the log likelihood profile for a profile.hopit object}
 \usage{
 \method{plot}{profile.hopit}(x, ..., ylim = NULL, relative = FALSE, leg.cex = 0.85, leg.col = 'blue4')
 }
 \arguments{
-\item{x}{\code{profile.hopit} object.}
+\item{x}{an \code{profile.hopit} object.}
 
 \item{...}{arguments to be passed to \code{\link{plot}}() function (see \code{\link{par}}).}
 

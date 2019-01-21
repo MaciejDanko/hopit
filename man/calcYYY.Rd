@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{calcYYY}
 \alias{calcYYY}
-\title{INTERNAL: Calculate special matrices for gradient calaculation}
+\title{INTERNAL: Calculate special matrices for gradient calculation}
 \usage{
 calcYYY(model)
 }
@@ -10,10 +10,10 @@ calcYYY(model)
 \item{model}{fitted model.}
 }
 \value{
-updated model
+updated model.
 }
 \description{
-INTERNAL: Calculate special matrices for gradient calaculation
+INTERNAL: Calculate special matrices for gradient calculation
 }
 \author{
 Maciej J. Danko

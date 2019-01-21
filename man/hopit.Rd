@@ -2,7 +2,7 @@
 % Please edit documentation in R/hopit.R
 \name{hopit}
 \alias{hopit}
-\title{Generelaized hierarchical ordered threshold models.}
+\title{Generalized hierarchical ordered threshold models.}
 \usage{
 hopit(latent.formula, thresh.formula = ~1, crossinter.formula = ~1, data,
   decreasing.levels, start = NULL, overdispersion = FALSE,
@@ -11,10 +11,10 @@ hopit(latent.formula, thresh.formula = ~1, crossinter.formula = ~1, data,
 }
 \arguments{
 \item{latent.formula}{formula used to model latent variable. It should not contain any threshold variable.
-To specify interactions between latent and treshold variables see \code{crossinter.formula}}
+To specify interactions between latent and threshold variables see \code{crossinter.formula}}
 
 \item{thresh.formula}{formula used to model threshold variable. It should not contain any latent variable.
-To specify interactions between latent and treshold variables see \code{crossinter.formula}
+To specify interactions between latent and threshold variables see \code{crossinter.formula}
 Any dependent variable (left side of "~") will be ignored.}
 
 \item{crossinter.formula}{formula used to model interactions between threshold and latent variables.
@@ -28,10 +28,10 @@ Any dependent variable (left side of "~") will be ignored.}
 
 \item{start}{a vector with starting coefficient values in the form \code{c(latent_parameters, threshold_lambdas, threshold_gammas)}.}
 
-\item{overdispersion}{logical indicting if to fit additional parameter theta modeling a variance of the error term.}
+\item{overdispersion}{logical indicting if to fit additional parameter theta, which models a variance of the error term.}
 
 \item{design}{an optional survey design. Use \code{\link[survey]{svydesign}} function to specify the design.
-The design cannot be speciffied together with parameter \code{weights}.}
+The design cannot be specified together with parameter \code{weights}.}
 
 \item{weights}{an optional weights. Use design to construct survey weights.}
 
@@ -54,7 +54,7 @@ a \code{hopit} object used by other functions and methods. The object is a list 
 \item{thresh.no.cov}{ logical, are gamma parameters present?}
 \item{parcount}{ 3-element vector with number of parmeters for latent latent variable (beta),
 threshold intercept (lambda), and threshold covariates (gamma).}
-\item{coef}{ vector with coefficients.}
+\item{coef}{ a vector with coefficients.}
 \item{coef.ls}{ coefficients as a list.}
 \item{start}{ vector with starting vlues of coefficients.}
 \item{alpha}{ estimated individual-specific thresholds.}
@@ -67,9 +67,9 @@ threshold intercept (lambda), and threshold covariates (gamma).}
 \item{LL}{ log likelihood.}
 \item{AIC}{ AIC for models without survey design.}
 \item{vcov}{ variance-covariance matrix.}
-\item{hessian}{ hessian matrix.}
+\item{hessian}{ a Hessian matrix.}
 \item{estfun}{ gradient of the log likelihood function at estimated coefficient values.}
-\item{YYY1,YYY2,YY3}{ internal objects used for calcualtion of gradient and hessian functions.}
+\item{YYY1,YYY2,YY3}{ internal objects used for calculation of gradient and Hessian functions.}
 \item{use.weights,vcov.basic,glm.start,glm.start.ls}{ other internal objects.}
 }
 \description{
@@ -152,8 +152,8 @@ levels(healthsurvey$health)
 # the order is decreasing (from the best health to the worst health)
 # so we set: decreasing.levels = TRUE
 # fitting the model:
-model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
-                heart_atack_or_stroke + poor_mobility + very_poor_grip +
+model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+                heart_attack_or_stroke + poor_mobility + very_poor_grip +
                 depression + respiratory_problems +
                 IADL_problems + obese + diabetes + other_diseases,
               thresh.formula = ~ sex + ageclass + country,
@@ -182,8 +182,8 @@ profile(model1)
 design <- svydesign(ids = ~ country + psu, weights = healthsurvey$csw,
 data = healthsurvey)
 
-model2 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
-                  heart_atack_or_stroke + poor_mobility +
+model2 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+                  heart_attack_or_stroke + poor_mobility +
                   very_poor_grip + depression + respiratory_problems +
                   IADL_problems + obese + diabetes + other_diseases,
                 thresh.formula = ~ sex + ageclass + country,
@@ -199,8 +199,8 @@ cbind('No survey design' = coef(model1, aslist = TRUE)$latent.par,
 # Example 3 ---------------------
 
 # using crossinter.formula
-model3 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
-                heart_atack_or_stroke + poor_mobility + very_poor_grip +
+model3 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+                heart_attack_or_stroke + poor_mobility + very_poor_grip +
                 depression + respiratory_problems +
                 IADL_problems + obese + diabetes + other_diseases,
               thresh.formula = ~ sex + ageclass + country,
@@ -222,8 +222,8 @@ AIC(model1, model3)
 # Example 4 ---------------------
 
 # model with overdispersion
-model4 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
-                heart_atack_or_stroke + poor_mobility + very_poor_grip +
+model4 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+                heart_attack_or_stroke + poor_mobility + very_poor_grip +
                 depression + respiratory_problems +
                 IADL_problems + obese + diabetes + other_diseases,
               thresh.formula = ~ sex + ageclass + country,

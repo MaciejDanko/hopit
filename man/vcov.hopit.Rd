@@ -7,7 +7,7 @@
 \method{vcov}{hopit}(object, robust.vcov, ...)
 }
 \arguments{
-\item{object}{\code{hopit} object.}
+\item{object}{an \code{hopit} object.}
 
 \item{robust.vcov}{logical indicating if to use sandwich estimator to calculate variance-covariance matrix.
 If survey deign is detected than this option is ignored.}

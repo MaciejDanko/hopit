@@ -7,7 +7,7 @@
 getTheta(model)
 }
 \arguments{
-\item{model}{fitted \code{hopit} model.}
+\item{model}{a fitted \code{hopit} model.}
 }
 \description{
 Extract Theta parameter from the \code{hopit} model

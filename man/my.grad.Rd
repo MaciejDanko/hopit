@@ -7,11 +7,11 @@
 my.grad(fn, par, eps, ...)
 }
 \arguments{
-\item{fn}{function}
+\item{fn}{function.}
 
 \item{par}{parameters}
 
-\item{eps}{epsilon}
+\item{eps}{epsilon.}
 
 \item{...}{other parameters passed to fn}
 }

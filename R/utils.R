@@ -29,9 +29,9 @@
 rep_row <- function(mat, times) t(matrix(t(mat), NCOL(mat), NROW(mat) * times))
 
 
-#' INTERNAL: Calculate special matrices for gradient calaculation
+#' INTERNAL: Calculate special matrices for gradient calculation
 #' @param model fitted model.
-#' @return updated model
+#' @return updated model.
 #' @keywords internal
 #' @author Maciej J. Danko
 calcYYY<-function(model){
@@ -52,10 +52,11 @@ calcYYY<-function(model){
 
 
 #' INTERNAL: numerical gradient
+
 #' @keywords internal
-#' @param fn function
+#' @param fn function.
 #' @param par parameters
-#' @param eps epsilon
+#' @param eps epsilon.
 #' @param ... other parameters passed to fn
 #' @author Maciej J. Danko
 my.grad <- function(fn, par, eps, ...){
@@ -67,9 +68,9 @@ my.grad <- function(fn, par, eps, ...){
 }
 
 
-#' INTERNAL: Decode link parmeter
+#' INTERNAL: Decode link parameter
 #' @param model fitted model.
-#' @return updated model
+#' @return updated model.
 #' @keywords internal
 #' @author Maciej J. Danko
 hopit_c_link<-function(model){
@@ -150,10 +151,11 @@ classify.ind<-function(model){
 }
 
 
-#' INTERNAL: Use glm to get starting parameters
+#' INTERNAL: Use glm() to get starting parameters
+#'
 #' @param model \code{hopit} object.
 #' @param data data.frame with data used to fit the model.
-#' @return updated model
+#' @return updated \code{hopit} model.
 #' @keywords internal
 #' @author Maciej J. Danko
 start.glm<-function(model, data){
@@ -189,11 +191,11 @@ start.glm<-function(model, data){
 }
 
 
-#' INTERNAL: Translate vglm to hopit start parameters
+#' INTERNAL: Translate glm() to hopit() start parameters
 #'
 #' @param model \code{hopit} object.
 #' @param data data.frame with data used to fit the model.
-#' @return updated model
+#' @return updated \code{hopit} model.
 #' @author Maciej J. Danko
 #' @keywords internal
 #' @useDynLib hopit

@@ -3,7 +3,7 @@
 #' @author Maciej J. Danko
 #' @keywords internal
 #' @param thresh.lambda,thresh.gamma vectors with model parameters.
-#' @param model a \code{hopit} object
+#' @param model a \code{hopit} object.
 #' @useDynLib hopit
 #' @importFrom Rcpp evalCpp
 hopit_Threshold<-function(thresh.lambda, thresh.gamma, model){
@@ -23,7 +23,7 @@ hopit_Latent <- function(latent.params, model = NULL) model$latent.mm %*% (as.ma
 
 # #' INTERNAL: Calculate maximum possible latent range
 # #' @param model a fitted \code{hopit} model.
-# #' @param data a data used to fit the model
+# #' @param data a data used to fit the model.
 # #' @keywords internal
 # hopit_latentrange <- function (model, data) {
 #
@@ -36,7 +36,7 @@ hopit_Latent <- function(latent.params, model = NULL) model$latent.mm %*% (as.ma
 #     r <- c(sum(d[d<0]), sum(d[d>0]))
 #   }
 #   if (any(!FACTORS)) {
-#     #message('Continous covariate detected, model may not give realistic results.',appendLF = FALSE)
+#     #message('Continuous covariate detected, model may not give realistic results.',appendLF = FALSE)
 #     d <- matrix(cfm[!FACTORS],length(cfm[!FACTORS]),model$N) * t(model$latent.mm[,!FACTORS])
 #     r <- c(min(d[d<0],r), max(r,d[d>0]))
 #   }
@@ -46,7 +46,7 @@ hopit_Latent <- function(latent.params, model = NULL) model$latent.mm %*% (as.ma
 
 #' INTERNAL: Extract model parameters as a list
 #'
-#' Extract model parameters as a list
+#' Extract model parameters as a list.
 #' @param model \code{hopit} object.
 #' @param parameters model parameters (optional). If not delivered then taken from \code{model$coef}.
 #' @param parcount vector with parameters counts for latent, lambda, and gamma.
@@ -88,9 +88,9 @@ hopit_ExtractParameters <- function(model, parameters, parcount = model$parcount
 #'
 #' @param parameters model parameters (optional). If not delivered then taken from \code{model$coef}.
 #' @param model \code{hopit} object.
-#' @param collapse a logical indicating if to sum individula LL contributions.
+#' @param collapse a logical indicating if to sum individual LL contributions.
 #' @param use_weights a logical indicating if to use model weights.
-#' @param negative a logicalindicating if to return -LL or LL.
+#' @param negative a logical indicating if the function should return negative LL or not.
 #' @author Maciej J. Danko
 #' @keywords internal
 #' @useDynLib hopit
@@ -119,9 +119,9 @@ hopit_negLL <- function(parameters=model$coef, model, collapse = TRUE, use_weigh
 #'
 #' @param parameters model parameters (optional). If not delivered then taken from \code{model$coef}.
 #' @param model \code{hopit} object.
-#' @param collapse a logical indicating if to sum individula LL contributions.
+#' @param collapse a logical indicating if to sum individual LL contributions.
 #' @param use_weights a logical indicating if to use model weights.
-#' @param negative a logicalindicating if to return -LL or LL.
+#' @param negative  a logical indicating if the function should return negative LL or not.
 #' @author Maciej J. Danko
 #' @keywords internal
 #' @useDynLib hopit
@@ -154,8 +154,8 @@ hopit_derivLL <- function(parameters=model$coef, model,
 #' INTERNAL: Fit \code{hopit} model given a starting parameters
 #'
 #' Fit the model.
-#' @param model \code{hopit} object
-#' @param start starting parameters
+#' @param model a \code{hopit} object.
+#' @param start starting parameters.
 #' @param use_weights a logical indicating if to use model weights.
 #' @author Maciej J. Danko
 #' @keywords internal
@@ -220,12 +220,12 @@ hopit_fitter <- function(model, start = model$start, use_weights = model$use.wei
 }
 
 
-#' Auxiliary for controlling \code{hopit} fitting
+#' Auxiliary for controlling the fitting of \code{hopit} model
 #'
 #' @description
-#' Auxiliary function for controlling \code{hopit} fitting. Use this function to set control
+#' Auxiliary function for controlling the fitting of \code{hopit} model. Use this function to set control
 #' parameters of the \code{\link{hopit}} and other related functions.
-#' @param grad.eps epsilon for numerical hessian function.
+#' @param grad.eps epsilon for numerical Hessian function.
 #' @param quick.fit logical, if TRUE extensive \code{nlm} optimization method is ignored and only BFGS and CG methods are run.
 #' @param bgfs.maxit,cg.maxit,nlm.maxit the maximum number of iterations. See \code{\link{optim}} and \code{\link{nlm}} for details.
 #' @param bgfs.reltol,cg.reltol relative convergence tolerance. See \code{\link{optim}} for details.
@@ -233,7 +233,7 @@ hopit_fitter <- function(model, start = model$start, use_weights = model$use.wei
 #' minimum allowable relative step length. See \code{\link{nlm}}.
 #' @param fit.methods either 'CG' or 'BFGS'. See \code{\link{optim}}.
 #' @param trace logical, if to trace model fitting.
-#' @param LL_out_val,thresh.1.exp,thresh.start internal parameters under developement, do not change.
+#' @param LL_out_val,thresh.1.exp,thresh.start internal parameters under development, do not change.
 #' @seealso \code{\link{hopit}}
 #' @author Maciej J. Danko
 #' @export
@@ -274,13 +274,13 @@ hopit.control<-function(grad.eps = 3e-5,
 
 #' Extract Theta parameter from the \code{hopit} model
 #'
-#' @param model fitted \code{hopit} model.
+#' @param model a fitted \code{hopit} model.
 #' @export
 #' @author Maciej J. Danko
 getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 
 
-#' Generelaized hierarchical ordered threshold models.
+#' Generalized hierarchical ordered threshold models.
 #'
 #' @description
 #' The ordered response data classifies a measure of interest into ordered categories collected during a survey.
@@ -350,9 +350,9 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' It is always good to check first the ordering of the levels before starting (see example 1)\cr
 #'
 #' @param latent.formula formula used to model latent variable. It should not contain any threshold variable.
-#' To specify interactions between latent and treshold variables see \code{crossinter.formula}
+#' To specify interactions between latent and threshold variables see \code{crossinter.formula}
 #' @param thresh.formula formula used to model threshold variable. It should not contain any latent variable.
-#' To specify interactions between latent and treshold variables see \code{crossinter.formula}
+#' To specify interactions between latent and threshold variables see \code{crossinter.formula}
 #' Any dependent variable (left side of "~") will be ignored.
 #' @param crossinter.formula formula used to model interactions between threshold and latent variables.
 #' The formula should be in the form \code{"~ thresh.var.X : latent.var.Y + thresh.var.Z : latent.var.Q + ..." }.
@@ -360,9 +360,9 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' Any dependent variable (left side of "~") will be ignored.
 #' @param data a data frame including all modeled variables.
 #' @param decreasing.levels logical indicating if self-reported health classes are ordered in decreasing order.
-#' @param overdispersion logical indicting if to fit additional parameter theta modeling a variance of the error term.
+#' @param overdispersion logical indicting if to fit additional parameter theta, which models a variance of the error term.
 #' @param design an optional survey design. Use \code{\link[survey]{svydesign}} function to specify the design.
-#' The design cannot be speciffied together with parameter \code{weights}.
+#' The design cannot be specified together with parameter \code{weights}.
 #' @param weights an optional weights. Use design to construct survey weights.
 #' @param link the link function. The possible values are \code{"probit"} (default) and \code{"logit"}.
 #' @param start a vector with starting coefficient values in the form \code{c(latent_parameters, threshold_lambdas, threshold_gammas)}.
@@ -381,7 +381,7 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #'  \item{thresh.no.cov}{ logical, are gamma parameters present?}
 #'  \item{parcount}{ 3-element vector with number of parmeters for latent latent variable (beta),
 #'  threshold intercept (lambda), and threshold covariates (gamma).}
-#'  \item{coef}{ vector with coefficients.}
+#'  \item{coef}{ a vector with coefficients.}
 #'  \item{coef.ls}{ coefficients as a list.}
 #'  \item{start}{ vector with starting vlues of coefficients.}
 #'  \item{alpha}{ estimated individual-specific thresholds.}
@@ -394,9 +394,9 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #'  \item{LL}{ log likelihood.}
 #'  \item{AIC}{ AIC for models without survey design.}
 #'  \item{vcov}{ variance-covariance matrix.}
-#'  \item{hessian}{ hessian matrix.}
+#'  \item{hessian}{ a Hessian matrix.}
 #'  \item{estfun}{ gradient of the log likelihood function at estimated coefficient values.}
-#'  \item{YYY1,YYY2,YY3}{ internal objects used for calcualtion of gradient and hessian functions.}
+#'  \item{YYY1,YYY2,YY3}{ internal objects used for calculation of gradient and Hessian functions.}
 #'  \item{use.weights,vcov.basic,glm.start,glm.start.ls}{ other internal objects.}
 #' @references \insertAllCited{}
 #' @export
@@ -428,8 +428,8 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' # the order is decreasing (from the best health to the worst health)
 #' # so we set: decreasing.levels = TRUE
 #' # fitting the model:
-#' model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
-#'                 heart_atack_or_stroke + poor_mobility + very_poor_grip +
+#' model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+#'                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
 #'                 depression + respiratory_problems +
 #'                 IADL_problems + obese + diabetes + other_diseases,
 #'               thresh.formula = ~ sex + ageclass + country,
@@ -458,8 +458,8 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' design <- svydesign(ids = ~ country + psu, weights = healthsurvey$csw,
 #' data = healthsurvey)
 #'
-#' model2 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
-#'                   heart_atack_or_stroke + poor_mobility +
+#' model2 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+#'                   heart_attack_or_stroke + poor_mobility +
 #'                   very_poor_grip + depression + respiratory_problems +
 #'                   IADL_problems + obese + diabetes + other_diseases,
 #'                 thresh.formula = ~ sex + ageclass + country,
@@ -475,8 +475,8 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' # Example 3 ---------------------
 #'
 #' # using crossinter.formula
-#' model3 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
-#'                 heart_atack_or_stroke + poor_mobility + very_poor_grip +
+#' model3 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+#'                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
 #'                 depression + respiratory_problems +
 #'                 IADL_problems + obese + diabetes + other_diseases,
 #'               thresh.formula = ~ sex + ageclass + country,
@@ -498,8 +498,8 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' # Example 4 ---------------------
 #'
 #' # model with overdispersion
-#' model4 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
-#'                 heart_atack_or_stroke + poor_mobility + very_poor_grip +
+#' model4 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+#'                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
 #'                 depression + respiratory_problems +
 #'                 IADL_problems + obese + diabetes + other_diseases,
 #'               thresh.formula = ~ sex + ageclass + country,

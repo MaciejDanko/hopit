@@ -176,8 +176,8 @@ levels(healthsurvey$health)
 
 # the order is decreasing (from best health to the worst health)
 # so we set: decreasing.levels = TRUE
-model1<- hopit(latent.formula = health ~ hypertenssion + high_cholesterol + 
-                             heart_atack_or_stroke + poor_mobility + very_poor_grip + 
+model1<- hopit(latent.formula = health ~ hypertension + high_cholesterol + 
+                             heart_attack_or_stroke + poor_mobility + very_poor_grip + 
                              depression + respiratory_problems + 
                              IADL_problems + obese + diabetes + other_diseases, 
                thresh.formula = ~ sex + ageclass,
@@ -204,8 +204,8 @@ cm1$latent.params
 *model1* can be further extended by adding country of origin to the threshold formula to control for cultural differences.
 
 ```{r, echo=TRUE, cache=TRUE}
-model2<- hopit(latent.formula = health ~ hypertenssion + high_cholesterol + 
-                      heart_atack_or_stroke + poor_mobility + 
+model2<- hopit(latent.formula = health ~ hypertension + high_cholesterol + 
+                      heart_attack_or_stroke + poor_mobility + 
                       very_poor_grip + depression + respiratory_problems + 
                       IADL_problems + obese + diabetes + other_diseases, 
                thresh.formula = ~ sex + ageclass + country,
@@ -229,8 +229,8 @@ anova(model2, model1)
 Both *latent.formula* and *thresh.formula* allow to specify interactions, like interaction between gender (*sex*) and age (*ageclass*): 
 
 ```{r, echo=TRUE}
-model3<- hopit(latent.formula = health ~ hypertenssion + high_cholesterol + 
-                      heart_atack_or_stroke + poor_mobility + 
+model3<- hopit(latent.formula = health ~ hypertension + high_cholesterol + 
+                      heart_attack_or_stroke + poor_mobility + 
                       very_poor_grip + depression + respiratory_problems + 
                       IADL_problems + obese + diabetes + other_diseases, 
                thresh.formula = ~ sex * ageclass + country,
@@ -245,8 +245,8 @@ print(anova(model3,model2), short=TRUE)
 The interactions between latent and threshold variables can be modeled using *crossinter.formula*:
 
 ```{r, echo=TRUE}
-model4<- hopit(latent.formula = health ~ hypertenssion + high_cholesterol + 
-                      heart_atack_or_stroke + poor_mobility + 
+model4<- hopit(latent.formula = health ~ hypertension + high_cholesterol + 
+                      heart_attack_or_stroke + poor_mobility + 
                       very_poor_grip + depression + respiratory_problems + 
                       IADL_problems + obese + diabetes + other_diseases, 
                thresh.formula = ~ sex * ageclass + country,
@@ -267,8 +267,8 @@ The example below fit a model using simple two level cluster sampling design.
 design <- svydesign(ids = ~ country + psu, weights = healthsurvey$csw, 
                     data = healthsurvey)
 
-model2s<- hopit(latent.formula = health ~ hypertenssion + high_cholesterol + 
-                       heart_atack_or_stroke + poor_mobility + 
+model2s<- hopit(latent.formula = health ~ hypertension + high_cholesterol + 
+                       heart_attack_or_stroke + poor_mobility + 
                        very_poor_grip + depression + respiratory_problems + 
                        IADL_problems + obese + diabetes + other_diseases, 
                 thresh.formula = ~ sex + ageclass + country,

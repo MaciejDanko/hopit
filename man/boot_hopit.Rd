@@ -2,13 +2,13 @@
 % Please edit documentation in R/boot.R
 \name{boot_hopit}
 \alias{boot_hopit}
-\title{Bootstraping hopit model}
+\title{Bootstrapping hopit model}
 \usage{
 boot_hopit(model, data, func, nboot = 500, unlist = TRUE,
   boot.only.latent = TRUE, robust.vcov = TRUE, ...)
 }
 \arguments{
-\item{model}{a fitted \code{Hopit} model.}
+\item{model}{a fitted \code{hopit} model.}
 
 \item{data}{data used to fit the model.}
 
@@ -25,7 +25,7 @@ boot_hopit(model, data, func, nboot = 500, unlist = TRUE,
 \item{...}{other parameters passed to the \code{func}.}
 }
 \value{
-a list with bootstraped elements.
+a list with bootstrapped elements.
 }
 \description{
 \code{boot_hopit} performs bootstrap of a function dependent on fitted model.
@@ -42,8 +42,8 @@ data(healthsurvey)
 levels(healthsurvey$health)
 
 # fitting a model
-model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
-                heart_atack_or_stroke + poor_mobility + very_poor_grip +
+model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+                heart_attack_or_stroke + poor_mobility + very_poor_grip +
                 depression + respiratory_problems +
                 IADL_problems + obese + diabetes + other_diseases,
               thresh.formula = ~ sex + ageclass + country,
@@ -52,14 +52,14 @@ model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
               data = healthsurvey)
 
 # Example 1 ---------------------
-# Bootstraping cutpoints
+# Bootstrapping cut-points
 
-# Function to be bootstraped
+# Function to be bootstrapped
 cutpoints <-  function(model, data) getCutPoints(model, plotf = FALSE)$cutpoints
 B <- boot_hopit(model = model1, data = healthsurvey,
                 func = cutpoints, nboot = 100)
 
-# Calcualte lower and upper bounds using percentile method
+# Calculate lower and upper bounds using percentile method
 cutpoints.CI <- boot_hopit_CI(B)
 
 # print estimated cutpoints and their confidence intervals
@@ -67,7 +67,7 @@ cutpoints(model1, healthsurvey)
 cutpoints.CI
 
 # Example 2 ---------------------
-# Bootstraping health levels differences
+# Bootstrapping health levels differences
 
 # Function to be bootstraped
 diff_BadHealth <- function(model, data) {
@@ -83,10 +83,10 @@ est.org <- diff_BadHealth(model = model1, data = healthsurvey)
 B <- boot_hopit(model = model1, data = healthsurvey,
                 func = diff_BadHealth, nboot = 100)
 
-# Calcualte lower and upper bounds using percentile method
+# Calculate lower and upper bounds using percentile method
 est.CI <- boot_hopit_CI(B)
 
-# Plotting the difference and its (assymetrical) confidence intervals
+# Plotting the difference and its (asymmetrical) confidence intervals
 pmar <- par('mar'); par(mar = c(9.5,pmar[2:4]))
 m <- max(abs(est.CI))
 pos <- barplot(est.org, names.arg = names(est.org), las = 3, ylab = 'Orginal - Adjusted',

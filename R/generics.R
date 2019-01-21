@@ -1,6 +1,6 @@
 #' Extracting coefficients of the fitted \code{hopit} model
 #'
-#' @param object \code{hopit} object.
+#' @param object an \code{hopit} object.
 #' @param aslist logical indicating if model coefficients should be returned as a list of three vectors
 #' related to latent variable, threshold lambdas, and threshold gammas.
 #' @param ...	further arguments passed to or from other methods.
@@ -12,9 +12,9 @@
 coef.hopit <- function(object, aslist = FALSE, ...)  if (aslist) object$coef.ls else object$coef
 
 
-#' Printing basic information about fitted hopit
+#' Printing basic information about fitted \code{hopit} model
 #'
-#' @param x \code{hopit} object.
+#' @param x an \code{hopit} object.
 #' @param ...	further arguments passed to or from other methods.
 #' @export
 #' @usage \method{print}{hopit}(x, ...)
@@ -36,8 +36,8 @@ print.hopit<-function(x, ...){
     print(x$coef.ls$thresh.gamma)
   }
   #if(length(x$coef.ls$logTheta)){
-    if (x$hasdisp) cat(hopit_msg(82)) else cat(hopit_msg(81))
-    cat(exp(x$coef.ls$logTheta),'\n')
+  if (x$hasdisp) cat(hopit_msg(82)) else cat(hopit_msg(81))
+  cat(exp(x$coef.ls$logTheta),'\n')
   #}
   invisible(NULL)
 }
@@ -45,7 +45,7 @@ print.hopit<-function(x, ...){
 
 #' Extracting variance-covariance matrix from the fitted hopit
 #'
-#' @param object \code{hopit} object.
+#' @param object an \code{hopit} object.
 #' @param robust.vcov logical indicating if to use sandwich estimator to calculate variance-covariance matrix.
 #' If survey deign is detected than this option is ignored.
 #' @param ... further arguments passed to or from other methods.
@@ -76,8 +76,8 @@ vcov.hopit<-function(object, robust.vcov, ...){
 
 #' Print object calculated by \code{\link{vcov.hopit}}
 #'
-#' @param x \code{hopit} object
-#' @param digits see \code{\link{print.default}}
+#' @param x an \code{hopit} object
+#' @param digits see \code{\link{print.default}}.
 #' @param ... further arguments passed to or from other methods.
 #' @usage \method{print}{vcov.hopit}(x, digits = 3L, ...)
 #' @keywords internal
@@ -93,7 +93,7 @@ print.vcov.hopit <- function(x, digits = 3L, ...){
 
 #' Calculate model summary
 #'
-#' @param object \code{hopit} object.
+#' @param object an \code{hopit} object.
 #' @param robust.se logical indicating if to use robust standard errors based on the sandwich estimator.
 #' If survey deign is detected than this option is ignored.
 #' @param control a list with control parameters. See \code{\link{hopit.control}}.
@@ -124,9 +124,9 @@ summary.hopit <- function(object, robust.se = TRUE, ...){
 }
 
 
-#' Print object calculated by \code{\link{summary.hopit}}
+#' Print an object calculated by \code{\link{summary.hopit}}
 #'
-#' @param x object created with \code{\link{summary.hopit}}
+#' @param x an object created with \code{\link{summary.hopit}}.
 #' @param ...	further arguments passed to or from other methods.
 #' @keywords internal
 #' @export
@@ -151,9 +151,9 @@ print.summary.hopit <- function(x, ...){
 }
 
 
-#' Extracts log likelihood of the fitted model
+#' Extracts a log likelihood of the fitted model
 #'
-#' @param object \code{hopit} object.
+#' @param object an \code{hopit} object.
 #' @param ... additional objects of the class \code{hopit}.
 #' @keywords internal
 #' @export
@@ -170,7 +170,7 @@ logLik.hopit<-function(object, ...) {
 
 #' Extracts Akaike Information Criterion from the fitted model
 #'
-#' @param object \code{hopit} object.
+#' @param object an \code{hopit} object.
 #' @param k a penalty per parameter to be used; the default k = 2 is the classical AIC.
 #' @param ... additional objects of the class \code{hopit}.
 #' @keywords internal
@@ -189,7 +189,7 @@ AIC.hopit<-function(object, ..., k = 2L) {
 
 #' Likelihood Ratio Test Tables
 #'
-#' Compute likelihood rato test for two or more \code{hopit} objecs.
+#' Compute likelihood ratio test for two or more \code{hopit} objecs.
 #' @param object an object containing the results returned by a \code{hopit}.
 #' @param ...	additional objects of the same type.
 #' @param method the method of model comparison. Choose \code{"sequential"} for 1-2, 2-3, 3-4, ... comparisons or
@@ -212,8 +212,8 @@ AIC.hopit<-function(object, ..., k = 2L) {
 #' # Example 1 ---------------------
 #'
 #' # fitting two nested models
-#' model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
-#'                 heart_atack_or_stroke + poor_mobility + very_poor_grip +
+#' model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+#'                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
 #'                 depression + respiratory_problems +
 #'                 IADL_problems + obese + diabetes + other_diseases,
 #'               thresh.formula = ~ sex + ageclass + country,
@@ -221,9 +221,9 @@ AIC.hopit<-function(object, ..., k = 2L) {
 #'               control = list(trace = FALSE),
 #'               data = healthsurvey)
 #'
-#' # model with interaction between hypertenssion and high_cholesterol
-#' model2 <- hopit(latent.formula = health ~ hypertenssion * high_cholesterol +
-#'                 heart_atack_or_stroke + poor_mobility + very_poor_grip +
+#' # model with interaction between hypertension and high_cholesterol
+#' model2 <- hopit(latent.formula = health ~ hypertension * high_cholesterol +
+#'                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
 #'                 depression + respiratory_problems +
 #'                 IADL_problems + obese + diabetes + other_diseases,
 #'               thresh.formula = ~ sex + ageclass + country,
@@ -244,8 +244,8 @@ AIC.hopit<-function(object, ..., k = 2L) {
 #' # Example 2 ---------------------
 #'
 #' # fitting additional nested models
-#' model3 <- hopit(latent.formula = health ~ hypertenssion * high_cholesterol +
-#'                 heart_atack_or_stroke + poor_mobility + very_poor_grip +
+#' model3 <- hopit(latent.formula = health ~ hypertension * high_cholesterol +
+#'                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
 #'                 depression + respiratory_problems +
 #'                 IADL_problems + obese * diabetes + other_diseases,
 #'               thresh.formula = ~ sex + ageclass + country,
@@ -253,8 +253,8 @@ AIC.hopit<-function(object, ..., k = 2L) {
 #'               control = list(trace = FALSE),
 #'               data = healthsurvey)
 #'
-#' model4 <- hopit(latent.formula = health ~ hypertenssion * high_cholesterol +
-#'                 heart_atack_or_stroke + poor_mobility + very_poor_grip +
+#' model4 <- hopit(latent.formula = health ~ hypertension * high_cholesterol +
+#'                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
 #'                 depression + respiratory_problems +
 #'                 IADL_problems + obese * diabetes + other_diseases,
 #'               thresh.formula = ~ sex * ageclass + country,
@@ -320,9 +320,9 @@ anova.hopit<-function(object, ..., method = c('sequential', 'with.most.complex',
 }
 
 
-#' Print object calcuated by \code{\link{anova.hopit}}
+#' Print an object calculated by \code{\link{anova.hopit}}
 #'
-#' @param x object generated by \code{\link{anova.hopit}}
+#' @param x an object generated by \code{\link{anova.hopit}}.
 #' @param ...	further arguments passed to or from other methods.
 #' @keywords internal
 #' @export
@@ -338,9 +338,9 @@ print.anova.hopit <- function(x, ...){
 
 #' Likelihood ratio test for a pair of models
 #'
-#' @param full,nested Models to be compared.
+#' @param full,nested models to be compared.
 #' @keywords internal
-#' @return a vector with results of the test
+#' @return a vector with results of the test.
 #' @export
 #' @author Maciej J. Danko
 #' @seealso \code{\link{print.lrt.hopit}}, \code{\link{anova.hopit}}, \code{\link{hopit}}.
@@ -354,8 +354,8 @@ print.anova.hopit <- function(x, ...){
 #' # Example 1 ---------------------
 #'
 #' # fitting two nested models
-#' model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
-#'                 heart_atack_or_stroke + poor_mobility + very_poor_grip +
+#' model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+#'                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
 #'                 depression + respiratory_problems +
 #'                 IADL_problems + obese + diabetes + other_diseases,
 #'               thresh.formula = ~ sex + ageclass + country,
@@ -363,9 +363,9 @@ print.anova.hopit <- function(x, ...){
 #'               control = list(trace = FALSE),
 #'               data = healthsurvey)
 #'
-#' # model with interaction between hypertenssion and high_cholesterol
-#' model2 <- hopit(latent.formula = health ~ hypertenssion * high_cholesterol +
-#'                 heart_atack_or_stroke + poor_mobility + very_poor_grip +
+#' # model with interaction between hypertension and high_cholesterol
+#' model2 <- hopit(latent.formula = health ~ hypertension * high_cholesterol +
+#'                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
 #'                 depression + respiratory_problems +
 #'                 IADL_problems + obese + diabetes + other_diseases,
 #'               thresh.formula = ~ sex + ageclass + country,
@@ -426,10 +426,10 @@ lrt.hopit <- function(full, nested){
 }
 
 
-#' Print object calculated by \code{\link{lrt.hopit}}
+#' Print an  object calculated by \code{\link{lrt.hopit}}
 #'
-#' @param x object obtained from \code{\link{lrt.hopit}}
-#' @param short logical, shortened description
+#' @param x an object obtained from \code{\link{lrt.hopit}}.
+#' @param short logical indicating if to show shortened description.
 #' @param ...	further arguments passed to or from other methods.
 #' @keywords internal
 #' @export
@@ -463,11 +463,11 @@ print.lrt.hopit <- function(x, short = FALSE, ...){
 }
 
 
-#' Calculate log likelihood profile for fitted hopit model
+#' Calculate log likelihood profile for fitted \code{hopit} model
 #'
-#' @param fitted \code{hopit} object. Fitted model.
-#' @param scope value (fraction) defining plotting range for a coeficient. The range is \code{c(coef \* (1-scope), coef \* (1+scope))}.
-#' @param steps at how many equaly spaced points calcualte the log likelihood function for each coeficient.
+#' @param fitted  an \code{hopit} object (a fitted model).
+#' @param scope value (fraction) defining plotting range for a coefficient. The range is \code{c(coef \* (1-scope), coef \* (1+scope))}.
+#' @param steps at how many equally spaced points calculate the log likelihood function for each coefficient.
 #' @param ... unused now.
 #' @export
 #' @keywords internal
@@ -493,10 +493,10 @@ profile.hopit<-function(fitted, ..., scope=0.15, steps=101){
 }
 
 
-#' Plot log likelihood profile for profile.hopit object
+#' Plot the log likelihood profile for a profile.hopit object
 #'
 #' Plot method for profile.hopit object.
-#' @param x \code{profile.hopit} object.
+#' @param x an \code{profile.hopit} object.
 #' @param leg.cex character expansion factor relative to current \code{par("cex")} (see \code{\link{legend}}).
 #' @param leg.col the color used for the legend text.
 #' @param ylim see \code{\link{plot}}.
@@ -526,8 +526,8 @@ plot.profile.hopit<-function(x, ..., ylim = NULL, relative = FALSE, leg.cex = 0.
 
 #' Print method for profile.hopit object
 #'
-#' @param x \code{profile.hopit} object.
-#' @param plotf \code{hopit} object.
+#' @param x an \code{profile.hopit} object.
+#' @param plotf a logical indicating if to plot the profile.
 #' @param ... arguments to be passed to \code{plot}() function (see \code{\link{plot.profile.hopit}}).
 #' @export
 #' @keywords internal
@@ -544,4 +544,3 @@ print.profile.hopit<-function(x, ..., plotf = TRUE){
     cat(hopit_msg(62))
   }
 }
-

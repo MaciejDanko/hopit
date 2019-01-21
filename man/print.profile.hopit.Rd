@@ -7,11 +7,11 @@
 \method{print}{profile.hopit}(x, ..., plotf = TRUE)
 }
 \arguments{
-\item{x}{\code{profile.hopit} object.}
+\item{x}{an \code{profile.hopit} object.}
 
 \item{...}{arguments to be passed to \code{plot}() function (see \code{\link{plot.profile.hopit}}).}
 
-\item{plotf}{\code{hopit} object.}
+\item{plotf}{a logical indicating if to plot the profile.}
 }
 \description{
 Print method for profile.hopit object

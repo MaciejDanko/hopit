@@ -12,11 +12,11 @@ hopit_negLL(parameters = model$coef, model, collapse = TRUE,
 
 \item{model}{\code{hopit} object.}
 
-\item{collapse}{a logical indicating if to sum individula LL contributions.}
+\item{collapse}{a logical indicating if to sum individual LL contributions.}
 
 \item{use_weights}{a logical indicating if to use model weights.}
 
-\item{negative}{a logicalindicating if to return -LL or LL.}
+\item{negative}{a logical indicating if the function should return negative LL or not.}
 }
 \description{
 INTERNAL: The log likelihood function

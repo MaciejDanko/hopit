@@ -24,14 +24,14 @@ healthIndex(model, decreasing.levels = TRUE, subset = NULL, plotf = FALSE,
 
 \item{ylab}{a label of y axis.}
 
-\item{...}{futher parameters passedto the \code{\link{plot}} function.}
+\item{...}{further parameters passed to the \code{\link{plot}} function.}
 }
 \value{
 a vector with latent index for each individual.
 }
 \description{
-Calcualte latent index from the latent variable. It takes values from 0 to 1, where
-zero is prescribed to the worse predicted state (maximal observed value fo the latent variable) and 1 is prescribed
+Calculate latent index from the latent variable. It takes values from 0 to 1, where
+zero is prescribed to the worse predicted state (maximal observed value for the latent variable) and 1 is prescribed
 to the best predicted health (minimal observed value fo the latent variable).
 }
 \examples{
@@ -44,8 +44,8 @@ levels(healthsurvey$health)
 # Example 1 ---------------------
 
 # fitting a model
-model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
-                heart_atack_or_stroke + poor_mobility + very_poor_grip +
+model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+                heart_attack_or_stroke + poor_mobility + very_poor_grip +
                 depression + respiratory_problems +
                 IADL_problems + obese + diabetes + other_diseases,
               thresh.formula = ~ sex + ageclass + country,

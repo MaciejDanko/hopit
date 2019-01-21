@@ -7,8 +7,8 @@
 clone.of.htvar.matrix <- function (xcheck, Dcheck) {
   if (is.null(dim(xcheck)))
     xcheck <- as.matrix(xcheck)
-  rval <- apply(xcheck, 2, function(xicheck) apply(xcheck, 2, function(xjcheck) as.matrix(Matrix::crossprod(xicheck,
-                                                                                                            Dcheck %*% xjcheck))))
+  rval <- apply(xcheck, 2, function(xicheck) apply(xcheck, 2, function(xjcheck)
+    as.matrix(Matrix::crossprod(xicheck, Dcheck %*% xjcheck))))
   if (is.null(dim(rval)))
     dim(rval) <- c(1, 1)
   rval

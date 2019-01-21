@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{hopit_c_link}
 \alias{hopit_c_link}
-\title{INTERNAL: Decode link parmeter}
+\title{INTERNAL: Decode link parameter}
 \usage{
 hopit_c_link(model)
 }
@@ -10,10 +10,10 @@ hopit_c_link(model)
 \item{model}{fitted model.}
 }
 \value{
-updated model
+updated model.
 }
 \description{
-INTERNAL: Decode link parmeter
+INTERNAL: Decode link parameter
 }
 \author{
 Maciej J. Danko

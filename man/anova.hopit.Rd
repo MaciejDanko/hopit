@@ -21,7 +21,7 @@ direction = c("decreasing", "increasing"))
 a vector or a matrix with results of the test(s).
 }
 \description{
-Compute likelihood rato test for two or more \code{hopit} objecs.
+Compute likelihood ratio test for two or more \code{hopit} objecs.
 }
 \examples{
 # DATA
@@ -33,8 +33,8 @@ levels(healthsurvey$health)
 # Example 1 ---------------------
 
 # fitting two nested models
-model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
-                heart_atack_or_stroke + poor_mobility + very_poor_grip +
+model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+                heart_attack_or_stroke + poor_mobility + very_poor_grip +
                 depression + respiratory_problems +
                 IADL_problems + obese + diabetes + other_diseases,
               thresh.formula = ~ sex + ageclass + country,
@@ -42,9 +42,9 @@ model1 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
               control = list(trace = FALSE),
               data = healthsurvey)
 
-# model with interaction between hypertenssion and high_cholesterol
-model2 <- hopit(latent.formula = health ~ hypertenssion * high_cholesterol +
-                heart_atack_or_stroke + poor_mobility + very_poor_grip +
+# model with interaction between hypertension and high_cholesterol
+model2 <- hopit(latent.formula = health ~ hypertension * high_cholesterol +
+                heart_attack_or_stroke + poor_mobility + very_poor_grip +
                 depression + respiratory_problems +
                 IADL_problems + obese + diabetes + other_diseases,
               thresh.formula = ~ sex + ageclass + country,
@@ -65,8 +65,8 @@ lrt.hopit(model2, model1)
 # Example 2 ---------------------
 
 # fitting additional nested models
-model3 <- hopit(latent.formula = health ~ hypertenssion * high_cholesterol +
-                heart_atack_or_stroke + poor_mobility + very_poor_grip +
+model3 <- hopit(latent.formula = health ~ hypertension * high_cholesterol +
+                heart_attack_or_stroke + poor_mobility + very_poor_grip +
                 depression + respiratory_problems +
                 IADL_problems + obese * diabetes + other_diseases,
               thresh.formula = ~ sex + ageclass + country,
@@ -74,8 +74,8 @@ model3 <- hopit(latent.formula = health ~ hypertenssion * high_cholesterol +
               control = list(trace = FALSE),
               data = healthsurvey)
 
-model4 <- hopit(latent.formula = health ~ hypertenssion * high_cholesterol +
-                heart_atack_or_stroke + poor_mobility + very_poor_grip +
+model4 <- hopit(latent.formula = health ~ hypertension * high_cholesterol +
+                heart_attack_or_stroke + poor_mobility + very_poor_grip +
                 depression + respiratory_problems +
                 IADL_problems + obese * diabetes + other_diseases,
               thresh.formula = ~ sex * ageclass + country,

@@ -7,9 +7,9 @@
 \method{print}{vcov.hopit}(x, digits = 3L, ...)
 }
 \arguments{
-\item{x}{\code{hopit} object}
+\item{x}{an \code{hopit} object}
 
-\item{digits}{see \code{\link{print.default}}}
+\item{digits}{see \code{\link{print.default}}.}
 
 \item{...}{further arguments passed to or from other methods.}
 }
