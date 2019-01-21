@@ -4,20 +4,22 @@
 \alias{hopit}
 \title{Generelaized hierarchical ordered threshold models.}
 \usage{
-hopit(latent.formula, thresh.formula = ~1, strata.formula = ~1, data,
+hopit(latent.formula, thresh.formula = ~1, crossinter.formula = ~1, data,
   decreasing.levels, start = NULL, overdispersion = FALSE,
   design = list(), weights = NULL, link = c("probit", "logit"),
   control = list())
 }
 \arguments{
-\item{latent.formula}{formula used to model latent variable.}
+\item{latent.formula}{formula used to model latent variable.
+To specify interactions between latent and treshold variables see \code{crossinter.formula}}
 
 \item{thresh.formula}{formula used to model threshold variable.
+To specify interactions between latent and treshold variables see \code{crossinter.formula}
 Any dependent variable (left side of "~") will be ignored.}
 
-\item{strata.formula}{formula used to model interactions between threshold and latent variables.
-Each term in this formula will be interacted with all latent variables then and added to the \code{latent.formula}.
-Each term in this formula will be also added to \code{threshold.formula}.
+\item{crossinter.formula}{formula used to model interactions between threshold and latent variables.
+The formula should be in the form \code{"~ thresh.var.X : latent.var.Y + thresh.var.Z : latent.var.Q + ..." }.
+All \code{"latent.vars"} must be present in threshold formula and all \code{"thresh.vars"} must be present in threshold formula.
 Any dependent variable (left side of "~") will be ignored.}
 
 \item{data}{a data frame including all modeled variables.}
@@ -196,13 +198,13 @@ cbind('No survey design' = coef(model1, aslist = TRUE)$latent.par,
 
 # Example 3 ---------------------
 
-# using strata.formula
+# using crossinter.formula
 model3 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
                 heart_atack_or_stroke + poor_mobility + very_poor_grip +
                 depression + respiratory_problems +
                 IADL_problems + obese + diabetes + other_diseases,
               thresh.formula = ~ sex + ageclass + country,
-              strata.formula = ~ sex,
+              crossinter.formula = ~ sex : depression + sex : diabetes,
               decreasing.levels = TRUE,
               control = list(trace = FALSE),
               data = healthsurvey)

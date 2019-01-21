@@ -75,6 +75,20 @@ model3<- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
 print(anova(model3,model2), short=TRUE)
 
 
+## ---- echo=TRUE----------------------------------------------------------
+model4<- hopit(latent.formula = health ~ hypertenssion + high_cholesterol + 
+                      heart_atack_or_stroke + poor_mobility + 
+                      very_poor_grip + depression + respiratory_problems + 
+                      IADL_problems + obese + diabetes + other_diseases, 
+               thresh.formula = ~ sex * ageclass + country,
+               crossinter.formula = ~ sex : depression,
+               decreasing.levels = TRUE,
+               control=list(trace=FALSE),
+               data = healthsurvey)
+
+print(anova(model3,model4), short=TRUE)
+
+
 ## ---- echo=TRUE, cache=TRUE----------------------------------------------
 design <- svydesign(ids = ~ country + psu, weights = healthsurvey$csw, 
                     data = healthsurvey)

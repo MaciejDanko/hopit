@@ -350,11 +350,13 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' It is always good to check first the ordering of the levels before starting (see example 1)\cr
 #'
 #' @param latent.formula formula used to model latent variable.
+#' To specify interactions between latent and treshold variables see \code{crossinter.formula}
 #' @param thresh.formula formula used to model threshold variable.
+#' To specify interactions between latent and treshold variables see \code{crossinter.formula}
 #' Any dependent variable (left side of "~") will be ignored.
-#' @param strata.formula formula used to model interactions between threshold and latent variables.
-#' Each term in this formula will be interacted with all latent variables then and added to the \code{latent.formula}.
-#' Each term in this formula will be also added to \code{threshold.formula}.
+#' @param crossinter.formula formula used to model interactions between threshold and latent variables.
+#' The formula should be in the form \code{"~ thresh.var.X : latent.var.Y + thresh.var.Z : latent.var.Q + ..." }.
+#' All \code{"latent.vars"} must be present in threshold formula and all \code{"thresh.vars"} must be present in threshold formula.
 #' Any dependent variable (left side of "~") will be ignored.
 #' @param data a data frame including all modeled variables.
 #' @param decreasing.levels logical indicating if self-reported health classes are ordered in decreasing order.
@@ -472,13 +474,13 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #'
 #' # Example 3 ---------------------
 #'
-#' # using strata.formula
+#' # using crossinter.formula
 #' model3 <- hopit(latent.formula = health ~ hypertenssion + high_cholesterol +
 #'                 heart_atack_or_stroke + poor_mobility + very_poor_grip +
 #'                 depression + respiratory_problems +
 #'                 IADL_problems + obese + diabetes + other_diseases,
 #'               thresh.formula = ~ sex + ageclass + country,
-#'               strata.formula = ~ sex,
+#'               crossinter.formula = ~ sex : depression + sex : diabetes,
 #'               decreasing.levels = TRUE,
 #'               control = list(trace = FALSE),
 #'               data = healthsurvey)
@@ -514,7 +516,7 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' print(anova(model1, model4), short = TRUE)
 hopit<- function(latent.formula,
                  thresh.formula = ~ 1,
-                 strata.formula = ~ 1,
+                 crossinter.formula = ~ 1,
                  data,
                  decreasing.levels,
                  start = NULL,
@@ -537,22 +539,32 @@ hopit<- function(latent.formula,
   thresh.formula <- check_thresh_formula(thresh.formula)
   latent.formula <- check_latent_formula(latent.formula)
 
-  strata.formula <- check_thresh_formula(strata.formula)
-  strata <- attr(terms(strata.formula),'term.labels')
-  if (length(strata)) {
-    strata.f <- paste(strata, collapse='+')
-    thresh.formula <-update(thresh.formula, paste('.~. +',strata.f))
-    if (length(thresh.formula)>2) thresh.formula[[2]] <- NULL
-    latent.formulaA <-update(latent.formula, paste('.~(.) * (',strata.f,')'))
-    latent.formulaB <-update(latent.formula, paste('.~(.) * (',strata.f,') - (',strata.f,')'))
+  thresh.terms <- attr(terms(thresh.formula),'term.labels')
+  latent.terms <- attr(terms(latent.formula),'term.labels')
+
+  crossinter.formula <- check_thresh_formula(crossinter.formula)
+  crossinter <- attr(terms(crossinter.formula),'term.labels')
+  if (length(crossinter)) crossinter <- crossinter[which(grepl(":", unlist(crossinter), fixed=TRUE))]
+  if (length(crossinter)) {
+    # check if one component is in the thresh and second in the latent
+    crossinter.list <- lapply(crossinter, function(k) regmatches(k, gregexpr(':',k,fixed=TRUE)[[1]], invert=TRUE)[[1]])
+    crossinter.test <- sapply(crossinter.list, function(k) any(k %in% thresh.terms) & any(k %in% latent.terms))
+    if (!all(crossinter.test)) {
+      ll <- paste(crossinter[which(!crossinter.test)],collapse = ' & ')
+      stop(paste(hopit_msg(87),ll, hopit_msg(88)))
+    }
+    crossinter.thresh <-unique(sapply(crossinter.list, function(k) k[k %in% thresh.terms]))
+    crossinter.f <- paste(crossinter, collapse=' + ')
+    latent.formulaA <-update(latent.formula, paste('.~. + ',crossinter.f,' + ',crossinter.thresh))
+    latent.formulaB <-update(latent.formulaA, paste('.~. - ',crossinter.thresh))
     m1<-model.matrix(latent.formulaA, data)
     m2<-model.matrix(latent.formulaB, data)
     cm1<-colnames(m1)
     rco<-cm1[!(cm1 %in% colnames(m2))]
     model$latent.mm <- m1[,which(!(cm1 %in% rco))]
     model$latent.formula <- latent.formulaB
-    model$strata.formula <- strata.formula
-    model$strata <- strata
+    model$crossinter.formula <- crossinter.formula
+    model$crossinter <- crossinter
   } else {
     model$latent.formula <- latent.formula
     model$latent.mm <- as.matrix(model.matrix(latent.formula, data = data))

@@ -87,8 +87,8 @@ hopit_msg <- function(x) switch(x,
   '84' = 'Unknown group.labels.type.', #reporting styles
   '85' = 'Some cut-points are NA or duplicated.', #reporting styles
   '86' = '"formula" must be of class formula.', #reporting styles
-  '87' = '',
-  '88' = '',
+  '87' = 'Elements of interaction(s)', #hopit
+  '88' = 'should be present both in threshold and latent formula',
   '89' = '',
   '90' = '',
   '91' = '',
