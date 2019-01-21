@@ -62,7 +62,7 @@ y_i = J~ \Leftrightarrow~ \alpha_{i,J-1} \leq h_i < \alpha_{i,J}\\
 \end{cases}
 \end{equation}
 
-The thresholds (cut points, $\alpha$) are modeled by threshold variables $\gamma$ and intercepts $\lambda$. It is assumed that they model contextual characteristics of the respondent (e.g. country, gender, age, etc. ). Threshold variables are modeled without parallel regression assumption, thus each threshold is modeled by a variable independently [@Boes2006; @Green2014]. 
+The thresholds (cut points, $\alpha$) are modeled by threshold variables $Y$, their coefficents $\gamma$, and intercepts $\lambda$. It is assumed that they model contextual characteristics of the respondent (e.g. country, gender, age, etc. ). Threshold variables are modeled without parallel regression assumption, thus each threshold is modeled by a variable independently [@Boes2006; @Green2014]. 
 
 Different parametrizations of thresholds exist [@Green2014; @Rebelo2014; @Jurges2007]. In the package, @King2004 and @Jurges2007 parametrization is used, which assumes that: 
 
