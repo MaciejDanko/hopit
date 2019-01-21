@@ -5,11 +5,20 @@ sudo: false
 cache: packages
 warnings_are_errors: true
 
+before_install:
+  - sudo tlmgr update --self
+  - sudo tlmgr install framed
+
 os:
 - linux
 - osx
 
 r:
- - oldrelease
  - release
- - devel
+ - 3.4
+
+r_packages:
+  - covr
+
+after_success:
+- Rscript -e 'covr::codecov()'
