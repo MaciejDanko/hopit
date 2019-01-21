@@ -1,4 +1,4 @@
-### Analysis of the reporting styles using generalized ordered probit models
+# Analysis of the reporting styles using generalized ordered probit models
 
 ## Installation
 
