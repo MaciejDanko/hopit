@@ -10,10 +10,10 @@ hopit(latent.formula, thresh.formula = ~1, crossinter.formula = ~1, data,
   control = list())
 }
 \arguments{
-\item{latent.formula}{formula used to model latent variable.
+\item{latent.formula}{formula used to model latent variable. It should not contain any threshold variable.
 To specify interactions between latent and treshold variables see \code{crossinter.formula}}
 
-\item{thresh.formula}{formula used to model threshold variable.
+\item{thresh.formula}{formula used to model threshold variable. It should not contain any latent variable.
 To specify interactions between latent and treshold variables see \code{crossinter.formula}
 Any dependent variable (left side of "~") will be ignored.}
 

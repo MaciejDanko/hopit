@@ -349,9 +349,9 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' \code{decreasing.levels} it is the logical that determines the ordering of levels of the categorical response variable.
 #' It is always good to check first the ordering of the levels before starting (see example 1)\cr
 #'
-#' @param latent.formula formula used to model latent variable.
+#' @param latent.formula formula used to model latent variable. It should not contain any threshold variable.
 #' To specify interactions between latent and treshold variables see \code{crossinter.formula}
-#' @param thresh.formula formula used to model threshold variable.
+#' @param thresh.formula formula used to model threshold variable. It should not contain any latent variable.
 #' To specify interactions between latent and treshold variables see \code{crossinter.formula}
 #' Any dependent variable (left side of "~") will be ignored.
 #' @param crossinter.formula formula used to model interactions between threshold and latent variables.
@@ -541,17 +541,24 @@ hopit<- function(latent.formula,
 
   thresh.terms <- attr(terms(thresh.formula),'term.labels')
   latent.terms <- attr(terms(latent.formula),'term.labels')
+  thresh.list <- unlist(decomposeformula(thresh.terms))
+  latent.list <- unlist(decomposeformula(latent.terms))
+  if(any(thresh.list %in% latent.list) || any(latent.list %in% thresh.list)) stop(hopit_msg(89), call.=NULL)
 
   crossinter.formula <- check_thresh_formula(crossinter.formula)
   crossinter <- attr(terms(crossinter.formula),'term.labels')
-  if (length(crossinter)) crossinter <- crossinter[which(grepl(":", unlist(crossinter), fixed=TRUE))]
+  if (length(crossinter)) {
+    tmp <- length(crossinter)
+    crossinter <- crossinter[which(grepl(":", unlist(crossinter), fixed=TRUE))]
+    if (length(crossinter) != tmp) warning(hopit_msg(90), call. = NA)
+  }
   if (length(crossinter)) {
     # check if one component is in the thresh and second in the latent
-    crossinter.list <- lapply(crossinter, function(k) regmatches(k, gregexpr(':',k,fixed=TRUE)[[1]], invert=TRUE)[[1]])
+    crossinter.list <- decomposeformula(crossinter)
     crossinter.test <- sapply(crossinter.list, function(k) any(k %in% thresh.terms) & any(k %in% latent.terms))
     if (!all(crossinter.test)) {
       ll <- paste(crossinter[which(!crossinter.test)],collapse = ' & ')
-      stop(paste(hopit_msg(87),ll, hopit_msg(88)))
+      stop(paste(hopit_msg(87),ll, hopit_msg(88)), call.=NULL)
     }
     crossinter.thresh <-unique(sapply(crossinter.list, function(k) k[k %in% thresh.terms]))
     crossinter.f <- paste(crossinter, collapse=' + ')

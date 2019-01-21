@@ -91,6 +91,11 @@ Vector2DummyMat<-function(V) sapply(levels(as.factor(V)), function(k) as.factor(
 
 #' @keywords internal
 #' @noRd
+decomposeformula<-function(allterms) lapply(allterms, function(k) regmatches(k, gregexpr(':',k,fixed=TRUE)[[1]], invert=TRUE)[[1]])
+
+
+#' @keywords internal
+#' @noRd
 untable <- function(x) {
   names(attr(x, "dimnames")) <- c('','')
   as.matrix(x)

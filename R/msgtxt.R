@@ -88,9 +88,9 @@ hopit_msg <- function(x) switch(x,
   '85' = 'Some cut-points are NA or duplicated.', #reporting styles
   '86' = '"formula" must be of class formula.', #reporting styles
   '87' = 'Elements of interaction(s)', #hopit
-  '88' = 'should be present both in threshold and latent formula',
-  '89' = '',
-  '90' = '',
+  '88' = 'should be present both in threshold and latent formula.',
+  '89' = 'Latent variables present in threshold formula (or vice versa).',
+  '90' = 'Non-interaction terms removed from crossinter.formula.',
   '91' = '',
   '92' = '',
   '93' = '',

@@ -77,7 +77,7 @@ diff_BadHealth <- function(model, data) {
 }
 
 # Estimate of the difference
-est.org <- diff_BadHealth(model = model3, data = healthsurvey)
+est.org <- diff_BadHealth(model = model1, data = healthsurvey)
 
 # Perform the bootstrap
 B <- boot_hopit(model = model1, data = healthsurvey,
