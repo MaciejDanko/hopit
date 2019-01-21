@@ -2,7 +2,7 @@
 % Please edit documentation in R/reportingstyles.R
 \name{getLevels}
 \alias{getLevels}
-\title{Summarize adjusted and original response levels.}
+\title{Summarize adjusted and original response levels}
 \usage{
 getLevels(model, formula = model$thresh.formula,
   data = environment(model$thresh.formula), decreasing.levels = TRUE,
@@ -45,7 +45,7 @@ a list with following components:
 Each row corresponds to a single individual from the data used to fit the model.}
 }
 \description{
-Summarize adjusted and original response levels
+Summarize adjusted and original response levels.
 }
 \examples{
 # DATA

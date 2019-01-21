@@ -355,7 +355,7 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' To specify interactions between latent and threshold variables see \code{crossinter.formula}
 #' Any dependent variable (left side of "~") will be ignored.
 #' @param crossinter.formula formula used to model interactions between threshold and latent variables.
-#' The formula should be in the form \code{"~ thresh.var.X : latent.var.Y + thresh.var.Z : latent.var.Q + ..." }.
+#' The formula should be in the form \cr\code{"~ thresh.var.X : latent.var.Y + thresh.var.Z : latent.var.Q + ..." }.\cr
 #' All \code{"latent.vars"} must be present in threshold formula and all \code{"thresh.vars"} must be present in threshold formula.
 #' Any dependent variable (left side of "~") will be ignored.
 #' @param data a data frame including all modeled variables.
@@ -363,13 +363,13 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' @param overdispersion logical indicting if to fit additional parameter theta, which models a variance of the error term.
 #' @param design an optional survey design. Use \code{\link[survey]{svydesign}} function to specify the design.
 #' The design cannot be specified together with parameter \code{weights}.
-#' @param weights an optional weights. Use design to construct survey weights.
+#' @param weights optional model weights. Use design to construct survey weights.
 #' @param link the link function. The possible values are \code{"probit"} (default) and \code{"logit"}.
 #' @param start a vector with starting coefficient values in the form \code{c(latent_parameters, threshold_lambdas, threshold_gammas)}.
 #' @param control a list with control parameters. See \code{\link{hopit.control}}.
 #' @return a \code{hopit} object used by other functions and methods. The object is a list with following components:
 #'  \item{control}{ a list with control parameters. See \code{\link{hopit.control}}.}
-#'  \item{link}{ used link funtion.}
+#'  \item{link}{ the used link funtion.}
 #'  \item{hasdisp}{ logical, was overdispersion modeled?}
 #'  \item{latent.formula}{ used latent formula.}
 #'  \item{latent.mm}{ latent model matrix.}
@@ -385,11 +385,11 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #'  \item{coef.ls}{ coefficients as a list.}
 #'  \item{start}{ vector with starting vlues of coefficients.}
 #'  \item{alpha}{ estimated individual-specific thresholds.}
-#'  \item{y_i}{ response variable.}
+#'  \item{y_i}{ the response variable.}
 #'  \item{y_latent_i}{ predicted latent measure.}
 #'  \item{Ey_i}{ predicted categorical response.}
-#'  \item{J}{ number of response levels.}
-#'  \item{N}{ number of observations.}
+#'  \item{J}{ the number of response levels.}
+#'  \item{N}{ the number of observations.}
 #'  \item{deviance}{ deviance.}
 #'  \item{LL}{ log likelihood.}
 #'  \item{AIC}{ AIC for models without survey design.}

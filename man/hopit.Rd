@@ -18,7 +18,7 @@ To specify interactions between latent and threshold variables see \code{crossin
 Any dependent variable (left side of "~") will be ignored.}
 
 \item{crossinter.formula}{formula used to model interactions between threshold and latent variables.
-The formula should be in the form \code{"~ thresh.var.X : latent.var.Y + thresh.var.Z : latent.var.Q + ..." }.
+The formula should be in the form \cr\code{"~ thresh.var.X : latent.var.Y + thresh.var.Z : latent.var.Q + ..." }.\cr
 All \code{"latent.vars"} must be present in threshold formula and all \code{"thresh.vars"} must be present in threshold formula.
 Any dependent variable (left side of "~") will be ignored.}
 
@@ -33,7 +33,7 @@ Any dependent variable (left side of "~") will be ignored.}
 \item{design}{an optional survey design. Use \code{\link[survey]{svydesign}} function to specify the design.
 The design cannot be specified together with parameter \code{weights}.}
 
-\item{weights}{an optional weights. Use design to construct survey weights.}
+\item{weights}{optional model weights. Use design to construct survey weights.}
 
 \item{link}{the link function. The possible values are \code{"probit"} (default) and \code{"logit"}.}
 
@@ -42,7 +42,7 @@ The design cannot be specified together with parameter \code{weights}.}
 \value{
 a \code{hopit} object used by other functions and methods. The object is a list with following components:
 \item{control}{ a list with control parameters. See \code{\link{hopit.control}}.}
-\item{link}{ used link funtion.}
+\item{link}{ the used link funtion.}
 \item{hasdisp}{ logical, was overdispersion modeled?}
 \item{latent.formula}{ used latent formula.}
 \item{latent.mm}{ latent model matrix.}
@@ -58,11 +58,11 @@ threshold intercept (lambda), and threshold covariates (gamma).}
 \item{coef.ls}{ coefficients as a list.}
 \item{start}{ vector with starting vlues of coefficients.}
 \item{alpha}{ estimated individual-specific thresholds.}
-\item{y_i}{ response variable.}
+\item{y_i}{ the response variable.}
 \item{y_latent_i}{ predicted latent measure.}
 \item{Ey_i}{ predicted categorical response.}
-\item{J}{ number of response levels.}
-\item{N}{ number of observations.}
+\item{J}{ the number of response levels.}
+\item{N}{ the number of observations.}
 \item{deviance}{ deviance.}
 \item{LL}{ log likelihood.}
 \item{AIC}{ AIC for models without survey design.}

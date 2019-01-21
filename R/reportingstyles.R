@@ -273,9 +273,9 @@ getCutPoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(
 }
 
 
-#' Summarize adjusted and original response levels.
-#' @description
 #' Summarize adjusted and original response levels
+#' @description
+#' Summarize adjusted and original response levels.
 #' @param model a fitted \code{hopit} model.
 #' @param formula a formula containing the grouping variables. It is by default set to threshold formula.
 #' @param data data used to fit the model.
