@@ -6,7 +6,8 @@ cache: packages
 warnings_are_errors: true
 
 before_install:
-  - sudo tlmgr install framed
+  - Rscript -e 'install.packages("tinytex")'
+  - Rscript -e 'tinytex::install_tinytex(force=TRUE)'
 
 os:
 - linux
@@ -14,10 +15,11 @@ os:
 
 r:
  - release
- - 3.4
+ - devel
 
 r_packages:
   - covr
+  - tinytex
 
 after_success:
 - Rscript -e 'covr::codecov()'
