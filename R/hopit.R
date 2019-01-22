@@ -420,7 +420,7 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' # DATA
 #' data(healthsurvey)
 #'
-#' # first determine the order of the dependent variable
+#' # first determine the order of levels of dependent variable
 #' levels(healthsurvey$health)
 #'
 #' # Example 1 ---------------------
@@ -449,7 +449,7 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' # extracting latent health coefficients
 #' cm1$latent.params
 #'
-#' # Checking the fit
+#' # check the fit
 #' profile(model1)
 #'
 #' # Example 2 ---------------------

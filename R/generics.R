@@ -477,6 +477,36 @@ print.lrt.hopit <- function(x, short = FALSE, ...){
 #' @author Maciej J. Danko
 #' @usage \method{profile}{hopit}(fitted, ..., scope = 0.15, steps = 101)
 #' @seealso \code{\link{plot.profile.hopit}}, \code{\link{print.profile.hopit}}, \code{\link{hopit}}
+#' @examples
+#' # DATA
+#' data(healthsurvey)
+#'
+#' # first determine the order of levels of dependent variable
+#' levels(healthsurvey$health)
+#'
+#' # Example 1 ---------------------
+#'
+#' # the order is decreasing (from the best health to the worst health)
+#' # so we set: decreasing.levels = TRUE
+#' # fitting the model:
+#' model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+#'                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
+#'                 depression + respiratory_problems +
+#'                 IADL_problems + obese + diabetes + other_diseases,
+#'               thresh.formula = ~ sex + ageclass + country,
+#'               decreasing.levels = TRUE,
+#'               control = list(trace = FALSE),
+#'               data = healthsurvey)
+#'
+#' # check the fit using profile function (at 51 points)
+#' pr <- profile(model1, steps = 51)
+#' print(pr, plotf = FALSE)
+#'
+#' # plot profile
+#' plot(pr, relative = FALSE)
+#'
+#' # alternative plot
+#' plot(pr, relative = TRUE)
 profile.hopit<-function(fitted, ..., scope=0.15, steps=101){
   steps <- floor(steps/2)*2+1
   if (fitted$hasdisp) COEF <- c(fitted$coef, fitted$coef.ls$logTheta) else COEF <- fitted$coef
