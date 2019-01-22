@@ -41,7 +41,7 @@ data(healthsurvey)
 # the order of response levels is decreasing (from the best health to the worst health)
 levels(healthsurvey$health)
 
-# fitting a model
+# fit a model
 model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
                 depression + respiratory_problems +
@@ -52,14 +52,14 @@ model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
               data = healthsurvey)
 
 # Example 1 ---------------------
-# Bootstrapping cut-points
+# bootstrapping cut-points
 
 # Function to be bootstrapped
 cutpoints <-  function(model, data) getCutPoints(model, plotf = FALSE)$cutpoints
 B <- boot_hopit(model = model1, data = healthsurvey,
                 func = cutpoints, nboot = 100)
 
-# Calculate lower and upper bounds using percentile method
+# calculate lower and upper bounds using percentile method
 cutpoints.CI <- boot_hopit_CI(B)
 
 # print estimated cutpoints and their confidence intervals
@@ -67,29 +67,29 @@ cutpoints(model1, healthsurvey)
 cutpoints.CI
 
 # Example 2 ---------------------
-# Bootstrapping health levels differences
+# bootstrapping health levels differences
 
-# Function to be bootstraped
+# the function to be bootstrapped
 diff_BadHealth <- function(model, data) {
   hl <- getLevels(model = model, formula=~ sex + ageclass, data = data,
                   sep=' ', plotf=FALSE)
   hl$original[,1] + hl$original[,2] - hl$adjusted[,1]- hl$adjusted[,2]
 }
 
-# Estimate of the difference
+# estimate of the difference
 est.org <- diff_BadHealth(model = model1, data = healthsurvey)
 
-# Perform the bootstrap
+# perform the bootstrap
 B <- boot_hopit(model = model1, data = healthsurvey,
                 func = diff_BadHealth, nboot = 100)
 
-# Calculate lower and upper bounds using percentile method
+# calculate lower and upper bounds using percentile method
 est.CI <- boot_hopit_CI(B)
 
-# Plotting the difference and its (asymmetrical) confidence intervals
+# plot the difference and its (asymmetrical) confidence intervals
 pmar <- par('mar'); par(mar = c(9.5,pmar[2:4]))
 m <- max(abs(est.CI))
-pos <- barplot(est.org, names.arg = names(est.org), las = 3, ylab = 'Orginal - Adjusted',
+pos <- barplot(est.org, names.arg = names(est.org), las = 3, ylab = 'Original - Adjusted',
                ylim=c(-m, m), density = 20, angle = c(45, -45), col = c('blue', 'orange'))
 for (k in seq_along(pos)) lines(c(pos[k,1],pos[k,1]), est.CI[,k], lwd = 2, col = 2)
 abline(h = 0); box(); par(mar = pmar)

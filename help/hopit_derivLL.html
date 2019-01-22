@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: INTERNAL: The gradient of the log likelihood function</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for hopit_derivLL {hopit}"><tr><td>hopit_derivLL {hopit}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>INTERNAL: The gradient of the log likelihood function</h2>
+
+<h3>Description</h3>
+
+<p>INTERNAL: The gradient of the log likelihood function
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+hopit_derivLL(parameters = model$coef, model, collapse = TRUE,
+  use_weights = model$use.weights, negative = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>parameters</code></td>
+<td>
+<p>model parameters (optional). If not delivered then taken from <code>model$coef</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>model</code></td>
+<td>
+<p><code>hopit</code> object.</p>
+</td></tr>
+<tr valign="top"><td><code>collapse</code></td>
+<td>
+<p>a logical indicating if to sum individual LL contributions.</p>
+</td></tr>
+<tr valign="top"><td><code>use_weights</code></td>
+<td>
+<p>a logical indicating if to use model weights.</p>
+</td></tr>
+<tr valign="top"><td><code>negative</code></td>
+<td>
+<p>a logical indicating if the function should return negative LL or not.</p>
+</td></tr>
+</table>
+
+
+<h3>Author(s)</h3>
+
+<p>Maciej J. Danko
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>hopit</em> version 0.4.167 <a href="00Index.html">Index</a>]</div>
+</body></html>

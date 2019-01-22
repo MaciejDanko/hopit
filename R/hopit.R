@@ -49,7 +49,7 @@ hopit_Latent <- function(latent.params, model = NULL) model$latent.mm %*% (as.ma
 #' Extract model parameters as a list.
 #' @param model \code{hopit} object.
 #' @param parameters model parameters (optional). If not delivered then taken from \code{model$coef}.
-#' @param parcount vector with parameters counts for latent, lambda, and gamma.
+#' @param parcount vector with parameter counts for latent, lambda, and gamma.
 #' @author Maciej J. Danko
 #' @keywords internal
 hopit_ExtractParameters <- function(model, parameters, parcount = model$parcount){
@@ -320,7 +320,7 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' Ordered threshold models are used to fit ordered categorical dependent variables.
 #' The generalized ordered threshold models \insertCite{Terza1985,Boes2006,Green2014}{hopit}
 #' are an extension to the ordered threshold models \insertCite{McKelvey1975}{hopit}.
-#' In the latter models the thresholds are constant, whereas generalized models allows
+#' In the latter models, the thresholds are constant, whereas generalized models allows
 #' thresholds to be dependent on covariates.
 #' \insertCite{GreeneHensher2010,Green2014;textual}{hopit} pointed out that also
 #' thresholds must be ordered so that a model has a sense.

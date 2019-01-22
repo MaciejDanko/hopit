@@ -11,7 +11,7 @@ hopit_ExtractParameters(model, parameters, parcount = model$parcount)
 
 \item{parameters}{model parameters (optional). If not delivered then taken from \code{model$coef}.}
 
-\item{parcount}{vector with parameters counts for latent, lambda, and gamma.}
+\item{parcount}{vector with parameter counts for latent, lambda, and gamma.}
 }
 \description{
 Extract model parameters as a list.

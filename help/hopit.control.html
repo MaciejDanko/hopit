@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Auxiliary for controlling the fitting of 'hopit' model</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for hopit.control {hopit}"><tr><td>hopit.control {hopit}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Auxiliary for controlling the fitting of <code>hopit</code> model</h2>
+
+<h3>Description</h3>
+
+<p>Auxiliary function for controlling the fitting of <code>hopit</code> model. Use this function to set control
+parameters of the <code><a href="hopit.html">hopit</a></code> and other related functions.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+hopit.control(grad.eps = 3e-05, bgfs.maxit = 10000, cg.maxit = 10000,
+  nlm.maxit = 150, bgfs.reltol = 5e-10, cg.reltol = 5e-10,
+  nlm.gradtol = 1e-07, nlm.steptol = 1e-07, fit.methods = c("CG",
+  "BFGS"), quick.fit = TRUE, trace = TRUE, thresh.start = -Inf,
+  thresh.1.exp = FALSE, LL_out_val = -Inf)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>grad.eps</code></td>
+<td>
+<p>epsilon for numerical Hessian function.</p>
+</td></tr>
+<tr valign="top"><td><code>bgfs.maxit, cg.maxit, nlm.maxit</code></td>
+<td>
+<p>the maximum number of iterations. See <code><a href="../../stats/html/optim.html">optim</a></code> and <code><a href="../../stats/html/nlm.html">nlm</a></code> for details.</p>
+</td></tr>
+<tr valign="top"><td><code>bgfs.reltol, cg.reltol</code></td>
+<td>
+<p>relative convergence tolerance. See <code><a href="../../stats/html/optim.html">optim</a></code> for details.</p>
+</td></tr>
+<tr valign="top"><td><code>nlm.gradtol, nlm.steptol</code></td>
+<td>
+<p>tolerance at which the scaled gradient is considered close enough to zero and
+minimum allowable relative step length. See <code><a href="../../stats/html/nlm.html">nlm</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>fit.methods</code></td>
+<td>
+<p>either 'CG' or 'BFGS'. See <code><a href="../../stats/html/optim.html">optim</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>quick.fit</code></td>
+<td>
+<p>logical, if TRUE extensive <code>nlm</code> optimization method is ignored and only BFGS and CG methods are run.</p>
+</td></tr>
+<tr valign="top"><td><code>trace</code></td>
+<td>
+<p>logical, if to trace model fitting.</p>
+</td></tr>
+<tr valign="top"><td><code>LL_out_val, thresh.1.exp, thresh.start</code></td>
+<td>
+<p>internal parameters under development, do not change.</p>
+</td></tr>
+</table>
+
+
+<h3>Author(s)</h3>
+
+<p>Maciej J. Danko
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="hopit.html">hopit</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>hopit</em> version 0.4.167 <a href="00Index.html">Index</a>]</div>
+</body></html>

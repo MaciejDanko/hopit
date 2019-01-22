@@ -74,17 +74,17 @@ threshold intercept (lambda), and threshold covariates (gamma).}
 }
 \description{
 The ordered response data classifies a measure of interest into ordered categories collected during a survey.
-If the dependent variable is a happiness then a respondent typically answers a question:
-“Taking all things together, would you say you are ...? “ and have some response options e.g.
+For examle, if the dependent variable were a happiness rating, then a respondent typically answers a question like:
+“Taking all things together, would you say you are ...? “ and then selects from response options along the lines of:
 "very happy", "pretty happy", "not too happy", "very unhappy" \insertCite{Liao2005}{hopit}.
-Similarly if interviewees are asked to evaluate their health in general (e.g. “Would you say your health is ...?”)
-they may choose among several categories, e.g. very good, good, fair, bad, and very bad
-\insertCite{King2004,Jurges2007,Rebelo2014}{hopit}. In political sciences a respondent may be
-asked for an opinion about recent legislation (e.g. “Rate your feelings about the proposed legislation")
-and asked to choose among several categories "strongly oppose", "mildly oppose", "indifferent",
-"mildly support", "strongly support" \insertCite{GreeneHensher2010}{hopit}.
-It is easy to imagine other multi-level ordinal variables that might by use during the survey and
-to which methodology described below could be applied with.\cr
+Similarly if interviewees are asked to evaluate
+their health in general (e.g. “Would you say your health is ...?”) they may choose among several categories, such as
+"very good", "good", "fair", "bad", and "very bad" \insertCite{King2004,Jurges2007,Rebelo2014}{hopit}.
+In political sciences a respondent may be asked for an opinion about recent legislation (e.g. “Rate your feelings
+about the proposed legislation") and asked to choose among categories like: "strongly oppose", "mildly oppose",
+"indifferent", "mildly support", "strongly support" \insertCite{GreeneHensher2010}{hopit}.
+It is easy to imagine other multi-level ordinal variables that might be used during a survey and to which the methodology
+described below could be applied to.\cr
 
 Practically, it is assumed that when responding to a survey question about their general happiness,
 health, feeling, attitude or other status, participants assess their true value of this
@@ -110,7 +110,7 @@ groups like cultural background, gender, age, education, etc. \insertCite{King20
 Ordered threshold models are used to fit ordered categorical dependent variables.
 The generalized ordered threshold models \insertCite{Terza1985,Boes2006,Green2014}{hopit}
 are an extension to the ordered threshold models \insertCite{McKelvey1975}{hopit}.
-In the latter models the thresholds are constant, whereas generalized models allows
+In the latter models, the thresholds are constant, whereas generalized models allows
 thresholds to be dependent on covariates.
 \insertCite{GreeneHensher2010,Green2014;textual}{hopit} pointed out that also
 thresholds must be ordered so that a model has a sense.
@@ -139,12 +139,14 @@ a variable independently \insertCite{Boes2006,Green2014}{hopit}.
 
 \code{decreasing.levels} it is the logical that determines the ordering of levels of the categorical response variable.
 It is always good to check first the ordering of the levels before starting (see example 1)\cr
+
+For more details please see the package vignette: "introduction_to_hopit".
 }
 \examples{
 # DATA
 data(healthsurvey)
 
-# first determine the order of the dependent variable
+# first determine the order of levels of dependent variable
 levels(healthsurvey$health)
 
 # Example 1 ---------------------
@@ -173,7 +175,7 @@ names(cm1)
 # extracting latent health coefficients
 cm1$latent.params
 
-# Checking the fit
+# check the fit
 profile(model1)
 
 # Example 2 ---------------------

@@ -18,6 +18,37 @@
 \description{
 Calculate log likelihood profile for fitted \code{hopit} model
 }
+\examples{
+# DATA
+data(healthsurvey)
+
+# first determine the order of levels of dependent variable
+levels(healthsurvey$health)
+
+# Example 1 ---------------------
+
+# the order is decreasing (from the best health to the worst health)
+# so we set: decreasing.levels = TRUE
+# fitting the model:
+model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+                heart_attack_or_stroke + poor_mobility + very_poor_grip +
+                depression + respiratory_problems +
+                IADL_problems + obese + diabetes + other_diseases,
+              thresh.formula = ~ sex + ageclass + country,
+              decreasing.levels = TRUE,
+              control = list(trace = FALSE),
+              data = healthsurvey)
+
+# check the fit using profile function (at 51 points)
+pr <- profile(model1, steps = 51)
+print(pr, plotf = FALSE)
+
+# plot profile
+plot(pr, relative = FALSE)
+
+# alternative plot
+plot(pr, relative = TRUE)
+}
 \seealso{
 \code{\link{plot.profile.hopit}}, \code{\link{print.profile.hopit}}, \code{\link{hopit}}
 }

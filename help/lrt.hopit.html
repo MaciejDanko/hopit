@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Likelihood ratio test for a pair of models</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/languages/r.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</head><body>
+
+<table width="100%" summary="page for lrt.hopit {hopit}"><tr><td>lrt.hopit {hopit}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Likelihood ratio test for a pair of models</h2>
+
+<h3>Description</h3>
+
+<p>Likelihood ratio test for a pair of models
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+lrt.hopit(full, nested)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>full, nested</code></td>
+<td>
+<p>models to be compared.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>a vector with results of the test.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Maciej J. Danko
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="print.lrt.hopit.html">print.lrt.hopit</a></code>, <code><a href="anova.hopit.html">anova.hopit</a></code>, <code><a href="hopit.html">hopit</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre><code class="r"># DATA
+data(healthsurvey)
+
+# the order of response levels is decreasing (from the best health to the worst health)
+levels(healthsurvey$health)
+</code></pre>
+
+<pre><code>## [1] &quot;Excellent&quot; &quot;Very good&quot; &quot;Good&quot;      &quot;Fair&quot;      &quot;Poor&quot;
+</code></pre>
+
+<pre><code class="r"># Example 1 ---------------------
+
+# fitting two nested models
+model1 &lt;- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+                heart_attack_or_stroke + poor_mobility + very_poor_grip +
+                depression + respiratory_problems +
+                IADL_problems + obese + diabetes + other_diseases,
+              thresh.formula = ~ sex + ageclass + country,
+              decreasing.levels = TRUE,
+              control = list(trace = FALSE),
+              data = healthsurvey)
+
+# model with interaction between hypertension and high_cholesterol
+model2 &lt;- hopit(latent.formula = health ~ hypertension * high_cholesterol +
+                heart_attack_or_stroke + poor_mobility + very_poor_grip +
+                depression + respiratory_problems +
+                IADL_problems + obese + diabetes + other_diseases,
+              thresh.formula = ~ sex + ageclass + country,
+              decreasing.levels = TRUE,
+              control = list(trace = FALSE),
+              data = healthsurvey)
+
+# Likelihood ratio test
+lrt1 &lt;- lrt.hopit(full = model2, nested = model1)
+lrt1
+</code></pre>
+
+<pre><code>## Full model:
+## -- Formula (latent variables): 
+## health ~ hypertension + high_cholesterol + heart_attack_or_stroke +  
+##     poor_mobility + very_poor_grip + depression + respiratory_problems +  
+##     IADL_problems + obese + diabetes + other_diseases + hypertension:high_cholesterol
+## -- Formula (threshold variables): ~sex + ageclass + country
+## -- Theta: FALSE
+## 
+## Nested model:
+## -- Formula (latent variables): 
+## health ~ hypertension + high_cholesterol + heart_attack_or_stroke +  
+##     poor_mobility + very_poor_grip + depression + respiratory_problems +  
+##     IADL_problems + obese + diabetes + other_diseases
+## -- Formula (threshold variables): ~sex + ageclass + country
+## -- Theta: FALSE
+## 
+## Likelihood ratio test:
+##  Chi^2 df Pr(&gt;Chi^2)
+##   2.55  1       0.11
+</code></pre>
+
+<pre><code class="r"># print results in shorter form
+print(lrt1, short = TRUE)
+</code></pre>
+
+<pre><code>## 
+## Likelihood ratio test:
+##  Chi^2 df Pr(&gt;Chi^2)
+##   2.55  1       0.11
+</code></pre>
+
+<pre><code class="r"># equivalently
+print(anova(model2, model1), short = TRUE)
+</code></pre>
+
+<pre><code>## 
+## Likelihood ratio test:
+##  Chi^2 df Pr(&gt;Chi^2)
+##   2.55  1       0.11
+</code></pre>
+
+
+<hr /><div style="text-align: center;">[Package <em>hopit</em> version 0.4.167 <a href="00Index.html">Index</a>]</div>
+</body></html>

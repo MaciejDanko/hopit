@@ -4,7 +4,7 @@
 \alias{update.latent}
 \title{INTERNAL : updating model uses new set of latent variable coefficients}
 \usage{
-update.latent(model, newregcoef, data, hessian = FALSE)
+update.latent(model, newregcoef, data)
 }
 \arguments{
 \item{model}{a fitted \code{hopit} model.}
@@ -12,11 +12,12 @@ update.latent(model, newregcoef, data, hessian = FALSE)
 \item{newregcoef}{a new set of latent variable coefficients. Vector of length of first element of model$parcount.}
 
 \item{data}{used to fit original model.}
-
-\item{hessian}{logical indicating if to calculate log likelihood gradient (estfun), Hessian and variance-covariance matrix.}
 }
 \description{
 INTERNAL : updating model uses new set of latent variable coefficients
+}
+\details{
+LL gradient and Hessian and variance-covariance matrices are not re-calcualted in this function!
 }
 \author{
 Maciej J. Danko
