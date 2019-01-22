@@ -64,7 +64,7 @@ latentIndex <- function(model, decreasing.levels = TRUE,
       z <- getCutPoints(model=model, decreasing.levels = decreasing.levels, plotf = FALSE)
       YY <- factor(z$adjused.levels,levels(model$y_i))
     } else stop(hopit_msg(83),call.=NULL)
-    plot(YY[subset], hi,las=3, ylab=ylab, ...)
+    graphics::plot(YY[subset], hi,las=3, ylab=ylab, ...)
   }
   if (plotf) invisible(hi) else return(hi)
 }
@@ -140,19 +140,19 @@ standardizeCoef <- function (model,
   res <- as.matrix((cfm)/diff(r))
 
   if (plotf) {
-    opar <- par(c("mar", "oma"))
-    par(mar = mar, oma = oma)
-    rr <- barplot(t(res), las = 3, ...)
+    opar <- graphics::par(c("mar", "oma"))
+    graphics::par(mar = mar, oma = oma)
+    rr <- graphics::barplot(t(res), las = 3, ...)
     if(plotpval) {
       y <- summary(model)
       pval <- format(round(y$table$`Pr(>|z|)`[seq_len(model$parcount[1])],4),digits=4,scientific=FALSE)[oz]
       yr <- res/2
       ind <- yr < max(res)*0.1
       yr[ind] <- (res+max(res)*0.1)[ind]
-      text(rr,yr,paste('P =',pval),srt=90,col=c('white','black')[1+ind])
+      graphics::text(rr,yr,paste('P =',pval),srt=90,col=c('white','black')[1+ind])
     }
-    mtext(YLab, 2, cex = YLab.cex, line = 2.5)
-    suppressWarnings(par(opar))
+    graphics::mtext(YLab, 2, cex = YLab.cex, line = 2.5)
+    suppressWarnings(graphics::par(opar))
   }
   if (plotf)
     invisible(res)
@@ -237,23 +237,23 @@ getCutPoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(
   if (plotf) {
     group.labels.type<-tolower(group.labels.type[1])
     if(group.labels.type %notin%  c('middle','border','none')) stop (hopit_msg(84),call.=NULL)
-    opar <- par(c('mar','oma'))
-    par(mar=mar, oma=oma)
+    opar <- graphics::par(c('mar','oma'))
+    graphics::par(mar=mar, oma=oma)
     z<-hist(h.index, 200,xlab='',ylab='' ,
             main='', yaxs='i', col=grey(0.8, alpha = 0.5),border=grey(0.4, alpha = 0.5))
     if (group.labels.type == 'border') {
-      for (j in seq_along(Nm)) text(x=R1[j],y=(1.1*max(z$counts))/2,labels=Nm[[j]],
+      for (j in seq_along(Nm)) graphics::text(x=R1[j],y=(1.1*max(z$counts))/2,labels=Nm[[j]],
                                     srt=90,pos=2,offset=0.67,col=2)
     } else if (group.labels.type == 'middle'){
-      R11=-diff(c(0,R1,1))/2+c(R1,1)+strheight('S',units='figure')/2
-      for (j in seq_along(lv)) text(x=R11[j],y=(3*1.1*max(z$counts))/4,labels=lv[j],
+      R11=-diff(c(0,R1,1))/2+c(R1,1)+graphics::strheight('S',units='figure')/2
+      for (j in seq_along(lv)) graphics::text(x=R11[j],y=(3*1.1*max(z$counts))/4,labels=lv[j],
                                     srt=90,pos=3,offset=0.67,col=2)
     }
-    box()
-    abline(v=R1,lwd=2,col=2)
-    mtext(XLab, 1, cex=XLab.cex, line = 2.5)
-    mtext(YLab, 2, cex=YLab.cex, line = 2.5)
-    suppressWarnings(par(opar))
+    graphics::box()
+    graphics::abline(v=R1,lwd=2,col=2)
+    graphics::mtext(XLab, 1, cex=XLab.cex, line = 2.5)
+    graphics::mtext(YLab, 2, cex=YLab.cex, line = 2.5)
+    suppressWarnings(graphics::par(opar))
   }
   if (length(h.index)){
     CIN <- c(0,R1,1)
@@ -406,17 +406,17 @@ getLevels<-function(model,
   } else adjustedind <- namind
 
   if (plotf) {
-    opar <- par(c('mar','oma'))
-    par(mfrow=c(1,2))
-    par(mar=mar,oma=oma)
-    barplot(t(tmp),las=3,main='Original')
-    barplot(t(tmp2),las=3,main='Adjusted', legend.text=TRUE,
+    opar <- graphics::par(c('mar','oma','mfrow'))
+    graphics::par(mfrow=c(1,2))
+    graphics::par(mar=mar,oma=oma)
+    graphics::barplot(t(tmp),las=3,main='Original')
+    graphics::barplot(t(tmp2),las=3,main='Adjusted', legend.text=TRUE,
             args.legend = list(x='center', box.col=NA,
                                bg=legbg, bty=legbty))
-    par(mfrow=c(1,1))
-    par(mar=mar,oma=rep(0,4))
-    mtext(YLab,2,cex=YLab.cex)
-    suppressWarnings(par(opar))
+    graphics::par(mfrow=c(1,1))
+    graphics::par(mar=mar,oma=rep(0,4))
+    graphics::mtext(YLab,2,cex=YLab.cex)
+    suppressWarnings(graphics::par(opar))
   }
   res <- list(original= tmp,
               adjusted= tmp2,

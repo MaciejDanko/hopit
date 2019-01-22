@@ -186,10 +186,10 @@ hopit_fitter <- function(model, start = model$start, use_weights = model$use.wei
     #BFGS and CG method
     try({
       if (meto == 'BFGS') {
-        fit <- optim(par = fit$par, fn = LLfn, gr = LLgr,
+        fit <- stats::optim(par = fit$par, fn = LLfn, gr = LLgr,
                      method = 'BFGS', hessian = FALSE, control=list(maxit=model$control$bgfs.maxit, reltol=model$control$bgfs.reltol))
       } else if (meto == 'CG'){
-        fit <- optim(par = fit$par, fn = LLfn, gr = LLgr,
+        fit <- stats::optim(par = fit$par, fn = LLfn, gr = LLgr,
                      method = 'CG', hessian = FALSE, control=list(maxit=model$control$cg.maxit, reltol=model$control$cg.reltol))
       }
     }, silent = FALSE)
@@ -204,7 +204,7 @@ hopit_fitter <- function(model, start = model$start, use_weights = model$use.wei
     if (!model$control$quick.fit || !length(fit$par)) {
       if (!length(fit$par)) fit$par <- start
       if (model$control$trace) cat(hopit_msg(13),hopit_msg(5),sep='')
-      fit <- suppressWarnings(nlm(f = LLfn, p=fit$par, gradtol = model$control$nlm.gradtol, steptol = model$control$nlm.steptol, hessian = FALSE, iterlim=model$control$nlm.maxit))
+      fit <- suppressWarnings(stats::nlm(f = LLfn, p=fit$par, gradtol = model$control$nlm.gradtol, steptol = model$control$nlm.steptol, hessian = FALSE, iterlim=model$control$nlm.maxit))
       fit <- list(par=fit$estimate, value=fit$minimum)
     }
   }, silent = FALSE)
@@ -545,8 +545,8 @@ hopit<- function(latent.formula,
   latent.list <- unlist(decomposeformula(latent.terms))
   if(any(thresh.list %in% latent.list) || any(latent.list %in% thresh.list)) stop(hopit_msg(89), call.=NULL)
 
-  crossinter.formula <- check_thresh_formula(crossinter.formula)
-  crossinter <- attr(terms(crossinter.formula),'term.labels')
+  crossinter.formula <- check_crossinter_formula(crossinter.formula)
+  crossinter <- attr(stats::terms(crossinter.formula),'term.labels')
   if (length(crossinter)) {
     tmp <- length(crossinter)
     crossinter <- crossinter[which(grepl(":", unlist(crossinter), fixed=TRUE))]
@@ -564,8 +564,8 @@ hopit<- function(latent.formula,
     crossinter.f <- paste(crossinter, collapse=' + ')
     latent.formulaA <-update(latent.formula, paste('.~. + ',crossinter.f,' + ',crossinter.thresh))
     latent.formulaB <-update(latent.formulaA, paste('.~. - ',crossinter.thresh))
-    m1<-model.matrix(latent.formulaA, data)
-    m2<-model.matrix(latent.formulaB, data)
+    m1<-stats::model.matrix(latent.formulaA, data)
+    m2<-stats::model.matrix(latent.formulaB, data)
     cm1<-colnames(m1)
     rco<-cm1[!(cm1 %in% colnames(m2))]
     model$latent.mm <- m1[,which(!(cm1 %in% rco))]
@@ -574,7 +574,7 @@ hopit<- function(latent.formula,
     model$crossinter <- crossinter
   } else {
     model$latent.formula <- latent.formula
-    model$latent.mm <- as.matrix(model.matrix(latent.formula, data = data))
+    model$latent.mm <- as.matrix(stats::model.matrix(latent.formula, data = data))
   }
 
   latent.names <- colnames(model$latent.mm)
@@ -583,7 +583,7 @@ hopit<- function(latent.formula,
   latent.names <- latent.names[!grpi]
 
   model$thresh.formula <- thresh.formula
-  model$thresh.mm <- as.matrix(model.matrix(thresh.formula, data = data))
+  model$thresh.mm <- as.matrix(stats::model.matrix(thresh.formula, data = data))
   thresh.names <- colnames(model$thresh.mm)
   grpi <- findintercept(thresh.names)
   model$thresh.mm <- as.matrix(model$thresh.mm[,!grpi])
@@ -594,10 +594,10 @@ hopit<- function(latent.formula,
     model$thresh.no.cov <- FALSE
   }
 
-  model$latent.terms <- attr(terms(as.formula(latent.formula)),"term.labels")
-  model$thresh.terms <-attr(terms(as.formula(thresh.formula)),"term.labels")
+  model$latent.terms <- attr(stats::terms(stats::as.formula(latent.formula)),"term.labels")
+  model$thresh.terms <-attr(stats::terms(stats::as.formula(thresh.formula)),"term.labels")
 
-  model$y_i <- model.frame(latent.formula, data = data)[,all.vars(latent.formula[[2]])]
+  model$y_i <- stats::model.frame(latent.formula, data = data)[,all.vars(latent.formula[[2]])]
   check_response(model$y_i)
   if (missing(decreasing.levels)) decreasing.levels = NULL
   check_decreasing.levels(decreasing.levels, levels(model$y_i))

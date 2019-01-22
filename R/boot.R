@@ -23,25 +23,25 @@ update.latent <- function(model, newregcoef, data, hessian =FALSE){
   model$deviance <- -2 * model$LL
 
   if(hessian) {
-    hes <- my.grad(fn = hopit_derivLL, par = model$coef, model=model, eps = 1e-4, collapse = TRUE, negative=FALSE)
-    if (model$hasdisp && remove.theta) {
-      hes <- hes[-nrow(hes),-ncol(hes)] #remove theta from vcov
-      model$coef <- model$coef[-length(model$coef)] #remove from coef
-    }
-    model$hessian <- hes
-
-    model$vcov.basic <- try(base::solve(-hes), silent = FALSE)
-    model$vcov.basic <- check_vcov(model$vcov.basic)
-
-    if (model$hasdisp && remove.theta) COEF <- c(model$coef,model$coef.ls$logTheta) else COEF <- model$coef
-    model$estfun <- hopit_derivLL(COEF, model, collapse = FALSE)
-    if (remove.theta) model$estfun <- model$estfun[,-ncol(model$estfun)]
-
-    if (length(model$design)) {
-      model$vcov <- svy.varcoef.hopit(model$vcov.basic, model$estfun, design)
-    } else {
-      model$vcov <- model$vcov.basic
-    }
+    # hes <- my.grad(fn = hopit_derivLL, par = model$coef, model=model, eps = 1e-4, collapse = TRUE, negative=FALSE)
+    # if (model$hasdisp && model$remove.theta) {
+    #   hes <- hes[-nrow(hes),-ncol(hes)] #remove theta from vcov
+    #   model$coef <- model$coef[-length(model$coef)] #remove from coef
+    # }
+    # model$hessian <- hes
+    #
+    # model$vcov.basic <- try(base::solve(-hes), silent = FALSE)
+    # model$vcov.basic <- check_vcov(model$vcov.basic)
+    #
+    # if (model$hasdisp && remove.theta) COEF <- c(model$coef,model$coef.ls$logTheta) else COEF <- model$coef
+    # model$estfun <- hopit_derivLL(COEF, model, collapse = FALSE)
+    # if (remove.theta) model$estfun <- model$estfun[,-ncol(model$estfun)]
+    #
+    # if (length(model$design)) {
+    #   model$vcov <- svy.varcoef.hopit(model$vcov.basic, model$estfun, model$design)
+    # } else {
+    #   model$vcov <- model$vcov.basic
+    # }
   }
   if (!length(model$design)) {
     k <- 2
@@ -168,5 +168,5 @@ boot_hopit_CI <- function(boot, alpha = 0.05, bounds = c('both', 'lo', 'up')){
                   lo = alpha/2,
                   both = c(alpha/2, 1-alpha/2))
 
-  apply(boot, 1, quantile, probs = probs)
+  apply(boot, 1, stats::quantile, probs = probs)
 }

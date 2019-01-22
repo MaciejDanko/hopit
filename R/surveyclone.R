@@ -89,8 +89,9 @@ svy.varcoef.hopit <- function (Ainv, estfun, design) {
     V <- clone.of.ppsvar(estfun %*% Ainv, design)
   else V <-survey::svyCprod(estfun %*% Ainv, design$strata, design$cluster[[1]],
                             design$fpc, design$nPSU, design$certainty, design$postStrata)
-  if (inherits(design, "svyrep.design")) {
-    Vtest <- vcov(survey::svymean(estfun %*% Ainv*design$prob, design)) * length(design$prob)^2
-    if (max(abs(Vtest-V)) > 1e-4) warning(call.=NA,hopit_msg(7))
-  }
+  # if (inherits(design, "svyrep.design")) {
+  #   Vtest <- vcov(survey::svymean(estfun %*% Ainv*design$prob, design)) * length(design$prob)^2
+  #   if (max(abs(Vtest-V)) > 1e-4) warning(call.=NA,hopit_msg(7))
+  # }
+  V
 }

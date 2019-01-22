@@ -28,7 +28,7 @@ print.hopit<-function(x, ...){
   cat(hopit_msg(72), x$link, fill = TRUE)
   cat(hopit_msg(73), x$N, fill = TRUE)
   cat(hopit_msg(74), toString(levels(x$y_i)), fill = TRUE)
-  if (x$hasdisp) cat(hopi_msg(77), x$coef[length(x$coef)], fill = TRUE)
+  if (x$hasdisp) cat(hopit_msg(77), x$coef[length(x$coef)], fill = TRUE)
   cat(hopit_msg(78))
   print(x$coef.ls$latent.params)
   cat(hopit_msg(79))
@@ -108,7 +108,7 @@ print.vcov.hopit <- function(x, digits = 3L, ...){
 #' @keywords internal
 #' @importFrom Rcpp evalCpp
 summary.hopit <- function(object, robust.se = TRUE, ...){
-  varcov <- vcov(object, robust.se, ...)
+  varcov <- vcov.hopit(object, robust.se, ...)
   dvcov <- diag(varcov)
   if (any(dvcov<0)) warning(hopit_msg(43),call.=NA)
   SE <- suppressWarnings(sqrt(abs(dvcov)))
@@ -144,7 +144,7 @@ print.summary.hopit <- function(x, ...){
   cat(hopit_msg(74), toString(levels(model$y_i)), fill = TRUE)
   if(x$robust.se) cat(hopit_msg(71))
   cat('\n')
-  printCoefmat(x = x$coef, P.values = TRUE, has.Pvalue = TRUE, digits = 4L, dig.tst = 2L)
+  stats::printCoefmat(x = x$coef, P.values = TRUE, has.Pvalue = TRUE, digits = 4L, dig.tst = 2L)
   cat(hopit_msg(70), exp(model$coef.ls$logTheta), fill = TRUE)
   cat(hopit_msg(75), model$LL, fill = TRUE)
   cat(hopit_msg(76), model$deviance, fill = TRUE)
@@ -334,7 +334,7 @@ anova.hopit<-function(object, ..., method = c('sequential', 'with.most.complex',
 #' @seealso \code{\link{anova.hopit}}, \code{\link{hopit}}.
 print.anova.hopit <- function(x, ...){
   cat(hopit_msg(49), x$method, '"\n\n', sep = '')
-  printCoefmat(x$table, signif.stars = TRUE, P.values = TRUE, has.Pvalue = TRUE, digits = 5L, dig.tst = 3L, tst.ind = 1L)
+  stats::printCoefmat(x$table, signif.stars = TRUE, P.values = TRUE, has.Pvalue = TRUE, digits = 5L, dig.tst = 3L, tst.ind = 1L)
   invisible(NULL)
 }
 
@@ -418,7 +418,7 @@ lrt.hopit <- function(full, nested){
       length(full$coef.ls$thresh.lambda) - length(nested$coef.ls$thresh.lambda) +
       length(full$coef.ls$thresh.gamma) - length(nested$coef.ls$thresh.gamma) +
       (full$hasdisp) - (nested$hasdisp)
-    p <- 1L - pchisq(stat, df.diff)
+    p <- 1L - stats::pchisq(stat, df.diff)
   } else {
     stop(hopit_msg(58), call=NULL)
   }
@@ -460,7 +460,7 @@ print.lrt.hopit <- function(x, short = FALSE, ...){
     out2 <- x$scalef
   }
   row.names(out) <- ''
-  printCoefmat(out, signif.stars = TRUE, P.values = TRUE, has.Pvalue = TRUE, digits = 5L, dig.tst = 3L, tst.ind = 1L)
+  stats::printCoefmat(out, signif.stars = TRUE, P.values = TRUE, has.Pvalue = TRUE, digits = 5L, dig.tst = 3L, tst.ind = 1L)
   if (length(out2)) print(paste(hopit_msg(63),out2))
   invisible(NULL)
 }
