@@ -229,7 +229,7 @@ getCutPoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(
   tY <- table(Y)
   tmp <- dorev(as.vector(tY))
   invcs <- (cumsum(tmp)/sum(tmp))[-length(tmp)]
-  R1 <- quantile(h.index, invcs)
+  R1 <- stats::quantile(h.index, invcs)
 
   lv <- dorev(as.character(levels(model$y_i)))
   Nm <- paste(lv[-length(lv)],lv[-1],sep=' | ')

@@ -111,7 +111,7 @@ findintercept<-function(varnames) grepl('(Intercept)', varnames, fixed = TRUE)
 #' @keywords internal
 #' @noRd
 formula2classes <- function(formula, data, sep='_', add.var.names = FALSE, return.matrix = FALSE){
-  tmp <- model.frame(formula, data)
+  tmp <- stats::model.frame(formula, data)
   mod.mat <- tmp
   lv <- lapply(seq_len(NCOL(tmp)),function (k) levels(as.factor(tmp[,k])))
   names(lv) <-colnames(tmp)
