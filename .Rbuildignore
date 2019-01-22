@@ -3,12 +3,10 @@
 ^.git$
 ^\.travis\.yml$
 ^LICENSE$
-^\LICENSE$
 ^tmp$
 ^old$
 ^README.Rmd$
 ^test$
 ^.Rhistory$
 ^inst\doc$
-^\inst\doc$
 ^appveyor\.yml$
