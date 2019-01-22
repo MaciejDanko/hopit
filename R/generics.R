@@ -354,7 +354,6 @@ print.anova.hopit <- function(x, ...){
 #' @export
 #' @author Maciej J. Danko
 #' @seealso \code{\link{print.lrt.hopit}}, \code{\link{anova.hopit}}, \code{\link{hopit}}.
-#' @method lrt hopit
 #' @examples
 #' # DATA
 #' data(healthsurvey)
