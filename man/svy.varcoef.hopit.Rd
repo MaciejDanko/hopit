@@ -11,7 +11,7 @@ svy.varcoef.hopit(Ainv, estfun, design)
 
 \item{estfun}{LL gradient function.}
 
-\item{design}{a survey.design object.}
+\item{design}{a \code{survey.design} object.}
 }
 \description{
 Calculation of variance-covariance matrix for specified survey design

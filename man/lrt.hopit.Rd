@@ -4,7 +4,7 @@
 \alias{lrt.hopit}
 \title{Likelihood ratio test for a pair of models}
 \usage{
-lrt.hopit(full, nested)
+\method{lrt}{hopit}(full, nested)
 }
 \arguments{
 \item{full, nested}{models to be compared.}

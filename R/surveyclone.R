@@ -75,7 +75,9 @@ clone.of.ppsvar<-function (x, design)
 #' @keywords internal
 #' @param Ainv a variance-covariance matrix.
 #' @param estfun LL gradient function.
-#' @param design a survey.design object.
+#' @param design a \code{survey.design} object.
+#  Just to clean the build note:
+#' @importFrom survey svyrecvar twophasevar twophase2var svyCprod
 #' @author Thomas Lumley, modified by Maciej J. Danko
 svy.varcoef.hopit <- function (Ainv, estfun, design) {
   if (inherits(design, "survey.design2"))

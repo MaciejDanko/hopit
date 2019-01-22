@@ -19,9 +19,9 @@ coef.hopit <- function(object, aslist = FALSE, ...)  if (aslist) object$coef.ls 
 #' @param ...	further arguments passed to or from other methods.
 #' @export
 #' @usage \method{print}{hopit}(x, ...)
+#' @method print hopit
 #' @keywords internal
 #' @author Maciej J. Danko
-#' @method coef hopit
 print.hopit<-function(x, ...){
   cat(hopit_msg(65), deparse(x$latent.formula), fill = TRUE)
   cat(hopit_msg(66), deparse(x$thresh.formula), fill = TRUE)
@@ -83,6 +83,7 @@ vcov.hopit<-function(object, robust.vcov, ...){
 #' @param digits see \code{\link{print.default}}.
 #' @param ... further arguments passed to or from other methods.
 #' @usage \method{print}{vcov.hopit}(x, digits = 3L, ...)
+#' @method print vcov.hopit
 #' @keywords internal
 #' @export
 print.vcov.hopit <- function(x, digits = 3L, ...){
@@ -105,6 +106,7 @@ print.vcov.hopit <- function(x, digits = 3L, ...){
 #' @author Maciej J. Danko
 #' @useDynLib hopit
 #' @usage \method{summary}{hopit}(object, robust.se = TRUE, ...)
+#' @method summary hopit
 #' @keywords internal
 #' @importFrom Rcpp evalCpp
 summary.hopit <- function(object, robust.se = TRUE, ...){
@@ -134,6 +136,7 @@ summary.hopit <- function(object, robust.se = TRUE, ...){
 #' @keywords internal
 #' @export
 #' @usage \method{print}{summary.hopit}(x, ...)
+#' @method print summary.hopit
 #' @author Maciej J. Danko
 print.summary.hopit <- function(x, ...){
   model <- x$model
@@ -162,6 +165,7 @@ print.summary.hopit <- function(x, ...){
 #' @export
 #' @usage \method{logLik}{hopit}(object, ...)
 #' @author Maciej J. Danko
+#' @method logLik hopit
 logLik.hopit<-function(object, ...) {
   objects <- list(object, ...)
   tmp <- deparse(substitute(list(object, ...)))
@@ -179,6 +183,7 @@ logLik.hopit<-function(object, ...) {
 #' @keywords internal
 #' @export
 #' @usage \method{AIC}{hopit}(object, ..., k = 2L)
+#' @method AIC hopit
 #' @author Maciej J. Danko
 AIC.hopit<-function(object, ..., k = 2L) {
   objects <- list(object, ...)
@@ -201,6 +206,7 @@ AIC.hopit<-function(object, ..., k = 2L) {
 # @keywords internal
 #' @usage \method{anova}{hopit}(object, ..., method = c("sequential", "with.most.complex", 'with.least.complex'),
 #' direction = c("decreasing", "increasing"))
+#' @method anova hopit
 #' @export
 #' @return a vector or a matrix with results of the test(s).
 #' @author Maciej J. Danko
@@ -332,6 +338,7 @@ anova.hopit<-function(object, ..., method = c('sequential', 'with.most.complex',
 #' @author Maciej J. Danko
 #' @usage \method{print}{anova.hopit}(x, ...)
 #' @seealso \code{\link{anova.hopit}}, \code{\link{hopit}}.
+#' @method print anova.hopit
 print.anova.hopit <- function(x, ...){
   cat(hopit_msg(49), x$method, '"\n\n', sep = '')
   stats::printCoefmat(x$table, signif.stars = TRUE, P.values = TRUE, has.Pvalue = TRUE, digits = 5L, dig.tst = 3L, tst.ind = 1L)
@@ -347,6 +354,7 @@ print.anova.hopit <- function(x, ...){
 #' @export
 #' @author Maciej J. Danko
 #' @seealso \code{\link{print.lrt.hopit}}, \code{\link{anova.hopit}}, \code{\link{hopit}}.
+#' @method lrt hopit
 #' @examples
 #' # DATA
 #' data(healthsurvey)
@@ -438,6 +446,7 @@ lrt.hopit <- function(full, nested){
 #' @export
 #' @usage \method{print}{lrt.hopit}(x, short = FALSE, ...)
 #' @author Maciej J. Danko
+#' @method print lrt.hopit
 #' @seealso \code{\link{lrt.hopit}}, \code{\link{anova.hopit}}, \code{\link{hopit}}.
 print.lrt.hopit <- function(x, short = FALSE, ...){
   if (!short) {
@@ -476,6 +485,7 @@ print.lrt.hopit <- function(x, short = FALSE, ...){
 #' @keywords internal
 #' @author Maciej J. Danko
 #' @usage \method{profile}{hopit}(fitted, ..., scope = 0.15, steps = 101)
+#' @method profile hopit
 #' @seealso \code{\link{plot.profile.hopit}}, \code{\link{print.profile.hopit}}, \code{\link{hopit}}
 #' @examples
 #' # DATA
@@ -539,6 +549,7 @@ profile.hopit<-function(fitted, ..., scope=0.15, steps=101){
 #' @keywords internal
 #' @usage \method{plot}{profile.hopit}(x, ..., ylim = NULL, relative = FALSE, leg.cex = 0.85, leg.col = 'blue4')
 #' @author Maciej J. Danko
+#' @method plot profile.hopit
 #' @seealso \code{\link{profile.hopit}}, \code{\link{print.profile.hopit}}, \code{\link{hopit}}.
 plot.profile.hopit<-function(x, ..., ylim = NULL, relative = FALSE, leg.cex = 0.85, leg.col = 'blue4'){
   z <- sqrt(ncol(x))
@@ -566,6 +577,7 @@ plot.profile.hopit<-function(x, ..., ylim = NULL, relative = FALSE, leg.cex = 0.
 #' @keywords internal
 #' @usage \method{print}{profile.hopit}(x, ..., plotf = TRUE)
 #' @author Maciej J. Danko
+#' @method print profile.hopit
 #' @seealso \code{\link{profile.hopit}}, \code{\link{plot.profile.hopit}}, \code{\link{hopit}}
 print.profile.hopit<-function(x, ..., plotf = TRUE){
   test <- apply(x,2,which.max)==floor(nrow(x)/2)+1
