@@ -2,3 +2,11 @@
 ^\.Rproj\.user$
 ^.git$
 ^\.travis\.yml$
+^LICENSE$
+^tmp$
+^old$
+^README.Rmd$
+^test$
+^.Rhistory$
+
+^appveyor\.yml$
