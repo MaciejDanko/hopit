@@ -239,8 +239,8 @@ getCutPoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(
     if(group.labels.type %notin%  c('middle','border','none')) stop (hopit_msg(84),call.=NULL)
     opar <- graphics::par(c('mar','oma'))
     graphics::par(mar=mar, oma=oma)
-    z<-hist(h.index, 200,xlab='',ylab='' ,
-            main='', yaxs='i', col=grey(0.8, alpha = 0.5),border=grey(0.4, alpha = 0.5))
+    z<-graphics::hist(h.index, 200,xlab='',ylab='' ,
+            main='', yaxs='i', col=grDevices::grey(0.8, alpha = 0.5),border=grDevices::grey(0.4, alpha = 0.5))
     if (group.labels.type == 'border') {
       for (j in seq_along(Nm)) graphics::text(x=R1[j],y=(1.1*max(z$counts))/2,labels=Nm[[j]],
                                     srt=90,pos=2,offset=0.67,col=2)
@@ -377,7 +377,7 @@ getLevels<-function(model,
                     mar = c(7,2,1.5,0.5), oma = c(0,3,0,0),
                     YLab = 'Fraction [%]',
                     YLab.cex = 1.1,
-                    legbg = adjustcolor('white',alpha.f=0.4),
+                    legbg = grDevices::adjustcolor('white',alpha.f=0.4),
                     legbty = 'o'
 ){
   if (class(formula)=='formula') inte_ <- formula2classes(formula, data, sep=sep, return.matrix = TRUE) else

@@ -514,16 +514,16 @@ plot.profile.hopit<-function(x, ..., ylim = NULL, relative = FALSE, leg.cex = 0.
   z <- sqrt(ncol(x))
   zy <- round(z)
   zx <- ceiling(z)
-  spar <- par(c('mfrow','mar'))
-  par(mfrow=c(zx,zy),mar=c(0,0,0,0))
+  spar <- graphics::par(c('mfrow','mar'))
+  graphics::par(mfrow=c(zx,zy),mar=c(0,0,0,0))
   if (relative) ylim <- range(x)
   for (j in seq_len(ncol(x))) {
-    plot(x[,j],type='l',axes='F', ylim = ylim, ...)
-    abline(v=floor(nrow(x)/2)+1,col=2,lty=2)
-    legend('bottom',colnames(x)[j], bty='n',cex=leg.cex, text.col=leg.col)
-    box()
+    graphics::plot(x[,j],type='l',axes='F', ylim = ylim, ...)
+    graphics::abline(v=floor(nrow(x)/2)+1,col=2,lty=2)
+    graphics::legend('bottom',colnames(x)[j], bty='n',cex=leg.cex, text.col=leg.col)
+    graphics::box()
   }
-  suppressWarnings(par(spar))
+  suppressWarnings(graphics::par(spar))
 }
 
 

@@ -8,10 +8,10 @@ warnings_are_errors: true
 before_install:
   - Rscript -e 'install.packages("tinytex")'
   - Rscript -e 'tinytex::install_tinytex(force=TRUE)'
+  - sudo apt-get install ghostscript
 
 os:
 - linux
-- osx
 
 r:
  - release

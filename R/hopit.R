@@ -539,8 +539,8 @@ hopit<- function(latent.formula,
   thresh.formula <- check_thresh_formula(thresh.formula)
   latent.formula <- check_latent_formula(latent.formula)
 
-  thresh.terms <- attr(terms(thresh.formula),'term.labels')
-  latent.terms <- attr(terms(latent.formula),'term.labels')
+  thresh.terms <- attr(stats::terms(thresh.formula),'term.labels')
+  latent.terms <- attr(stats::terms(latent.formula),'term.labels')
   thresh.list <- unlist(decomposeformula(thresh.terms))
   latent.list <- unlist(decomposeformula(latent.terms))
   if(any(thresh.list %in% latent.list) || any(latent.list %in% thresh.list)) stop(hopit_msg(89), call.=NULL)
@@ -562,8 +562,8 @@ hopit<- function(latent.formula,
     }
     crossinter.thresh <-unique(sapply(crossinter.list, function(k) k[k %in% thresh.terms]))
     crossinter.f <- paste(crossinter, collapse=' + ')
-    latent.formulaA <-update(latent.formula, paste('.~. + ',crossinter.f,' + ',crossinter.thresh))
-    latent.formulaB <-update(latent.formulaA, paste('.~. - ',crossinter.thresh))
+    latent.formulaA <-stats::update(latent.formula, paste('.~. + ',crossinter.f,' + ',crossinter.thresh))
+    latent.formulaB <-stats::update(latent.formulaA, paste('.~. - ',crossinter.thresh))
     m1<-stats::model.matrix(latent.formulaA, data)
     m2<-stats::model.matrix(latent.formulaB, data)
     cm1<-colnames(m1)

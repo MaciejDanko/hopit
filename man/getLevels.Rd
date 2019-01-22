@@ -8,7 +8,7 @@ getLevels(model, formula = model$thresh.formula,
   data = environment(model$thresh.formula), decreasing.levels = TRUE,
   sort.flag = FALSE, plotf = TRUE, sep = "_", mar = c(7, 2, 1.5,
   0.5), oma = c(0, 3, 0, 0), YLab = "Fraction [\%]", YLab.cex = 1.1,
-  legbg = adjustcolor("white", alpha.f = 0.4), legbty = "o")
+  legbg = grDevices::adjustcolor("white", alpha.f = 0.4), legbty = "o")
 }
 \arguments{
 \item{model}{a fitted \code{hopit} model.}
