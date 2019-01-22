@@ -1,12 +1,13 @@
 #' INTERNAL : updating model uses new set of latent variable coefficients
 #'
+#' @details
+#' LL gradient and Hessian and variance-covariance matrices are not re-calcualted in this function!
 #' @param model a fitted \code{hopit} model.
 #' @param newregcoef a new set of latent variable coefficients. Vector of length of first element of model$parcount.
 #' @param data used to fit original model.
-#' @param hessian logical indicating if to calculate log likelihood gradient (estfun), Hessian and variance-covariance matrix.
 #' @author Maciej J. Danko
 #' @keywords internal
-update.latent <- function(model, newregcoef, data, hessian =FALSE){
+update.latent <- function(model, newregcoef, data){
   coefnames <- names(model$coef)
   thresh.names <- colnames(model$thresh.mm)
   model$coef[seq_len(model$parcount[1])] <- newregcoef
@@ -22,27 +23,6 @@ update.latent <- function(model, newregcoef, data, hessian =FALSE){
   model$coef.ls <- p
   model$deviance <- -2 * model$LL
 
-  if(hessian) {
-    # hes <- my.grad(fn = hopit_derivLL, par = model$coef, model=model, eps = 1e-4, collapse = TRUE, negative=FALSE)
-    # if (model$hasdisp && model$remove.theta) {
-    #   hes <- hes[-nrow(hes),-ncol(hes)] #remove theta from vcov
-    #   model$coef <- model$coef[-length(model$coef)] #remove from coef
-    # }
-    # model$hessian <- hes
-    #
-    # model$vcov.basic <- try(base::solve(-hes), silent = FALSE)
-    # model$vcov.basic <- check_vcov(model$vcov.basic)
-    #
-    # if (model$hasdisp && remove.theta) COEF <- c(model$coef,model$coef.ls$logTheta) else COEF <- model$coef
-    # model$estfun <- hopit_derivLL(COEF, model, collapse = FALSE)
-    # if (remove.theta) model$estfun <- model$estfun[,-ncol(model$estfun)]
-    #
-    # if (length(model$design)) {
-    #   model$vcov <- svy.varcoef.hopit(model$vcov.basic, model$estfun, model$design)
-    # } else {
-    #   model$vcov <- model$vcov.basic
-    # }
-  }
   if (!length(model$design)) {
     k <- 2
     model$AIC <- model$deviance + k * (length(model$coef.ls$latent.params)+
@@ -81,7 +61,7 @@ update.latent <- function(model, newregcoef, data, hessian =FALSE){
 #' # the order of response levels is decreasing (from the best health to the worst health)
 #' levels(healthsurvey$health)
 #'
-#' # fitting a model
+#' # fit a model
 #' model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
 #'                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
 #'                 depression + respiratory_problems +
@@ -92,14 +72,14 @@ update.latent <- function(model, newregcoef, data, hessian =FALSE){
 #'               data = healthsurvey)
 #'
 #' # Example 1 ---------------------
-#' # Bootstrapping cut-points
+#' # bootstrapping cut-points
 #'
 #' # Function to be bootstrapped
 #' cutpoints <-  function(model, data) getCutPoints(model, plotf = FALSE)$cutpoints
 #' B <- boot_hopit(model = model1, data = healthsurvey,
 #'                 func = cutpoints, nboot = 100)
 #'
-#' # Calculate lower and upper bounds using percentile method
+#' # calculate lower and upper bounds using percentile method
 #' cutpoints.CI <- boot_hopit_CI(B)
 #'
 #' # print estimated cutpoints and their confidence intervals
@@ -107,29 +87,29 @@ update.latent <- function(model, newregcoef, data, hessian =FALSE){
 #' cutpoints.CI
 #'
 #' # Example 2 ---------------------
-#' # Bootstrapping health levels differences
+#' # bootstrapping health levels differences
 #'
-#' # Function to be bootstraped
+#' # the function to be bootstrapped
 #' diff_BadHealth <- function(model, data) {
 #'   hl <- getLevels(model = model, formula=~ sex + ageclass, data = data,
 #'                   sep=' ', plotf=FALSE)
 #'   hl$original[,1] + hl$original[,2] - hl$adjusted[,1]- hl$adjusted[,2]
 #' }
 #'
-#' # Estimate of the difference
+#' # estimate of the difference
 #' est.org <- diff_BadHealth(model = model1, data = healthsurvey)
 #'
-#' # Perform the bootstrap
+#' # perform the bootstrap
 #' B <- boot_hopit(model = model1, data = healthsurvey,
 #'                 func = diff_BadHealth, nboot = 100)
 #'
-#' # Calculate lower and upper bounds using percentile method
+#' # calculate lower and upper bounds using percentile method
 #' est.CI <- boot_hopit_CI(B)
 #'
-#' # Plotting the difference and its (asymmetrical) confidence intervals
+#' # plot the difference and its (asymmetrical) confidence intervals
 #' pmar <- par('mar'); par(mar = c(9.5,pmar[2:4]))
 #' m <- max(abs(est.CI))
-#' pos <- barplot(est.org, names.arg = names(est.org), las = 3, ylab = 'Orginal - Adjusted',
+#' pos <- barplot(est.org, names.arg = names(est.org), las = 3, ylab = 'Original - Adjusted',
 #'                ylim=c(-m, m), density = 20, angle = c(45, -45), col = c('blue', 'orange'))
 #' for (k in seq_along(pos)) lines(c(pos[k,1],pos[k,1]), est.CI[,k], lwd = 2, col = 2)
 #' abline(h = 0); box(); par(mar = pmar)
