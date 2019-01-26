@@ -11,10 +11,10 @@ hopit(latent.formula, thresh.formula = ~1, crossinter.formula = ~1,
 }
 \arguments{
 \item{latent.formula}{formula used to model latent variable. It should not contain any threshold variable.
-To specify interactions between latent and threshold variables see \code{crossinter.formula}}
+To specify interactions between latent and threshold variables use \code{crossinter.formula}}
 
 \item{thresh.formula}{formula used to model threshold variable. It should not contain any latent variable.
-To specify interactions between latent and threshold variables see \code{crossinter.formula}
+To specify interactions between latent and threshold variables use \code{crossinter.formula}
 Any dependent variable (left side of "~") will be ignored.}
 
 \item{crossinter.formula}{formula used to model interactions between threshold and latent variables.
@@ -45,7 +45,7 @@ a \code{hopit} object used by other functions and methods. The object is a list 
 \item{control}{ a list with control parameters. See \code{\link{hopit.control}}.}
 \item{link}{ the used link funtion.}
 \item{hasdisp}{ logical, was overdispersion modeled?}
-\item{latent.formula}{ used latent formula.}
+\item{latent.formula}{ used latent formula. It is updated by cross-interactions if crossinter.formula is delivered.}
 \item{latent.mm}{ latent model matrix.}
 \item{latent.terms}{ used latent variables.}
 \item{thresh.formula}{ used threshold formula.}
