@@ -1,7 +1,7 @@
 ---
-title: "Analysis of the reporting styles using generalized ordered probit models: an introduction to *hopit* package"
+title: "Analysis of the reporting behavior using generalized ordered probit models: an introduction to *hopit* package"
 author: "Maciej J. Dańko"
-date: "22 I 2019"
+date: "26 I 2019"
 output:
   pdf_document: 
     highlight: tango
@@ -10,8 +10,8 @@ output:
 fontsize: 11pt
 geometry: margin=1.0in
 abstract: The *hopit* package provides R functions to fit and analyze ordered response
-  data in the context of reporting styles. In this vignette we describe the formulation
-  and fit of *hopit* models as well as functions used to analyse reporting styles. 
+  data in the context of reporting heterogeneity. In this vignette I describe the formulation
+  and fit of *hopit* models as well as functions used to analyse heterogenity in reporting behaviour. 
 vignette: >
   %\VignetteIndexEntry{Introduction to hopit}
   %\VignetteEngine{knitr::rmarkdown}
@@ -28,26 +28,48 @@ unlink('vignettes/vignette_cache', recursive = TRUE)
 
 ## 1. Introduction
 
-*hopit* is an open source software library written in the R [@Rteam2019] and C++ [@RcppEigen2013; @Rcpp2011] programming languages. The *hopit* package provides versatile methods to fit and analyze ordered response data in the context of self reporting styles.
+*hopit* is an open source software library written in the R [@Rteam2019] and C++ [@RcppEigen2013; @Rcpp2011] programming languages. The *hopit* package provides versatile methods to fit and analyze ordered response data in the context of self reporting behavior (heterogeneity).
 
-The ordered response data classifies a measure of interest into ordered categories collected during a survey. For example, if the dependent variable were a happiness rating, then a respondent typically answers a question like: “Taking all things together, would you say you are ...?“ and then selects from response options along the lines of: "very happy", "pretty happy", "not too happy", "very unhappy" [@Liao2005]. Similarly if interviewees are asked to evaluate their health in general (e.g. “Would you say your health is ...?”) they may choose among several categories, such as "very good", "good", "fair", "bad", and "very bad" [@King2004; @Jurges2007; @Rebelo2014]. In political sciences a respondent may be asked for an opinion about recent legislation (e.g. “Rate your feelings about the proposed legislation") and asked to choose among categories like: "strongly oppose", "mildly oppose", "indifferent", "mildly support", "strongly support" [@GreeneHensher2010]. It is easy to imagine other multi-level ordinal variables that might be used during a survey and to which the methodology described below could be applied to.
+The ordered response data classifies a measure of interest into ordered categories collected during a survey. For example, if the dependent variable were a happiness rating, then a respondent typically answers a question like: “Taking all things together, would you say you are ... ?$"$ and then selects from response options along the lines of: "very happy", "pretty happy", "not too happy", "very unhappy" [@Liao2005]. Similarly if interviewees are asked to evaluate their health in general (e.g. “Would you say your health is ... ?”) they may choose among several categories, such as "very good", "good", "fair", "bad", and "very bad" [@King2004; @Jurges2007; @Rebelo2014]. In political sciences a respondent may be asked for an opinion about recent legislation (e.g. “Rate your feelings about the proposed legislation.") and asked to choose among categories like: "strongly oppose", "mildly oppose", "indifferent", "mildly support", "strongly support" [@GreeneHensher2010]. It is easy to imagine other multi-level ordinal variables that might be used during a survey and to which the methodology described below could be applied to.
 
 Practically, it is assumed that when responding to a survey question about their general happiness, health, feeling, attitude or other status, participants assess their true value of this unobserved continuous variable, and project it to a provided discrete scale. The thresholds that each individual uses to categorize their true status into a specific response option may be affected by the choice of a reference group, earlier life experiences, and cross-cultural differences in using scales, and thus, may differ across individuals depending on their gender, age, cultural background, education, and personality traits, among other factors.
 
-From the reporting-styles modeling perspective, one of the main tasks is to compute this continuous estimate of individuals’ underlying, latent measure based on several specific characteristics of the considered response (e.g. health variables or happiness variables) and accounting also for variations in reporting across socio-demographic and cultural groups. More specifically, to build the latent, underlying measure a generalized hierarchical ordered threshold model is fitted, which regresses the reported status/attitude/feeling on two sets of independent variables [@Boes2006; @Green2014]. When a dependent reported ordered variable is self-rated health status then the first set of variables - health variables - assesses individuals’ specific aspects of health, and might include chronic conditions, mobility level, difficulties with a range of daily activities, performance on grip strength test, anthropometric measures, lifestyle behaviors, etc. Using the second set of independent variables (threshold variables), the model also adjusts for the differences across socio-demographic and cultural groups like cultural background, gender, age, education, etc. [@King2004; @Jurges2007; but see @Rebelo2014].
+From the reporting behavior modeling perspective, one of the main tasks is to compute this continuous estimate of individuals’ underlying, latent measure based on several specific characteristics of the considered response (e.g. health variables or happiness variables) and accounting also for variations in reporting across socio-demographic and cultural groups. More specifically, to build the latent, underlying measure a generalized hierarchical ordered threshold model is fitted, which regresses the reported status/attitude/feeling on two sets of independent variables [@Boes2006; @Green2014]. When a dependent reported ordered variable is self-rated health status then the first set of variables - health variables - assesses individuals’ specific aspects of health, and might include chronic conditions, mobility level, difficulties with a range of daily activities, performance on grip strength test, anthropometric measures, lifestyle behaviors, etc. Using the second set of independent variables (threshold variables), the model also adjusts for the differences across socio-demographic and cultural groups like cultural background, gender, age, education, etc. [@King2004; @Jurges2007; but see @Rebelo2014].
 
-Once the model is fitted, its estimates (latent measure and threshold coefficients) can be used to calculate the differences in reporting styles among groups of people having different contextual characteristics realized by calculation of differences between expected and reported ordinal response measures [@Jurges2007]. 
+Once the model is fitted, its estimates (latent measure and threshold coefficients) can be used to calculate the differences in reporting behavior among groups of people having different contextual characteristics realized by calculation of differences between expected and reported ordinal response measures [@Jurges2007]. 
+
+  **Table 1.** Glossary.
+```{r, echo=FALSE, results='asis'}
+library(pander)
+dd <- c(
+'Categorical response           ',	'$y$',	'Dependent variable obtained during the survey',	'Self-rated health, self-rated happiness',
+'Latent measure                 ',	'$h$',	'Modeled continues latent measure of investigated response variable',	'Latent health, latent happiness',
+'Latent index                   ',	'$H$',	'Standardized latent measure',	'Health index, happiness index',
+'Latent variables               ',  '  ---',	 	'Variables used to model latent measure',	'Health variables, happiness variables',
+'Latent terms                   ',	'$X$',	'Terms of design matrix used to modeled latent measure', '',
+'Latent coefficients            ',	'$\\beta$',	'Coefficients corresponding to each latent term','',
+'Standardized coefficient           ',	'$D$',	'Standardized value of a coefficient', 'Disability weights',
+'Thresholds                     ',  '$\\alpha$',	'Thresholds used to group latent measure ', 	'Cut-points',
+'Threshold variables            ',  '  ---',		'Variables used to model thresholds	','Socio-demographic, cultural, contextual variables',
+'Threshold terms                ',	'$Y$',	'Terms of design matrix used to model latent measure','',
+'Threshold coefficients         ',	'$\\gamma$\n$\\lambda$',	'Coefficients corresponding to each threshold term','')
+
+dd <- matrix(dd, 11, 4, byrow=TRUE)
+colnames(dd) <- c('Term',	'Symbol',	'Definition',	'Exemplary case specific synonyms')
+dd <- as.data.frame(dd)
+pander(dd,style='multiline',split.tables=Inf,justify='lccc',split.cells=c(Inf,3,25,25))
+```
 
 ## 2. Generalized (hierarchical) ordered threshold model 
 
 Ordered threshold models are used with ordered categorical dependent variables. The generalized ordered threshold models [@Terza1985; @Boes2006; @Green2014] are an extension to the ordered threshold models [@McKelvey1975]. In the latter models, the thresholds are constant, whereas generalized models allows thresholds to be dependent on covariates. @GreeneHensher2010 and @Green2014 pointed out that also thresholds must be ordered so that a model has a sense. This motivated Greene and coauthors to call this models *HOPIT*, which stands for hierarchical ordered probit models.
 
-In the self-rated health example, the response variable is self-rated health and latent measure $h_i$ can depend on different health conditions and diseases (health variables $X$). Variables $X$ are modeled with parallel regression assumption. According to the assumption, coefficients, which describe the relationship between lowest and all higher response categories, are the same as those coefficients, which describe the relationship between another (e.g. adjacent) lowest and the remaining higher response categories. In the considered case $h_i$ is modeled as a linear function of $X$ and their coefficients $\beta$:
+In the self-rated health example, the response variable is self-rated health and latent measure $h_i$ can depend on different health conditions and diseases (health variables). These variables are modeled with parallel regression assumption. According to the assumption, coefficients, which describe the relationship between lowest and all higher response categories, are the same as those coefficients, which describe the relationship between another (e.g. adjacent) lowest and the remaining higher response categories. In the considered case $h_i$ is modeled as a linear function of design matrix of health variables $X$ and its corresponding coefficients $\beta$:
 \begin{equation}
 \label{eq:1}
 h_{i} = \sum_{k=1}^K \beta_kX_{i,k} = X'\beta
 \end{equation}
-where index $i \in 1...N$ is number of cases (e.g. respondents), $X$ is in the form of model matrix, and $K$ is number of columns in $X$.
+where index $i \in 1...N$ is a number of cases (e.g. respondents), $X$ is in the form of design matrix, and $K$ is number of columns in $X$.
 As described above, the categorization (response mechanism) of the latent measure $h_i$ is modeled in terms of thresholds $\alpha_{i,j}$ assuming that thresholds of lower order are never greater than thresholds of higher orders  (hierarchical assumption):
 
 \begin{equation}
@@ -62,7 +84,7 @@ y_i = J~ \Leftrightarrow~ \alpha_{i,J-1} \leq h_i < \alpha_{i,J}\\
 \end{cases}
 \end{equation}
 
-The thresholds (cut points, $\alpha$) are modeled by threshold variables $Y$, their coefficients $\gamma$, and intercepts $\lambda$. It is assumed that they model contextual characteristics of the respondent (e.g. country, gender, age, etc. ). Threshold variables are modeled without parallel regression assumption, thus each threshold is modeled by a variable independently [@Boes2006; @Green2014]. 
+The thresholds (cut points, $\alpha$) are modeled by threshold variables coded as design matrix $Y$, their coefficients $\gamma$, and intercepts $\lambda$. It is assumed that they model contextual characteristics of the respondent (e.g. country, gender, age, etc. ). Threshold variables are modeled without parallel regression assumption, thus each threshold is modeled by a variable independently [@Boes2006; @Green2014]. 
 
 Different parametrizations of thresholds exist [@Green2014; @Rebelo2014; @Jurges2007]. In the package, @King2004 and @Jurges2007 parametrization is used, which assumes that: 
 
@@ -86,7 +108,7 @@ hence
 P(y_i = j) = \Phi(\alpha_{i,~j}-h_{i})-\Phi(\alpha_{i,~j-1}-h_{i}),
 \end{equation}
 
-where $\Phi$ is a distribution function (cdf, cumulative density function). For example, for probit regression it is standard normal cdf $\Phi(x)=\frac{1}{2}+\frac{1}{2}*erf \Big(\frac{x}{\sqrt 2}\Big)$ whereas for logit regression it takes the form $\Phi(x)=\frac{1}{1+e^{-x}}$. In reporting styles analyses the typical choice is the probit model. It simply assumes that $h_i$ is affected by a random noise $\epsilon_i$ having standard normal distribution $\epsilon_i\sim \mathcal{N}(0,1)$. 
+where $\Phi$ is a distribution function (cdf, cumulative density function). For example, for probit regression it is standard normal cdf $\Phi(x)=\frac{1}{2}+\frac{1}{2}*erf \Big(\frac{x}{\sqrt 2}\Big)$ whereas for logit regression it takes the form $\Phi(x)=\frac{1}{1+e^{-x}}$. In reporting behavior analyses the typical choice is the probit model. It simply assumes that $h_i$ is affected by a random noise $\epsilon_i$ having standard normal distribution $\epsilon_i\sim \mathcal{N}(0,1)$. 
 
 Using all definitions presented above the log likelihood function can be constructed
 \begin{equation}
@@ -99,7 +121,7 @@ where $z_{i,j}$ is an indicator function defined as:
 z_{i,~j} =\begin{cases} 0&for~ y_i=j\\ 1&for~y_i\ne j\end{cases}
 \end{equation}
 
-## 3. Analysis of reporting styles
+## 3. Analysis of reporting heterogeneity
 
 The model estimates are used to determine reporting behavior, i.e., how the continuous latent measure is projected onto the categorical response. Practically, this is done by comparing actual categorical ordered responses with theoretical ones that are adjusted for heterogeneity in reporting behaviors and are more comparable across individuals.
 
@@ -126,7 +148,7 @@ While the latent index $H_i$ is intend to reflect underlying health, happiness o
 H_i = C-\sum_{k=1}^K D_kX_{i,k}, ~~~\text{where}~C=\frac{\displaystyle\max_i h_i}{\displaystyle\max_i h_i-\displaystyle\min_i h_i}
 \end{equation}
 
-Reporting styles analysis is based on the reclassification of individuals into new response categories. There are two methods of reclassification: (1) @Jurges2007 percentile method [see also @Rebelo2014] and (2) reclassification based on estimated thresholds.  
+Reporting behavior analysis is based on the reclassification of individuals into new response categories. There are two methods of reclassification: (1) @Jurges2007 percentile method [see also @Rebelo2014] and (2) reclassification based on estimated thresholds.  
 
 In the first method, the classification is based on calculated latent index $H_i$ and is thus adjusted for inter-individual differences in reporting behavior. The Jürges' percentile method is based on original distribution of categorical response variable. First for each category $j$ an empirical distribution function is constructed.
 
@@ -141,7 +163,7 @@ In the second method the reclassification is based on eq. (2), so each individua
 
 ## 4. Installing and loading the package
 
-The newest available version of the package is always available from GitHub. It can be installed using *devtools* package
+The newest version of the package is always available from GitHub. It can be installed using *devtools* package
 ```{r, echo=TRUE, eval=FALSE}
 library(devtools)
 install_github("maciejdanko/hopit")
@@ -154,7 +176,7 @@ library(hopit)
 ```{r, echo=FALSE,  results='hide', eval=TRUE, include=FALSE}
 g <- capture.output(library(hopit))
 ```
-In examples presented below we will use *healthsurvey*, which is artificially generated data set inspired by WAVE1 SHARE database (DOIs: 10.6103/SHARE.w1.600) see @Borsch2013 for technical details. 
+In examples presented below I use *healthsurvey*, which is completely artificial data set simulated using distributions of some major health and socio-demographic characteristics. The distributions and data structure is roughly based on WAVE1 SHARE database (DOIs: 10.6103/SHARE.w1.600) see @Borsch2013 for technical details. See also acknowledgements.
 
 ```{r, echo=TRUE}
 # load *healthsurvey* dataset
@@ -164,7 +186,7 @@ data(healthsurvey)
 print(t(healthsurvey[1:6,-1]), quote=FALSE, na.print='NA', right=TRUE)
 ```
 
-The first variable on the list (*health*) is categorical self-reported health status. This variable is followed by 11 determinants of health, which includes information on presence of diseases and health conditions. The *sex*, *ageclass*, *education*, and *country* are variables describing contextual characteristics of individuals. The last type of variables (*csw*, *psu*, and *ssu*) describes the survey design.
+The first variable on the list (*health*) is categorical self-reported health status. This variable is followed by 11 determinants of health, which includes information on presence of chronic diseases and health conditions. The *sex*, *ageclass*, *education*, and *country* are variables describing contextual characteristics of individuals. The last type of variables (*csw*, *psu*, and *ssu*) describes the survey design.
 
 ## 5. Fitting the model using the *hopit*() function
 
@@ -201,7 +223,7 @@ names(cm1)
 cm1$latent.params
 ```
 
-*model1* can be further extended by adding country of origin to the threshold formula to control for cultural differences.
+*model1* can be further extended by adding the country of origin to the threshold formula to control for cultural differences.
 
 ```{r, echo=TRUE, cache=TRUE}
 model2<- hopit(latent.formula = health ~ hypertension + high_cholesterol + 
@@ -291,7 +313,7 @@ The fit accuracy of the model can be assessed using *profile*() function, which 
 profile(model3)
 ```
 
-## 6. Analyses of the reporting styles using *hopit* package
+## 6. Analyses of the reporting heterogeneity using *hopit* package
 
 Let's look at latent health variables of *model3*. 
 
@@ -299,7 +321,7 @@ Let's look at latent health variables of *model3*.
 model3$coef.ls$latent.params
 ```
 
-We can standardize them using Jürges' approach [@Jurges2007] to obtain disability weights. The standardization can be done using *standardizeCoef*() function.
+We can standardize their coefficients using Jürges' approach [@Jurges2007] to obtain disability weights. The standardization can be done using *standardizeCoef*() function.
 
 ```{r, echo=TRUE, fig.height = 5, fig.width = 5, fig.align = "center"}
 # A function that modifies coefficient names.  
@@ -333,7 +355,7 @@ hi <- latentIndex(model3, plotf = TRUE, response = "Jurges",
                   ylab = 'Health index', col='deepskyblue3')
 ```
 
-The central part of reporting styles analyses is to determine the cut-points used to calculate adjusted health status for each individual. The calculation and plotting of cut-points is realized by *getCutPoints*() function.
+The central part of reporting heterogeneity analyses is to determine the cut-points used to calculate adjusted health status for each individual. The calculation and plotting of cut-points is realized by *getCutPoints*() function.
 
 ```{r, echo=TRUE, fig.height = 4, fig.width = 5, fig.align = "center"}
 z <- getCutPoints(model=model3)
@@ -368,7 +390,7 @@ round(100*(hl$original - hl$adjusted),2)
 
 ## 7. Bootstrapping Confidence Intervals
 
-The package offers functions to calculate confidence intervals for any measure derived from the model. As an example, we show calculation of confidence intervals of the difference between original and adjusted frequencies of combined "*Poor*" + "*Fair*" health categories.
+The package offers functions to calculate confidence intervals for any measure derived from the model. In the example below, we calculate confidence intervals of the difference between original and adjusted frequencies of bad health. The latter is determined by the presence of "*Poor*" or "*Fair*" self-rated health categories.
 
 ```{r, echo=TRUE, fig.height = 6, fig.width = 5, fig.align = "center", cache=TRUE}
 # the function to be bootstraped
@@ -400,5 +422,11 @@ abline(h = 0); box(); par(mar = pmar)
 
 The results show that men tend to over-report bad health at ages (50,60] and (50,70], whereas women at ages [70,80) and both sexes at ages (80, 120] under-report bad health.
 
-## 8. References
+## 8. Acknowledgements
+
+I thank Anna Oksuzyan, Oskar Burger, and Laszlo Nemeth for comments to earlier versions of this vignette.
+
+The artificially generated data used in the package examples is based on distributions of some major socjo-demographic and health related characteristics of WAVE 1 SHARE database. None of the records represent any part of the true data. The SHARE data collection has been primarily funded by the European Commission through FP5 (QLK6-CT-2001-00360), FP6 (SHARE-I3: RII-CT-2006-062193, COMPARE: CIT5-CT-2005-028857, SHARELIFE: CIT4-CT-2006-028812) and FP7 (SHARE-PREP: N°211909, SHARE-LEAP: N°227822, SHARE M4: N°261982). Additional funding from the German Ministry of Education and Research, the Max Planck Society for the Advancement of Science, the U.S. National Institute on Aging (U01_AG09740-13S2, P01_AG005842, P01_AG08291, P30_AG12815, R21_AG025169, Y1-AG-4553-01, IAG_BSR06-11, OGHA_04-064, HHSN271201300071C) and from various national funding sources is gratefully acknowledged (see www.share-project.org).
+
+## 9. References
 

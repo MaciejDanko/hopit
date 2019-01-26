@@ -1,12 +1,12 @@
 Package: hopit
 Type: Package
-Title: Hierarchical Ordered ProbIT models with application to reporting styles
-Version: 0.4.170
-Depends: R (>= 3.4.0), survey, graphics, stats, grDevices
+Title: Hierarchical Ordered ProbIT models with application to reporting heterogeneity
+Version: 0.4.172
+Depends: R (>= 3.4.0), survey (>= 3.35), graphics, stats, grDevices
 Imports: MASS, Rcpp, RcppEigen, Matrix, Rdpack
 LinkingTo: Rcpp, RcppEigen
 Authors@R: person("Maciej J.", "Danko", role = c("aut", "cre"), email = "Maciej.Danko@gmail.com", comment = c(ORCID = "0000-0002-7924-9022"))
-Description: Hierarchical ordered probit models with application to reporting styles.
+Description: Hierarchical ordered probit models with application to reporting heterogeneity.
 License: GPL-3
 Encoding: UTF-8
 LazyData: TRUE

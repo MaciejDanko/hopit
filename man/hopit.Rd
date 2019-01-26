@@ -19,7 +19,8 @@ Any dependent variable (left side of "~") will be ignored.}
 
 \item{crossinter.formula}{formula used to model interactions between threshold and latent variables.
 The formula should be in the form \cr\code{"~ thresh.var.X : latent.var.Y + thresh.var.Z : latent.var.Q + ..." }.\cr
-All \code{"latent.vars"} must be present in threshold formula and all \code{"thresh.vars"} must be present in threshold formula.
+All \code{"latent.vars"} must be present in latent formula and all \code{"thresh.vars"} must be present in threshold formula.
+The interaction is treated as part of the latent measure during performing model predictions.
 Any dependent variable (left side of "~") will be ignored.}
 
 \item{data}{a data frame including all modeled variables.}

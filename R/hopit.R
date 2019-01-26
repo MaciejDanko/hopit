@@ -358,7 +358,8 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' Any dependent variable (left side of "~") will be ignored.
 #' @param crossinter.formula formula used to model interactions between threshold and latent variables.
 #' The formula should be in the form \cr\code{"~ thresh.var.X : latent.var.Y + thresh.var.Z : latent.var.Q + ..." }.\cr
-#' All \code{"latent.vars"} must be present in threshold formula and all \code{"thresh.vars"} must be present in threshold formula.
+#' All \code{"latent.vars"} must be present in latent formula and all \code{"thresh.vars"} must be present in threshold formula.
+#' The interaction is treated as part of the latent measure during performing model predictions.
 #' Any dependent variable (left side of "~") will be ignored.
 #' @param data a data frame including all modeled variables.
 #' @param decreasing.levels logical indicating if self-reported health classes are ordered in decreasing order.
@@ -571,7 +572,7 @@ hopit<- function(latent.formula,
     cm1<-colnames(m1)
     rco<-cm1[!(cm1 %in% colnames(m2))]
     model$latent.mm <- m1[,which(!(cm1 %in% rco))]
-    model$latent.formula <- latent.formulaB
+    model$latent.formula <- latent.formula
     model$crossinter.formula <- crossinter.formula
     model$crossinter <- crossinter
   } else {
