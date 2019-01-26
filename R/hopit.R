@@ -283,39 +283,46 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' Generalized hierarchical ordered threshold models.
 #'
 #' @description
-#' The ordered response data classifies a measure of interest into ordered categories collected during a survey.
-#' For examle, if the dependent variable were a happiness rating, then a respondent typically answers a question like:
-#' “Taking all things together, would you say you are ...? “ and then selects from response options along the lines of:
-#' "very happy", "pretty happy", "not too happy", "very unhappy" \insertCite{Liao2005}{hopit}.
-#' Similarly if interviewees are asked to evaluate
-#' their health in general (e.g. “Would you say your health is ...?”) they may choose among several categories, such as
-#' "very good", "good", "fair", "bad", and "very bad" \insertCite{King2004,Jurges2007,Rebelo2014}{hopit}.
-#' In political sciences a respondent may be asked for an opinion about recent legislation (e.g. “Rate your feelings
-#' about the proposed legislation") and asked to choose among categories like: "strongly oppose", "mildly oppose",
-#' "indifferent", "mildly support", "strongly support" \insertCite{GreeneHensher2010}{hopit}.
-#' It is easy to imagine other multi-level ordinal variables that might be used during a survey and to which the methodology
-#' described below could be applied to.\cr
+#' The ordered response data classifies a measure of interest into ordered categories
+#' collected during a survey. For example, if the dependent variable were a happiness
+#' rating, then a respondent typically answers a question like: “Taking all things
+#' together, would you say you are ... ?$"$ and then selects from response options
+#' along the lines of: "very happy", "pretty happy", "not too happy", "very unhappy"
+#' \insertCite{Liao2005}{hopit}. Similarly if interviewees are asked to evaluate their
+#' health in general (e.g. “Would you say your health is ... ?”) they may choose among
+#' several categories, such as "very good", "good", "fair", "bad", and "very bad"
+#' \insertCite{King2004,Jurges2007,Rebelo2014}{hopit}. In political sciences a respondent
+#' may be asked for an opinion about recent legislation (e.g. “Rate your feelings about
+#' the proposed legislation.") and asked to choose among categories like: "strongly
+#' oppose", "mildly oppose", "indifferent", "mildly support", "strongly support"
+#' \insertCite{GreeneHensher2010}{hopit}. It is easy to imagine other multi-level ordinal
+#' variables that might be used during a survey and to which the methodology described
+#' below could be applied to.\cr
 #'
-#' Practically, it is assumed that when responding to a survey question about their general happiness,
-#' health, feeling, attitude or other status, participants assess their true value of this
-#' unobserved continuous variable, and project it to a provided discrete scale.
-#' The thresholds that each individual uses to categorize their true status into a specific response
-#' option may be affected by the choice of a reference group, earlier life experiences, and cross-cultural
-#' differences in using scales, and thus, may differ across individuals depending on their gender,
-#' age, cultural background, education, and personality traits, among other factors.\cr
+#' Practically, it is assumed that when responding to a survey question about their
+#' general happiness, health, feeling, attitude or other status, participants assess
+#' their true value of this unobserved continuous variable, and project it to a provided
+#' discrete scale. The thresholds that each individual uses to categorize their true status
+#' into a specific response option may be affected by the choice of a reference group,
+#' earlier life experiences, and cross-cultural differences in using scales, and thus,
+#' may differ across individuals depending on their gender, age, cultural background,
+#' education, and personality traits, among other factors.\cr
 #'
-#' From the reporting-styles modeling perspective, one of the main tasks is to compute this continuous estimate of individuals’
-#' underlying, latent measure based on several specific characteristics of the considered response
-#' (e.g. health variables or happiness variables) and accounting also for variations in reporting across
-#' socio-demographic and cultural groups. More specifically, to build the latent, underlying measure
-#' a generalized hierarchical ordered threshold model is fitted, which regresses the reported
-#' status/attitude/feeling on two sets of independent variables \insertCite{Boes2006,Green2014}{hopit}.
-#' When a dependent reported ordered variable is self-rated health status then the first set of variables
-#' (health variables) assesses individuals’ specific aspects of health, and might include chronic conditions,
-#' mobility level, difficulties with a range of daily activities, performance on grip strength test,
-#' anthropometric measures, lifestyle behaviors, etc. Using the second set of independent variables
-#' (threshold variables), the model also adjusts for the differences across socio-demographic and cultural
-#' groups like cultural background, gender, age, education, etc. \insertCite{King2004,Jurges2007}{hopit}.\cr
+#' From the reporting behavior modeling perspective, one of the main tasks is to compute
+#' this continuous estimate of individuals’ underlying, latent measure based on several
+#' specific characteristics of the considered response (e.g. health variables or happiness
+#' variables) and accounting also for variations in reporting across socio-demographic
+#' and cultural groups. More specifically, to build the latent, underlying measure a
+#' generalized hierarchical ordered threshold model is fitted, which regresses the
+#' reported status/attitude/feeling on two sets of independent variables
+#' \insertCite{Boes2006,Green2014}{hopit}. When a dependent reported ordered variable is
+#' self-rated health status then the first set of variables - health variables -
+#' assesses individuals’ specific aspects of health, and might include chronic
+#' conditions, mobility level, difficulties with a range of daily activities,
+#' performance on grip strength test, anthropometric measures, lifestyle behaviors,
+#' etc. Using the second set of independent variables (threshold variables), the model
+#' also adjusts for the differences across socio-demographic and cultural groups like
+#' cultural background, gender, age, education, etc. \insertCite{King2004,Jurges2007}{hopit}.\cr
 #'
 #' Ordered threshold models are used to fit ordered categorical dependent variables.
 #' The generalized ordered threshold models \insertCite{Terza1985,Boes2006,Green2014}{hopit}
@@ -326,7 +333,8 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' thresholds must be ordered so that a model has a sense.
 #' This motivated Greene and coauthors to call this models *HOPIT*, which stands for hierarchical ordered probit models.
 #'
-#' The fitted *hopit* model is used to analyse reporting styles. See \code{\link{standardizeCoef}}, \code{\link{latentIndex}},
+#' The fitted *hopit* model is used to analyse heterogeneity in reporting behavior.
+#' See \code{\link{standardizeCoef}}, \code{\link{latentIndex}},
 #' \code{\link{getCutPoints}}, and \code{\link{getLevels}}.
 #' @details
 #' The function fits generelaized hierarchical ordered threshold models.\cr
@@ -414,7 +422,7 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' \code{\link{AIC.hopit}},
 #' \code{\link{summary.hopit}},
 #' \code{\link[survey]{svydesign}}, \cr\cr
-#' For reporting styles analysis see:\cr
+#' For heterogeneity in reporting behavior analysis see:\cr
 #' \code{\link{standardizeCoef}},
 #' \code{\link{latentIndex}},
 #' \code{\link{getCutPoints}},

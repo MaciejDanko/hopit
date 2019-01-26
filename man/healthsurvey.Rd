@@ -25,7 +25,6 @@
 \item{country}{ country: X, Y, or Z.}
 \item{csw}{ cross-sectional survey weights.}
 \item{psu}{ primary statistical unit.}
-\item{ssu}{ secondary statistical unit.}
 }}
 \source{
 Data was randomly generated using probabilities of occurrence of particular
