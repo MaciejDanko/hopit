@@ -12,6 +12,9 @@ clone.of.htvar.matrix(xcheck, Dcheck)
 \description{
 survey:::htvar.matrix clone
 }
+\details{
+clone taken from the survey v3.35 package.
+}
 \author{
 Thomas Lumley
 }

@@ -12,6 +12,9 @@ clone.of.ppsvar(x, design)
 \description{
 survey:::ppsvar clone
 }
+\details{
+clone taken from the survey v3.35 package.
+}
 \author{
 Thomas Lumley
 }

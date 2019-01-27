@@ -264,15 +264,15 @@ print(anova(model3,model2), short=TRUE)
 
 ```
 
-The interactions between latent and threshold variables can be modeled using *crossinter.formula*:
+The interactions between latent and threshold variables can also be modeled. Depending on interpretation they can be added to the latent or threshold formula:
 
 ```{r, echo=TRUE, cache=TRUE}
 model4<- hopit(latent.formula = health ~ hypertension + high_cholesterol + 
                       heart_attack_or_stroke + poor_mobility + 
                       very_poor_grip + depression + respiratory_problems + 
-                      IADL_problems + obese + diabetes + other_diseases, 
-               thresh.formula = ~ sex * ageclass + country,
-               crossinter.formula = ~ sex : depression,
+                      IADL_problems + obese + diabetes + other_diseases +
+                      sex : respiratory_problems, 
+               thresh.formula = ~ sex * ageclass + country + sex : depression,
                decreasing.levels = TRUE,
                control=list(trace=FALSE),
                data = healthsurvey)
@@ -280,7 +280,6 @@ model4<- hopit(latent.formula = health ~ hypertension + high_cholesterol +
 print(anova(model3,model4), short=TRUE)
 
 ```
-
 
 The *hopit*() function has also an option to include survey design using the *survey* package. 
 The example below fit a model using simple two level cluster sampling design.
@@ -408,7 +407,7 @@ B <- boot_hopit(model = model3, data = healthsurvey,
                 func = diff_BadHealth, nboot = 100)
 
 # calculate lower and upper bounds using percentile method
-est.CI <- boot_hopit_CI(B)
+est.CI <- percentile_CI(B)
 
 # plot the difference and its (assymetrical) confidence intervals
 pmar <- par('mar'); par(mar = c(9.5,pmar[2:4]))
@@ -424,7 +423,7 @@ The results show that men tend to over-report bad health at ages (50,60] and (50
 
 ## 8. Acknowledgements
 
-I thank Anna Oksuzyan, Oskar Burger, and Laszlo Nemeth for comments to earlier versions of this vignette.
+I thank Anna Oksuzyan, Oskar Burger, and Laszlo Nemeth for comments to earlier versions of this vignette and the package.
 
 The artificially generated data used in the package examples is based on distributions of some major socjo-demographic and health related characteristics of WAVE 1 SHARE database. None of the records represent any part of the true data. The SHARE data collection has been primarily funded by the European Commission through FP5 (QLK6-CT-2001-00360), FP6 (SHARE-I3: RII-CT-2006-062193, COMPARE: CIT5-CT-2005-028857, SHARELIFE: CIT4-CT-2006-028812) and FP7 (SHARE-PREP: N°211909, SHARE-LEAP: N°227822, SHARE M4: N°261982). Additional funding from the German Ministry of Education and Research, the Max Planck Society for the Advancement of Science, the U.S. National Institute on Aging (U01_AG09740-13S2, P01_AG005842, P01_AG08291, P30_AG12815, R21_AG025169, Y1-AG-4553-01, IAG_BSR06-11, OGHA_04-064, HHSN271201300071C) and from various national funding sources is gratefully acknowledged (see www.share-project.org).
 

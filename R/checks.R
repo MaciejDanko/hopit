@@ -23,18 +23,18 @@ check_thresh_formula <- function(thresh.formula){
 }
 
 
-#' @noRd
-#' @keywords internal
-check_crossinter_formula <- function(crossinter.formula){
-  crossinter.formula <- stats::as.formula(crossinter.formula)
-  if (length(crossinter.formula)>2L){
-    warning(call. = FALSE, hopit_msg(30))
-    crossinter.formula[[2]] <- NULL
-  }
-  crossinter.formula <- stats::update.formula(crossinter.formula, '~.+1')
-  if (any(grepl('offset(',tolower(as.character(crossinter.formula[[2]])),fixed=TRUE))) stop(hopit_msg(31), call.=NULL)
-  crossinter.formula
-}
+# #' @noRd
+# #' @keywords internal
+# check_crossinter_formula <- function(crossinter.formula){
+#   crossinter.formula <- stats::as.formula(crossinter.formula)
+#   if (length(crossinter.formula)>2L){
+#     warning(call. = FALSE, hopit_msg(30))
+#     crossinter.formula[[2]] <- NULL
+#   }
+#   crossinter.formula <- stats::update.formula(crossinter.formula, '~.+1')
+#   if (any(grepl('offset(',tolower(as.character(crossinter.formula[[2]])),fixed=TRUE))) stop(hopit_msg(31), call.=NULL)
+#   crossinter.formula
+# }
 
 
 #' @noRd

@@ -2,7 +2,7 @@
 % Please edit documentation in R/surveyclone.R
 \name{svy.varcoef.hopit}
 \alias{svy.varcoef.hopit}
-\title{Calculation of variance-covariance matrix for specified survey design}
+\title{Calculation of variance-covariance matrix for specified survey design (experimental function)}
 \usage{
 svy.varcoef.hopit(Ainv, estfun, design)
 }
@@ -14,9 +14,14 @@ svy.varcoef.hopit(Ainv, estfun, design)
 \item{design}{a \code{survey.design} object.}
 }
 \description{
-Calculation of variance-covariance matrix for specified survey design
+This is a modification of \code{survey:::svy.varcoef}. In the original approach \code{estfun} is calcualted from
+glm's working residuals:\cr
+\code{estfun <- model.matrix(glm.object) * resid(glm.object, "working") * glm.object$weights}\cr
+In the hopit package estfun is directly calculated as a gradient (vector of partial derivatives) of log likelihood function.
+}
+\details{
+Based on the survey v3.35 package.
 }
 \author{
 Thomas Lumley, modified by Maciej J. Danko
 }
-\keyword{internal}

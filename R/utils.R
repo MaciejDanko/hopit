@@ -92,7 +92,7 @@ Vector2DummyMat<-function(V) sapply(levels(as.factor(V)), function(k) as.factor(
 
 #' @keywords internal
 #' @noRd
-decomposeformula<-function(allterms) lapply(allterms, function(k) regmatches(k, gregexpr(':',k,fixed=TRUE)[[1]], invert=TRUE)[[1]])
+decomposeinteractions<-function(allterms) lapply(allterms, function(k) regmatches(k, gregexpr(':',k,fixed=TRUE)[[1]], invert=TRUE)[[1]])
 
 
 #' @keywords internal
@@ -150,6 +150,18 @@ classify.ind<-function(model){
   Ey_i
 }
 
+#' @keywords internal
+#' @noRd
+# x- to be sorted, y-pattern
+order.as.in<-function(x, y){
+  tmp <- data.frame(y=y,id=seq_along(y))
+  tmp <- tmp[order(y),]
+  tmp2 <- data.frame(x=x,id=seq_along(x))
+  tmp2 <- tmp2[order(x),]
+  tmp <-cbind(tmp, tmp2)
+  tmp[order(tmp[,2]),4]
+}
+#order.as.in(x=c('aa','cc','bb'),y=c('c','a','b'))
 
 #' INTERNAL: Use glm() to get starting parameters
 #'
@@ -172,12 +184,21 @@ start.glm<-function(model, data){
     gl$coef
     #check convergence
   })
-  glm.lambda <-  res[which(grepl('Intercept',rownames(res))),]
-  glm.latent <- res[rownames(res)%in%colnames(model$latent.mm),]
+
+  st.cn.l.mm <- sort.terms(colnames(model$latent.mm))
+  st.cn.t.mm <- sort.terms(colnames(model$thresh.mm))
+  st.cn.res  <- sort.terms(rownames(res))
+  glm.lambda <- res[which(grepl('Intercept',rownames(res))),]
+  lind <- which(st.cn.res %in% st.cn.l.mm)
+  glm.latent <- res[lind, ]
   glm.latent <- - rowMeans(glm.latent)
+  glm.latent <- glm.latent[order.as.in(st.cn.res[lind], st.cn.l.mm)] # order of terms should be the same, but...
   if (!model$thresh.no.cov) {
     thr.ext.nam <-as.character(interaction(expand.grid(seq_len(model$J-1),colnames(model$thresh.mm))[,2:1],sep=':'))
-    glm.gamma <- as.vector(t(res[rownames(res)%in%colnames(model$thresh.mm),]))
+    indx <- which(st.cn.res %in% st.cn.t.mm)
+    glm.gamma <- res[indx,]
+    glm.gamma <- glm.gamma[order.as.in(st.cn.res[indx], st.cn.t.mm),] #order of terms should be the same, but...
+    glm.gamma <- as.vector(t(glm.gamma))
     names(glm.gamma) <- thr.ext.nam
   } else {
     glm.gamma <- NULL
@@ -214,6 +235,114 @@ get.hopit.start<-function(model, data){
   if (model$hasdisp) {
     model$start <- c(z$coef, logTheta)
   } else model$start <- z$coef
+
+  model
+}
+
+
+#' @keywords internal
+#' @noRd
+sort.terms <- function(x) {
+  tmp <- decomposeinteractions(x)
+  tmp <-lapply(tmp, sort)
+  sapply(tmp, paste, collapse=':')
+}
+
+
+#' @keywords internal
+#' @noRd
+analyse.formulas<-function(model, latent.formula, thresh.formula, data){
+  thresh.formula <- check_thresh_formula(thresh.formula)
+  latent.formula <- check_latent_formula(latent.formula)
+
+  thresh.terms <- attr(stats::terms(thresh.formula),'term.labels')
+  latent.terms <- attr(stats::terms(latent.formula),'term.labels')
+  if(any(thresh.terms %in% latent.terms)){
+    tmp <- thresh.terms[thresh.terms %in% latent.terms]
+    stop(paste(hopit_msg(91),' ',paste(tmp,collapse=', '),'. ',hopit_msg(92),sep=''),call.=NULL)
+  }
+
+  thresh.list <- decomposeinteractions(thresh.terms)
+  latent.list <- decomposeinteractions(latent.terms)
+  thresh.list.L <- sapply(thresh.list, length)
+  latent.list.L <- sapply(latent.list, length)
+  thresh.main <- unlist(thresh.list[which(thresh.list.L<2)])
+  latent.main <- unlist(latent.list[which(latent.list.L<2)])
+
+  if (length(thresh.list))
+    sapply(thresh.list[which(thresh.list.L>1)], function(k) if (!all((k%in%thresh.main) | (k%in%latent.main)))
+      stop(paste(hopit_msg(93),paste(Inte),hopit_msg(94)),call.=NULL))
+
+  if (length(thresh.list)) {
+    sapply(latent.list[which(latent.list.L>1)], function(k) if (!all((k%in%latent.main) | (k%in%thresh.main)))
+      stop(paste(hopit_msg(93),paste(Inte),hopit_msg(94)),call.=NULL))
+  } else {
+    sapply(latent.list[which(latent.list.L>1)], function(k) if (!all((k%in%latent.main)))
+      stop(paste(hopit_msg(93),paste(Inte),hopit_msg(94)),call.=NULL))
+  }
+
+  cross.inter.latent.list <- latent.list[which(sapply(latent.list, function(k) !all(k%in%latent.main)))]
+  if (length(cross.inter.latent.list)) {
+    cross.inter.latent <- paste(sapply(cross.inter.latent.list, paste, collapse=':'),collapse=' + ')
+    cross.main.latent.list <- unlist(cross.inter.latent.list)
+    cross.main.latent.list <- cross.main.latent.list[which(cross.main.latent.list%notin%latent.main)]
+    cross.main.latent <- paste(cross.main.latent.list, collapse=' + ')
+    latent.formulaA <-stats::update(latent.formula, paste('.~. + ',cross.main.latent))
+    m1<-stats::model.matrix(latent.formulaA, data)
+    m2<-stats::model.matrix(latent.formula, data)
+    cm1<-colnames(m1)
+    rco<-cm1[cm1 %notin% colnames(m2)]
+    latent.mm <- m1[,which(cm1 %notin% rco)]
+  } else {
+    latent.mm <- stats::model.matrix(latent.formula, data)
+    cross.inter.latent <- NULL
+  }
+
+  if (length(thresh.list)) {
+    cross.inter.thresh.list <- thresh.list[which(sapply(thresh.list, function(k) !all(k%in%thresh.main)))]
+  } else cross.inter.thresh.list <- NULL
+  if (length(cross.inter.thresh.list)) {
+    cross.inter.thresh <- paste(sapply(cross.inter.thresh.list, paste, collapse=':'),collapse=' + ')
+    cross.main.thresh.list <- unlist(cross.inter.thresh.list)
+    cross.main.thresh.list <- cross.main.thresh.list[which(cross.main.thresh.list%notin%thresh.main)]
+    cross.main.thresh <- paste(cross.main.thresh.list, collapse=' + ')
+    thresh.formulaA <-stats::update(thresh.formula, paste('~. + ',cross.main.thresh))
+    m1<-stats::model.matrix(thresh.formulaA, data)
+    m2<-stats::model.matrix(thresh.formula, data)
+    cm1<-colnames(m1)
+    rco<-cm1[cm1 %notin% colnames(m2)]
+    thresh.mm <- m1[,which(cm1 %notin% rco)]
+  } else {
+    thresh.mm <- stats::model.matrix(thresh.formula, data)
+    cross.inter.thresh <- NULL
+  }
+
+  latent.names <- colnames(latent.mm)
+  grpi <- findintercept(latent.names)
+  latent.mm <- as.matrix(latent.mm[,!grpi])
+  latent.names <- latent.names[!grpi]
+
+  thresh.names <- colnames(thresh.mm)
+  grpi <- findintercept(thresh.names)
+  thresh.mm <- as.matrix(thresh.mm[,!grpi])
+  thresh.names <- thresh.names[!grpi]
+
+  model$latent.names <- latent.names
+  model$latent.formula <- latent.formula
+  model$latent.terms <- latent.terms
+  model$latent.mm <- latent.mm
+  model$cross.inter.latent <- cross.inter.latent
+  model$thresh.names <- thresh.names
+  model$thresh.formula <- thresh.formula
+  model$thresh.terms <- thresh.terms
+  model$thresh.mm <- thresh.mm
+  model$cross.inter.thresh <- cross.inter.thresh
+
+  if (any(dim(model$thresh.mm) == 0L)) {
+    model$thresh.no.cov <- TRUE
+  } else {
+    model$thresh.no.cov <- FALSE
+  }
 
   model
 }

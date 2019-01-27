@@ -4,24 +4,17 @@
 \alias{hopit}
 \title{Generalized hierarchical ordered threshold models.}
 \usage{
-hopit(latent.formula, thresh.formula = ~1, crossinter.formula = ~1,
-  data, decreasing.levels, start = NULL, overdispersion = FALSE,
-  design = list(), weights = NULL, link = c("probit", "logit"),
-  control = list())
+hopit(latent.formula, thresh.formula = ~1, data, decreasing.levels,
+  start = NULL, overdispersion = FALSE, design = list(),
+  weights = NULL, link = c("probit", "logit"), control = list())
 }
 \arguments{
 \item{latent.formula}{formula used to model latent variable. It should not contain any threshold variable.
-To specify interactions between latent and threshold variables use \code{crossinter.formula}}
+To specify interactions between latent and threshold variables see details.}
 
 \item{thresh.formula}{formula used to model threshold variable. It should not contain any latent variable.
-To specify interactions between latent and threshold variables use \code{crossinter.formula}
-Any dependent variable (left side of "~") will be ignored.}
-
-\item{crossinter.formula}{formula used to model interactions between threshold and latent variables.
-The formula should be in the form \cr\code{"~ thresh.var.X : latent.var.Y + thresh.var.Z : latent.var.Q + ..." }.\cr
-All \code{"latent.vars"} must be present in latent formula and all \code{"thresh.vars"} must be present in threshold formula.
-The interaction is treated as part of the latent measure during performing model predictions.
-Any dependent variable (left side of "~") will be ignored.}
+To specify interactions between latent and threshold variables see details.
+Any dependent variable (left side of "~" in the formula) will be ignored.}
 
 \item{data}{a data frame including all modeled variables.}
 
@@ -47,11 +40,13 @@ a \code{hopit} object used by other functions and methods. The object is a list 
 \item{hasdisp}{ logical, was overdispersion modeled?}
 \item{latent.formula}{ used latent formula. It is updated by cross-interactions if crossinter.formula is delivered.}
 \item{latent.mm}{ latent model matrix.}
-\item{latent.terms}{ used latent variables.}
+\item{latent.terms}{ used latent variables and their interactions.}
+\item{cross.inter.latent}{ part of the latent formula modeling cross-interactions in the latent model}
 \item{thresh.formula}{ used threshold formula.}
 \item{thresh.mm}{ threshold model matrix.}
 \item{thresh.extd}{ threshold extended model matrix.}
-\item{thresh.terms}{ used threshold variables.}
+\item{thresh.terms}{ used threshold variables and their interactions.}
+\item{cross.inter.thresh}{ part of the threshold formula modeling cross-interactions in the threshold model}
 \item{thresh.no.cov}{ logical, are gamma parameters present?}
 \item{parcount}{ 3-element vector with number of parmeters for latent latent variable (beta),
 threshold intercept (lambda), and threshold covariates (gamma).}
@@ -68,10 +63,10 @@ threshold intercept (lambda), and threshold covariates (gamma).}
 \item{LL}{ log likelihood.}
 \item{AIC}{ AIC for models without survey design.}
 \item{vcov}{ variance-covariance matrix.}
+\item{vcov.basic}{ variance-covariance matrix ignoring survey design.}
 \item{hessian}{ a Hessian matrix.}
 \item{estfun}{ gradient of the log likelihood function at estimated coefficient values.}
 \item{YYY1,YYY2,YY3}{ internal objects used for calculation of gradient and Hessian functions.}
-\item{use.weights,vcov.basic,glm.start,glm.start.ls}{ other internal objects.}
 }
 \description{
 The ordered response data classifies a measure of interest into ordered categories
@@ -149,6 +144,13 @@ a variable independently \insertCite{Boes2006,Green2014}{hopit}.
 \code{decreasing.levels} it is the logical that determines the ordering of levels of the categorical response variable.
 It is always good to check first the ordering of the levels before starting (see example 1)\cr
 
+It is possible to model interactions, including interactions beetwen latent and threshold variables. Interactions added to the latent formula
+models only the latent measure and interactions modeled in threshold formula models only thresholds.
+The general rule for modeling any kind of interactions is to use "*" to specify interactions within latent (or threshold) formula and to
+use ':' to specify interactions between latent and threshold variables. In the latter case the main effects of an interaction must be also speciffied,
+i.e. main latent effects must be speciffied in the latent formula and main threshold effect must be speciffied in the threshold formula.
+See also \code{Example 3} below.\cr
+
 For more details please see the package vignette: "introduction_to_hopit".
 }
 \examples{
@@ -209,26 +211,43 @@ cbind('No survey design' = coef(model1, aslist = TRUE)$latent.par,
 
 # Example 3 ---------------------
 
-# using crossinter.formula
+# interactions beetween threshold and latent variables
+# correctly defined interactions:
 model3 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
-                heart_attack_or_stroke + poor_mobility + very_poor_grip +
-                depression + respiratory_problems +
-                IADL_problems + obese + diabetes + other_diseases,
-              thresh.formula = ~ sex + ageclass + country,
-              crossinter.formula = ~ sex : depression + sex : diabetes,
+                heart_attack_or_stroke + poor_mobility * very_poor_grip +
+                depression + respiratory_problems,
+                IADL_problems + obese + diabetes + other_diseases +
+                sex : depression + sex : diabetes + ageclass:obese,
+              thresh.formula = ~ sex * ageclass + country + sex : obese,
               decreasing.levels = TRUE,
               control = list(trace = FALSE),
               data = healthsurvey)
 
-# print the model:
-coef(model3, aslist = TRUE)$latent.params
+# badly defined interactions:
+**## Not run:**
+# 1) lack of main effect of "other_diseases" in both formulas
+# it can be solved by adding " + other_diseases" to the latent formula
+model3a <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+                heart_attack_or_stroke + poor_mobility + very_poor_grip +
+                depression + respiratory_problems +
+                IADL_problems + obese + diabetes + other_diseases : sex,
+              thresh.formula = ~ sex + ageclass + country,
+              decreasing.levels = TRUE,
+              control = list(trace = FALSE),
+              data = healthsurvey)
 
-# compare fit of model1 and model 3
-# Likelihood Ratio Test
-anova(model1, model3)
+# 2) Main effect of sex present in both formulas.
+# it can be solved by exchanging "*" into ":" in "other_diseases * sex"
+model3b <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+                heart_attack_or_stroke + poor_mobility + very_poor_grip +
+                depression + respiratory_problems +
+                IADL_problems + obese + diabetes + other_diseases * sex,
+              thresh.formula = ~ sex + ageclass + country,
+              decreasing.levels = TRUE,
+              control = list(trace = FALSE),
+              data = healthsurvey)
 
-# AIC
-AIC(model1, model3)
+## End(**Not run**)
 
 # Example 4 ---------------------
 

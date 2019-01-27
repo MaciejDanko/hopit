@@ -60,7 +60,7 @@ B <- boot_hopit(model = model1, data = healthsurvey,
                 func = cutpoints, nboot = 100)
 
 # calculate lower and upper bounds using percentile method
-cutpoints.CI <- boot_hopit_CI(B)
+cutpoints.CI <- percentile_CI(B)
 
 # print estimated cutpoints and their confidence intervals
 cutpoints(model1, healthsurvey)
@@ -84,7 +84,7 @@ B <- boot_hopit(model = model1, data = healthsurvey,
                 func = diff_BadHealth, nboot = 100)
 
 # calculate lower and upper bounds using percentile method
-est.CI <- boot_hopit_CI(B)
+est.CI <- percentile_CI(B)
 
 # plot the difference and its (asymmetrical) confidence intervals
 pmar <- par('mar'); par(mar = c(9.5,pmar[2:4]))
@@ -95,7 +95,7 @@ for (k in seq_along(pos)) lines(c(pos[k,1],pos[k,1]), est.CI[,k], lwd = 2, col =
 abline(h = 0); box(); par(mar = pmar)
 }
 \seealso{
-\code{\link{boot_hopit_CI}}, \code{\link{getLevels}}, \code{\link{getCutPoints}}, \code{\link{latentIndex}}, \code{\link{standardiseCoef}}, \code{\link{hopit}}.
+\code{\link{percentile_CI}}, \code{\link{getLevels}}, \code{\link{getCutPoints}}, \code{\link{latentIndex}}, \code{\link{standardiseCoef}}, \code{\link{hopit}}.
 }
 \author{
 Maciej J. Danko

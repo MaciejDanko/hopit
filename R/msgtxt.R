@@ -40,7 +40,7 @@ hopit_msg <- function(x)
          '36' = 'Vector of survey weights must be of the same length as data.', #checks
          '37' = 'Cannot compute variance-covariance matrix:\n', #generics
          '38' = 'Hessian cannot be calculated.', #generics
-         '39' = '"robust.vcov" ignored, survey design was detected.', #generics
+         '39' = '"robust.vcov" parameter ignored, survey design was detected.', #generics
          '40' = 'Variance-covariance matrix:\n', #generics
          '41' = '\nVariance-covariance matrix adjusted for survey design.\n', #generics
          '42' = '\nVariance-covariance matrix based on sandwich estimator.\n', #generics
@@ -91,5 +91,11 @@ hopit_msg <- function(x)
          '87' = 'Elements of interaction(s)', #hopit
          '88' = 'should be present both in threshold and latent formula.',
          '89' = 'Latent variables present in threshold formula (or vice versa).',
-         '90' = 'Non-interaction terms removed from crossinter.formula.'
+         '90' = 'Non-interaction terms removed from crossinter.formula.',
+         '91' = 'The same terms found in latent and threshold model:',
+         '92' = 'Model cannot use the same variables (ortheir interactions) to model thresholds and latent measure. Also, avoid using "*" to model latent-threshold interactions.',
+         '93' = 'No main effects found for the',
+         '94' = 'interaction.',
+         '95' = '"use_weights" must be given.'
   )
+

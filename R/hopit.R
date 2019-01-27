@@ -95,7 +95,10 @@ hopit_ExtractParameters <- function(model, parameters, parcount = model$parcount
 #' @keywords internal
 #' @useDynLib hopit
 #' @importFrom Rcpp evalCpp
-hopit_negLL <- function(parameters=model$coef, model, collapse = TRUE, use_weights = model$use.weights, negative = TRUE){
+hopit_negLL <- function(parameters=model$coef, model, collapse = TRUE, use_weights, negative = TRUE){
+  if (missing(use_weights)) {
+    if (length(model$use.weights)) use_weights <- model$use.weights else stop(hopit_msg(95))
+  }
   link = hopit_c_link(model)
   if (collapse) {
     LL <- LLFunc(parameters, yi=as.numeric(unclass(model$y_i)),latent_mm=model$latent.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
@@ -127,7 +130,10 @@ hopit_negLL <- function(parameters=model$coef, model, collapse = TRUE, use_weigh
 #' @useDynLib hopit
 #' @importFrom Rcpp evalCpp
 hopit_derivLL <- function(parameters=model$coef, model,
-                          collapse = TRUE, use_weights = model$use.weights, negative = FALSE){
+                          collapse = TRUE, use_weights, negative = FALSE){
+  if (missing(use_weights)) {
+    if (length(model$use.weights)) use_weights <- model$use.weights else stop(hopit_msg(95))
+  }
   link = hopit_c_link(model)
 
   if (collapse) {
@@ -161,7 +167,11 @@ hopit_derivLL <- function(parameters=model$coef, model,
 #' @keywords internal
 #' @useDynLib hopit
 #' @importFrom Rcpp evalCpp
-hopit_fitter <- function(model, start = model$start, use_weights = model$use.weights){
+hopit_fitter <- function(model, start = model$start, use_weights){
+
+  if (missing(use_weights)) {
+    if (length(model$use.weights)) use_weights <- model$use.weights else stop(hopit_msg(95))
+  }
 
   #be compatible with older versions
   if ((!length(model$YYY1)) || (!length(model$YYY1))){
@@ -357,18 +367,20 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' \code{decreasing.levels} it is the logical that determines the ordering of levels of the categorical response variable.
 #' It is always good to check first the ordering of the levels before starting (see example 1)\cr
 #'
+#' It is possible to model interactions, including interactions beetwen latent and threshold variables. Interactions added to the latent formula
+#' models only the latent measure and interactions modeled in threshold formula models only thresholds.
+#' The general rule for modeling any kind of interactions is to use "*" to specify interactions within latent (or threshold) formula and to
+#' use ':' to specify interactions between latent and threshold variables. In the latter case the main effects of an interaction must be also speciffied,
+#' i.e. main latent effects must be speciffied in the latent formula and main threshold effect must be speciffied in the threshold formula.
+#' See also \code{Example 3} below.\cr
+#'
 #' For more details please see the package vignette: "introduction_to_hopit".
 #'
 #' @param latent.formula formula used to model latent variable. It should not contain any threshold variable.
-#' To specify interactions between latent and threshold variables use \code{crossinter.formula}
+#' To specify interactions between latent and threshold variables see details.
 #' @param thresh.formula formula used to model threshold variable. It should not contain any latent variable.
-#' To specify interactions between latent and threshold variables use \code{crossinter.formula}
-#' Any dependent variable (left side of "~") will be ignored.
-#' @param crossinter.formula formula used to model interactions between threshold and latent variables.
-#' The formula should be in the form \cr\code{"~ thresh.var.X : latent.var.Y + thresh.var.Z : latent.var.Q + ..." }.\cr
-#' All \code{"latent.vars"} must be present in latent formula and all \code{"thresh.vars"} must be present in threshold formula.
-#' The interaction is treated as part of the latent measure during performing model predictions.
-#' Any dependent variable (left side of "~") will be ignored.
+#' To specify interactions between latent and threshold variables see details.
+#' Any dependent variable (left side of "~" in the formula) will be ignored.
 #' @param data a data frame including all modeled variables.
 #' @param decreasing.levels logical indicating if self-reported health classes are ordered in decreasing order.
 #' @param overdispersion logical indicting if to fit additional parameter theta, which models a variance of the error term.
@@ -384,11 +396,13 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #'  \item{hasdisp}{ logical, was overdispersion modeled?}
 #'  \item{latent.formula}{ used latent formula. It is updated by cross-interactions if crossinter.formula is delivered.}
 #'  \item{latent.mm}{ latent model matrix.}
-#'  \item{latent.terms}{ used latent variables.}
+#'  \item{latent.terms}{ used latent variables and their interactions.}
+#'  \item{cross.inter.latent}{ part of the latent formula modeling cross-interactions in the latent model}
 #'  \item{thresh.formula}{ used threshold formula.}
 #'  \item{thresh.mm}{ threshold model matrix.}
 #'  \item{thresh.extd}{ threshold extended model matrix.}
-#'  \item{thresh.terms}{ used threshold variables.}
+#'  \item{thresh.terms}{ used threshold variables and their interactions.}
+#'  \item{cross.inter.thresh}{ part of the threshold formula modeling cross-interactions in the threshold model}
 #'  \item{thresh.no.cov}{ logical, are gamma parameters present?}
 #'  \item{parcount}{ 3-element vector with number of parmeters for latent latent variable (beta),
 #'  threshold intercept (lambda), and threshold covariates (gamma).}
@@ -405,10 +419,10 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #'  \item{LL}{ log likelihood.}
 #'  \item{AIC}{ AIC for models without survey design.}
 #'  \item{vcov}{ variance-covariance matrix.}
+#'  \item{vcov.basic}{ variance-covariance matrix ignoring survey design.}
 #'  \item{hessian}{ a Hessian matrix.}
 #'  \item{estfun}{ gradient of the log likelihood function at estimated coefficient values.}
 #'  \item{YYY1,YYY2,YY3}{ internal objects used for calculation of gradient and Hessian functions.}
-#'  \item{use.weights,vcov.basic,glm.start,glm.start.ls}{ other internal objects.}
 #' @references \insertAllCited{}
 #' @export
 #' @author Maciej J. Danko
@@ -485,26 +499,43 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #'
 #' # Example 3 ---------------------
 #'
-#' # using crossinter.formula
+#' # interactions beetween threshold and latent variables
+#' # correctly defined interactions:
 #' model3 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
-#'                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
-#'                 depression + respiratory_problems +
-#'                 IADL_problems + obese + diabetes + other_diseases,
-#'               thresh.formula = ~ sex + ageclass + country,
-#'               crossinter.formula = ~ sex : depression + sex : diabetes,
+#'                 heart_attack_or_stroke + poor_mobility * very_poor_grip +
+#'                 depression + respiratory_problems,
+#'                 IADL_problems + obese + diabetes + other_diseases +
+#'                 sex : depression + sex : diabetes + ageclass:obese,
+#'               thresh.formula = ~ sex * ageclass + country + sex : obese,
 #'               decreasing.levels = TRUE,
 #'               control = list(trace = FALSE),
 #'               data = healthsurvey)
 #'
-#' # print the model:
-#' coef(model3, aslist = TRUE)$latent.params
+#' # badly defined interactions:
+#' **## Not run:**
+#' # 1) lack of main effect of "other_diseases" in both formulas
+#' # it can be solved by adding " + other_diseases" to the latent formula
+#' model3a <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+#'                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
+#'                 depression + respiratory_problems +
+#'                 IADL_problems + obese + diabetes + other_diseases : sex,
+#'               thresh.formula = ~ sex + ageclass + country,
+#'               decreasing.levels = TRUE,
+#'               control = list(trace = FALSE),
+#'               data = healthsurvey)
 #'
-#' # compare fit of model1 and model 3
-#' # Likelihood Ratio Test
-#' anova(model1, model3)
+#' # 2) Main effect of sex present in both formulas.
+#' # it can be solved by exchanging "*" into ":" in "other_diseases * sex"
+#' model3b <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+#'                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
+#'                 depression + respiratory_problems +
+#'                 IADL_problems + obese + diabetes + other_diseases * sex,
+#'               thresh.formula = ~ sex + ageclass + country,
+#'               decreasing.levels = TRUE,
+#'               control = list(trace = FALSE),
+#'               data = healthsurvey)
 #'
-#' # AIC
-#' AIC(model1, model3)
+#' ## End(**Not run**)
 #'
 #' # Example 4 ---------------------
 #'
@@ -527,7 +558,6 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' print(anova(model1, model4), short = TRUE)
 hopit<- function(latent.formula,
                  thresh.formula = ~ 1,
-                 crossinter.formula = ~ 1,
                  data,
                  decreasing.levels,
                  start = NULL,
@@ -547,68 +577,9 @@ hopit<- function(latent.formula,
   model$link <- link[1]
   model$hasdisp <- overdispersion
 
-  thresh.formula <- check_thresh_formula(thresh.formula)
-  latent.formula <- check_latent_formula(latent.formula)
+  model <- analyse.formulas(model, latent.formula, thresh.formula, data)
 
-  thresh.terms <- attr(stats::terms(thresh.formula),'term.labels')
-  latent.terms <- attr(stats::terms(latent.formula),'term.labels')
-  thresh.list <- unlist(decomposeformula(thresh.terms))
-  latent.list <- unlist(decomposeformula(latent.terms))
-  if(any(thresh.list %in% latent.list) || any(latent.list %in% thresh.list)) stop(hopit_msg(89), call.=NULL)
-
-  crossinter.formula <- check_crossinter_formula(crossinter.formula)
-  crossinter <- attr(stats::terms(crossinter.formula),'term.labels')
-  if (length(crossinter)) {
-    tmp <- length(crossinter)
-    crossinter <- crossinter[which(grepl(":", unlist(crossinter), fixed=TRUE))]
-    if (length(crossinter) != tmp) warning(hopit_msg(90), call. = NA)
-  }
-  if (length(crossinter)) {
-    # check if one component is in the thresh and second in the latent
-    crossinter.list <- decomposeformula(crossinter)
-    crossinter.test <- sapply(crossinter.list, function(k) any(k %in% thresh.terms) & any(k %in% latent.terms))
-    if (!all(crossinter.test)) {
-      ll <- paste(crossinter[which(!crossinter.test)],collapse = ' & ')
-      stop(paste(hopit_msg(87),ll, hopit_msg(88)), call.=NULL)
-    }
-    crossinter.thresh <-unique(sapply(crossinter.list, function(k) k[k %in% thresh.terms]))
-    crossinter.f <- paste(crossinter, collapse=' + ')
-    latent.formulaA <-stats::update(latent.formula, paste('.~. + ',crossinter.f,' + ',crossinter.thresh))
-    latent.formulaB <-stats::update(latent.formulaA, paste('.~. - ',crossinter.thresh))
-    m1<-stats::model.matrix(latent.formulaA, data)
-    m2<-stats::model.matrix(latent.formulaB, data)
-    cm1<-colnames(m1)
-    rco<-cm1[!(cm1 %in% colnames(m2))]
-    model$latent.mm <- m1[,which(!(cm1 %in% rco))]
-    model$latent.formula <- latent.formulaB
-    model$crossinter.formula <- crossinter.formula
-    model$crossinter <- crossinter
-  } else {
-    model$latent.formula <- latent.formula
-    model$latent.mm <- as.matrix(stats::model.matrix(latent.formula, data = data))
-  }
-
-  latent.names <- colnames(model$latent.mm)
-  grpi <- findintercept(latent.names)
-  model$latent.mm <- as.matrix(model$latent.mm[,!grpi])
-  latent.names <- latent.names[!grpi]
-
-  model$thresh.formula <- thresh.formula
-  model$thresh.mm <- as.matrix(stats::model.matrix(thresh.formula, data = data))
-  thresh.names <- colnames(model$thresh.mm)
-  grpi <- findintercept(thresh.names)
-  model$thresh.mm <- as.matrix(model$thresh.mm[,!grpi])
-  thresh.names <- thresh.names[!grpi]
-  if (any(dim(model$thresh.mm) == 0L)) {
-    model$thresh.no.cov <- TRUE
-  } else {
-    model$thresh.no.cov <- FALSE
-  }
-
-  model$latent.terms <- attr(stats::terms(stats::as.formula(latent.formula)),"term.labels")
-  model$thresh.terms <-attr(stats::terms(stats::as.formula(thresh.formula)),"term.labels")
-
-  model$y_i <- stats::model.frame(latent.formula, data = data)[,all.vars(latent.formula[[2]])]
+  model$y_i <- stats::model.frame(model$latent.formula, data = data)[,all.vars(model$latent.formula[[2]])]
   check_response(model$y_i)
   if (missing(decreasing.levels)) decreasing.levels = NULL
   check_decreasing.levels(decreasing.levels, levels(model$y_i))
@@ -629,12 +600,12 @@ hopit<- function(latent.formula,
   if (model$thresh.no.cov){
     tmp <- NULL
   } else {
-    tmp <- as.matrix(expand.grid(interce, thresh.names, KEEP.OUT.ATTRS = FALSE))
+    tmp <- as.matrix(expand.grid(interce, model$thresh.names, KEEP.OUT.ATTRS = FALSE))
     tmp <- tmp[,c(2,1)]
     tmp <- paste('(G)', apply(tmp, 1L, paste, sep = '', collapse = '.'), sep = '.')
   }
 
-  coefnames <-  c(latent.names, paste('(L)', interce, sep = '.'), tmp)
+  coefnames <-  c(model$latent.names, paste('(L)', interce, sep = '.'), tmp)
   if (model$hasdisp) coefnames <- c(coefnames, 'logTheta')
 
   model$weights <- NULL
@@ -662,7 +633,7 @@ hopit<- function(latent.formula,
   if (model$control$trace) cat(hopit_msg(11))
   model <- hopit_fitter(model, start = model$start)
   class(model) <- 'hopit'
-  colnames(model$thresh.mm) <- thresh.names
+  #colnames(model$thresh.mm) <- model$thresh.names
   names(model$coef) <- coefnames
   if (model$control$trace) cat(hopit_msg(13),hopit_msg(12),sep='')
 
@@ -701,5 +672,6 @@ hopit<- function(latent.formula,
                                        length(model$coef.ls$thresh.lambda)+
                                        length(model$coef.ls$thresh.gamma)+model$hasdisp)
   }
+  model$glm.start <- model$glm.start.ls <- model$use.weights <- NULL
   return(model)
 }

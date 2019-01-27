@@ -53,7 +53,7 @@ update.latent <- function(model, newregcoef, data){
 #' @author Maciej J. Danko
 #' @return a list with bootstrapped elements.
 #' @export
-#' @seealso \code{\link{boot_hopit_CI}}, \code{\link{getLevels}}, \code{\link{getCutPoints}}, \code{\link{latentIndex}}, \code{\link{standardiseCoef}}, \code{\link{hopit}}.
+#' @seealso \code{\link{percentile_CI}}, \code{\link{getLevels}}, \code{\link{getCutPoints}}, \code{\link{latentIndex}}, \code{\link{standardiseCoef}}, \code{\link{hopit}}.
 #' @examples
 #' # DATA
 #' data(healthsurvey)
@@ -80,7 +80,7 @@ update.latent <- function(model, newregcoef, data){
 #'                 func = cutpoints, nboot = 100)
 #'
 #' # calculate lower and upper bounds using percentile method
-#' cutpoints.CI <- boot_hopit_CI(B)
+#' cutpoints.CI <- percentile_CI(B)
 #'
 #' # print estimated cutpoints and their confidence intervals
 #' cutpoints(model1, healthsurvey)
@@ -104,7 +104,7 @@ update.latent <- function(model, newregcoef, data){
 #'                 func = diff_BadHealth, nboot = 100)
 #'
 #' # calculate lower and upper bounds using percentile method
-#' est.CI <- boot_hopit_CI(B)
+#' est.CI <- percentile_CI(B)
 #'
 #' # plot the difference and its (asymmetrical) confidence intervals
 #' pmar <- par('mar'); par(mar = c(9.5,pmar[2:4]))
@@ -129,9 +129,9 @@ boot_hopit<-function(model, data, func, nboot = 500, unlist = TRUE,
   boots
 }
 
-#' Calculating confidence intervals of a boot object using percentile method
+#' Calculating confidence intervals of bootstrapped function using percentile method
 #'
-#' @param boot a boot object calculated by \code{\link{boot_hopit}} .
+#' @param boot a matrix or list of vectors with bootstrapped elements. If a list then each element of the list is one replication.
 #' @param alpha significance level.
 #' @param bounds one of \code{"both"}, \code{"lo"}, \code{"up"}.
 #' @author Maciej J. Danko
@@ -139,8 +139,7 @@ boot_hopit<-function(model, data, func, nboot = 500, unlist = TRUE,
 #' @export
 #' @examples
 #' # see examples in boot_hopit() function.
-boot_hopit_CI <- function(boot, alpha = 0.05, bounds = c('both', 'lo', 'up')){
-  if (!inherits(boot,'hopit.boot')) stop(call.=NULL, hopit_msg(22))
+percentile_CI <- function(boot, alpha = 0.05, bounds = c('both', 'lo', 'up')){
   bounds <- tolower(bounds[1])
   if (inherits(boot,'list')) boot <- sapply(boot,'[')
   probs <- switch(bounds,

@@ -12,6 +12,9 @@ clone.of.ygvar.matrix(xcheck, Dcheck)
 \description{
 survey:::ygvar.matrix clone
 }
+\details{
+clone taken from the survey v3.35 package.
+}
 \author{
 Thomas Lumley
 }
