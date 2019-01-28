@@ -271,14 +271,14 @@ analyse.formulas<-function(model, latent.formula, thresh.formula, data){
 
   if (length(thresh.list))
     sapply(thresh.list[which(thresh.list.L>1)], function(k) if (!all((k%in%thresh.main) | (k%in%latent.main)))
-      stop(paste(hopit_msg(93),paste(Inte),hopit_msg(94)),call.=NULL))
+      stop(paste(hopit_msg(93),paste(k,collapse=':'),hopit_msg(94)),call.=NULL) else paste(paste(k,collapse=':'),': OK',sep=''))
 
   if (length(thresh.list)) {
     sapply(latent.list[which(latent.list.L>1)], function(k) if (!all((k%in%latent.main) | (k%in%thresh.main)))
-      stop(paste(hopit_msg(93),paste(Inte),hopit_msg(94)),call.=NULL))
+      stop(paste(hopit_msg(93),paste(k,collapse=':'),hopit_msg(94)),call.=NULL) else paste(paste(k,collapse=':'),': OK',sep=''))
   } else {
     sapply(latent.list[which(latent.list.L>1)], function(k) if (!all((k%in%latent.main)))
-      stop(paste(hopit_msg(93),paste(Inte),hopit_msg(94)),call.=NULL))
+      stop(paste(hopit_msg(93),paste(k,collapse=':'),hopit_msg(94)),call.=NULL) else paste(paste(k,collapse=':'),': OK',sep=''))
   }
 
   cross.inter.latent.list <- latent.list[which(sapply(latent.list, function(k) !all(k%in%latent.main)))]

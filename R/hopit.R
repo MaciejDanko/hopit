@@ -505,7 +505,7 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' # correctly defined interactions:
 #' model3 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
 #'                 heart_attack_or_stroke + poor_mobility * very_poor_grip +
-#'                 depression + respiratory_problems,
+#'                 depression + respiratory_problems +
 #'                 IADL_problems + obese + diabetes + other_diseases +
 #'                 sex : depression + sex : diabetes + ageclass:obese,
 #'               thresh.formula = ~ sex * ageclass + country + sex : obese,
@@ -514,7 +514,7 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #'               data = healthsurvey)
 #'
 #' # badly defined interactions:
-#' **## Not run:**
+#' \dontrun{
 #' # 1) lack of main effect of "other_diseases" in both formulas
 #' # it can be solved by adding " + other_diseases" to the latent formula
 #' model3a <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
@@ -536,8 +536,7 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #'               decreasing.levels = TRUE,
 #'               control = list(trace = FALSE),
 #'               data = healthsurvey)
-#'
-#' ## End(**Not run**)
+#' }
 #'
 #' # Example 4 ---------------------
 #'
