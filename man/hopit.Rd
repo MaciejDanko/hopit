@@ -38,6 +38,8 @@ a \code{hopit} object used by other functions and methods. The object is a list 
 \item{control}{ a list with control parameters. See \code{\link{hopit.control}}.}
 \item{link}{ the used link funtion.}
 \item{hasdisp}{ logical, was overdispersion modeled?}
+\item{use.weights}{ logical indicating if any weights were used.}
+\item{weights}{ vector with model weights.}
 \item{latent.formula}{ used latent formula. It is updated by cross-interactions if crossinter.formula is delivered.}
 \item{latent.mm}{ latent model matrix.}
 \item{latent.terms}{ used latent variables and their interactions.}
