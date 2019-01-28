@@ -4,15 +4,15 @@
 \alias{get.hopit.start}
 \title{INTERNAL: Translate glm() to hopit() start parameters}
 \usage{
-get.hopit.start(model, data)
+get.hopit.start(object, data)
 }
 \arguments{
-\item{model}{\code{hopit} object.}
+\item{object}{\code{hopit} object.}
 
-\item{data}{data.frame with data used to fit the model.}
+\item{data}{data.frame with data used to fit the object.}
 }
 \value{
-updated \code{hopit} model.
+updated \code{hopit} object.
 }
 \description{
 INTERNAL: Translate glm() to hopit() start parameters

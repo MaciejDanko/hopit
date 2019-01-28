@@ -4,15 +4,15 @@
 \alias{start.glm}
 \title{INTERNAL: Use glm() to get starting parameters}
 \usage{
-\method{start}{glm}(model, data)
+\method{start}{glm}(object, data)
 }
 \arguments{
-\item{model}{\code{hopit} object.}
+\item{object}{\code{hopit} object.}
 
-\item{data}{data.frame with data used to fit the model.}
+\item{data}{data.frame with data used to fit the object.}
 }
 \value{
-updated \code{hopit} model.
+updated \code{hopit} object.
 }
 \description{
 INTERNAL: Use glm() to get starting parameters

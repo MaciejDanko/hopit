@@ -150,6 +150,16 @@ classify.ind<-function(model){
   Ey_i
 }
 
+
+#' @keywords internal
+#' @noRd
+sort.terms <- function(x) {
+  tmp <- decomposeinteractions(x)
+  tmp <-lapply(tmp, sort)
+  sapply(tmp, paste, collapse=':')
+}
+
+
 #' @keywords internal
 #' @noRd
 # x- to be sorted, y-pattern
@@ -163,39 +173,41 @@ order.as.in<-function(x, y){
 }
 #order.as.in(x=c('aa','cc','bb'),y=c('c','a','b'))
 
+
 #' INTERNAL: Use glm() to get starting parameters
 #'
-#' @param model \code{hopit} object.
-#' @param data data.frame with data used to fit the model.
-#' @return updated \code{hopit} model.
+#' @param object \code{hopit} object.
+#' @param data data.frame with data used to fit the object.
+#' @return updated \code{hopit} object.
 #' @keywords internal
 #' @author Maciej J. Danko
-start.glm<-function(model, data){
-  g <- as.numeric(model$y_i)
+start.glm<-function(object, data){
+  g <- as.numeric(object$y_i)
   Y <- sapply(2:max(g), function(k) g<k)
   res <- sapply(seq_len(ncol(Y)),function(yi){
     zdat <- data
     zdat$yi <- Y[,yi]
-    f1 <- model$latent.formula
+    zdat$weights <- object$weights
+    f1 <- object$latent.formula
     f1[[2]] <- as.name('yi')
-    #f1 <- stats::update(f1, paste('.~.+',deparse(model$thresh.formula[[-1]])))
-    f1 <- stats::update(f1, paste('.~.+',paste(unclass(model$thresh.formula))[-1]))
-    gl <- stats::glm(f1, data=zdat, family=stats::binomial(link=model$link), weights = model$weights)
+    #f1 <- stats::update(f1, paste('.~.+',deparse(object$thresh.formula[[-1]])))
+    f1 <- stats::update(f1, paste('.~.+',paste(unclass(object$thresh.formula))[-1]))
+    gl <- stats::glm(f1, data=zdat, family=stats::binomial(link=object$link), weights = weights)
     #if (!gl$converged) warning(hopit_msg(19), call.=NA) #ignored anyway
     gl$coef
     #check convergence
   })
 
-  st.cn.l.mm <- sort.terms(colnames(model$latent.mm))
-  st.cn.t.mm <- sort.terms(colnames(model$thresh.mm))
+  st.cn.l.mm <- sort.terms(colnames(object$latent.mm))
+  st.cn.t.mm <- sort.terms(colnames(object$thresh.mm))
   st.cn.res  <- sort.terms(rownames(res))
   glm.lambda <- res[which(grepl('Intercept',rownames(res))),]
   lind <- which(st.cn.res %in% st.cn.l.mm)
   glm.latent <- res[lind, ]
   glm.latent <- - rowMeans(glm.latent)
   glm.latent <- glm.latent[order.as.in(st.cn.res[lind], st.cn.l.mm)] # order of terms should be the same, but...
-  if (!model$thresh.no.cov) {
-    thr.ext.nam <-as.character(interaction(expand.grid(seq_len(model$J-1),colnames(model$thresh.mm))[,2:1],sep=':'))
+  if (!object$thresh.no.cov) {
+    thr.ext.nam <-as.character(interaction(expand.grid(seq_len(object$J-1),colnames(object$thresh.mm))[,2:1],sep=':'))
     indx <- which(st.cn.res %in% st.cn.t.mm)
     glm.gamma <- res[indx,]
     glm.gamma <- glm.gamma[order.as.in(st.cn.res[indx], st.cn.t.mm),] #order of terms should be the same, but...
@@ -205,54 +217,45 @@ start.glm<-function(model, data){
     glm.gamma <- NULL
   }
 
-  model$glm.start <- c(glm.latent,glm.lambda,glm.gamma)
-  model$glm.start.ls <-list(latent.params = glm.latent,
+  object$glm.start <- c(glm.latent,glm.lambda,glm.gamma)
+  object$glm.start.ls <-list(latent.params = glm.latent,
                             thresh.lambda = glm.lambda,
                             thresh.gamma = glm.gamma)
-  model
+  object
 }
 
 
 #' INTERNAL: Translate glm() to hopit() start parameters
 #'
-#' @param model \code{hopit} object.
-#' @param data data.frame with data used to fit the model.
-#' @return updated \code{hopit} model.
+#' @param object \code{hopit} object.
+#' @param data data.frame with data used to fit the object.
+#' @return updated \code{hopit} object.
 #' @author Maciej J. Danko
 #' @keywords internal
 #' @useDynLib hopit
 #' @importFrom Rcpp evalCpp
-get.hopit.start<-function(model, data){
+get.hopit.start<-function(object, data){
   logTheta <- 0
-  model <- suppressWarnings(start.glm(model, data))
-  par.ls <- model$glm.start.ls
+  object <- suppressWarnings(start.glm(object, data))
+  par.ls <- object$glm.start.ls
 
-  if (model$thresh.no.cov){
-    z <- glm2hopit_nogamma(par.ls$latent.params, par.ls$thresh.lambda, thresh_1_exp = model$control$thresh.1.exp)
+  if (object$thresh.no.cov){
+    z <- glm2hopit_nogamma(par.ls$latent.params, par.ls$thresh.lambda, thresh_1_exp = object$control$thresh.1.exp)
   } else {
-    z <- glm2hopit(par.ls$latent.params, par.ls$thresh.lambda, par.ls$thresh.gamma, thresh_1_exp = model$control$thresh.1.exp)
+    z <- glm2hopit(par.ls$latent.params, par.ls$thresh.lambda, par.ls$thresh.gamma, thresh_1_exp = object$control$thresh.1.exp)
   }
 
-  if (model$hasdisp) {
-    model$start <- c(z$coef, logTheta)
-  } else model$start <- z$coef
+  if (object$hasdisp) {
+    object$start <- c(z$coef, logTheta)
+  } else object$start <- z$coef
 
-  model
+  object
 }
 
 
 #' @keywords internal
 #' @noRd
-sort.terms <- function(x) {
-  tmp <- decomposeinteractions(x)
-  tmp <-lapply(tmp, sort)
-  sapply(tmp, paste, collapse=':')
-}
-
-
-#' @keywords internal
-#' @noRd
-analyse.formulas<-function(model, latent.formula, thresh.formula, data){
+analyse.formulas<-function(object, latent.formula, thresh.formula, data){
   thresh.formula <- check_thresh_formula(thresh.formula)
   latent.formula <- check_latent_formula(latent.formula)
 
@@ -328,22 +331,22 @@ analyse.formulas<-function(model, latent.formula, thresh.formula, data){
   thresh.mm <- as.matrix(thresh.mm[,!grpi])
   thresh.names <- thresh.names[!grpi]
 
-  model$latent.names <- latent.names
-  model$latent.formula <- latent.formula
-  model$latent.terms <- latent.terms
-  model$latent.mm <- latent.mm
-  model$cross.inter.latent <- cross.inter.latent
-  model$thresh.names <- thresh.names
-  model$thresh.formula <- thresh.formula
-  model$thresh.terms <- thresh.terms
-  model$thresh.mm <- thresh.mm
-  model$cross.inter.thresh <- cross.inter.thresh
+  object$latent.names <- latent.names
+  object$latent.formula <- latent.formula
+  object$latent.terms <- latent.terms
+  object$latent.mm <- latent.mm
+  object$cross.inter.latent <- cross.inter.latent
+  object$thresh.names <- thresh.names
+  object$thresh.formula <- thresh.formula
+  object$thresh.terms <- thresh.terms
+  object$thresh.mm <- thresh.mm
+  object$cross.inter.thresh <- cross.inter.thresh
 
-  if (any(dim(model$thresh.mm) == 0L)) {
-    model$thresh.no.cov <- TRUE
+  if (any(dim(object$thresh.mm) == 0L)) {
+    object$thresh.no.cov <- TRUE
   } else {
-    model$thresh.no.cov <- FALSE
+    object$thresh.no.cov <- FALSE
   }
 
-  model
+  object
 }
