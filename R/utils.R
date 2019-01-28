@@ -178,9 +178,10 @@ start.glm<-function(model, data){
     zdat$yi <- Y[,yi]
     f1 <- model$latent.formula
     f1[[2]] <- as.name('yi')
-    f1 <- stats::update(f1, paste('.~.+',deparse(model$thresh.formula[[-1]])))
-    gl <- stats::glm(f1,data=zdat,family=stats::binomial(link=model$link))
-    if (!gl$converged) warning(hopit_msg(19), call.=NA)
+    #f1 <- stats::update(f1, paste('.~.+',deparse(model$thresh.formula[[-1]])))
+    f1 <- stats::update(f1, paste('.~.+',paste(unclass(model$thresh.formula))[-1]))
+    gl <- stats::glm(f1, data=zdat, family=stats::binomial(link=model$link), weights = model$weights)
+    #if (!gl$converged) warning(hopit_msg(19), call.=NA) #ignored anyway
     gl$coef
     #check convergence
   })
