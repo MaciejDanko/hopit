@@ -423,7 +423,7 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #'  \item{vcov}{ variance-covariance matrix.}
 #'  \item{vcov.basic}{ variance-covariance matrix ignoring survey design.}
 #'  \item{hessian}{ a Hessian matrix.}
-#'  \item{estfun}{ gradient of the log likelihood function at estimated coefficient values.}
+#'  \item{estfun}{ gradient (vector of partial derivatives) of the log likelihood function at estimated coefficient values.}
 #'  \item{YYY1,YYY2,YY3}{ internal objects used for calculation of gradient and Hessian functions.}
 #' @references \insertAllCited{}
 #' @export

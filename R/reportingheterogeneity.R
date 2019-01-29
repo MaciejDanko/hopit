@@ -145,7 +145,7 @@ standardizeCoef <- function (model,
     rr <- graphics::barplot(t(res), las = 3, ...)
     if(plotpval) {
       y <- summary(model)
-      pval <- format(round(y$table$`Pr(>|z|)`[seq_len(model$parcount[1])],4),digits=4,scientific=FALSE)[oz]
+      pval <- format(round(y$coef$`Pr(>|z|)`[seq_len(model$parcount[1])],4),digits=4,scientific=FALSE)[oz]
       yr <- res/2
       ind <- yr < max(res)*0.1
       yr[ind] <- (res+max(res)*0.1)[ind]
