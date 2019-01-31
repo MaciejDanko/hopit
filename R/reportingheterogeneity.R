@@ -1,8 +1,8 @@
 #' Calculate latent index
 #' @description
-#' Calculate latent index from the latent variable. It takes values from 0 to 1, where
-#' zero is prescribed to the worse predicted state (maximal observed value for the latent variable) and 1 is prescribed
-#' to the best predicted health (minimal observed value fo the latent variable).
+#' Calculate latent index from the fitted model. Latent index is a standardized latent measure, it takes values from 0 to 1, where
+#' zero is prescribed to the worse predicted state (maximal observed value for the latent measure) and 1 is prescribed
+#' to the best predicted health (minimal observed value for the latent measure).
 #' @param model a fitted \code{hopit} model.
 #' @param decreasing.levels logical indicating if self-reported (e.g. health) classes are ordered in decreasing order.
 #' @param subset an optional vector specifying a subset of observations.
@@ -77,16 +77,20 @@ healthIndex <- latentIndex
 
 #' Standardization of coefficients
 #' @description
-#' Calculate standardized coefficients - disability weights
-#' computed as the latent coefficients from the generalised ordered probit model divided by the maximum possible range
-#' of its linear prediction. The range is calculated as difference between maximum and minimum possible value of the latent variable
-#' given estimated parameters.
+#' Calculate standardized coefficients (e.g. disability weights for health variables) using
+#' the predicted latent measure obtained from the model.\cr
+#' In the self-rated health example the standardized coefficients are called disability weights \insertCite{Jurges2007;textual}{hopit}
+#' and are calculated for each health variable to provide information about the impact of a specific health measure on the latent index
+#' (see \code{\link{latentIndex}}). The disability weight for a health variable is equal to the ratio of corresponding health coefficient
+#'  and the difference between the lowest and highest values of predicted latent health. In other words, disability weight reduces
+#'  latent index by some given amount or percentage (i.e.  of every individual is reduced by the same amount if heart attack or other
+#'  heart problems are present)\insertCite{Jurges2007;textual}{hopit}.
 #' @param model a fitted \code{hopit} model.
 #' @param ordered logical indicating if to order the disability weights.
 #' @param plotf logical indicating if to plot results.
 #' @param plotpval logical indicating if to plot p-values.
 #' @param mar,oma see \code{\link{par}}.
-#' @param YLab,YLab.cex label and size of the label for y axis.
+#' @param YLab,YLab.cex label and \code{cex} of y axis.
 #' @param namesf  a vector of names of coefficients or one argument function that modifies names of coefficients.
 #' @param ... arguments passed to \code{\link{boxplot}}.
 #' @name standardizeCoef
@@ -170,9 +174,9 @@ standardiseCoef<-standardizeCoef
 disabilityWeights<-standardizeCoef
 
 
-#' Calculate threshold cut-points using Jurges' method
+#' Calculate threshold cut-points and individual ajusted responses using Jurges' method
 #' @description
-#' Calculate threshold cut-points using Jurges' method.
+#' Calculate threshold cut-points and individual ajusted responses using Jurges' method
 #' @param model a fitted \code{hopit} model.
 #' @param decreasing.levels logical indicating if self-reported health classes are ordered in decreasing order.
 #' @param subset an optional vector specifying a subset of observations.
@@ -364,7 +368,7 @@ getCutPoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(
 #' legend('top', c('Man','Woman'), density = 20, angle = c(-45, 45),
 #'        fill = c('blue', 'orange'), bty = 'n', cex = 1.2)
 #'
-#' # the results show that women in general tends to over-report good health.
+#' # the results show that women in general tend to over-report good health, while
 #' # men in ages 50-59 greatly under-report good health.
 #'
 #' # more examples can be found in the description of boot.hopit() function.
