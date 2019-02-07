@@ -111,7 +111,7 @@ abline(h = 0); box(); par(mar = pmar)
 legend('top', c('Man','Woman'), density = 20, angle = c(-45, 45),
        fill = c('blue', 'orange'), bty = 'n', cex = 1.2)
 
-# the results show that women in general tends to over-report good health.
+# the results show that women in general tend to over-report good health, while
 # men in ages 50-59 greatly under-report good health.
 
 # more examples can be found in the description of boot.hopit() function.

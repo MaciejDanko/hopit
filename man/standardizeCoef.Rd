@@ -29,7 +29,7 @@ disabilityWeights(model, ordered = TRUE, plotf = FALSE,
 
 \item{mar, oma}{see \code{\link{par}}.}
 
-\item{YLab, YLab.cex}{label and size of the label for y axis.}
+\item{YLab, YLab.cex}{label and \code{cex} of y axis.}
 
 \item{namesf}{a vector of names of coefficients or one argument function that modifies names of coefficients.}
 
@@ -39,10 +39,14 @@ disabilityWeights(model, ordered = TRUE, plotf = FALSE,
 a vector with standardized coefficients.
 }
 \description{
-Calculate standardized coefficients - disability weights
-computed as the latent coefficients from the generalised ordered probit model divided by the maximum possible range
-of its linear prediction. The range is calculated as difference between maximum and minimum possible value of the latent variable
-given estimated parameters.
+Calculate standardized coefficients (e.g. disability weights for health variables) using
+the predicted latent measure obtained from the model.\cr
+In the self-rated health example the standardized coefficients are called disability weights \insertCite{Jurges2007;textual}{hopit}
+and are calculated for each health variable to provide information about the impact of a specific health measure on the latent index
+(see \code{\link{latentIndex}}). The disability weight for a health variable is equal to the ratio of corresponding health coefficient
+and the difference between the lowest and highest values of predicted latent health. In other words, disability weight reduces
+latent index by some given amount or percentage (i.e.  of every individual is reduced by the same amount if heart attack or other
+heart problems are present)\insertCite{Jurges2007;textual}{hopit}.
 }
 \examples{
 # DATA

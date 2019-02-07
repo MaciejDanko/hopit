@@ -74,7 +74,7 @@ threshold intercept (lambda), and threshold covariates (gamma).}
 The ordered response data classifies a measure of interest into ordered categories
 collected during a survey. For example, if the dependent variable were a happiness
 rating, then a respondent typically answers a question like: “Taking all things
-together, would you say you are ... ?$"$ and then selects from response options
+together, would you say you are ... ?" and then selects from response options
 along the lines of: "very happy", "pretty happy", "not too happy", "very unhappy"
 \insertCite{Liao2005}{hopit}. Similarly if interviewees are asked to evaluate their
 health in general (e.g. “Would you say your health is ... ?”) they may choose among

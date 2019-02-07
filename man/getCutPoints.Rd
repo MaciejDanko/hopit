@@ -2,7 +2,7 @@
 % Please edit documentation in R/reportingheterogeneity.R
 \name{getCutPoints}
 \alias{getCutPoints}
-\title{Calculate threshold cut-points using Jurges' method}
+\title{Calculate threshold cut-points and individual ajusted responses using Jurges' method}
 \usage{
 getCutPoints(model, subset = NULL, plotf = TRUE, mar = c(4, 4, 1, 1),
   oma = c(0, 0, 0, 0), XLab = "Health index", XLab.cex = 1.1,
@@ -32,7 +32,7 @@ a list with following components:
 \item{adjused.levels}{ adjusted categorical response levels for each individual.}
 }
 \description{
-Calculate threshold cut-points using Jurges' method.
+Calculate threshold cut-points and individual ajusted responses using Jurges' method
 }
 \examples{
 # DATA

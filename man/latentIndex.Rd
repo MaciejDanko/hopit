@@ -32,9 +32,9 @@ healthIndex(model, decreasing.levels = TRUE, subset = NULL,
 a vector with latent index for each individual.
 }
 \description{
-Calculate latent index from the latent variable. It takes values from 0 to 1, where
-zero is prescribed to the worse predicted state (maximal observed value for the latent variable) and 1 is prescribed
-to the best predicted health (minimal observed value fo the latent variable).
+Calculate latent index from the fitted model. Latent index is a standardized latent measure, it takes values from 0 to 1, where
+zero is prescribed to the worse predicted state (maximal observed value for the latent measure) and 1 is prescribed
+to the best predicted health (minimal observed value for the latent measure).
 }
 \examples{
 # DATA
