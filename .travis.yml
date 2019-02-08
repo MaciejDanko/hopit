@@ -6,6 +6,7 @@ cache: packages
 warnings_are_errors: true
 
 before_install:
+  - sudo apt-get install pandoc
   - Rscript -e 'install.packages("tinytex")'
   - Rscript -e 'install.packages("pander")'
   - Rscript -e 'tinytex::install_tinytex(force=TRUE)'
