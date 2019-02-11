@@ -7,7 +7,6 @@ warnings_are_errors: true
 
 before_install:
   - sudo apt-get install pandoc
-  - sudo apt-get install textlive
   - Rscript -e 'install.packages("tinytex")'
   - Rscript -e 'install.packages("pander")'
   - Rscript -e 'tinytex::install_tinytex(force=TRUE)'
