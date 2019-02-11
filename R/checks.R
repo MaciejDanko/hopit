@@ -19,7 +19,7 @@ check_thresh_formula <- function(thresh.formula){
   }
   thresh.formula <- stats::update.formula(thresh.formula, '~.+1')
   if (any(grepl('offset(',tolower(as.character(thresh.formula[[2]])),fixed=TRUE))) stop(hopit_msg(31), call.=NULL)
-  if (any(grepl('I(',attr(terms(thresh.formula),"term.labels"),fixed=TRUE))) stop(hopit_msg(97), call.=NULL)
+  if (any(grepl('I(',attr(stats::terms(thresh.formula),"term.labels"),fixed=TRUE))) stop(hopit_msg(97), call.=NULL)
   thresh.formula
 }
 
@@ -44,7 +44,7 @@ check_latent_formula <- function(latent.formula){
   latent.formula <- stats::as.formula(latent.formula)
   latent.formula <- stats::update.formula(latent.formula, '~.+1')
   if (any(grepl('offset(',as.character(latent.formula[[3]]),fixed=TRUE))) stop(hopit_msg(31), call.=NULL)
-  if (any(grepl('I(',attr(terms(latent.formula),"term.labels"),fixed=TRUE))) stop(hopit_msg(97), call.=NULL)
+  if (any(grepl('I(',attr(stats::terms(latent.formula),"term.labels"),fixed=TRUE))) stop(hopit_msg(97), call.=NULL)
   latent.formula
 }
 

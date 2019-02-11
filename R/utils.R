@@ -187,7 +187,7 @@ start.glm<-function(object, data){
   res <- sapply(seq_len(ncol(Y)),function(yi){
     zdat <- data
     zdat$yi <- Y[,yi]
-    zdat$weights <- object$weights
+    weights <- zdat$weights <- object$weights
     f1 <- object$latent.formula
     f1[[2]] <- as.name('yi')
     #f1 <- stats::update(f1, paste('.~.+',deparse(object$thresh.formula[[-1]])))
