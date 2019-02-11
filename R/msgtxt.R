@@ -97,6 +97,7 @@ hopit_msg <- function(x)
          '93' = 'No main effects found for the',
          '94' = 'interaction.',
          '95' = '"use_weights" must be given.',
-         '96' = 'Wrong number of starting parameters. Should not happen.'
+         '96' = 'Wrong number of starting parameters. Should not happen.',
+         '97' = 'I(...) not implemented yet.'
   )
 

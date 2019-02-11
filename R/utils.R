@@ -210,7 +210,7 @@ start.glm<-function(object, data){
     thr.ext.nam <-as.character(interaction(expand.grid(seq_len(object$J-1),colnames(object$thresh.mm))[,2:1],sep=':'))
     indx <- which(st.cn.res %in% st.cn.t.mm)
     glm.gamma <- res[indx,]
-    if (object$parcount[1]>1) glm.gamma <- glm.gamma[order.as.in(st.cn.res[indx], st.cn.t.mm),]  #order of terms should be the same, but...
+    if (object$parcount[3]>object$parcount[2]) glm.gamma <- glm.gamma[order.as.in(st.cn.res[indx], st.cn.t.mm),]  #order of terms should be the same, but...
     glm.gamma <- as.vector(t(glm.gamma))
     names(glm.gamma) <- thr.ext.nam
   } else {
