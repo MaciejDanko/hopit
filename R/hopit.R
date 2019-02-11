@@ -631,6 +631,10 @@ hopit<- function(latent.formula,
   } else {
     model$start <- start
   }
+  if (any(model$parcount!=sapply(model$glm.start.ls,length))) {
+    stop(hopit_msg(96))
+  }
+
   if (model$control$trace) cat(hopit_msg(11))
   model <- hopit_fitter(model, start = model$start)
   class(model) <- 'hopit'

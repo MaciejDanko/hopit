@@ -204,13 +204,13 @@ start.glm<-function(object, data){
   glm.lambda <- res[which(grepl('Intercept',rownames(res))),]
   lind <- which(st.cn.res %in% st.cn.l.mm)
   glm.latent <- res[lind, ]
-  glm.latent <- - rowMeans(glm.latent)
+  if (object$parcount[1]>1) glm.latent <- - rowMeans(glm.latent) else glm.latent <- - mean(glm.latent)
   glm.latent <- glm.latent[order.as.in(st.cn.res[lind], st.cn.l.mm)] # order of terms should be the same, but...
   if (!object$thresh.no.cov) {
     thr.ext.nam <-as.character(interaction(expand.grid(seq_len(object$J-1),colnames(object$thresh.mm))[,2:1],sep=':'))
     indx <- which(st.cn.res %in% st.cn.t.mm)
     glm.gamma <- res[indx,]
-    glm.gamma <- glm.gamma[order.as.in(st.cn.res[indx], st.cn.t.mm),] #order of terms should be the same, but...
+    if (object$parcount[1]>1) glm.gamma <- glm.gamma[order.as.in(st.cn.res[indx], st.cn.t.mm),]  #order of terms should be the same, but...
     glm.gamma <- as.vector(t(glm.gamma))
     names(glm.gamma) <- thr.ext.nam
   } else {
@@ -323,13 +323,17 @@ analyse.formulas<-function(object, latent.formula, thresh.formula, data){
 
   latent.names <- colnames(latent.mm)
   grpi <- findintercept(latent.names)
-  latent.mm <- as.matrix(latent.mm[,!grpi])
-  latent.names <- latent.names[!grpi]
+  indi <- which(!grpi)
+  latent.mm <- as.matrix(latent.mm[,indi])
+  latent.names <- latent.names[indi]
+  colnames(latent.mm) <- latent.names
 
   thresh.names <- colnames(thresh.mm)
   grpi <- findintercept(thresh.names)
-  thresh.mm <- as.matrix(thresh.mm[,!grpi])
-  thresh.names <- thresh.names[!grpi]
+  indi <- which(!grpi)
+  thresh.mm <- as.matrix(thresh.mm[,indi])
+  thresh.names <- thresh.names[indi]
+  colnames(thresh.mm) <- thresh.names
 
   object$latent.names <- latent.names
   object$latent.formula <- latent.formula

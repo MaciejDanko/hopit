@@ -96,6 +96,7 @@ hopit_msg <- function(x)
          '92' = 'Model cannot use the same variables (ortheir interactions) to model thresholds and latent measure. Also, avoid using "*" to model latent-threshold interactions.',
          '93' = 'No main effects found for the',
          '94' = 'interaction.',
-         '95' = '"use_weights" must be given.'
+         '95' = '"use_weights" must be given.',
+         '96' = 'Wrong number of starting parameters. Should not happen.'
   )
 
