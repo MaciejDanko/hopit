@@ -17,7 +17,8 @@
 Print an  object calculated by \code{\link{lrt.hopit}}
 }
 \seealso{
-\code{\link{lrt.hopit}}, \code{\link{anova.hopit}}, \code{\link{hopit}}.
+\code{\link{lrt.hopit}}, \code{\link{anova.hopit}},
+\code{\link{hopit}}.
 }
 \author{
 Maciej J. Danko

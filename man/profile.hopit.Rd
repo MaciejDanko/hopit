@@ -11,9 +11,11 @@
 
 \item{...}{unused now.}
 
-\item{scope}{value (fraction) defining plotting range for a coefficient. The range is \code{c(coef \* (1-scope), coef \* (1+scope))}.}
+\item{scope}{value (fraction) defining plotting range for a coefficient.
+The range is \code{c(coef \* (1-scope), coef \* (1+scope))}.}
 
-\item{steps}{at how many equally spaced points calculate the log likelihood function for each coefficient.}
+\item{steps}{at how many equally spaced points calculate the log likelihood
+function for each coefficient.}
 }
 \description{
 Calculate log likelihood profile for fitted \code{hopit} model
@@ -50,7 +52,8 @@ plot(pr, relative = FALSE)
 plot(pr, relative = TRUE)
 }
 \seealso{
-\code{\link{plot.profile.hopit}}, \code{\link{print.profile.hopit}}, \code{\link{hopit}}
+\code{\link{plot.profile.hopit}}, \code{\link{print.profile.hopit}},
+\code{\link{hopit}}
 }
 \author{
 Maciej J. Danko

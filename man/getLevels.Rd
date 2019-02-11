@@ -51,7 +51,8 @@ Summarize adjusted and original self-rated response levels.
 # DATA
 data(healthsurvey)
 
-# the order of response levels is decreasing (from the best health to the worst health)
+# the order of response levels is decreasing (from the best health to the
+# worst health)
 levels(healthsurvey$health)
 
 # fitting a model
@@ -75,19 +76,23 @@ hl <- getLevels(model=model1, formula=~ country,
 round(100*(hl$original - hl$adjusted),2)
 
 # extract good and bad health (combine levels)
-Org <- cbind(bad = rowSums(hl$original[,1:2]), good = rowSums(hl$original[,4:5]))
-Adj <- cbind(bad = rowSums(hl$adjusted[,1:2]), good = rowSums(hl$adjusted[,4:5]))
+Org <- cbind(bad = rowSums(hl$original[,1:2]),
+             good = rowSums(hl$original[,4:5]))
+Adj <- cbind(bad = rowSums(hl$adjusted[,1:2]),
+             good = rowSums(hl$adjusted[,4:5]))
 round(100*(Org - Adj),2)
 
 # plot the differences
 barplot(t(Org - Adj), beside = TRUE, density = 20, angle = c(-45, 45),
-        col = c('pink4', 'green2'), ylab = 'Original - adjusted reported health frequencies')
+        col = c('pink4', 'green2'),
+        ylab = 'Original - adjusted reported health frequencies')
 abline(h = 0); box()
-legend('top', c('Bad health','Good health'), density = 20, angle = c(-45, 45),
+legend('top', c('Bad health','Good health'),
+       density = 20, angle = c(-45, 45),
        fill = c('pink4', 'green2'), bty = 'n', cex = 1.2)
 
-# in country X the bad health seems to be over-reported and good health under reported,
-# in country Z the good health is highly over-reported.
+# in country X the bad health seems to be over-reported and good health
+# under reported, in country Z the good health is highly over-reported.
 
 # Example 2 ---------------------
 
@@ -105,14 +110,16 @@ Adj <- rowSums(hl$adjusted[,4:5])
 round(100*(Org - Adj),2)
 
 pmar <- par('mar'); par(mar = c(9.5, pmar[2:4]))
-barplot(Org-Adj, ylab = 'Original - adjusted reported good health frequencies', las = 3,
+barplot(Org-Adj,
+        ylab = 'Original - adjusted reported good health frequencies',
+        las = 3,
         density = 20, angle = c(45, -45), col = c('blue', 'orange'))
 abline(h = 0); box(); par(mar = pmar)
 legend('top', c('Man','Woman'), density = 20, angle = c(-45, 45),
        fill = c('blue', 'orange'), bty = 'n', cex = 1.2)
 
-# the results show that women in general tend to over-report good health, while
-# men in ages 50-59 greatly under-report good health.
+# the results show that women in general tend to over-report good health,
+# while men in ages 50-59 greatly under-report good health.
 
 # more examples can be found in the description of boot.hopit() function.
 }

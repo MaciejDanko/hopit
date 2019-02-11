@@ -13,23 +13,29 @@ hopit.control(grad.eps = 3e-05, bgfs.maxit = 10000, cg.maxit = 10000,
 \arguments{
 \item{grad.eps}{epsilon for numerical Hessian function.}
 
-\item{bgfs.maxit, cg.maxit, nlm.maxit}{the maximum number of iterations. See \code{\link{optim}} and \code{\link{nlm}} for details.}
+\item{bgfs.maxit, cg.maxit, nlm.maxit}{the maximum number of iterations.
+See \code{\link{optim}} and \code{\link{nlm}} for details.}
 
-\item{bgfs.reltol, cg.reltol}{relative convergence tolerance. See \code{\link{optim}} for details.}
+\item{bgfs.reltol, cg.reltol}{relative convergence tolerance.
+See \code{\link{optim}} for details.}
 
-\item{nlm.gradtol, nlm.steptol}{tolerance at which the scaled gradient is considered close enough to zero and
+\item{nlm.gradtol, nlm.steptol}{tolerance at which the scaled gradient is
+considered close enough to zero and
 minimum allowable relative step length. See \code{\link{nlm}}.}
 
 \item{fit.methods}{either 'CG' or 'BFGS'. See \code{\link{optim}}.}
 
-\item{quick.fit}{logical, if TRUE extensive \code{nlm} optimization method is ignored and only BFGS and CG methods are run.}
+\item{quick.fit}{logical, if TRUE extensive \code{nlm} optimization method
+is ignored and only BFGS and CG methods are run.}
 
 \item{trace}{logical, if to trace model fitting.}
 
-\item{LL_out_val, thresh.1.exp, thresh.start}{internal parameters under development, do not change.}
+\item{LL_out_val, thresh.1.exp, thresh.start}{internal parameters under
+development, do not change.}
 }
 \description{
-Auxiliary function for controlling the fitting of \code{hopit} model. Use this function to set control
+Auxiliary function for controlling the fitting of \code{hopit} model.
+Use this function to set control
 parameters of the \code{\link{hopit}} and other related functions.
 }
 \seealso{

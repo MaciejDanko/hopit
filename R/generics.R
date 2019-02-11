@@ -1,7 +1,8 @@
 #' Extracting coefficients of the fitted \code{hopit} model
 #'
 #' @param object an \code{hopit} object.
-#' @param aslist logical indicating if model coefficients should be returned as a list of three vectors
+#' @param aslist logical indicating if model coefficients should be returned
+#' as a list of three vectors
 #' related to latent variable, threshold lambdas, and threshold gammas.
 #' @param ...	further arguments passed to or from other methods.
 #' @export
@@ -10,7 +11,8 @@
 #' @author Maciej J. Danko
 #' @aliases coefficients.hopit
 #' @method coef hopit
-coef.hopit <- function(object, aslist = FALSE, ...)  if (aslist) object$coef.ls else object$coef
+coef.hopit <- function(object, aslist = FALSE, ...)
+  if (aslist) object$coef.ls else object$coef
 
 
 #' Printing basic information about fitted \code{hopit} model
@@ -48,7 +50,8 @@ print.hopit<-function(x, ...){
 #' Extracting variance-covariance matrix from the fitted hopit
 #'
 #' @param object an \code{hopit} object.
-#' @param robust.vcov logical indicating if to use sandwich estimator to calculate variance-covariance matrix.
+#' @param robust.vcov logical indicating if to use sandwich estimator to
+#' calculate variance-covariance matrix.
 #' If survey deign is detected than this option is ignored.
 #' @param ... further arguments passed to or from other methods.
 #' @export
@@ -58,7 +61,8 @@ print.hopit<-function(x, ...){
 #' @method vcov hopit
 vcov.hopit<-function(object, robust.vcov, ...){
   z <- object$vcov
-  if (class(z) == "try-error") stop(paste(hopit_msg(37),attr(z,"condition"),sep=''),call.=NULL)
+  if (class(z) == "try-error") stop(paste(hopit_msg(37),
+                                        attr(z,"condition"),sep=''),call.=NULL)
   if (!length(z)) stop(hopit_msg(38),call.=NULL)
   if (length(object$design)){
     if (!missing(robust.vcov) && (robust.vcov)) {
@@ -68,7 +72,9 @@ vcov.hopit<-function(object, robust.vcov, ...){
   } else {
     if (missing(robust.vcov)) robust.vcov <- TRUE
     if (length(object$weights)) divw <- object$weights else divw <- 1
-    if (robust.vcov) z <- (z %*% t(object$estfun) %*% (object$estfun/divw) %*% (z)) #check how weights work here, they must be standardized.
+    #check how weights work here, they must be standardized.
+    if (robust.vcov) z <- (z %*% t(object$estfun) %*%
+                             (object$estfun/divw) %*% (z))
   }
   attr(z, 'survey.design') <- (length(object$design) > 0L)
   attr(z, 'robust.vcov') <- robust.vcov
@@ -90,7 +96,8 @@ print.vcov.hopit <- function(x, digits = 3L, ...){
   cat(hopit_msg(40))
   print.default(x, digits = digits, ...)
   if (attr(x, 'survey.design')) cat(hopit_msg(41))
-  if (!is.na(attr(x, 'robust.vcov')) && attr(x, 'robust.vcov')) cat(hopit_msg(42))
+  if (!is.na(attr(x, 'robust.vcov')) && attr(x, 'robust.vcov'))
+    cat(hopit_msg(42))
   invisible(NULL)
 }
 
@@ -98,9 +105,11 @@ print.vcov.hopit <- function(x, digits = 3L, ...){
 #' Calculate model summary
 #'
 #' @param object an \code{hopit} object.
-#' @param robust.se logical indicating if to use robust standard errors based on the sandwich estimator.
+#' @param robust.se logical indicating if to use robust standard errors based
+#' on the sandwich estimator.
 #' If survey deign is detected than this option is ignored.
-#' @param control a list with control parameters. See \code{\link{hopit.control}}.
+#' @param control a list with control parameters.
+#' See \code{\link{hopit.control}}.
 #' @param ... further arguments passed to or from other methods.
 #' @export
 #' @author Maciej J. Danko
@@ -122,8 +131,10 @@ summary.hopit <- function(object, robust.se = TRUE, ...){
   if (length(object$coef) != length(SE)) stop(hopit_msg(46),call.=NULL)
   tstat <-  object$coef/SE
   pvalue <- pstdnorm(-abs(tstat))  * 2L
-  table1 <- data.frame(Estimate = object$coef, 'Std. Error' = SE, 'z value' = tstat, 'Pr(>|z|)' = pvalue, check.names = FALSE)
-  tmp <- list(coef = table1, vcov = varcov, model = object, robust.se = robust.se)
+  table1 <- data.frame(Estimate = object$coef, 'Std. Error' = SE,
+                  'z value' = tstat, 'Pr(>|z|)' = pvalue, check.names = FALSE)
+  tmp <- list(coef = table1, vcov = varcov, model = object,
+              robust.se = robust.se)
   class(tmp) <- 'summary.hopit'
   tmp
 }
@@ -147,7 +158,8 @@ print.summary.hopit <- function(x, ...){
   cat(hopit_msg(74), toString(levels(model$y_i)), fill = TRUE)
   if(x$robust.se) cat(hopit_msg(71))
   cat('\n')
-  stats::printCoefmat(x = x$coef, P.values = TRUE, has.Pvalue = TRUE, digits = 4L, dig.tst = 2L)
+  stats::printCoefmat(x = x$coef, P.values = TRUE,
+                      has.Pvalue = TRUE, digits = 4L, dig.tst = 2L)
   cat(hopit_msg(70), exp(model$coef.ls$logTheta), fill = TRUE)
   cat(hopit_msg(75), model$LL, fill = TRUE)
   cat(hopit_msg(76), model$deviance, fill = TRUE)
@@ -169,7 +181,8 @@ print.summary.hopit <- function(x, ...){
 logLik.hopit<-function(object, ...) {
   objects <- list(object, ...)
   tmp <- deparse(substitute(list(object, ...)))
-  ob.nam <- gsub(' ', '', strsplit(substring(tmp, 6L, nchar(tmp) - 1L), ',', fixed = TRUE)[[1L]])
+  ob.nam <- gsub(' ', '', strsplit(substring(tmp, 6L,
+                                  nchar(tmp) - 1L), ',', fixed = TRUE)[[1L]])
   res <- sapply(objects,function(object) object$LL)
   names(res) <- ob.nam
   res
@@ -178,7 +191,8 @@ logLik.hopit<-function(object, ...) {
 #' Extracts Akaike Information Criterion from the fitted model
 #'
 #' @param object an \code{hopit} object.
-#' @param k a penalty per parameter to be used; the default k = 2 is the classical AIC.
+#' @param k a penalty per parameter to be used; the default k = 2 is the
+#' classical AIC.
 #' @param ... additional objects of the class \code{hopit}.
 #' @keywords internal
 #' @export
@@ -188,9 +202,11 @@ logLik.hopit<-function(object, ...) {
 AIC.hopit<-function(object, ..., k = 2L) {
   objects <- list(object, ...)
   tmp <- deparse(substitute(list(object, ...)))
-  ob.nam <- gsub(' ', '', strsplit(substring(tmp, 6L, nchar(tmp) - 1L), ',', fixed = TRUE)[[1L]])
-  res <- sapply(objects,function(object) if (!length(object$design)) object$AIC else
-    stop(hopit_msg(47), call=NULL))
+  ob.nam <- gsub(' ', '', strsplit(substring(tmp, 6L, nchar(tmp) - 1L), ',',
+                                   fixed = TRUE)[[1L]])
+  res <- sapply(objects,function(object)
+    if (!length(object$design)) object$AIC else
+      stop(hopit_msg(47), call=NULL))
   names(res) <- ob.nam
   res
 }
@@ -200,22 +216,28 @@ AIC.hopit<-function(object, ..., k = 2L) {
 #' Compute likelihood ratio test for two or more \code{hopit} objecs.
 #' @param object an object containing the results returned by a \code{hopit}.
 #' @param ...	additional objects of the same type.
-#' @param method the method of model comparison. Choose \code{"sequential"} for 1-2, 2-3, 3-4, ... comparisons or
-#' \code{"with.most.complex"} for 1-2, 1-3, 1-4, ... comparisons, where 1 is the most complex model.
-#' @param direction determine if complexity of listed models is \code{"increasing"} or \code{"decreasing"} (default).
+#' @param method the method of model comparison. Choose \code{"sequential"}
+#' for 1-2, 2-3, 3-4, ... comparisons or
+#' \code{"with.most.complex"} for 1-2, 1-3, 1-4, ... comparisons,
+#' where 1 is the most complex model.
+#' @param direction determine if complexity of listed models is
+#' \code{"increasing"} or \code{"decreasing"} (default).
 # @keywords internal
-#' @usage \method{anova}{hopit}(object, ..., method = c("sequential", "with.most.complex", 'with.least.complex'),
+#' @usage \method{anova}{hopit}(object, ..., method = c("sequential",
+#' "with.most.complex", 'with.least.complex'),
 #' direction = c("decreasing", "increasing"))
 #' @method anova hopit
 #' @export
 #' @return a vector or a matrix with results of the test(s).
 #' @author Maciej J. Danko
-#' @seealso \code{\link{print.anova.hopit}}, \code{\link{print.lrt.hopit}}, \code{\link{lrt.hopit}}, \code{\link{hopit}}.
+#' @seealso \code{\link{print.anova.hopit}}, \code{\link{print.lrt.hopit}},
+#' \code{\link{lrt.hopit}}, \code{\link{hopit}}.
 #' @examples
 #' # DATA
 #' data(healthsurvey)
 #'
-#' # the order of response levels is decreasing (from the best health to the worst health)
+#' # the order of response levels is decreasing (from the best health to
+#' the worst health)
 #' levels(healthsurvey$health)
 #'
 #' # Example 1 ---------------------
@@ -283,7 +305,8 @@ AIC.hopit<-function(object, ..., k = 2L) {
 #' # likelihood ratio tests of the least complex model with the rest
 #' anova(model1, model2, model3, model4,
 #'       direction = "increasing", method = "with.least.complex")
-anova.hopit<-function(object, ..., method = c('sequential', 'with.most.complex', 'with.least.complex'),
+anova.hopit<-function(object, ..., method = c('sequential', 'with.most.complex',
+                                              'with.least.complex'),
                       direction = c('decreasing', 'increasing')){
 
   method <- tolower(match.arg(method))
@@ -291,10 +314,12 @@ anova.hopit<-function(object, ..., method = c('sequential', 'with.most.complex',
   if (length(list(object, ...)) > 1L) {
     objects <- list(object, ...)
     tmp <- deparse(substitute(list(object, ...)))
-    ob.nam <- gsub(' ', '', strsplit(substring(tmp, 6L, nchar(tmp) - 1L), ',', fixed = TRUE)[[1L]])
+    ob.nam <- gsub(' ', '', strsplit(substring(tmp, 6L, nchar(tmp) - 1L), ',',
+                                     fixed = TRUE)[[1L]])
   } else  stop(hopit_msg(48))
   if (length(objects) == 2L){
-    if(length(objects[[1L]]$coef)+objects[[1L]]$hasdisp>length(objects[[2L]]$coef)+objects[[2L]]$hasdisp) {
+    if(length(objects[[1L]]$coef)+objects[[1L]]$hasdisp>
+       length(objects[[2L]]$coef)+objects[[2L]]$hasdisp) {
       return(lrt.hopit(objects[[1L]], objects[[2L]]))
     } else {
       return(lrt.hopit(objects[[2L]], objects[[1L]]))
@@ -309,16 +334,18 @@ anova.hopit<-function(object, ..., method = c('sequential', 'with.most.complex',
       stop(call.=NULL, hopit_msg(50))
     for (k in 1L : (length(objects) - 1L)) {
       if (method == 'sequential'){
-        tmp <- lrt.hopit(objects[[k]], objects[[k + 1L]]) # try models must be of decreasing complexity, silent = F
+        tmp <- lrt.hopit(objects[[k]], objects[[k + 1L]])
         rna <- c(rna, paste(ob.nam[k], 'vs.', ob.nam[k + 1L], sep = ' '))
       } else if (method == 'with.most.complex') {
-        tmp <- lrt.hopit(objects[[1L]], objects[[k + 1L]]) # the first model must be the most complex,  silent = F
+        tmp <- lrt.hopit(objects[[1L]], objects[[k + 1L]])
         rna <- c(rna, paste(ob.nam[1L], 'vs.', ob.nam[k + 1L], sep = ' '))
       } else if (method == 'with.least.complex') {
-        tmp <- lrt.hopit(objects[[k]], objects[[length(objects)]]) # the first model must be the most complex,  silent = F
-        rna <- c(rna, paste( ob.nam[k], 'vs.', ob.nam[length(objects)], sep = ' '))
+        tmp <- lrt.hopit(objects[[k]], objects[[length(objects)]])
+        rna <- c(rna, paste( ob.nam[k], 'vs.',
+                             ob.nam[length(objects)], sep = ' '))
       }
-      out <- rbind(out, c('Chi^2' = tmp$chisq, df = tmp$df, 'Pr(>Chi^2)' = tmp$pval))
+      out <- rbind(out, c('Chi^2' = tmp$chisq, df = tmp$df,
+                          'Pr(>Chi^2)' = tmp$pval))
     }
     rownames(out) <- rna
     if (direction == 'increasing') out <- out[dim(out)[1L] : 1L,]
@@ -341,7 +368,8 @@ anova.hopit<-function(object, ..., method = c('sequential', 'with.most.complex',
 #' @method print anova.hopit
 print.anova.hopit <- function(x, ...){
   cat(hopit_msg(49), x$method, '"\n\n', sep = '')
-  stats::printCoefmat(x$table, signif.stars = TRUE, P.values = TRUE, has.Pvalue = TRUE, digits = 5L, dig.tst = 3L, tst.ind = 1L)
+  stats::printCoefmat(x$table, signif.stars = TRUE, P.values = TRUE,
+                    has.Pvalue = TRUE, digits = 5L, dig.tst = 3L, tst.ind = 1L)
   invisible(NULL)
 }
 
@@ -353,12 +381,14 @@ print.anova.hopit <- function(x, ...){
 #' @return a vector with results of the test.
 #' @export
 #' @author Maciej J. Danko
-#' @seealso \code{\link{print.lrt.hopit}}, \code{\link{anova.hopit}}, \code{\link{hopit}}.
+#' @seealso \code{\link{print.lrt.hopit}}, \code{\link{anova.hopit}},
+#' \code{\link{hopit}}.
 #' @examples
 #' # DATA
 #' data(healthsurvey)
 #'
-#' # the order of response levels is decreasing (from the best health to the worst health)
+#' # the order of response levels is decreasing (from the best health to the
+#' # worst health)
 #' levels(healthsurvey$health)
 #'
 #' # Example 1 ---------------------
@@ -394,9 +424,12 @@ print.anova.hopit <- function(x, ...){
 #' print(anova(model2, model1), short = TRUE)
 lrt.hopit <- function(full, nested){
   if (!identical(full$design, nested$design)) stop(hopit_msg(51),call. = NULL)
-  if (length(full$coef) + full$hasdisp <= length(nested$coef)+ nested$hasdisp) stop(hopit_msg(52),call. = NULL)
-  if (abs(full$LL - nested$LL) < .Machine$double.eps^0.6) message(hopit_msg(53)) else
-    if (full$LL - nested$LL < -.Machine$double.eps^0.6) warning(call. = FALSE, hopit_msg(54))
+  if (length(full$coef) + full$hasdisp <= length(nested$coef)+ nested$hasdisp)
+    stop(hopit_msg(52),call. = NULL)
+  if (abs(full$LL - nested$LL) < .Machine$double.eps^0.6)
+    message(hopit_msg(53)) else
+      if (full$LL - nested$LL < -.Machine$double.eps^0.6)
+        warning(call. = FALSE, hopit_msg(54))
   if (ncol(full$latent.mm) < ncol(nested$latent.mm)) {
     cat(hopit_msg(64))
     cat("--",hopit_msg(65), deparse(full$latent.formula), fill = TRUE)
@@ -414,16 +447,21 @@ lrt.hopit <- function(full, nested){
   if ((full$hasdisp) < (nested$hasdisp)) stop(hopit_msg(55))
 
   if ((ncol(full$latent.mm)) &&  (ncol(nested$latent.mm)))
-    if (!(all(colnames(nested$latent.mm) %in% colnames(full$latent.mm)))) warning(call. = FALSE, hopit_msg(56))
+    if (!(all(colnames(nested$latent.mm) %in% colnames(full$latent.mm))))
+      warning(call. = FALSE, hopit_msg(56))
   if ((ncol(full$thresh.mm)) &&  (ncol(nested$thresh.mm)))
-    if (!(all(colnames(nested$thresh.mm) %in% colnames(full$thresh.mm)))) warning(call. = FALSE, hopit_msg(57))
+    if (!(all(colnames(nested$thresh.mm) %in% colnames(full$thresh.mm))))
+      warning(call. = FALSE, hopit_msg(57))
 
   stat <- 2L*( logLik.hopit(full) - logLik.hopit(nested))
 
   if (!length(full$design)) {
-    df.diff <- length(full$coef.ls$latent.params) - length(nested$coef.ls$latent.params) +
-      length(full$coef.ls$thresh.lambda) - length(nested$coef.ls$thresh.lambda) +
-      length(full$coef.ls$thresh.gamma) - length(nested$coef.ls$thresh.gamma) +
+    df.diff <- length(full$coef.ls$latent.params) -
+      length(nested$coef.ls$latent.params) +
+      length(full$coef.ls$thresh.lambda) -
+      length(nested$coef.ls$thresh.lambda) +
+      length(full$coef.ls$thresh.gamma) -
+      length(nested$coef.ls$thresh.gamma) +
       (full$hasdisp) - (nested$hasdisp)
     p <- 1L - stats::pchisq(stat, df.diff)
   } else {
@@ -446,7 +484,8 @@ lrt.hopit <- function(full, nested){
 #' @usage \method{print}{lrt.hopit}(x, short = FALSE, ...)
 #' @author Maciej J. Danko
 #' @method print lrt.hopit
-#' @seealso \code{\link{lrt.hopit}}, \code{\link{anova.hopit}}, \code{\link{hopit}}.
+#' @seealso \code{\link{lrt.hopit}}, \code{\link{anova.hopit}},
+#' \code{\link{hopit}}.
 print.lrt.hopit <- function(x, short = FALSE, ...){
   if (!short) {
     cat(hopit_msg(64))
@@ -461,14 +500,17 @@ print.lrt.hopit <- function(x, short = FALSE, ...){
   #uzyc signif
   cat(hopit_msg(59))
   if (length(x$df)) {
-    out <- t(as.matrix(c('Chi^2' = unname(x$chisq), df = unname(x$df), 'Pr(>Chi^2)' = unname(x$pval))))
+    out <- t(as.matrix(c('Chi^2' = unname(x$chisq), df = unname(x$df),
+                         'Pr(>Chi^2)' = unname(x$pval))))
     out2 <- NULL
   } else {
-    out <- t(as.matrix(c('Chi^2' = unname(x$chisq), 'Pr(>Chi^2)' = unname(x$pval))))
+    out <- t(as.matrix(c('Chi^2' = unname(x$chisq),
+                         'Pr(>Chi^2)' = unname(x$pval))))
     out2 <- x$scalef
   }
   row.names(out) <- ''
-  stats::printCoefmat(out, signif.stars = TRUE, P.values = TRUE, has.Pvalue = TRUE, digits = 5L, dig.tst = 3L, tst.ind = 1L)
+  stats::printCoefmat(out, signif.stars = TRUE, P.values = TRUE,
+                  has.Pvalue = TRUE, digits = 5L, dig.tst = 3L, tst.ind = 1L)
   if (length(out2)) print(paste(hopit_msg(63),out2))
   invisible(NULL)
 }
@@ -477,15 +519,18 @@ print.lrt.hopit <- function(x, short = FALSE, ...){
 #' Calculate log likelihood profile for fitted \code{hopit} model
 #'
 #' @param fitted  an \code{hopit} object (a fitted model).
-#' @param scope value (fraction) defining plotting range for a coefficient. The range is \code{c(coef \* (1-scope), coef \* (1+scope))}.
-#' @param steps at how many equally spaced points calculate the log likelihood function for each coefficient.
+#' @param scope value (fraction) defining plotting range for a coefficient.
+#' The range is \code{c(coef \* (1-scope), coef \* (1+scope))}.
+#' @param steps at how many equally spaced points calculate the log likelihood
+#' function for each coefficient.
 #' @param ... unused now.
 #' @export
 #' @keywords internal
 #' @author Maciej J. Danko
 #' @usage \method{profile}{hopit}(fitted, ..., scope = 0.15, steps = 101)
 #' @method profile hopit
-#' @seealso \code{\link{plot.profile.hopit}}, \code{\link{print.profile.hopit}}, \code{\link{hopit}}
+#' @seealso \code{\link{plot.profile.hopit}}, \code{\link{print.profile.hopit}},
+#'  \code{\link{hopit}}
 #' @examples
 #' # DATA
 #' data(healthsurvey)
@@ -518,12 +563,15 @@ print.lrt.hopit <- function(x, short = FALSE, ...){
 #' plot(pr, relative = TRUE)
 profile.hopit<-function(fitted, ..., scope=0.15, steps=101){
   steps <- floor(steps/2)*2+1
-  if (fitted$hasdisp) COEF <- c(fitted$coef, fitted$coef.ls$logTheta) else COEF <- fitted$coef
-  sub <- function(x,y) if (x==1) c(y,COEF[2:length(COEF)]) else if (x==length(COEF)) c(COEF[-length(COEF)],y) else
-    c(COEF[1:(x-1)],y,COEF[(x+1):length(COEF)])
+  if (fitted$hasdisp) COEF <- c(fitted$coef, fitted$coef.ls$logTheta) else
+    COEF <- fitted$coef
+  sub <- function(x,y) if (x==1) c(y,COEF[2:length(COEF)]) else
+    if (x==length(COEF)) c(COEF[-length(COEF)],y) else
+       c(COEF[1:(x-1)],y,COEF[(x+1):length(COEF)])
   lo <- COEF*(1-scope)
   hi <- COEF*(1+scope)
-  GG <- function(x) sapply(seq(lo[x],hi[x],length.out=steps),function(y) hopit_negLL(parameters=sub(x,y),fitted,negative = FALSE))
+  GG <- function(x) sapply(seq(lo[x],hi[x],length.out=steps),function(y)
+    hopit_negLL(parameters=sub(x,y),fitted,negative = FALSE))
   val <- sapply(seq_along(COEF), function(x) GG(x))
   attr(val,'scope') <- scope
   attr(val,'steps') <- steps
@@ -539,18 +587,24 @@ profile.hopit<-function(fitted, ..., scope=0.15, steps=101){
 #'
 #' Plot method for profile.hopit object.
 #' @param x an \code{profile.hopit} object.
-#' @param leg.cex character expansion factor relative to current \code{par("cex")} (see \code{\link{legend}}).
+#' @param leg.cex character expansion factor relative to current
+#' \code{par("cex")} (see \code{\link{legend}}).
 #' @param leg.col the color used for the legend text.
 #' @param ylim see \code{\link{plot}}.
-#' @param relative logical indicating if \code{ylim} on each panel should be the same (\code{TRUE}) or not (\code{FALSE}).
-#' @param ... arguments to be passed to \code{\link{plot}}() function (see \code{\link{par}}).
+#' @param relative logical indicating if \code{ylim} on each panel should be the
+#'  same (\code{TRUE}) or not (\code{FALSE}).
+#' @param ... arguments to be passed to \code{\link{plot}}() function (see
+#' \code{\link{par}}).
 #' @export
 #' @keywords internal
-#' @usage \method{plot}{profile.hopit}(x, ..., ylim = NULL, relative = FALSE, leg.cex = 0.85, leg.col = 'blue4')
+#' @usage \method{plot}{profile.hopit}(x, ..., ylim = NULL, relative = FALSE,
+#' leg.cex = 0.85, leg.col = 'blue4')
 #' @author Maciej J. Danko
 #' @method plot profile.hopit
-#' @seealso \code{\link{profile.hopit}}, \code{\link{print.profile.hopit}}, \code{\link{hopit}}.
-plot.profile.hopit<-function(x, ..., ylim = NULL, relative = FALSE, leg.cex = 0.85, leg.col = 'blue4'){
+#' @seealso \code{\link{profile.hopit}}, \code{\link{print.profile.hopit}},
+#' \code{\link{hopit}}.
+plot.profile.hopit<-function(x, ..., ylim = NULL, relative = FALSE,
+                             leg.cex = 0.85, leg.col = 'blue4'){
   z <- sqrt(ncol(x))
   zy <- round(z)
   zx <- ceiling(z)
@@ -560,7 +614,8 @@ plot.profile.hopit<-function(x, ..., ylim = NULL, relative = FALSE, leg.cex = 0.
   for (j in seq_len(ncol(x))) {
     graphics::plot(x[,j],type='l',axes='F', ylim = ylim, ...)
     graphics::abline(v=floor(nrow(x)/2)+1,col=2,lty=2)
-    graphics::legend('bottom',colnames(x)[j], bty='n',cex=leg.cex, text.col=leg.col)
+    graphics::legend('bottom',colnames(x)[j], bty='n',cex=leg.cex,
+                     text.col=leg.col)
     graphics::box()
   }
   suppressWarnings(graphics::par(spar))
@@ -571,19 +626,22 @@ plot.profile.hopit<-function(x, ..., ylim = NULL, relative = FALSE, leg.cex = 0.
 #'
 #' @param x an \code{profile.hopit} object.
 #' @param plotf a logical indicating if to plot the profile.
-#' @param ... arguments to be passed to \code{plot}() function (see \code{\link{plot.profile.hopit}}).
+#' @param ... arguments to be passed to \code{plot}() function (see
+#' \code{\link{plot.profile.hopit}}).
 #' @export
 #' @keywords internal
 #' @usage \method{print}{profile.hopit}(x, ..., plotf = TRUE)
 #' @author Maciej J. Danko
 #' @method print profile.hopit
-#' @seealso \code{\link{profile.hopit}}, \code{\link{plot.profile.hopit}}, \code{\link{hopit}}
+#' @seealso \code{\link{profile.hopit}}, \code{\link{plot.profile.hopit}},
+#' \code{\link{hopit}}
 print.profile.hopit<-function(x, ..., plotf = TRUE){
   test <- apply(x,2,which.max)==floor(nrow(x)/2)+1
   if(plotf) plot.profile.hopit(x, ...)
   if (any(!test)) {
     message(hopit_msg(60))
-    message(paste(hopit_msg(61),paste(names(test)[!test],sep='',collapse = ',  ')))
+    message(paste(hopit_msg(61),paste(names(test)[!test],sep='',
+                                      collapse = ',  ')))
   } else {
     cat(hopit_msg(62))
   }

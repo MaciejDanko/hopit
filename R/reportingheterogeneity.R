@@ -19,7 +19,8 @@
 #' # DATA
 #' data(healthsurvey)
 #'
-#' # the order of response levels is decreasing (from the best health to the worst health)
+#' # the order of response levels is decreasing (from the best health to the
+#' # worst health)
 #' levels(healthsurvey$health)
 #'
 #' # Example 1 ---------------------
@@ -60,10 +61,14 @@ latentIndex <- function(model, decreasing.levels = TRUE,
   hi <- (1 - ((model$y_latent_i - r[1]) / diff(r)))[subset]
   if (plotf) {
     response <- tolower(match.arg(response))
-    if (response=='data') YY <- model$y_i else if (response=='fitted') YY <- model$Ey_i else if (response=='jurges') {
-      z <- getCutPoints(model=model, decreasing.levels = decreasing.levels, plotf = FALSE)
-      YY <- factor(z$adjused.levels,levels(model$y_i))
-    } else stop(hopit_msg(83),call.=NULL)
+    if (response=='data') YY <- model$y_i else
+      if (response=='fitted') YY <- model$Ey_i else
+        if (response=='jurges') {
+          z <- getCutPoints(model=model,
+                            decreasing.levels = decreasing.levels,
+                            plotf = FALSE)
+          YY <- factor(z$adjused.levels,levels(model$y_i))
+        } else stop(hopit_msg(83),call.=NULL)
     graphics::plot(YY[subset], hi,las=3, ylab=ylab, ...)
   }
   if (plotf) invisible(hi) else return(hi)
@@ -134,7 +139,8 @@ standardizeCoef <- function (model,
                              namesf = identity, ...) {
 
   z <- (model$coef)[seq_len(model$parcount[1])]
-  if (class(namesf)=='function') names(z) <- namesf(names(z)) else names(z) <- namesf
+  if (class(namesf)=='function') names(z) <- namesf(names(z)) else
+    names(z) <- namesf
 
   if (ordered) {
     oz <- order(z, decreasing = TRUE)
@@ -149,11 +155,13 @@ standardizeCoef <- function (model,
     rr <- graphics::barplot(t(res), las = 3, ...)
     if(plotpval) {
       y <- summary(model)
-      pval <- format(round(y$coef$`Pr(>|z|)`[seq_len(model$parcount[1])],4),digits=4,scientific=FALSE)[oz]
+      pval <- format(round(y$coef$`Pr(>|z|)`[seq_len(model$parcount[1])],4),
+                     digits=4,scientific=FALSE)[oz]
       yr <- res/2
       ind <- yr < max(res)*0.1
       yr[ind] <- (res+max(res)*0.1)[ind]
-      graphics::text(rr,yr,paste('P =',pval),srt=90,col=c('white','black')[1+ind])
+      graphics::text(rr,yr,paste('P =',pval),srt=90,
+                     col=c('white','black')[1+ind])
     }
     graphics::mtext(YLab, 2, cex = YLab.cex, line = 2.5)
     suppressWarnings(graphics::par(opar))
@@ -196,7 +204,8 @@ disabilityWeights<-standardizeCoef
 #' # DATA
 #' data(healthsurvey)
 #'
-#' # the order of response levels is decreasing (from the best health to the worst health)
+#' # the order of response levels is decreasing (from the best health to the
+#' # worst health)
 #' levels(healthsurvey$health)
 #'
 #' # Example 1 ---------------------
@@ -223,9 +232,17 @@ disabilityWeights<-standardizeCoef
 #'
 #' # adjusted health levels for individuals: Estimated model thresholds
 #' table(model1$Ey_i)
-getCutPoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(0,0,0,0),
-                         XLab='Health index', XLab.cex=1.1, YLab='Counts', YLab.cex=1.1,
-                         decreasing.levels=TRUE, group.labels.type=c('middle','border','none')){
+getCutPoints <- function(model,
+                         subset=NULL,
+                         plotf = TRUE,
+                         mar=c(4,4,1,1),
+                         oma=c(0,0,0,0),
+                         XLab='Health index',
+                         XLab.cex=1.1,
+                         YLab='Counts',
+                         YLab.cex=1.1,
+                         decreasing.levels=TRUE,
+                         group.labels.type=c('middle','border','none')){
   if (length(subset) == 0) subset=seq_along(model$y_i)
   Y <- model$y_i[subset]
   if (decreasing.levels) dorev <- rev else dorev <- identity
@@ -240,18 +257,26 @@ getCutPoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(
   Nm <- sapply(Nm, function(k) bquote(bold(.(k))))
   if (plotf) {
     group.labels.type<-tolower(group.labels.type[1])
-    if(group.labels.type %notin%  c('middle','border','none')) stop (hopit_msg(84),call.=NULL)
+    if (group.labels.type %notin%  c('middle','border','none'))
+      stop(hopit_msg(84),call.=NULL)
     opar <- graphics::par(c('mar','oma'))
     graphics::par(mar=mar, oma=oma)
     z<-graphics::hist(h.index, 200,xlab='',ylab='' ,
-            main='', yaxs='i', col=grDevices::grey(0.8, alpha = 0.5),border=grDevices::grey(0.4, alpha = 0.5))
+            main='', yaxs='i', col=grDevices::grey(0.8, alpha = 0.5),
+            border=grDevices::grey(0.4, alpha = 0.5))
     if (group.labels.type == 'border') {
-      for (j in seq_along(Nm)) graphics::text(x=R1[j],y=(1.1*max(z$counts))/2,labels=Nm[[j]],
+      for (j in seq_along(Nm)) graphics::text(x=R1[j],y=(1.1*max(z$counts))/2,
+                                              labels=Nm[[j]],
                                     srt=90,pos=2,offset=0.67,col=2)
     } else if (group.labels.type == 'middle'){
       R11=-diff(c(0,R1,1))/2+c(R1,1)+graphics::strheight('S',units='figure')/2
-      for (j in seq_along(lv)) graphics::text(x=R11[j],y=(3*1.1*max(z$counts))/4,labels=lv[j],
-                                    srt=90,pos=3,offset=0.67,col=2)
+      for (j in seq_along(lv)) graphics::text(x=R11[j],
+                                              y=(3*1.1*max(z$counts))/4,
+                                              labels=lv[j],
+                                              srt=90,
+                                              pos=3,
+                                              offset=0.67,
+                                              col=2)
     }
     graphics::box()
     graphics::abline(v=R1,lwd=2,col=2)
@@ -308,7 +333,8 @@ getCutPoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(
 #' # DATA
 #' data(healthsurvey)
 #'
-#' # the order of response levels is decreasing (from the best health to the worst health)
+#' # the order of response levels is decreasing (from the best health to the
+#' # worst health)
 #' levels(healthsurvey$health)
 #'
 #' # fitting a model
@@ -332,19 +358,23 @@ getCutPoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(
 #' round(100*(hl$original - hl$adjusted),2)
 #'
 #' # extract good and bad health (combine levels)
-#' Org <- cbind(bad = rowSums(hl$original[,1:2]), good = rowSums(hl$original[,4:5]))
-#' Adj <- cbind(bad = rowSums(hl$adjusted[,1:2]), good = rowSums(hl$adjusted[,4:5]))
+#' Org <- cbind(bad = rowSums(hl$original[,1:2]),
+#'              good = rowSums(hl$original[,4:5]))
+#' Adj <- cbind(bad = rowSums(hl$adjusted[,1:2]),
+#'              good = rowSums(hl$adjusted[,4:5]))
 #' round(100*(Org - Adj),2)
 #'
 #' # plot the differences
 #' barplot(t(Org - Adj), beside = TRUE, density = 20, angle = c(-45, 45),
-#'         col = c('pink4', 'green2'), ylab = 'Original - adjusted reported health frequencies')
+#'         col = c('pink4', 'green2'),
+#'         ylab = 'Original - adjusted reported health frequencies')
 #' abline(h = 0); box()
-#' legend('top', c('Bad health','Good health'), density = 20, angle = c(-45, 45),
+#' legend('top', c('Bad health','Good health'),
+#'        density = 20, angle = c(-45, 45),
 #'        fill = c('pink4', 'green2'), bty = 'n', cex = 1.2)
 #'
-#' # in country X the bad health seems to be over-reported and good health under reported,
-#' # in country Z the good health is highly over-reported.
+#' # in country X the bad health seems to be over-reported and good health
+#' # under reported, in country Z the good health is highly over-reported.
 #'
 #' # Example 2 ---------------------
 #'
@@ -362,14 +392,16 @@ getCutPoints <- function(model, subset=NULL, plotf = TRUE, mar=c(4,4,1,1),oma=c(
 #' round(100*(Org - Adj),2)
 #'
 #' pmar <- par('mar'); par(mar = c(9.5, pmar[2:4]))
-#' barplot(Org-Adj, ylab = 'Original - adjusted reported good health frequencies', las = 3,
+#' barplot(Org-Adj,
+#'         ylab = 'Original - adjusted reported good health frequencies',
+#'         las = 3,
 #'         density = 20, angle = c(45, -45), col = c('blue', 'orange'))
 #' abline(h = 0); box(); par(mar = pmar)
 #' legend('top', c('Man','Woman'), density = 20, angle = c(-45, 45),
 #'        fill = c('blue', 'orange'), bty = 'n', cex = 1.2)
 #'
-#' # the results show that women in general tend to over-report good health, while
-#' # men in ages 50-59 greatly under-report good health.
+#' # the results show that women in general tend to over-report good health,
+#' # while men in ages 50-59 greatly under-report good health.
 #'
 #' # more examples can be found in the description of boot.hopit() function.
 getLevels<-function(model,
@@ -382,16 +414,20 @@ getLevels<-function(model,
                     YLab = 'Fraction [%]',
                     YLab.cex = 1.1,
                     legbg = grDevices::adjustcolor('white',alpha.f=0.4),
-                    legbty = 'o'
-){
-  if (class(formula)=='formula') inte_ <- formula2classes(formula, data, sep=sep, return.matrix = TRUE) else
-    stop(call.=NULL, hopit_msg(86))
+                    legbty = 'o'){
+  if (class(formula)=='formula')
+    inte_ <- formula2classes(formula, data, sep = sep,
+                             return.matrix = TRUE) else
+      stop(call.=NULL, hopit_msg(86))
   inte <- inte_$x
   namind <- inte_$class.mat
   nam <- levels(inte)
-  cpall <- getCutPoints(model, plotf = FALSE, decreasing.levels = decreasing.levels)
-  TAB1 <- round(table(original=model$y_i, adjusted=cpall$adjused.levels)*100/length(model$y_i),2)
-  tmp <- untable(t(table(factor(model$y_i,levels=levels(cpall$adjused.levels)), inte)))
+  cpall <- getCutPoints(model, plotf = FALSE,
+                        decreasing.levels = decreasing.levels)
+  TAB1 <- round(table(original = model$y_i,
+                      adjusted = cpall$adjused.levels)*100/length(model$y_i),2)
+  tmp <- untable(t(table(factor(model$y_i,
+                            levels=levels(cpall$adjused.levels)), inte)))
   N1 <- tmp
   tmp <-tmp/rowSums(tmp)
   if (sort.flag) {

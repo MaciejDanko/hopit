@@ -38,7 +38,8 @@ Calculate threshold cut-points and individual ajusted responses using Jurges' me
 # DATA
 data(healthsurvey)
 
-# the order of response levels is decreasing (from the best health to the worst health)
+# the order of response levels is decreasing (from the best health to the
+# worst health)
 levels(healthsurvey$health)
 
 # Example 1 ---------------------

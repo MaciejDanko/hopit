@@ -4,18 +4,22 @@
 \alias{plot.profile.hopit}
 \title{Plot the log likelihood profile for a profile.hopit object}
 \usage{
-\method{plot}{profile.hopit}(x, ..., ylim = NULL, relative = FALSE, leg.cex = 0.85, leg.col = 'blue4')
+\method{plot}{profile.hopit}(x, ..., ylim = NULL, relative = FALSE,
+leg.cex = 0.85, leg.col = 'blue4')
 }
 \arguments{
 \item{x}{an \code{profile.hopit} object.}
 
-\item{...}{arguments to be passed to \code{\link{plot}}() function (see \code{\link{par}}).}
+\item{...}{arguments to be passed to \code{\link{plot}}() function (see
+\code{\link{par}}).}
 
 \item{ylim}{see \code{\link{plot}}.}
 
-\item{relative}{logical indicating if \code{ylim} on each panel should be the same (\code{TRUE}) or not (\code{FALSE}).}
+\item{relative}{logical indicating if \code{ylim} on each panel should be the
+same (\code{TRUE}) or not (\code{FALSE}).}
 
-\item{leg.cex}{character expansion factor relative to current \code{par("cex")} (see \code{\link{legend}}).}
+\item{leg.cex}{character expansion factor relative to current
+\code{par("cex")} (see \code{\link{legend}}).}
 
 \item{leg.col}{the color used for the legend text.}
 }
@@ -23,7 +27,8 @@
 Plot method for profile.hopit object.
 }
 \seealso{
-\code{\link{profile.hopit}}, \code{\link{print.profile.hopit}}, \code{\link{hopit}}.
+\code{\link{profile.hopit}}, \code{\link{print.profile.hopit}},
+\code{\link{hopit}}.
 }
 \author{
 Maciej J. Danko

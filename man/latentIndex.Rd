@@ -40,7 +40,8 @@ to the best predicted health (minimal observed value for the latent measure).
 # DATA
 data(healthsurvey)
 
-# the order of response levels is decreasing (from the best health to the worst health)
+# the order of response levels is decreasing (from the best health to the
+# worst health)
 levels(healthsurvey$health)
 
 # Example 1 ---------------------

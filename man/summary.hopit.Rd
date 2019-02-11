@@ -9,12 +9,14 @@
 \arguments{
 \item{object}{an \code{hopit} object.}
 
-\item{robust.se}{logical indicating if to use robust standard errors based on the sandwich estimator.
+\item{robust.se}{logical indicating if to use robust standard errors based
+on the sandwich estimator.
 If survey deign is detected than this option is ignored.}
 
 \item{...}{further arguments passed to or from other methods.}
 
-\item{control}{a list with control parameters. See \code{\link{hopit.control}}.}
+\item{control}{a list with control parameters.
+See \code{\link{hopit.control}}.}
 }
 \description{
 Calculate model summary

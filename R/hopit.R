@@ -8,8 +8,12 @@
 #' @importFrom Rcpp evalCpp
 hopit_Threshold<-function(thresh.lambda, thresh.gamma, model){
   if (model$thresh.no.cov) thresh.gamma = NA
-  getThresholds(model$thresh.mm, thresh.lambda, thresh.gamma, model$thresh.no.cov,
-                thresh_start = model$control$thresh.start, thresh_1_exp = model$control$thresh.1.exp) #RcppEigen
+  getThresholds(model$thresh.mm,
+                thresh.lambda,
+                thresh.gamma,
+                model$thresh.no.cov,
+                thresh_start = model$control$thresh.start,
+                thresh_1_exp = model$control$thresh.1.exp) #RcppEigen
 }
 
 #' INTERNAL: Calculate predicted continous latent measure.
@@ -18,31 +22,8 @@ hopit_Threshold<-function(thresh.lambda, thresh.gamma, model){
 #' @param model a \code{hopit} object
 #' @author Maciej J. Danko
 #' @keywords internal
-hopit_Latent <- function(latent.params, model = NULL) model$latent.mm %*% (as.matrix(latent.params))
-
-
-# #' INTERNAL: Calculate maximum possible latent range
-# #' @param model a fitted \code{hopit} model.
-# #' @param data a data used to fit the model.
-# #' @keywords internal
-# hopit_latentrange <- function (model, data) {
-#
-#   cfm <- model$coef[seq_len(model$parcount[1])]
-#
-#   L <- apply(model$latent.mm,2,function(x)length(unique(x))) -1
-#   FACTORS <- as.logical(L==1)
-#   if (any(FACTORS)) {
-#     d <- cfm[FACTORS]
-#     r <- c(sum(d[d<0]), sum(d[d>0]))
-#   }
-#   if (any(!FACTORS)) {
-#     #message('Continuous covariate detected, model may not give realistic results.',appendLF = FALSE)
-#     d <- matrix(cfm[!FACTORS],length(cfm[!FACTORS]),model$N) * t(model$latent.mm[,!FACTORS])
-#     r <- c(min(d[d<0],r), max(r,d[d>0]))
-#   }
-#   r
-# }
-
+hopit_Latent <- function(latent.params, model = NULL)
+  model$latent.mm %*% (as.matrix(latent.params))
 
 #' INTERNAL: Extract model parameters as a list
 #'
@@ -52,14 +33,17 @@ hopit_Latent <- function(latent.params, model = NULL) model$latent.mm %*% (as.ma
 #' @param parcount vector with parameter counts for latent, lambda, and gamma.
 #' @author Maciej J. Danko
 #' @keywords internal
-hopit_ExtractParameters <- function(model, parameters, parcount = model$parcount){
+hopit_ExtractParameters <- function(model,
+                                    parameters,
+                                    parcount = model$parcount){
   logTheta <- 0
   if (!length(parcount)) stop(call.=NULL, hopit_msg(1))
   if (missing(parameters)) {
     parameters <- model$coef
     if (!length(parameters)) stop(hopit_msg(2))
   }
-  if (length(parameters) != sum(parcount) + model$hasdisp) stop(call.=NULL,hopit_msg(3))
+  if (length(parameters) != sum(parcount) + model$hasdisp)
+    stop(call.=NULL,hopit_msg(3))
 
   latent.params <- parameters[1L : parcount[1L]]
   cpc <- cumsum(parcount)
@@ -77,9 +61,15 @@ hopit_ExtractParameters <- function(model, parameters, parcount = model$parcount
   }
 
   if (model$hasdisp) {
-    list(latent.params = latent.params, thresh.lambda = thresh.lambda, thresh.gamma = thresh.gamma, logTheta = parameters[length(parameters)])
+    list(latent.params = latent.params,
+         thresh.lambda = thresh.lambda,
+         thresh.gamma = thresh.gamma,
+         logTheta = parameters[length(parameters)])
   } else {
-    list(latent.params = latent.params, thresh.lambda = thresh.lambda, thresh.gamma = thresh.gamma, logTheta = logTheta)
+    list(latent.params = latent.params,
+         thresh.lambda = thresh.lambda,
+         thresh.gamma = thresh.gamma,
+         logTheta = logTheta)
   }
 }
 
@@ -95,21 +85,45 @@ hopit_ExtractParameters <- function(model, parameters, parcount = model$parcount
 #' @keywords internal
 #' @useDynLib hopit
 #' @importFrom Rcpp evalCpp
-hopit_negLL <- function(parameters=model$coef, model, collapse = TRUE, use_weights, negative = TRUE){
+hopit_negLL <- function(parameters = model$coef,
+                        model,
+                        collapse = TRUE,
+                        use_weights,
+                        negative = TRUE){
   if (missing(use_weights)) {
-    if (length(model$use.weights)) use_weights <- model$use.weights else stop(hopit_msg(95))
+    if (length(model$use.weights)) use_weights <- model$use.weights else
+      stop(hopit_msg(95))
   }
   link = hopit_c_link(model)
   if (collapse) {
-    LL <- LLFunc(parameters, yi=as.numeric(unclass(model$y_i)),latent_mm=model$latent.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
+    LL <- LLFunc(parameters,
+                 yi = as.numeric(unclass(model$y_i)),
+                 latent_mm = model$latent.mm,
+                 thresh_mm = model$thresh.mm,
+                 parcount = model$parcount,
                  hasdisp = model$hasdisp,
-                 link=link,thresh_no_cov=model$thresh.no.cov, negative=negative, thresh_1_exp = model$control$thresh.1.exp,
-                 weights=model$weights,use_weights = use_weights, thresh_start=model$control$thresh.start, out_val = model$control$LL_out_val)
+                 link = link,
+                 thresh_no_cov = model$thresh.no.cov,
+                 negative = negative,
+                 thresh_1_exp = model$control$thresh.1.exp,
+                 weights = model$weights,
+                 use_weights = use_weights,
+                 thresh_start = model$control$thresh.start,
+                 out_val = model$control$LL_out_val)
   } else {
-    LL <- LLFuncIndv(parameters, yi=as.numeric(unclass(model$y_i)),latent_mm=model$latent.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
+    LL <- LLFuncIndv(parameters,
+                     yi = as.numeric(unclass(model$y_i)),
+                     latent_mm = model$latent.mm,
+                     thresh_mm = model$thresh.mm,
+                     parcount = model$parcount,
                      hasdisp = model$hasdisp,
-                     link=link,thresh_no_cov=model$thresh.no.cov, negative=negative, thresh_1_exp = model$control$thresh.1.exp,
-                     weights=model$weights, thresh_start = model$control$thresh.start, use_weights = use_weights)
+                     link = link,
+                     thresh_no_cov = model$thresh.no.cov,
+                     negative = negative,
+                     thresh_1_exp = model$control$thresh.1.exp,
+                     weights = model$weights,
+                     thresh_start = model$control$thresh.start,
+                     use_weights = use_weights)
   }
   if (use_weights) {
     LL <- LL / sum(model$weights) * model$N #scale likelihood
@@ -132,22 +146,50 @@ hopit_negLL <- function(parameters=model$coef, model, collapse = TRUE, use_weigh
 hopit_derivLL <- function(parameters=model$coef, model,
                           collapse = TRUE, use_weights, negative = FALSE){
   if (missing(use_weights)) {
-    if (length(model$use.weights)) use_weights <- model$use.weights else stop(hopit_msg(95))
+    if (length(model$use.weights)) use_weights <- model$use.weights else
+      stop(hopit_msg(95))
   }
-  link = hopit_c_link(model)
+
+  link <- hopit_c_link(model)
 
   if (collapse) {
-    LLgr <- LLGradFunc(parameters, yi=as.numeric(unclass(model$y_i)), YYY1=model$YYY1, YYY2=model$YYY2,
-                       YYY3=model$YYY3[,-model$J],YYY4=model$YYY3[,-1], hasdisp = model$hasdisp,
-                       latent_mm=model$latent.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
-                       link=link,thresh_no_cov=model$thresh.no.cov,negative=negative, thresh_1_exp = model$control$thresh.1.exp,
-                       weights=model$weights, thresh_start = model$control$thresh.start, use_weights = use_weights)
+    LLgr <- LLGradFunc(parameters,
+                       yi = as.numeric(unclass(model$y_i)),
+                       YYY1 = model$YYY1,
+                       YYY2 = model$YYY2,
+                       YYY3 = model$YYY3[,-model$J],
+                       YYY4 = model$YYY3[,-1],
+                       hasdisp = model$hasdisp,
+                       latent_mm = model$latent.mm,
+                       thresh_mm = model$thresh.mm,
+                       thresh_extd = model$thresh.extd,
+                       parcount = model$parcount,
+                       link = link,
+                       thresh_no_cov = model$thresh.no.cov,
+                       negative = negative,
+                       thresh_1_exp = model$control$thresh.1.exp,
+                       weights = model$weights,
+                       thresh_start = model$control$thresh.start,
+                       use_weights = use_weights)
   } else {
-    LLgr <- LLGradFuncIndv(parameters, yi=as.numeric(unclass(model$y_i)), YYY1=model$YYY1, YYY2=model$YYY2, YYY3=model$YYY3[,-model$J], YYY4=model$YYY3[,-1],
-                           latent_mm=model$latent.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
+    LLgr <- LLGradFuncIndv(parameters,
+                           yi = as.numeric(unclass(model$y_i)),
+                           YYY1 = model$YYY1,
+                           YYY2 = model$YYY2,
+                           YYY3 = model$YYY3[,-model$J],
+                           YYY4 = model$YYY3[,-1],
+                           latent_mm = model$latent.mm,
+                           thresh_mm = model$thresh.mm,
+                           thresh_extd = model$thresh.extd,
+                           parcount = model$parcount,
                            hasdisp = model$hasdisp,
-                           link=link,thresh_no_cov=model$thresh.no.cov, negative=negative, thresh_1_exp = model$control$thresh.1.exp,
-                           weights=model$weights,thresh_start = model$control$thresh.start, use_weights = use_weights)
+                           link = link,
+                           thresh_no_cov = model$thresh.no.cov,
+                           negative = negative,
+                           thresh_1_exp = model$control$thresh.1.exp,
+                           weights = model$weights,
+                           thresh_start = model$control$thresh.start,
+                           use_weights = use_weights)
   }
 
   if (use_weights) {
@@ -170,7 +212,8 @@ hopit_derivLL <- function(parameters=model$coef, model,
 hopit_fitter <- function(model, start = model$start, use_weights){
 
   if (missing(use_weights)) {
-    if (length(model$use.weights)) use_weights <- model$use.weights else stop(hopit_msg(95))
+    if (length(model$use.weights)) use_weights <- model$use.weights else
+      stop(hopit_msg(95))
   }
 
   #be compatible with older versions
@@ -181,26 +224,56 @@ hopit_fitter <- function(model, start = model$start, use_weights){
 
   link <- hopit_c_link(model)
 
-  LLgr <- function(par, neg = TRUE) LLGradFunc(par, yi=as.numeric(unclass(model$y_i)), YYY1=model$YYY1, YYY2=model$YYY2, YYY3=model$YYY3[,-model$J],
-                                               YYY4=model$YYY3[,-1],hasdisp = model$hasdisp,
-                                               latent_mm=model$latent.mm, thresh_mm=model$thresh.mm, thresh_extd=model$thresh.extd, parcount=model$parcount,
-                                               link=link,thresh_no_cov=model$thresh.no.cov, negative=neg, thresh_1_exp = model$control$thresh.1.exp,
-                                               weights=model$weights, thresh_start=model$control$thresh.start, use_weights = use_weights)
+  LLgr <- function(par, neg = TRUE)
+    LLGradFunc(par,
+               yi = as.numeric(unclass(model$y_i)),
+               YYY1 = model$YYY1,
+               YYY2 = model$YYY2,
+               YYY3 = model$YYY3[,-model$J],
+               YYY4 = model$YYY3[,-1],
+               hasdisp = model$hasdisp,
+               latent_mm = model$latent.mm,
+               thresh_mm = model$thresh.mm,
+               thresh_extd = model$thresh.extd,
+               parcount = model$parcount,
+               link = link,
+               thresh_no_cov = model$thresh.no.cov,
+               negative = neg,
+               thresh_1_exp = model$control$thresh.1.exp,
+               weights = model$weights,
+               thresh_start = model$control$thresh.start,
+               use_weights = use_weights)
 
-  LLfn <- function(par, neg = TRUE) LLFunc(par, yi=as.numeric(unclass(model$y_i)),latent_mm=model$latent.mm, thresh_mm=model$thresh.mm, parcount=model$parcount,
-                                           link=link, thresh_no_cov=model$thresh.no.cov, negative=neg, thresh_1_exp = model$control$thresh.1.exp,
-                                           weights=model$weights,use_weights = use_weights, thresh_start=model$control$thresh.start,
-                                           out_val = model$control$LL_out_val, hasdisp = model$hasdisp)
+  LLfn <- function(par, neg = TRUE)
+    LLFunc(par,
+           yi = as.numeric(unclass(model$y_i)),
+           latent_mm = model$latent.mm,
+           thresh_mm = model$thresh.mm,
+           parcount = model$parcount,
+           link = link,
+           thresh_no_cov=model$thresh.no.cov,
+           negative = neg,
+           thresh_1_exp = model$control$thresh.1.exp,
+           weights = model$weights,
+           use_weights = use_weights,
+           thresh_start=model$control$thresh.start,
+           out_val = model$control$LL_out_val,
+           hasdisp = model$hasdisp)
+
   #Two methods one after each other
   fastgradfit <- function(fit, meto){
     #BFGS and CG method
     try({
       if (meto == 'BFGS') {
         fit <- stats::optim(par = fit$par, fn = LLfn, gr = LLgr,
-                     method = 'BFGS', hessian = FALSE, control=list(maxit=model$control$bgfs.maxit, reltol=model$control$bgfs.reltol))
+                     method = 'BFGS', hessian = FALSE,
+                     control = list(maxit = model$control$bgfs.maxit,
+                                  reltol = model$control$bgfs.reltol))
       } else if (meto == 'CG'){
         fit <- stats::optim(par = fit$par, fn = LLfn, gr = LLgr,
-                     method = 'CG', hessian = FALSE, control=list(maxit=model$control$cg.maxit, reltol=model$control$cg.reltol))
+                     method = 'CG', hessian = FALSE,
+                     control = list(maxit = model$control$cg.maxit,
+                                  reltol = model$control$cg.reltol))
       }
     }, silent = FALSE)
 
@@ -214,7 +287,11 @@ hopit_fitter <- function(model, start = model$start, use_weights){
     if (!model$control$quick.fit || !length(fit$par)) {
       if (!length(fit$par)) fit$par <- start
       if (model$control$trace) cat(hopit_msg(13),hopit_msg(5),sep='')
-      fit <- suppressWarnings(stats::nlm(f = LLfn, p=fit$par, gradtol = model$control$nlm.gradtol, steptol = model$control$nlm.steptol, hessian = FALSE, iterlim=model$control$nlm.maxit))
+      fit <- suppressWarnings(stats::nlm(f = LLfn, p=fit$par,
+                                         gradtol = model$control$nlm.gradtol,
+                                         steptol = model$control$nlm.steptol,
+                                         hessian = FALSE,
+                                         iterlim=model$control$nlm.maxit))
       fit <- list(par=fit$estimate, value=fit$minimum)
     }
   }, silent = FALSE)
@@ -233,17 +310,23 @@ hopit_fitter <- function(model, start = model$start, use_weights){
 #' Auxiliary for controlling the fitting of \code{hopit} model
 #'
 #' @description
-#' Auxiliary function for controlling the fitting of \code{hopit} model. Use this function to set control
+#' Auxiliary function for controlling the fitting of \code{hopit} model.
+#' Use this function to set control
 #' parameters of the \code{\link{hopit}} and other related functions.
 #' @param grad.eps epsilon for numerical Hessian function.
-#' @param quick.fit logical, if TRUE extensive \code{nlm} optimization method is ignored and only BFGS and CG methods are run.
-#' @param bgfs.maxit,cg.maxit,nlm.maxit the maximum number of iterations. See \code{\link{optim}} and \code{\link{nlm}} for details.
-#' @param bgfs.reltol,cg.reltol relative convergence tolerance. See \code{\link{optim}} for details.
-#' @param nlm.gradtol,nlm.steptol tolerance at which the scaled gradient is considered close enough to zero and
+#' @param quick.fit logical, if TRUE extensive \code{nlm} optimization method
+#' is ignored and only BFGS and CG methods are run.
+#' @param bgfs.maxit,cg.maxit,nlm.maxit the maximum number of iterations.
+#' See \code{\link{optim}} and \code{\link{nlm}} for details.
+#' @param bgfs.reltol,cg.reltol relative convergence tolerance.
+#' See \code{\link{optim}} for details.
+#' @param nlm.gradtol,nlm.steptol tolerance at which the scaled gradient is
+#' considered close enough to zero and
 #' minimum allowable relative step length. See \code{\link{nlm}}.
 #' @param fit.methods either 'CG' or 'BFGS'. See \code{\link{optim}}.
 #' @param trace logical, if to trace model fitting.
-#' @param LL_out_val,thresh.1.exp,thresh.start internal parameters under development, do not change.
+#' @param LL_out_val,thresh.1.exp,thresh.start internal parameters under
+#' development, do not change.
 #' @seealso \code{\link{hopit}}
 #' @author Maciej J. Danko
 #' @export
@@ -262,7 +345,8 @@ hopit.control<-function(grad.eps = 3e-5,
                         thresh.1.exp = FALSE,
                         LL_out_val = -Inf){
 
-  if (!length(fit.methods)) stop(hopit_msg(8),call. = NULL) else fit.methods <- toupper(fit.methods)
+  if (!length(fit.methods)) stop(hopit_msg(8),call. = NULL) else
+    fit.methods <- toupper(fit.methods)
   if (any(fit.methods %notin% c('CG','BFGS'))) stop (hopit_msg(9),call.=NULL)
 
   list(grad.eps = grad.eps,
@@ -341,7 +425,8 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' thresholds to be dependent on covariates.
 #' \insertCite{GreeneHensher2010,Green2014;textual}{hopit} pointed out that also
 #' thresholds must be ordered so that a model has a sense.
-#' This motivated Greene and coauthors to call this models *HOPIT*, which stands for hierarchical ordered probit models.
+#' This motivated Greene and coauthors to call this models *HOPIT*, which stands
+#' for hierarchical ordered probit models.
 #'
 #' The fitted *hopit* model is used to analyse heterogeneity in reporting behavior.
 #' See \code{\link{standardizeCoef}}, \code{\link{latentIndex}},
@@ -580,7 +665,8 @@ hopit<- function(latent.formula,
 
   model <- analyse.formulas(model, latent.formula, thresh.formula, data)
 
-  model$y_i <- stats::model.frame(model$latent.formula, data = data)[,all.vars(model$latent.formula[[2]])]
+  model$y_i <- stats::model.frame(model$latent.formula,
+                            data = data)[,all.vars(model$latent.formula[[2]])]
   check_response(model$y_i)
   if (missing(decreasing.levels)) decreasing.levels = NULL
   check_decreasing.levels(decreasing.levels, levels(model$y_i))
@@ -590,7 +676,8 @@ hopit<- function(latent.formula,
   model$J <- length(levels(model$y_i))
   model$N <- length(model$y_i)
 
-  model$thresh.extd <- matrix(rep_row(model$thresh.mm, model$J-1),model$N, NCOL(model$thresh.mm)*(model$J-1))
+  model$thresh.extd <- matrix(rep_row(model$thresh.mm, model$J-1),model$N,
+                              NCOL(model$thresh.mm)*(model$J-1))
 
   Cr <- dim(model$latent.mm)[2L]
   Ct <- dim(model$thresh.mm)[2L]
@@ -601,9 +688,11 @@ hopit<- function(latent.formula,
   if (model$thresh.no.cov){
     tmp <- NULL
   } else {
-    tmp <- as.matrix(expand.grid(interce, model$thresh.names, KEEP.OUT.ATTRS = FALSE))
+    tmp <- as.matrix(expand.grid(interce, model$thresh.names,
+                                 KEEP.OUT.ATTRS = FALSE))
     tmp <- tmp[,c(2,1)]
-    tmp <- paste('(G)', apply(tmp, 1L, paste, sep = '', collapse = '.'), sep = '.')
+    tmp <- paste('(G)', apply(tmp, 1L, paste, sep = '', collapse = '.'),
+                 sep = '.')
   }
 
   coefnames <-  c(model$latent.names, paste('(L)', interce, sep = '.'), tmp)
@@ -611,7 +700,8 @@ hopit<- function(latent.formula,
 
   model$weights <- NULL
   check_design(weights, design, model$N)
-  if (length(design)) model$weights <- design$prob else if (length(weights)) model$weights <- weights
+  if (length(design)) model$weights <- design$prob else if (length(weights))
+    model$weights <- weights
   if (!length(model$weights)) {
     model$weights <- rep(1, model$N)
     model$use.weights <- FALSE
@@ -626,7 +716,7 @@ hopit<- function(latent.formula,
 
   if (!length(start)) {
     if (model$control$trace) cat(hopit_msg(10))
-    model <- suppressWarnings(get.hopit.start(model, data)) #rename this function get.hopit.start
+    model <- suppressWarnings(get.hopit.start(model, data))
     if (model$control$trace) cat(hopit_msg(13))
   } else {
     model$start <- start
@@ -645,12 +735,14 @@ hopit<- function(latent.formula,
   p <- hopit_ExtractParameters(model)
   model$alpha <- hopit_Threshold(p$thresh.lambda, p$thresh.gamma, model)
   model$Ey_i <- classify.ind(model)
-  model$y_latent_i <- hopit_Latent(model$coef[seq_len(model$parcount[1])], model)
+  model$y_latent_i <- hopit_Latent(model$coef[seq_len(model$parcount[1])],
+                                   model)
   model$coef.ls <- p
   model$deviance <- -2 * model$LL
   if (model$control$trace) cat(hopit_msg(13),hopit_msg(14),sep='')
 
-  hes <- my.grad(fn = hopit_derivLL, par = model$coef, model=model, eps = 1e-4, collapse = TRUE, negative=FALSE)
+  hes <- my.grad(fn = hopit_derivLL, par = model$coef, model=model, eps = 1e-4,
+                 collapse = TRUE, negative=FALSE)
   if (model$hasdisp && remove.theta) {
     hes <- hes[-nrow(hes),-ncol(hes)] #remove theta from vcov
     model$coef <- model$coef[-length(model$coef)] #remove from coef
@@ -660,7 +752,8 @@ hopit<- function(latent.formula,
   model$vcov.basic <- try(base::solve(-hes), silent = FALSE)
   model$vcov.basic <- check_vcov(model$vcov.basic)
   if (model$control$trace) cat(hopit_msg(13),hopit_msg(15),sep='')
-  if (model$hasdisp && remove.theta) COEF <- c(model$coef,model$coef.ls$logTheta) else COEF <- model$coef
+  if (model$hasdisp && remove.theta) COEF <-
+    c(model$coef,model$coef.ls$logTheta) else COEF <- model$coef
   model$estfun <- hopit_derivLL(COEF, model, collapse = FALSE)
   if (remove.theta) model$estfun <- model$estfun[,-ncol(model$estfun)]
   if (model$control$trace) cat(hopit_msg(13))
@@ -673,9 +766,10 @@ hopit<- function(latent.formula,
   } else {
     k <- 2
     model$vcov <- model$vcov.basic
-    model$AIC <- model$deviance + k * (length(model$coef.ls$latent.params)+
-                                       length(model$coef.ls$thresh.lambda)+
-                                       length(model$coef.ls$thresh.gamma)+model$hasdisp)
+    model$AIC <- model$deviance + k * (length(model$coef.ls$latent.params) +
+                                       length(model$coef.ls$thresh.lambda) +
+                                       length(model$coef.ls$thresh.gamma) +
+                                         model$hasdisp)
   }
   model$glm.start <- model$glm.start.ls <- NULL
   return(model)

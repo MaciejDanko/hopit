@@ -9,7 +9,8 @@
 \arguments{
 \item{x}{an \code{profile.hopit} object.}
 
-\item{...}{arguments to be passed to \code{plot}() function (see \code{\link{plot.profile.hopit}}).}
+\item{...}{arguments to be passed to \code{plot}() function (see
+\code{\link{plot.profile.hopit}}).}
 
 \item{plotf}{a logical indicating if to plot the profile.}
 }
@@ -17,7 +18,8 @@
 Print method for profile.hopit object
 }
 \seealso{
-\code{\link{profile.hopit}}, \code{\link{plot.profile.hopit}}, \code{\link{hopit}}
+\code{\link{profile.hopit}}, \code{\link{plot.profile.hopit}},
+\code{\link{hopit}}
 }
 \author{
 Maciej J. Danko

@@ -87,12 +87,14 @@ hopit_c_link<-function(model){
 #' @param V a vector of categories.
 #' @author Maciej J. Danko
 #' @keywords internal
-Vector2DummyMat<-function(V) sapply(levels(as.factor(V)), function(k) as.factor(V) == k)*1L
+Vector2DummyMat<-function(V) sapply(levels(as.factor(V)), function(k)
+  as.factor(V) == k)*1L
 
 
 #' @keywords internal
 #' @noRd
-decomposeinteractions<-function(allterms) lapply(allterms, function(k) regmatches(k, gregexpr(':',k,fixed=TRUE)[[1]], invert=TRUE)[[1]])
+decomposeinteractions<-function(allterms) lapply(allterms, function(k)
+  regmatches(k, gregexpr(':',k,fixed=TRUE)[[1]], invert=TRUE)[[1]])
 
 
 #' @keywords internal
@@ -110,15 +112,18 @@ findintercept<-function(varnames) grepl('(Intercept)', varnames, fixed = TRUE)
 
 #' @keywords internal
 #' @noRd
-formula2classes <- function(formula, data, sep='_', add.var.names = FALSE, return.matrix = FALSE){
+formula2classes <- function(formula, data, sep='_', add.var.names = FALSE,
+                            return.matrix = FALSE){
   tmp <- stats::model.frame(formula, data)
   mod.mat <- tmp
   lv <- lapply(seq_len(NCOL(tmp)),function (k) levels(as.factor(tmp[,k])))
   names(lv) <-colnames(tmp)
   tmp2 <- expand.grid(lv)
-  if (add.var.names) tmp2 <- sapply(seq_len(NCOL(tmp2)), function (k) paste(colnames(tmp2)[k],'[',tmp2[,k],']',sep=''))
+  if (add.var.names) tmp2 <- sapply(seq_len(NCOL(tmp2)), function (k)
+    paste(colnames(tmp2)[k],'[',tmp2[,k],']',sep=''))
   nlv <- levels(interaction(as.data.frame(tmp2),sep=sep))
-  if (add.var.names) tmp <- sapply(seq_len(NCOL(tmp)), function (k) paste(colnames(tmp)[k],'[',tmp[,k],']',sep=''))
+  if (add.var.names) tmp <- sapply(seq_len(NCOL(tmp)), function (k)
+    paste(colnames(tmp)[k],'[',tmp[,k],']',sep=''))
   tmp <- interaction(as.data.frame(tmp),sep=sep)
   tmp <- factor(tmp, levels=nlv)
   if (return.matrix) list(x = tmp, mat = mod.mat, class.mat = tmp2) else tmp
@@ -140,12 +145,14 @@ cumsum_row<-function(mat) t(apply(as.matrix(mat), 1L, cumsum))
 #' @author Maciej J. Danko
 classify.ind<-function(model){
   p <- hopit_ExtractParameters(model, model$coef)
-  a <- hopit_Threshold(thresh.lambda = p$thresh.lambda, thresh.gamma = p$thresh.gamma,
+  a <- hopit_Threshold(thresh.lambda = p$thresh.lambda,
+                       thresh.gamma = p$thresh.gamma,
                        model = model)
   b <- hopit_Latent(p$latent.params, model)
   a_0=a[,-1]
   a_J=a[,-ncol(a)]
-  Ey_i <- sapply(1L : model$N, function(k) which((b[k]<a_0[k,]) & (b[k]>=a_J[k,])) )
+  Ey_i <- sapply(1L : model$N, function(k)
+    which((b[k]<a_0[k,]) & (b[k]>=a_J[k,])) )
   Ey_i <- factor(levels(model$y_i)[Ey_i],levels(model$y_i))
   Ey_i
 }
@@ -190,12 +197,12 @@ start.glm<-function(object, data){
     weights <- zdat$weights <- object$weights
     f1 <- object$latent.formula
     f1[[2]] <- as.name('yi')
-    #f1 <- stats::update(f1, paste('.~.+',deparse(object$thresh.formula[[-1]])))
-    f1 <- stats::update(f1, paste('.~.+',paste(unclass(object$thresh.formula))[-1]))
-    gl <- stats::glm(f1, data=zdat, family=stats::binomial(link=object$link), weights = weights)
-    #if (!gl$converged) warning(hopit_msg(19), call.=NA) #ignored anyway
+    f1 <- stats::update(f1, paste('.~.+',
+                                  paste(unclass(object$thresh.formula))[-1]))
+    gl <- stats::glm(f1, data=zdat,
+                     family=stats::binomial(link=object$link),
+                     weights = weights)
     gl$coef
-    #check convergence
   })
 
   st.cn.l.mm <- sort.terms(colnames(object$latent.mm))
@@ -204,13 +211,16 @@ start.glm<-function(object, data){
   glm.lambda <- res[which(grepl('Intercept',rownames(res))),]
   lind <- which(st.cn.res %in% st.cn.l.mm)
   glm.latent <- res[lind, ]
-  if (object$parcount[1]>1) glm.latent <- - rowMeans(glm.latent) else glm.latent <- - mean(glm.latent)
-  glm.latent <- glm.latent[order.as.in(st.cn.res[lind], st.cn.l.mm)] # order of terms should be the same, but...
+  if (object$parcount[1]>1) glm.latent <- - rowMeans(glm.latent) else
+    glm.latent <- - mean(glm.latent)
+  glm.latent <- glm.latent[order.as.in(st.cn.res[lind], st.cn.l.mm)]
   if (!object$thresh.no.cov) {
-    thr.ext.nam <-as.character(interaction(expand.grid(seq_len(object$J-1),colnames(object$thresh.mm))[,2:1],sep=':'))
+    thr.ext.nam <-as.character(interaction(expand.grid(seq_len(object$J-1),
+                               colnames(object$thresh.mm))[,2:1],sep=':'))
     indx <- which(st.cn.res %in% st.cn.t.mm)
     glm.gamma <- res[indx,]
-    if (object$parcount[3]>object$parcount[2]) glm.gamma <- glm.gamma[order.as.in(st.cn.res[indx], st.cn.t.mm),]  #order of terms should be the same, but...
+    if (object$parcount[3]>object$parcount[2]) glm.gamma <-
+      glm.gamma[order.as.in(st.cn.res[indx], st.cn.t.mm),]
     glm.gamma <- as.vector(t(glm.gamma))
     names(glm.gamma) <- thr.ext.nam
   } else {
@@ -240,9 +250,14 @@ get.hopit.start<-function(object, data){
   par.ls <- object$glm.start.ls
 
   if (object$thresh.no.cov){
-    z <- glm2hopit_nogamma(par.ls$latent.params, par.ls$thresh.lambda, thresh_1_exp = object$control$thresh.1.exp)
+    z <- glm2hopit_nogamma(par.ls$latent.params,
+                           par.ls$thresh.lambda,
+                           thresh_1_exp = object$control$thresh.1.exp)
   } else {
-    z <- glm2hopit(par.ls$latent.params, par.ls$thresh.lambda, par.ls$thresh.gamma, thresh_1_exp = object$control$thresh.1.exp)
+    z <- glm2hopit(par.ls$latent.params,
+                   par.ls$thresh.lambda,
+                   par.ls$thresh.gamma,
+                   thresh_1_exp = object$control$thresh.1.exp)
   }
 
   if (object$hasdisp) {
@@ -263,7 +278,8 @@ analyse.formulas<-function(object, latent.formula, thresh.formula, data){
   latent.terms <- attr(stats::terms(latent.formula),'term.labels')
   if(any(thresh.terms %in% latent.terms)){
     tmp <- thresh.terms[thresh.terms %in% latent.terms]
-    stop(paste(hopit_msg(91),' ',paste(tmp,collapse=', '),'. ',hopit_msg(92),sep=''),call.=NULL)
+    stop(paste(hopit_msg(91), ' ', paste(tmp,collapse=', '),'. ',
+               hopit_msg(92), sep = ''), call. = NULL)
   }
 
   thresh.list <- decomposeinteractions(thresh.terms)
@@ -274,24 +290,37 @@ analyse.formulas<-function(object, latent.formula, thresh.formula, data){
   latent.main <- unlist(latent.list[which(latent.list.L<2)])
 
   if (length(thresh.list))
-    sapply(thresh.list[which(thresh.list.L>1)], function(k) if (!all((k%in%thresh.main) | (k%in%latent.main)))
-      stop(paste(hopit_msg(93),paste(k,collapse=':'),hopit_msg(94)),call.=NULL) else paste(paste(k,collapse=':'),': OK',sep=''))
+    sapply(thresh.list[which(thresh.list.L>1)], function(k)
+      if (!all((k%in%thresh.main) | (k%in%latent.main)))
+        stop(paste(hopit_msg(93), paste(k,collapse = ':'),
+                   hopit_msg(94)), call. = NULL) else
+                     paste(paste(k, collapse = ':'), ': OK', sep = ''))
 
   if (length(thresh.list)) {
-    sapply(latent.list[which(latent.list.L>1)], function(k) if (!all((k%in%latent.main) | (k%in%thresh.main)))
-      stop(paste(hopit_msg(93),paste(k,collapse=':'),hopit_msg(94)),call.=NULL) else paste(paste(k,collapse=':'),': OK',sep=''))
+    sapply(latent.list[which(latent.list.L>1)], function(k)
+      if (!all((k%in%latent.main) | (k%in%thresh.main)))
+        stop(paste(hopit_msg(93), paste(k, collapse = ':'),
+                   hopit_msg(94)), call. = NULL) else
+                     paste(paste(k,collapse = ':'), ': OK', sep = ''))
   } else {
-    sapply(latent.list[which(latent.list.L>1)], function(k) if (!all((k%in%latent.main)))
-      stop(paste(hopit_msg(93),paste(k,collapse=':'),hopit_msg(94)),call.=NULL) else paste(paste(k,collapse=':'),': OK',sep=''))
+    sapply(latent.list[which(latent.list.L>1)], function(k)
+      if (!all((k%in%latent.main)))
+        stop(paste(hopit_msg(93), paste(k,collapse = ':'),
+                   hopit_msg(94)), call. = NULL) else
+                     paste(paste(k, collapse = ':'), ': OK', sep = ''))
   }
 
-  cross.inter.latent.list <- latent.list[which(sapply(latent.list, function(k) !all(k%in%latent.main)))]
+  cross.inter.latent.list <- latent.list[which(sapply(latent.list, function(k)
+    !all(k%in%latent.main)))]
   if (length(cross.inter.latent.list)) {
-    cross.inter.latent <- paste(sapply(cross.inter.latent.list, paste, collapse=':'),collapse=' + ')
+    cross.inter.latent <- paste(sapply(cross.inter.latent.list, paste,
+                                       collapse=':'),collapse=' + ')
     cross.main.latent.list <- unlist(cross.inter.latent.list)
-    cross.main.latent.list <- cross.main.latent.list[which(cross.main.latent.list%notin%latent.main)]
+    cross.main.latent.list <- cross.main.latent.list[
+      which(cross.main.latent.list%notin%latent.main)]
     cross.main.latent <- paste(cross.main.latent.list, collapse=' + ')
-    latent.formulaA <-stats::update(latent.formula, paste('.~. + ',cross.main.latent))
+    latent.formulaA <-stats::update(latent.formula,
+                                    paste('.~. + ', cross.main.latent))
     m1<-stats::model.matrix(latent.formulaA, data)
     m2<-stats::model.matrix(latent.formula, data)
     cm1<-colnames(m1)
@@ -303,14 +332,18 @@ analyse.formulas<-function(object, latent.formula, thresh.formula, data){
   }
 
   if (length(thresh.list)) {
-    cross.inter.thresh.list <- thresh.list[which(sapply(thresh.list, function(k) !all(k%in%thresh.main)))]
+    cross.inter.thresh.list <- thresh.list[which(sapply(thresh.list,
+                               function(k) !all(k%in%thresh.main)))]
   } else cross.inter.thresh.list <- NULL
   if (length(cross.inter.thresh.list)) {
-    cross.inter.thresh <- paste(sapply(cross.inter.thresh.list, paste, collapse=':'),collapse=' + ')
+    cross.inter.thresh <- paste(sapply(cross.inter.thresh.list,
+                                       paste, collapse=':'),collapse=' + ')
     cross.main.thresh.list <- unlist(cross.inter.thresh.list)
-    cross.main.thresh.list <- cross.main.thresh.list[which(cross.main.thresh.list%notin%thresh.main)]
+    cross.main.thresh.list <- cross.main.thresh.list[
+      which(cross.main.thresh.list%notin%thresh.main)]
     cross.main.thresh <- paste(cross.main.thresh.list, collapse=' + ')
-    thresh.formulaA <-stats::update(thresh.formula, paste('~. + ',cross.main.thresh))
+    thresh.formulaA <-stats::update(thresh.formula,
+                                    paste('~. + ',cross.main.thresh))
     m1<-stats::model.matrix(thresh.formulaA, data)
     m2<-stats::model.matrix(thresh.formula, data)
     cm1<-colnames(m1)

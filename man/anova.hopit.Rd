@@ -4,7 +4,8 @@
 \alias{anova.hopit}
 \title{Likelihood Ratio Test Tables}
 \usage{
-\method{anova}{hopit}(object, ..., method = c("sequential", "with.most.complex", 'with.least.complex'),
+\method{anova}{hopit}(object, ..., method = c("sequential",
+"with.most.complex", 'with.least.complex'),
 direction = c("decreasing", "increasing"))
 }
 \arguments{
@@ -12,10 +13,13 @@ direction = c("decreasing", "increasing"))
 
 \item{...}{additional objects of the same type.}
 
-\item{method}{the method of model comparison. Choose \code{"sequential"} for 1-2, 2-3, 3-4, ... comparisons or
-\code{"with.most.complex"} for 1-2, 1-3, 1-4, ... comparisons, where 1 is the most complex model.}
+\item{method}{the method of model comparison. Choose \code{"sequential"}
+for 1-2, 2-3, 3-4, ... comparisons or
+\code{"with.most.complex"} for 1-2, 1-3, 1-4, ... comparisons,
+where 1 is the most complex model.}
 
-\item{direction}{determine if complexity of listed models is \code{"increasing"} or \code{"decreasing"} (default).}
+\item{direction}{determine if complexity of listed models is
+\code{"increasing"} or \code{"decreasing"} (default).}
 }
 \value{
 a vector or a matrix with results of the test(s).
@@ -27,7 +31,8 @@ Compute likelihood ratio test for two or more \code{hopit} objecs.
 # DATA
 data(healthsurvey)
 
-# the order of response levels is decreasing (from the best health to the worst health)
+# the order of response levels is decreasing (from the best health to
+the worst health)
 levels(healthsurvey$health)
 
 # Example 1 ---------------------
@@ -97,7 +102,8 @@ anova(model1, model2, model3, model4,
       direction = "increasing", method = "with.least.complex")
 }
 \seealso{
-\code{\link{print.anova.hopit}}, \code{\link{print.lrt.hopit}}, \code{\link{lrt.hopit}}, \code{\link{hopit}}.
+\code{\link{print.anova.hopit}}, \code{\link{print.lrt.hopit}},
+\code{\link{lrt.hopit}}, \code{\link{hopit}}.
 }
 \author{
 Maciej J. Danko

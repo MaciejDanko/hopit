@@ -119,7 +119,8 @@ In the latter models, the thresholds are constant, whereas generalized models al
 thresholds to be dependent on covariates.
 \insertCite{GreeneHensher2010,Green2014;textual}{hopit} pointed out that also
 thresholds must be ordered so that a model has a sense.
-This motivated Greene and coauthors to call this models \emph{HOPIT}, which stands for hierarchical ordered probit models.
+This motivated Greene and coauthors to call this models \emph{HOPIT}, which stands
+for hierarchical ordered probit models.
 
 The fitted \emph{hopit} model is used to analyse heterogeneity in reporting behavior.
 See \code{\link{standardizeCoef}}, \code{\link{latentIndex}},
