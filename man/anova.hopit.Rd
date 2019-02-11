@@ -32,7 +32,7 @@ Compute likelihood ratio test for two or more \code{hopit} objecs.
 data(healthsurvey)
 
 # the order of response levels is decreasing (from the best health to
-the worst health)
+# the worst health)
 levels(healthsurvey$health)
 
 # Example 1 ---------------------

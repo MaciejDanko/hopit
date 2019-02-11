@@ -237,7 +237,7 @@ AIC.hopit<-function(object, ..., k = 2L) {
 #' data(healthsurvey)
 #'
 #' # the order of response levels is decreasing (from the best health to
-#' the worst health)
+#' # the worst health)
 #' levels(healthsurvey$health)
 #'
 #' # Example 1 ---------------------
