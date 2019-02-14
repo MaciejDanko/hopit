@@ -208,8 +208,9 @@ start.glm<-function(object, data){
   st.cn.l.mm <- sort.terms(colnames(object$latent.mm))
   st.cn.t.mm <- sort.terms(colnames(object$thresh.mm))
   st.cn.res  <- sort.terms(rownames(res))
-  glm.lambda <- res[which(grepl('Intercept',rownames(res))),]
   lind <- which(st.cn.res %in% st.cn.l.mm)
+  glm.lambda <- res[which(grepl('Intercept',rownames(res))),]
+
   glm.latent <- res[lind, ]
   if (object$parcount[1]>1) glm.latent <- - rowMeans(glm.latent) else
     glm.latent <- - mean(glm.latent)
@@ -227,6 +228,7 @@ start.glm<-function(object, data){
     glm.gamma <- NULL
   }
 
+  if (any(glm.lambda!=sort(glm.lambda))) stop(call.=NULL, hopit_msg(98))
   object$glm.start <- c(glm.latent,glm.lambda,glm.gamma)
   object$glm.start.ls <-list(latent.params = glm.latent,
                             thresh.lambda = glm.lambda,

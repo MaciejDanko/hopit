@@ -98,6 +98,7 @@ hopit_msg <- function(x)
          '94' = 'interaction.',
          '95' = '"use_weights" must be given.',
          '96' = 'Wrong number of starting parameters. Should not happen.',
-         '97' = 'I(...) not implemented yet.'
+         '97' = 'I(...) not implemented yet.',
+         '98' = 'Cannot find starting parameters. Please consider scaling, centering, transforming, or re-coding as factor one or more continuous variables used in the model.',
   )
 

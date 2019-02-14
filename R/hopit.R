@@ -642,6 +642,35 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' # compare fit of model1 and model4
 #' # Likelihood Ratio Test
 #' print(anova(model1, model4), short = TRUE)
+#'
+#' # Example 5 ---------------------
+#'
+#' # construct a naive continuous variable:
+#' \dontrun{
+#' hs <- healthsurvey
+#' hs$cont_var <- sample(5000:5020,nrow(hs),replace=TRUE)
+#'
+#' # in some cases, when continouse variables are used, the start.glm() function
+#' # may not find starting parameters:
+#' model5 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+#'                   heart_attack_or_stroke + poor_mobility + very_poor_grip +
+#'                   depression + respiratory_problems +
+#'                   IADL_problems + obese + diabetes + other_diseases,
+#'                 thresh.formula = ~ sex + cont_var,
+#'                 decreasing.levels = TRUE,
+#'                 data = hs)
+#'
+#' # one of the solutions is to transform the continuous variable:
+#' hs$cont_var_t <- hs$cont_var-min(hs$cont_var)
+#'
+#' model5b <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+#'                    heart_attack_or_stroke + poor_mobility + very_poor_grip +
+#'                    depression + respiratory_problems +
+#'                    IADL_problems + obese + diabetes + other_diseases,
+#'                  thresh.formula = ~ sex + cont_var_t,
+#'                  decreasing.levels = TRUE,
+#'                  data = hs)
+#' }
 hopit<- function(latent.formula,
                  thresh.formula = ~ 1,
                  data,
@@ -721,7 +750,7 @@ hopit<- function(latent.formula,
   } else {
     model$start <- start
   }
-  if (any(model$parcount!=sapply(model$glm.start.ls,length))) {
+  if (any(model$parcount!=sapply(model$glm.start.ls,length)) || !length(model$glm.start.ls)) {
     stop(hopit_msg(96))
   }
 
