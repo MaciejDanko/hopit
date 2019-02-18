@@ -298,6 +298,18 @@ model5b <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
                  thresh.formula = ~ sex + cont_var_t,
                  decreasing.levels = TRUE,
                  data = hs)
+
+# this can also be done automatically using control
+
+model5c <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+                  heart_attack_or_stroke + poor_mobility + very_poor_grip +
+                  depression + respiratory_problems +
+                  IADL_problems + obese + diabetes + other_diseases,
+                thresh.formula = ~ sex + cont_var,
+                decreasing.levels = TRUE,
+                control = list(trandform.thresh = 'min'),
+                data = hs)
+
 }
 }
 \references{

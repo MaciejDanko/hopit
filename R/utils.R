@@ -272,9 +272,30 @@ get.hopit.start<-function(object, data){
 
 #' @keywords internal
 #' @noRd
+transform.data<-function(formula, data, type = 'min'){
+  # varlist <- attr(terms(latent.formula),"term.labels")
+  # varlist <- c(varlist, attr(terms(thresh.formula),"term.labels"))
+  varlist <- attr(stats::terms(formula),"term.labels")
+  ind <- which(!grepl(':',varlist))
+  varlist <- varlist[ind]
+  ind <- which(sapply(varlist, function(k) is.numeric(data[[k]])))
+  varnumlist <- varlist[ind]
+  for (k in seq_along(varnumlist)) {
+    tmp <- data[[varnumlist[k]]]
+    if (tolower(type) == 'min') {
+      tmp <- (tmp - min(tmp))
+    } else if (tolower(type) == 'scale') {
+      tmp <- (tmp - min(tmp))/(max(tmp)-min(tmp))
+    } else if (tolower(type) != 'none') stop(call.=NULL, hopit_msg(99))
+    data[[varnumlist[k]]] <- tmp
+  }
+  data
+}
+
+
+#' @keywords internal
+#' @noRd
 analyse.formulas<-function(object, latent.formula, thresh.formula, data){
-  thresh.formula <- check_thresh_formula(thresh.formula)
-  latent.formula <- check_latent_formula(latent.formula)
 
   thresh.terms <- attr(stats::terms(thresh.formula),'term.labels')
   latent.terms <- attr(stats::terms(latent.formula),'term.labels')

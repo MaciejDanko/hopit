@@ -7,8 +7,8 @@
 hopit.control(grad.eps = 3e-05, bgfs.maxit = 10000, cg.maxit = 10000,
   nlm.maxit = 150, bgfs.reltol = 5e-10, cg.reltol = 5e-10,
   nlm.gradtol = 1e-07, nlm.steptol = 1e-07, fit.methods = c("CG",
-  "BFGS"), quick.fit = TRUE, trace = TRUE, thresh.start = -Inf,
-  thresh.1.exp = FALSE, LL_out_val = -Inf)
+  "BFGS"), quick.fit = TRUE, trace = TRUE, transform.latent = "none",
+  transform.thresh = "none")
 }
 \arguments{
 \item{grad.eps}{epsilon for numerical Hessian function.}
@@ -30,8 +30,11 @@ is ignored and only BFGS and CG methods are run.}
 
 \item{trace}{logical, if to trace model fitting.}
 
-\item{LL_out_val, thresh.1.exp, thresh.start}{internal parameters under
-development, do not change.}
+\item{transform.latent, transform.thresh}{typeof the transformation apllied to
+the all latent or all threshold numerical variables. Possible values:
+"\code{none}" - no transformation,
+"\code{min} - subtract minimum from a variable,
+"\code{scale}" - transform variable to fit the range from 0 to  1.}
 }
 \description{
 Auxiliary function for controlling the fitting of \code{hopit} model.

@@ -325,8 +325,11 @@ hopit_fitter <- function(model, start = model$start, use_weights){
 #' minimum allowable relative step length. See \code{\link{nlm}}.
 #' @param fit.methods either 'CG' or 'BFGS'. See \code{\link{optim}}.
 #' @param trace logical, if to trace model fitting.
-#' @param LL_out_val,thresh.1.exp,thresh.start internal parameters under
-#' development, do not change.
+#' @param transform.latent,transform.thresh typeof the transformation apllied to
+#' the all latent or all threshold numerical variables. Possible values:
+#' "\code{none}" - no transformation,
+#' "\code{min} - subtract minimum from a variable,
+#' "\code{scale}" - transform variable to fit the range from 0 to  1.
 #' @seealso \code{\link{hopit}}
 #' @author Maciej J. Danko
 #' @export
@@ -341,9 +344,8 @@ hopit.control<-function(grad.eps = 3e-5,
                         fit.methods = c('CG','BFGS'),
                         quick.fit = TRUE,
                         trace = TRUE,
-                        thresh.start = -Inf,
-                        thresh.1.exp = FALSE,
-                        LL_out_val = -Inf){
+                        transform.latent = 'none',
+                        transform.thresh = 'none'){
 
   if (!length(fit.methods)) stop(hopit_msg(8),call. = NULL) else
     fit.methods <- toupper(fit.methods)
@@ -360,9 +362,8 @@ hopit.control<-function(grad.eps = 3e-5,
        fit.methods = fit.methods,
        quick.fit = quick.fit,
        trace = trace,
-       thresh.start = thresh.start,
-       thresh.1.exp = thresh.1.exp,
-       LL_out_val = LL_out_val)
+       transform.latent = transform.latent,
+       transform.thresh = transform.thresh)
 }
 
 
@@ -670,6 +671,18 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #'                  thresh.formula = ~ sex + cont_var_t,
 #'                  decreasing.levels = TRUE,
 #'                  data = hs)
+#'
+#' # this can also be done automatically using control
+#'
+#' model5c <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
+#'                   heart_attack_or_stroke + poor_mobility + very_poor_grip +
+#'                   depression + respiratory_problems +
+#'                   IADL_problems + obese + diabetes + other_diseases,
+#'                 thresh.formula = ~ sex + cont_var,
+#'                 decreasing.levels = TRUE,
+#'                 control = list(trandform.thresh = 'min'),
+#'                 data = hs)
+#'
 #' }
 hopit<- function(latent.formula,
                  thresh.formula = ~ 1,
@@ -686,11 +699,19 @@ hopit<- function(latent.formula,
   if (missing(data)) data <- environment(latent.formula)
   link <- match.arg(link)
   control <- do.call("hopit.control", control)
+  control$thresh.start <- control$LL_out_val <- -Inf;
+  control$thresh.1.exp <- FALSE;
 
   model <- NULL
   model$control <- control
   model$link <- link[1]
   model$hasdisp <- overdispersion
+
+  thresh.formula <- check_thresh_formula(thresh.formula)
+  latent.formula <- check_latent_formula(latent.formula)
+
+  if (control$transform.latent != 'none') data <- transform.data(latent.formula, data, control$transform.latent)
+  if (control$transform.thresh != 'none') data <- transform.data(thresh.formula, data, control$transform.thresh)
 
   model <- analyse.formulas(model, latent.formula, thresh.formula, data)
 
