@@ -99,7 +99,7 @@ hopit_msg <- function(x)
          '95' = '"use_weights" must be given.',
          '96' = 'Wrong number of starting parameters. Should not happen.',
          '97' = 'I(...) not implemented yet.',
-         '98' = 'Cannot find starting parameters. Please consider scaling, transforming, or re-coding as factor one or more numerical (continuous) variables used in the model. The very basic transformations can be done using control parameter (see examples in hopit() function).',
+         '98' = 'Cannot find starting parameters. Please consider scaling, transforming, or re-coding as factor one or more numerical (continuous) variables used in the model. The very basic transformations can be done using control parameter (see example 5 in the hopit() function).',
          '99' = 'Unknown transformation type.'
   )
 

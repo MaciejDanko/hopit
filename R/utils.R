@@ -273,8 +273,6 @@ get.hopit.start<-function(object, data){
 #' @keywords internal
 #' @noRd
 transform.data<-function(formula, data, type = 'min'){
-  # varlist <- attr(terms(latent.formula),"term.labels")
-  # varlist <- c(varlist, attr(terms(thresh.formula),"term.labels"))
   varlist <- attr(stats::terms(formula),"term.labels")
   ind <- which(!grepl(':',varlist))
   varlist <- varlist[ind]
@@ -284,8 +282,12 @@ transform.data<-function(formula, data, type = 'min'){
     tmp <- data[[varnumlist[k]]]
     if (tolower(type) == 'min') {
       tmp <- (tmp - min(tmp))
-    } else if (tolower(type) == 'scale') {
+    } else if (tolower(type) == 'scale_01') {
       tmp <- (tmp - min(tmp))/(max(tmp)-min(tmp))
+    } else if (tolower(type) == 'standardize' || tolower(type) == 'standardise') {
+      tmp <- (tmp - mean(tmp))/stats::sd(tmp)
+    } else if (tolower(type) == 'standardize_trunc' || tolower(type) == 'standardise_trunc') {
+      tmp <- (tmp - min(tmp))/stats::sd(tmp)
     } else if (tolower(type) != 'none') stop(call.=NULL, hopit_msg(99))
     data[[varnumlist[k]]] <- tmp
   }

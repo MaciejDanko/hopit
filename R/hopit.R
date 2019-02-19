@@ -323,13 +323,17 @@ hopit_fitter <- function(model, start = model$start, use_weights){
 #' @param nlm.gradtol,nlm.steptol tolerance at which the scaled gradient is
 #' considered close enough to zero and
 #' minimum allowable relative step length. See \code{\link{nlm}}.
-#' @param fit.methods either 'CG' or 'BFGS'. See \code{\link{optim}}.
+#' @param fit.methods 'CG', 'BFGS' or both. If both then CG is run first and then BFGS. See \code{\link{optim}}.
 #' @param trace logical, if to trace model fitting.
-#' @param transform.latent,transform.thresh typeof the transformation apllied to
+#' @param transform.latent,transform.thresh type of the transformation apllied to
 #' the all latent or all threshold numerical variables. Possible values:
-#' "\code{none}" - no transformation,
-#' "\code{min} - subtract minimum from a variable,
-#' "\code{scale}" - transform variable to fit the range from 0 to  1.
+#' \itemize{
+#'   \item{"none"} {- no transformation}
+#'   \item{"min"} {- subtract minimum from a variable}
+#'   \item{"scale_01"} {- ransform variable to fit the range from 0 to 1}
+#'   \item{"standardize" or "standardise"} {- subtract mean from a variable then divide it by it's standard deviation}
+#'   \item{"standardize_trunc" or "standardise_trunc"} {- subtract minimum from a variable then divide it by it's standard deviation}
+#' }
 #' @seealso \code{\link{hopit}}
 #' @author Maciej J. Danko
 #' @export
@@ -341,7 +345,7 @@ hopit.control<-function(grad.eps = 3e-5,
                         cg.reltol = 5e-10,
                         nlm.gradtol = 1e-7,
                         nlm.steptol = 1e-7,
-                        fit.methods = c('CG','BFGS'),
+                        fit.methods = 'BFGS',
                         quick.fit = TRUE,
                         trace = TRUE,
                         transform.latent = 'none',
@@ -646,42 +650,65 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #'
 #' # Example 5 ---------------------
 #'
-#' # construct a naive continuous variable:
 #' \dontrun{
+#' # construct a naive continuous variable:
 #' hs <- healthsurvey
 #' hs$cont_var <- sample(5000:5020,nrow(hs),replace=TRUE)
 #'
+#' latent.formula = health ~ hypertension + high_cholesterol +
+#'   heart_attack_or_stroke + poor_mobility + very_poor_grip +
+#'   depression + respiratory_problems +
+#'   IADL_problems + obese + diabetes + other_diseases
+#'
 #' # in some cases, when continouse variables are used, the start.glm() function
 #' # may not find starting parameters:
-#' model5 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
-#'                   heart_attack_or_stroke + poor_mobility + very_poor_grip +
-#'                   depression + respiratory_problems +
-#'                   IADL_problems + obese + diabetes + other_diseases,
+#' model5 <- hopit(latent.formula = latent.formula,
 #'                 thresh.formula = ~ sex + cont_var,
 #'                 decreasing.levels = TRUE,
 #'                 data = hs)
 #'
-#' # one of the solutions is to transform the continuous variable:
+#' # one of the solutions is to transform one or more continuous variables:
 #' hs$cont_var_t <- hs$cont_var-min(hs$cont_var)
 #'
-#' model5b <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
-#'                    heart_attack_or_stroke + poor_mobility + very_poor_grip +
-#'                    depression + respiratory_problems +
-#'                    IADL_problems + obese + diabetes + other_diseases,
+#' model5b <- hopit(latent.formula = latent.formula,
 #'                  thresh.formula = ~ sex + cont_var_t,
 #'                  decreasing.levels = TRUE,
 #'                  data = hs)
 #'
-#' # this can also be done automatically using control
+#' # this can also be done automatically using control parameter
+#' model5c <- hopit(latent.formula = latent.formula,
+#'                  thresh.formula = ~ sex + cont_var,
+#'                  decreasing.levels = TRUE,
+#'                  control = list(transform.thresh = 'min',
+#'                                 transform.latent = 'none'),
+#'                  data = hs)
 #'
-#' model5c <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
-#'                   heart_attack_or_stroke + poor_mobility + very_poor_grip +
-#'                   depression + respiratory_problems +
-#'                   IADL_problems + obese + diabetes + other_diseases,
-#'                 thresh.formula = ~ sex + cont_var,
-#'                 decreasing.levels = TRUE,
-#'                 control = list(trandform.thresh = 'min'),
-#'                 data = hs)
+#' model5d <- hopit(latent.formula = latent.formula,
+#'                  thresh.formula = ~ sex + cont_var,
+#'                  decreasing.levels = TRUE,
+#'                  control = list(transform.thresh = 'scale_01',
+#'                                 transform.latent = 'none'),
+#'                  data = hs)
+#'
+#' model5e <- hopit(latent.formula = latent.formula,
+#'                  thresh.formula = ~ sex + cont_var,
+#'                  decreasing.levels = TRUE,
+#'                  control = list(transform.thresh = 'standardize',
+#'                                 transform.latent = 'none'),
+#'                  data = hs)
+#'
+#' model5f <- hopit(latent.formula = latent.formula,
+#'                  thresh.formula = ~ sex + cont_var,
+#'                  decreasing.levels = TRUE,
+#'                  control = list(transform.thresh = 'standardize_trunc',
+#'                                 transform.latent = 'none'),
+#'                  data = hs)
+#'
+#' round(t(rbind(coef(model5b),
+#'               coef(model5c),
+#'               coef(model5d),
+#'               coef(model5e),
+#'               coef(model5f))),4)
 #'
 #' }
 hopit<- function(latent.formula,

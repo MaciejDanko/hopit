@@ -273,42 +273,65 @@ print(anova(model1, model4), short = TRUE)
 
 # Example 5 ---------------------
 
-# construct a naive continuous variable:
 \dontrun{
+# construct a naive continuous variable:
 hs <- healthsurvey
 hs$cont_var <- sample(5000:5020,nrow(hs),replace=TRUE)
 
+latent.formula = health ~ hypertension + high_cholesterol +
+  heart_attack_or_stroke + poor_mobility + very_poor_grip +
+  depression + respiratory_problems +
+  IADL_problems + obese + diabetes + other_diseases
+
 # in some cases, when continouse variables are used, the start.glm() function
 # may not find starting parameters:
-model5 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
-                  heart_attack_or_stroke + poor_mobility + very_poor_grip +
-                  depression + respiratory_problems +
-                  IADL_problems + obese + diabetes + other_diseases,
+model5 <- hopit(latent.formula = latent.formula,
                 thresh.formula = ~ sex + cont_var,
                 decreasing.levels = TRUE,
                 data = hs)
 
-# one of the solutions is to transform the continuous variable:
+# one of the solutions is to transform one or more continuous variables:
 hs$cont_var_t <- hs$cont_var-min(hs$cont_var)
 
-model5b <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
-                   heart_attack_or_stroke + poor_mobility + very_poor_grip +
-                   depression + respiratory_problems +
-                   IADL_problems + obese + diabetes + other_diseases,
+model5b <- hopit(latent.formula = latent.formula,
                  thresh.formula = ~ sex + cont_var_t,
                  decreasing.levels = TRUE,
                  data = hs)
 
-# this can also be done automatically using control
+# this can also be done automatically using control parameter
+model5c <- hopit(latent.formula = latent.formula,
+                 thresh.formula = ~ sex + cont_var,
+                 decreasing.levels = TRUE,
+                 control = list(transform.thresh = 'min',
+                                transform.latent = 'none'),
+                 data = hs)
 
-model5c <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
-                  heart_attack_or_stroke + poor_mobility + very_poor_grip +
-                  depression + respiratory_problems +
-                  IADL_problems + obese + diabetes + other_diseases,
-                thresh.formula = ~ sex + cont_var,
-                decreasing.levels = TRUE,
-                control = list(trandform.thresh = 'min'),
-                data = hs)
+model5d <- hopit(latent.formula = latent.formula,
+                 thresh.formula = ~ sex + cont_var,
+                 decreasing.levels = TRUE,
+                 control = list(transform.thresh = 'scale_01',
+                                transform.latent = 'none'),
+                 data = hs)
+
+model5e <- hopit(latent.formula = latent.formula,
+                 thresh.formula = ~ sex + cont_var,
+                 decreasing.levels = TRUE,
+                 control = list(transform.thresh = 'standardize',
+                                transform.latent = 'none'),
+                 data = hs)
+
+model5f <- hopit(latent.formula = latent.formula,
+                 thresh.formula = ~ sex + cont_var,
+                 decreasing.levels = TRUE,
+                 control = list(transform.thresh = 'standardize_trunc',
+                                transform.latent = 'none'),
+                 data = hs)
+
+round(t(rbind(coef(model5b),
+              coef(model5c),
+              coef(model5d),
+              coef(model5e),
+              coef(model5f))),4)
 
 }
 }

@@ -6,8 +6,8 @@
 \usage{
 hopit.control(grad.eps = 3e-05, bgfs.maxit = 10000, cg.maxit = 10000,
   nlm.maxit = 150, bgfs.reltol = 5e-10, cg.reltol = 5e-10,
-  nlm.gradtol = 1e-07, nlm.steptol = 1e-07, fit.methods = c("CG",
-  "BFGS"), quick.fit = TRUE, trace = TRUE, transform.latent = "none",
+  nlm.gradtol = 1e-07, nlm.steptol = 1e-07, fit.methods = "BFGS",
+  quick.fit = TRUE, trace = TRUE, transform.latent = "none",
   transform.thresh = "none")
 }
 \arguments{
@@ -23,18 +23,22 @@ See \code{\link{optim}} for details.}
 considered close enough to zero and
 minimum allowable relative step length. See \code{\link{nlm}}.}
 
-\item{fit.methods}{either 'CG' or 'BFGS'. See \code{\link{optim}}.}
+\item{fit.methods}{'CG', 'BFGS' or both. If both then CG is run first and then BFGS. See \code{\link{optim}}.}
 
 \item{quick.fit}{logical, if TRUE extensive \code{nlm} optimization method
 is ignored and only BFGS and CG methods are run.}
 
 \item{trace}{logical, if to trace model fitting.}
 
-\item{transform.latent, transform.thresh}{typeof the transformation apllied to
+\item{transform.latent, transform.thresh}{type of the transformation apllied to
 the all latent or all threshold numerical variables. Possible values:
-"\code{none}" - no transformation,
-"\code{min} - subtract minimum from a variable,
-"\code{scale}" - transform variable to fit the range from 0 to  1.}
+\itemize{
+\item{"none"} {- no transformation}
+\item{"min"} {- subtract minimum from a variable}
+\item{"scale_01"} {- ransform variable to fit the range from 0 to 1}
+\item{"standardize" or "standardise"} {- subtract mean from a variable then divide it by it's standard deviation}
+\item{"standardize_trunc" or "standardise_trunc"} {- subtract minimum from a variable then divide it by it's standard deviation}
+}}
 }
 \description{
 Auxiliary function for controlling the fitting of \code{hopit} model.
