@@ -285,7 +285,7 @@ latent.formula = health ~ hypertension + high_cholesterol +
   IADL_problems + obese + diabetes + other_diseases
 
 # in some cases, when continouse variables are used, the start.glm() function
-# may not find starting parameters:
+# may not find starting parameters (R version 3.4.4 (2018-03-15)):
 model5 <- hopit(latent.formula = latent.formula,
                 thresh.formula = ~ sex + cont_var,
                 decreasing.levels = TRUE,
