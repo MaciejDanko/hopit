@@ -318,7 +318,7 @@ anova.hopit<-function(object, ..., method = c('sequential', 'with.most.complex',
                                      fixed = TRUE)[[1L]])
   } else  stop(hopit_msg(48))
   if (length(objects) == 2L){
-    if(length(objects[[1L]]$coef)+objects[[1L]]$hasdisp>
+    if(length(objects[[1L]]$coef)+objects[[1L]]$hasdisp >
        length(objects[[2L]]$coef)+objects[[2L]]$hasdisp) {
       return(lrt.hopit(objects[[1L]], objects[[2L]]))
     } else {
@@ -426,10 +426,11 @@ lrt.hopit <- function(full, nested){
   if (!identical(full$design, nested$design)) stop(hopit_msg(51),call. = NULL)
   if (length(full$coef) + full$hasdisp <= length(nested$coef)+ nested$hasdisp)
     stop(hopit_msg(52),call. = NULL)
-  if (abs(full$LL - nested$LL) < .Machine$double.eps^0.6)
-    message(hopit_msg(53)) else
-      if (full$LL - nested$LL < -.Machine$double.eps^0.6)
-        warning(call. = FALSE, hopit_msg(54))
+  if (abs(full$LL - nested$LL) < .Machine$double.eps^0.45) {
+    message(hopit_msg(53))
+  } else if (full$LL - nested$LL < -.Machine$double.eps^0.45){
+    warning(call. = FALSE, hopit_msg(54))
+  }
   if (ncol(full$latent.mm) < ncol(nested$latent.mm)) {
     cat(hopit_msg(64))
     cat("--",hopit_msg(65), deparse(full$latent.formula), fill = TRUE)

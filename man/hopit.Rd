@@ -20,7 +20,8 @@ Any dependent variable (left side of "~" in the formula) will be ignored.}
 
 \item{decreasing.levels}{logical indicating if self-reported health classes are ordered in decreasing order.}
 
-\item{start}{a vector with starting coefficient values in the form \code{c(latent_parameters, threshold_lambdas, threshold_gammas)}.}
+\item{start}{a vector with starting coefficient values in the form \code{c(latent_parameters, threshold_lambdas, threshold_gammas)} or
+\code{c(latent_parameters, threshold_lambdas, threshold_gammas, logTheta)} if the \code{overdispersion == TRUE}.}
 
 \item{overdispersion}{logical indicting if to fit additional parameter theta, which models a variance of the error term.}
 

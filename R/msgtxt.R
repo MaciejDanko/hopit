@@ -54,7 +54,7 @@ hopit_msg <- function(x)
          '50' = 'Unknown direction.', #generics
          '51' = 'Models have different survey designs.', #generics
          '52' = 'The "full" model must have more parameters than the "nested" one.', #generics
-         '53' = 'Negligible differences between log likelihoods.', #generics
+         '53' = 'Negligible difference between log likelihoods.', #generics
          '54' = 'The "nested" model has the higher likelihood than the "full" model. Try to improve the fit of the models.', #generics
          '55' = 'Theta parameter present in the nested model, but absent in full model.', #generics
          '56' = 'Probably non nested latent formulas (check reg.formula)).', #generics
@@ -93,13 +93,17 @@ hopit_msg <- function(x)
          '89' = 'Latent variables present in threshold formula (or vice versa).',
          '90' = 'Non-interaction terms removed from crossinter.formula.',
          '91' = 'The same terms found in latent and threshold model:',
-         '92' = 'Model cannot use the same variables (ortheir interactions) to model thresholds and latent measure. Also, avoid using "*" to model latent-threshold interactions.',
+         '92' = 'Model cannot use the same variables (or their interactions) to model thresholds and latent measure. Also, avoid using "*" to model latent-threshold interactions.',
          '93' = 'No main effects found for the',
          '94' = 'interaction.',
          '95' = '"use_weights" must be given.',
-         '96' = 'Wrong number of starting parameters. Should not happen.',
+         '96' = 'Wrong number of starting parameters.',
          '97' = 'I(...) not implemented yet.',
          '98' = 'Cannot find starting parameters. Please consider scaling, transforming, or re-coding as factor one or more numerical (continuous) variables used in the model. The very basic transformations can be done using control parameter (see example 5 in the hopit() function).',
-         '99' = 'Unknown transformation type.'
+         '99' = 'Unknown transformation type.',
+         '100' = 'No latent variales detected in the latent formula.',
+         '101' = 'No response detected in the latent formula.',
+         '102' = 'Response found in latent or threshold formulas.',
+         '103' = 'Should not happen.'
   )
 

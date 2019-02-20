@@ -67,7 +67,7 @@ latentIndex <- function(model, decreasing.levels = TRUE,
           z <- getCutPoints(model=model,
                             decreasing.levels = decreasing.levels,
                             plotf = FALSE)
-          YY <- factor(z$adjused.levels,levels(model$y_i))
+          YY <- factor(z$adjusted.levels,levels(model$y_i))
         } else stop(hopit_msg(83),call.=NULL)
     graphics::plot(YY[subset], hi,las=3, ylab=ylab, ...)
   }
@@ -195,7 +195,7 @@ disabilityWeights<-standardizeCoef
 #' @param group.labels.type position of the legend. One of \code{middel}, \code{border}, or \code{none}.
 #' @return a list with following components:
 #'  \item{cutpoints}{ cutpoints for adjusted categorical response levels with corresponding percentiles of latent index.}
-#'  \item{adjused.levels}{ adjusted categorical response levels for each individual.}
+#'  \item{adjusted.levels}{ adjusted categorical response levels for each individual.}
 #' @references \insertRef{Jurges2007}{hopit}
 #' @author Maciej J. Danko
 #' @export
@@ -225,7 +225,7 @@ disabilityWeights<-standardizeCoef
 #' z$cutpoints
 #'
 #' # adjusted health levels for individuals: Jurges method
-#' rev(table(z$adjused.levels))
+#' rev(table(z$adjusted.levels))
 #'
 #' # original health levels for individuals
 #' table(model1$y_i)
@@ -295,9 +295,10 @@ getCutPoints <- function(model,
       CIN <- CIN + cumsum(duplicated(CIN)*CIN/1e7)
       CIN <- CIN / max(CIN)
     }
-    adjused.levels<- cut(h.index, CIN,labels= dorev(levels(Y)))
-  } else adjused.levels <- NA
-  res <- list(cutpoints=R1, adjused.levels=(adjused.levels))
+    adjusted.levels<- cut(h.index, CIN,labels= dorev(levels(Y)),
+                         include.lowest = TRUE)
+  } else adjusted.levels <- NA
+  res <- list(cutpoints=R1, adjusted.levels=(adjusted.levels))
   if (plotf) invisible(res) else return(res)
 }
 
@@ -425,9 +426,9 @@ getLevels<-function(model,
   cpall <- getCutPoints(model, plotf = FALSE,
                         decreasing.levels = decreasing.levels)
   TAB1 <- round(table(original = model$y_i,
-                      adjusted = cpall$adjused.levels)*100/length(model$y_i),2)
+                      adjusted = cpall$adjusted.levels)*100/length(model$y_i),2)
   tmp <- untable(t(table(factor(model$y_i,
-                            levels=levels(cpall$adjused.levels)), inte)))
+                            levels=levels(cpall$adjusted.levels)), inte)))
   N1 <- tmp
   tmp <-tmp/rowSums(tmp)
   if (sort.flag) {
@@ -436,7 +437,7 @@ getLevels<-function(model,
     orignalind <- namind[oD1,]
   } else orignalind <- namind
 
-  tmp2 <- untable(t(table(cpall$adjused.levels, inte)))
+  tmp2 <- untable(t(table(cpall$adjusted.levels, inte)))
   N2 <- tmp2
   tmp2 <- tmp2/rowSums(tmp2)
   if (sort.flag) {
@@ -466,7 +467,7 @@ getLevels<-function(model,
               categories = orignalind, # = adjustedind
               mat=cbind(inte_$mat,
                         original= model$y_i,
-                        adjusted= cpall$adjused.levels))
+                        adjusted= cpall$adjusted.levels))
   class(res) <- 'healthlevels'
   if (plotf) invisible(res) else return(res)
 }

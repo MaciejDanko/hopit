@@ -29,7 +29,7 @@ getCutPoints(model, subset = NULL, plotf = TRUE, mar = c(4, 4, 1, 1),
 \value{
 a list with following components:
 \item{cutpoints}{ cutpoints for adjusted categorical response levels with corresponding percentiles of latent index.}
-\item{adjused.levels}{ adjusted categorical response levels for each individual.}
+\item{adjusted.levels}{ adjusted categorical response levels for each individual.}
 }
 \description{
 Calculate threshold cut-points and individual ajusted responses using Jurges' method
@@ -59,7 +59,7 @@ z <- getCutPoints(model = model1)
 z$cutpoints
 
 # adjusted health levels for individuals: Jurges method
-rev(table(z$adjused.levels))
+rev(table(z$adjusted.levels))
 
 # original health levels for individuals
 table(model1$y_i)

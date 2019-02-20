@@ -9,7 +9,6 @@ script/
 old/
 tmp/
 test/
-tests/
 # bib/
 
 README.Rmd

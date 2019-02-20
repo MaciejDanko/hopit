@@ -93,9 +93,8 @@ Vector2DummyMat<-function(V) sapply(levels(as.factor(V)), function(k)
 
 #' @keywords internal
 #' @noRd
-decomposeinteractions<-function(allterms) lapply(allterms, function(k)
-  regmatches(k, gregexpr(':',k,fixed=TRUE)[[1]], invert=TRUE)[[1]])
-
+decomposeinteractions<-function(allterms) lapply(allterms,
+                                function(k) strsplit(k,split=':', fixed=TRUE)[[1]])
 
 #' @keywords internal
 #' @noRd
@@ -307,36 +306,47 @@ analyse.formulas<-function(object, latent.formula, thresh.formula, data){
                hopit_msg(92), sep = ''), call. = NULL)
   }
 
+  response.name <- colnames(stats::model.frame(stats::update(latent.formula,
+                                                             '.~1'), data))
+
   thresh.list <- decomposeinteractions(thresh.terms)
   latent.list <- decomposeinteractions(latent.terms)
+
+  if (response.name %in% unlist(latent.list) ||
+      response.name %in% unlist(thresh.list)) stop(hopit_msg(102), call. = NULL)
+
   thresh.list.L <- sapply(thresh.list, length)
   latent.list.L <- sapply(latent.list, length)
   thresh.main <- unlist(thresh.list[which(thresh.list.L<2)])
   latent.main <- unlist(latent.list[which(latent.list.L<2)])
 
-  if (length(thresh.list))
+  if (length(thresh.list) && length(latent.list))
     sapply(thresh.list[which(thresh.list.L>1)], function(k)
       if (!all((k%in%thresh.main) | (k%in%latent.main)))
         stop(paste(hopit_msg(93), paste(k,collapse = ':'),
                    hopit_msg(94)), call. = NULL) else
                      paste(paste(k, collapse = ':'), ': OK', sep = ''))
 
-  if (length(thresh.list)) {
-    sapply(latent.list[which(latent.list.L>1)], function(k)
-      if (!all((k%in%latent.main) | (k%in%thresh.main)))
-        stop(paste(hopit_msg(93), paste(k, collapse = ':'),
-                   hopit_msg(94)), call. = NULL) else
-                     paste(paste(k,collapse = ':'), ': OK', sep = ''))
-  } else {
-    sapply(latent.list[which(latent.list.L>1)], function(k)
-      if (!all((k%in%latent.main)))
-        stop(paste(hopit_msg(93), paste(k,collapse = ':'),
-                   hopit_msg(94)), call. = NULL) else
-                     paste(paste(k, collapse = ':'), ': OK', sep = ''))
-  }
+  if (length(latent.list)) {
+    if (length(thresh.list)) {
+      sapply(latent.list[which(latent.list.L>1)], function(k)
+        if (!all((k%in%latent.main) | (k%in%thresh.main)))
+          stop(paste(hopit_msg(93), paste(k, collapse = ':'),
+                     hopit_msg(94)), call. = NULL) else
+                       paste(paste(k,collapse = ':'), ': OK', sep = ''))
+    } else {
+      sapply(latent.list[which(latent.list.L>1)], function(k)
+        if (!all((k%in%latent.main)))
+          stop(paste(hopit_msg(93), paste(k,collapse = ':'),
+                     hopit_msg(94)), call. = NULL) else
+                       paste(paste(k, collapse = ':'), ': OK', sep = ''))
+    }
 
   cross.inter.latent.list <- latent.list[which(sapply(latent.list, function(k)
     !all(k%in%latent.main)))]
+
+  } else cross.inter.latent.list <- list()
+
   if (length(cross.inter.latent.list)) {
     cross.inter.latent <- paste(sapply(cross.inter.latent.list, paste,
                                        collapse=':'),collapse=' + ')

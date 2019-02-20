@@ -363,7 +363,7 @@ z <- getCutPoints(model=model3)
 z$cutpoints
 
 # Adjusted health levels for individuals: Jürges method
-rev(table(z$adjused.levels))
+rev(table(z$adjusted.levels))
 
 # Original health levels for individuals
 table(model3$y_i)
@@ -423,7 +423,7 @@ The results show that men tend to over-report bad health at ages (50,60] and (50
 
 ## 8. Acknowledgements
 
-I thank Anna Oksuzyan, Marius Pascariu, Christian Dudel, Oskar Burger, and Laszlo Nemeth for comments on the package and the vignette.
+I thank Anna Oksuzyan, Christian Dudel, Marius Pascariu, Oskar Burger, and Laszlo Nemeth for comments on the package and the vignette.
 
 The artificially generated data used in the package examples is based on distributions of some major socjo-demographic and health related characteristics of WAVE 1 SHARE database. None of the records represent any part of the true data. The SHARE data collection has been primarily funded by the European Commission through FP5 (QLK6-CT-2001-00360), FP6 (SHARE-I3: RII-CT-2006-062193, COMPARE: CIT5-CT-2005-028857, SHARELIFE: CIT4-CT-2006-028812) and FP7 (SHARE-PREP: N°211909, SHARE-LEAP: N°227822, SHARE M4: N°261982). Additional funding from the German Ministry of Education and Research, the Max Planck Society for the Advancement of Science, the U.S. National Institute on Aging (U01_AG09740-13S2, P01_AG005842, P01_AG08291, P30_AG12815, R21_AG025169, Y1-AG-4553-01, IAG_BSR06-11, OGHA_04-064, HHSN271201300071C) and from various national funding sources is gratefully acknowledged (see www.share-project.org).
 
