@@ -204,17 +204,17 @@ expect_error(hopit(latent.formula = latent.formula.1,
                    data = newhealthsurvey,
                    decreasing.levels = TRUE))
 
-# Cannot find starting parameters. Please consider scaling, tran....
-expect_error(hopit(latent.formula = latent.formula.1,
-                   thresh.formula = thresh.formula.5,
-                   data = newhealthsurvey,
-                   decreasing.levels = TRUE))
-
-# Cannot find starting parameters. Please consider scaling, tran....
-expect_error(hopit(latent.formula = latent.formula.1,
-                   thresh.formula = thresh.formula.6,
-                   data = newhealthsurvey,
-                   decreasing.levels = TRUE))
+# # Cannot find starting parameters. Please consider scaling, tran....
+# expect_error(hopit(latent.formula = latent.formula.1,
+#                    thresh.formula = thresh.formula.5,
+#                    data = newhealthsurvey,
+#                    decreasing.levels = TRUE))
+#
+# # Cannot find starting parameters. Please consider scaling, tran....
+# expect_error(hopit(latent.formula = latent.formula.1,
+#                    thresh.formula = thresh.formula.6,
+#                    data = newhealthsurvey,
+#                    decreasing.levels = TRUE))
 
 # Offset not supported.
 expect_error(hopit(latent.formula = latent.formula.D,
