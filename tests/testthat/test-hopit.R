@@ -393,6 +393,7 @@ m5  <- hopit(latent.formula = latent.formula.1,
 m6  <- hopit(latent.formula = latent.formula.9,
              thresh.formula = thresh.formula.9,
              data = newhealthsurvey,
+             control = list(transform.latent = 'min'),
              decreasing.levels = TRUE)
 
 m7  <- hopit(latent.formula = latent.formula.1,
@@ -542,7 +543,7 @@ expect_error(hopit(latent.formula = latent.formula.1,
                    overdispersion = FALSE,
                    decreasing.levels = TRUE))
 
-if (FALSE) {
+if (TRUE) {
   test_hopit(mO, data = newhealthsurvey)
   test_hopit(mL, data = newhealthsurvey)
   test_hopit(mF, data = newhealthsurvey)
