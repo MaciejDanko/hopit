@@ -6,6 +6,8 @@ cache: packages
 warnings_are_errors: true
 
 before_install:
+  - sudo apt-get update
+  - sudo apt-get upgrade
   - sudo apt-get install pandoc
   - Rscript -e 'install.packages("tinytex")'
   - Rscript -e 'install.packages("pander")'
@@ -28,4 +30,4 @@ r_packages:
   - pander
 
 after_success:
-- travis_wait 45 Rscript -e 'covr::codecov(quiet = FALSE)'
+- travis_wait 45 Rscript -e 'covr::codecov(quiet = FALSE, type = "tests", token="‘$CODECOV_TOKEN‘")'

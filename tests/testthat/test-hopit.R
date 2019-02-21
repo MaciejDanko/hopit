@@ -50,6 +50,7 @@ test_hopit <- function (object, data) {
     print(which(is.na(cp$adjusted.levels)))
     expect_equal(sum(is.na(cp$adjusted.levels)),0)
   })
+  invisible()
 }
 
 # Initialize ----------------------------------
@@ -543,15 +544,19 @@ expect_error(hopit(latent.formula = latent.formula.1,
                    overdispersion = FALSE,
                    decreasing.levels = TRUE))
 
-if (TRUE) {
+suppressWarnings(rm(m0,m1,m2,m3,m4,m5,m6,m7,m9,mB,mC,mG,mH,mJ,mK,mM))
+
+#if (TRUE) {
   skip_on_cran()
+  skip_on_travis()
   test_hopit(mO, data = newhealthsurvey)
   test_hopit(mL, data = newhealthsurvey)
-  test_hopit(mF, data = newhealthsurvey)
+  #test_hopit(mF, data = newhealthsurvey)
   test_hopit(mA, data = newhealthsurvey)
   test_hopit(mD, data = newhealthsurvey)
   test_hopit(mE, data = newhealthsurvey)
   test_hopit(m8, data = newhealthsurvey)
   test_hopit(mN, data = newhealthsurvey)
-}
+#}
 
+rm(list = ls())
