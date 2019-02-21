@@ -12,6 +12,9 @@ before_install:
   - Rscript -e 'tinytex::install_tinytex(force=TRUE)'
   - sudo apt-get install ghostscript
 
+env:
+  - NOT_CRAN=true
+
 os:
 - linux
 
@@ -25,4 +28,4 @@ r_packages:
   - pander
 
 after_success:
-- Rscript -e 'covr::codecov()'
+- travis_wait 45 Rscript -e 'covr::codecov()'

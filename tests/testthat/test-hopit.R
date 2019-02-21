@@ -544,6 +544,7 @@ expect_error(hopit(latent.formula = latent.formula.1,
                    decreasing.levels = TRUE))
 
 if (TRUE) {
+  skip_on_cran()
   test_hopit(mO, data = newhealthsurvey)
   test_hopit(mL, data = newhealthsurvey)
   test_hopit(mF, data = newhealthsurvey)
