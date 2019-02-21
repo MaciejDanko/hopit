@@ -416,6 +416,13 @@ getLevels<-function(model,
                     YLab.cex = 1.1,
                     legbg = grDevices::adjustcolor('white',alpha.f=0.4),
                     legbty = 'o'){
+
+  data <- model$na.action(data)
+  if (model$control$transform.latent != 'none')
+    data <- transform.data(latent.formula, data, model$control$transform.latent)
+  if (model$control$transform.thresh != 'none')
+    data <- transform.data(thresh.formula, data, model$control$transform.thresh)
+
   if (class(formula)=='formula')
     inte_ <- formula2classes(formula, data, sep = sep,
                              return.matrix = TRUE) else
@@ -423,6 +430,7 @@ getLevels<-function(model,
   inte <- inte_$x
   namind <- inte_$class.mat
   nam <- levels(inte)
+
   cpall <- getCutPoints(model, plotf = FALSE,
                         decreasing.levels = decreasing.levels)
   TAB1 <- round(table(original = model$y_i,

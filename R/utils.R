@@ -271,6 +271,42 @@ get.hopit.start<-function(object, data){
 
 #' @keywords internal
 #' @noRd
+drop.levels.response<-function(formula, data){
+  response.name <- colnames(stats::model.frame(
+    stats::update(formula,'.~1'), data))
+  if (length(response.name) || nchar(response.name)) {
+    tmp <- data[[response.name]]
+    lv <- levels(tmp)
+    tmp <- droplevels(tmp)
+    if (length(lv)!=length(levels(tmp)))
+      message(paste(hopit_msg(104),'"',response.name,'".',sep=''))
+    data[[response.name]] <- tmp
+  }
+  data
+}
+
+#' @keywords internal
+#' @noRd
+drop.levels.data<-function(formula, data){
+  varlist <- attr(stats::terms(formula),"term.labels")
+  ind <- which(!grepl(':',varlist))
+  varlist <- varlist[ind]
+  ind <- which(sapply(varlist, function(k) is.factor(data[[k]])))
+  varfactlist <- varlist[ind]
+  for (k in seq_along(varfactlist)) {
+    tmp <- data[[varfactlist[k]]]
+    lv <- levels(tmp)
+    tmp <- droplevels(tmp)
+    if (length(lv)!=length(levels(tmp)))
+      message(paste(hopit_msg(104),'"',varfactlist[k],'".',sep=''))
+    data[[varfactlist[k]]] <- tmp
+  }
+  data
+}
+
+
+#' @keywords internal
+#' @noRd
 transform.data<-function(formula, data, type = 'min'){
   varlist <- attr(stats::terms(formula),"term.labels")
   ind <- which(!grepl(':',varlist))

@@ -6,7 +6,8 @@
 \usage{
 hopit(latent.formula, thresh.formula = ~1, data, decreasing.levels,
   start = NULL, overdispersion = FALSE, design = list(),
-  weights = NULL, link = c("probit", "logit"), control = list())
+  weights = NULL, link = c("probit", "logit"), control = list(),
+  na.action = na.fail)
 }
 \arguments{
 \item{latent.formula}{formula used to model latent variable. It should not contain any threshold variable.

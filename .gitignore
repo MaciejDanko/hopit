@@ -5,7 +5,7 @@ inst/doc
 .RData
 .Ruserdata
 .DS_Store
-script/
+myscripts/
 old/
 tmp/
 test/

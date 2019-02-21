@@ -104,6 +104,7 @@ hopit_msg <- function(x)
          '100' = 'No latent variales detected in the latent formula.',
          '101' = 'No response detected in the latent formula.',
          '102' = 'Response found in latent or threshold formulas.',
-         '103' = 'Should not happen.'
+         '103' = 'Should not happen.',
+         '104' = 'Unused levels dropped from '
   )
 

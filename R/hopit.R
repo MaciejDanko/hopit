@@ -481,6 +481,9 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' @param start a vector with starting coefficient values in the form \code{c(latent_parameters, threshold_lambdas, threshold_gammas)} or
 #' \code{c(latent_parameters, threshold_lambdas, threshold_gammas, logTheta)} if the \code{overdispersion == TRUE}.
 #' @param control a list with control parameters. See \code{\link{hopit.control}}.
+#' @param na.action a function which indicates what should happen when the \code{data} contain NAs. The default is \code{\link[stats]{na.fail},
+#' which generates an error if missing values are found. The alternative is \code{\link[stats]{na.omit}, which removes rows with missing
+#' values from the \code{data}.
 #' @return a \code{hopit} object used by other functions and methods. The object is a list with following components:
 #'  \item{control}{ a list with control parameters. See \code{\link{hopit.control}}.}
 #'  \item{link}{ the used link funtion.}
@@ -721,10 +724,12 @@ hopit<- function(latent.formula,
                  design = list(),
                  weights = NULL,
                  link = c('probit', 'logit'),
-                 control = list()){
+                 control = list(),
+                 na.action = na.fail){
 
   if (!overdispersion) remove.theta = FALSE else remove.theta = TRUE
   if (missing(data)) data <- environment(latent.formula)
+  data <- na.action(data)
   link <- match.arg(link)
   control <- do.call("hopit.control", control)
   control$thresh.start <- control$LL_out_val <- -Inf;
@@ -734,20 +739,29 @@ hopit<- function(latent.formula,
   model$control <- control
   model$link <- link[1]
   model$hasdisp <- overdispersion
+  model$na.action <- na.action
 
   thresh.formula <- check_thresh_formula(thresh.formula, data)
   latent.formula <- check_latent_formula(latent.formula, data)
-  check_response(stats::model.response(
-    stats::model.frame(latent.formula, data = data)))
 
-  if (control$transform.latent != 'none') data <- transform.data(latent.formula, data, control$transform.latent)
-  if (control$transform.thresh != 'none') data <- transform.data(thresh.formula, data, control$transform.thresh)
+  data <- drop.levels.response(latent.formula, data)
+  check_response(stats::model.response(
+    stats::model.frame(latent.formula, data)))
+
+  if (control$transform.latent != 'none')
+    data <- transform.data(latent.formula, data, control$transform.latent)
+  if (control$transform.thresh != 'none')
+    data <- transform.data(thresh.formula, data, control$transform.thresh)
+
+  data <- drop.levels.data(latent.formula, data)
+  data <- drop.levels.data(thresh.formula, data)
 
   model <- analyse.formulas(model, latent.formula, thresh.formula, data)
 
   #model$y_i <- stats::model.frame(model$latent.formula,
   #                          data = data)[,all.vars(model$latent.formula[[2]])]
-  model$y_i <- stats::model.response(stats::model.frame(model$latent.formula, data = data))
+  model$y_i <- stats::model.response(
+    stats::model.frame(model$latent.formula, data = data))
   #check_response(model$y_i) #already tested so maybe remove this
 
   if (missing(decreasing.levels)) decreasing.levels = NULL
@@ -800,14 +814,16 @@ hopit<- function(latent.formula,
     if (model$control$trace) cat(hopit_msg(10))
     model <- suppressWarnings(get.hopit.start(model, data))
     if (model$control$trace) cat(hopit_msg(13))
-    if (any(model$parcount!=sapply(model$glm.start.ls,length)) || !length(model$glm.start.ls)) {
+    if (any(model$parcount!=sapply(model$glm.start.ls,length)) ||
+        !length(model$glm.start.ls)) {
       stop(paste(hopit_msg(96),hopit_msg(103)),call. = NULL)
     }
   } else {
     model$start <- start
   }
 
-  if ((sum(model$parcount) + model$hasdisp) != length(model$start)) stop(hopit_msg(96),call. = NULL)
+  if ((sum(model$parcount) + model$hasdisp) != length(model$start))
+    stop(hopit_msg(96),call. = NULL)
 
   if (model$control$trace) cat(hopit_msg(11))
   model <- hopit_fitter(model, start = model$start)

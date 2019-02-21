@@ -56,6 +56,11 @@ test_hopit <- function (object, data) {
 
 # extended data
 newhealthsurvey <- healthsurvey
+newhealthsurvey2 <- healthsurvey
+newhealthsurvey2$sex[1000:1005] <- NA
+newhealthsurvey2$diabetes[1002:1008] <- NA
+newhealthsurvey2$health[1005:1012] <- NA
+
 newhealthsurvey$cont_var <- sample(5000:5020,nrow(newhealthsurvey),replace=TRUE)
 newhealthsurvey$age <- 50+10*runif(1e4)*as.numeric(newhealthsurvey$ageclass)
 newhealthsurvey$health2 <- as.numeric(newhealthsurvey$health)
@@ -63,6 +68,14 @@ newhealthsurvey$age2 <- 5*(newhealthsurvey$age)
 newhealthsurvey$var1 <- newhealthsurvey$health2*newhealthsurvey$age
 newhealthsurvey$var2 <- newhealthsurvey$health2-1
 newhealthsurvey$var3 <- newhealthsurvey$sex
+newhealthsurvey$health3 <- newhealthsurvey$health
+levels(newhealthsurvey$health3)<-c(levels(newhealthsurvey$health3), 'very poor')
+newhealthsurvey$sex3 <- newhealthsurvey$sex
+levels(newhealthsurvey$sex3)<-c(levels(newhealthsurvey$sex), 'unknown')
+newhealthsurvey$diabetes3 <- newhealthsurvey$diabetes
+levels(newhealthsurvey$diabetes3)<-c(levels(newhealthsurvey$diabetes), 'unknown')
+newhealthsurvey$depression3 <- newhealthsurvey$depression
+levels(newhealthsurvey$depression3) <- c(levels(newhealthsurvey$depression), 'unknown', 'very unknown')
 
 # formulas to be tested
 latent.formula.1 <- health ~ hypertension + high_cholesterol +
@@ -103,6 +116,10 @@ latent.formula.H <- health ~ hypertension + high_cholesterol +
   heart_attack_or_stroke + poor_mobility + very_poor_grip +
   depression + respiratory_problems +
   IADL_problems + obese + other_diseases
+latent.formula.I <- health3 ~ hypertension + high_cholesterol +
+  heart_attack_or_stroke + poor_mobility + very_poor_grip +
+  depression3 + respiratory_problems +
+  IADL_problems + obese + diabetes3 + other_diseases
 
 thresh.formula.1 <-  ~ sex + ageclass + country
 thresh.formula.2 <-  health ~ sex + ageclass + country
@@ -127,6 +144,15 @@ thresh.formula.K <-  ~ sex + country + age2
 thresh.formula.L <-  ~ sex + country + var1
 thresh.formula.M <-  ~ sex + country + var2
 thresh.formula.N <-  ~ sex * ageclass + country
+thresh.formula.O <-  ~ sex3 + ageclass + country
+
+
+# Messages
+
+expect_message(hopit(latent.formula = latent.formula.I,
+                     thresh.formula = thresh.formula.O,
+                     data = newhealthsurvey,
+                     decreasing.levels = TRUE))
 
 # Warnings ------------------------
 
@@ -136,7 +162,19 @@ expect_warning(hopit(latent.formula = latent.formula.1,
                    data = newhealthsurvey,
                    decreasing.levels = TRUE))
 
+
 # Errors --------------------------
+
+#Error in na.fail.default(data) : missing values in object
+expect_error(hopit(latent.formula = latent.formula.1,
+      thresh.formula = thresh.formula.1,
+      data = newhealthsurvey2,
+      decreasing.levels = TRUE))
+# hopit(latent.formula = latent.formula.1,
+#       thresh.formula = thresh.formula.1,
+#       data = newhealthsurvey2,
+#       na.action = na.omit,
+#       decreasing.levels = TRUE)
 
 # initial value in 'vmmin' is not finite
 expect_error(hopit(latent.formula = latent.formula.G,
@@ -505,9 +543,6 @@ expect_error(hopit(latent.formula = latent.formula.1,
                    decreasing.levels = TRUE))
 
 test_hopit(mO, data = newhealthsurvey)
-newhealthsurvey[4223, ]
-healthIndex(mO)[4223]
-which(healthIndex(mO)==0)
 test_hopit(mL, data = newhealthsurvey)
 test_hopit(mF, data = newhealthsurvey)
 test_hopit(mA, data = newhealthsurvey)
