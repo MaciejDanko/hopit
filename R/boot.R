@@ -117,9 +117,11 @@ boot_hopit<-function(model, data, func, nboot = 500, unlist = TRUE,
                      boot.only.latent = TRUE, robust.vcov = TRUE, ...){
   data <- model$na.action(data)
   if (model$control$transform.latent != 'none')
-    data <- transform.data(latent.formula, data, model$control$transform.latent)
+    data <- transform.data(model$latent.formula, data,
+                           model$control$transform.latent)
   if (model$control$transform.thresh != 'none')
-    data <- transform.data(thresh.formula, data, model$control$transform.thresh)
+    data <- transform.data(model$thresh.formula, data,
+                           model$control$transform.thresh)
 
   VCOV <- vcov.hopit(model, robust.vcov)
   if (boot.only.latent) N <- seq_len(model$parcount[1]) else N <- nrow(VCOV)

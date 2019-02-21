@@ -419,9 +419,11 @@ getLevels<-function(model,
 
   data <- model$na.action(data)
   if (model$control$transform.latent != 'none')
-    data <- transform.data(latent.formula, data, model$control$transform.latent)
+    data <- transform.data(model$latent.formula, data,
+                           model$control$transform.latent)
   if (model$control$transform.thresh != 'none')
-    data <- transform.data(thresh.formula, data, model$control$transform.thresh)
+    data <- transform.data(model$thresh.formula, data,
+                           model$control$transform.thresh)
 
   if (class(formula)=='formula')
     inte_ <- formula2classes(formula, data, sep = sep,

@@ -481,9 +481,11 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' @param start a vector with starting coefficient values in the form \code{c(latent_parameters, threshold_lambdas, threshold_gammas)} or
 #' \code{c(latent_parameters, threshold_lambdas, threshold_gammas, logTheta)} if the \code{overdispersion == TRUE}.
 #' @param control a list with control parameters. See \code{\link{hopit.control}}.
-#' @param na.action a function which indicates what should happen when the \code{data} contain NAs. The default is \code{\link[stats]{na.fail},
-#' which generates an error if missing values are found. The alternative is \code{\link[stats]{na.omit}, which removes rows with missing
-#' values from the \code{data}.
+#' @param na.action a function which indicates what should happen when the \code{data} contain \code{NA}s. The default is \code{\link[stats]{na.fail}},
+#' which generates an error if missing values are found. The alternative is \code{\link[stats]{na.omit}}
+#' (or \code{\link[stats]{na.exclude}} equivalently), which removes rows with missing
+#' values from the \code{data}. Using \code{\link[stats]{na.pass}} will lead to an error.
+#' @importFrom stats na.fail
 #' @return a \code{hopit} object used by other functions and methods. The object is a list with following components:
 #'  \item{control}{ a list with control parameters. See \code{\link{hopit.control}}.}
 #'  \item{link}{ the used link funtion.}

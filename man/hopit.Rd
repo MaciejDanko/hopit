@@ -34,6 +34,11 @@ The design cannot be specified together with parameter \code{weights}.}
 \item{link}{the link function. The possible values are \code{"probit"} (default) and \code{"logit"}.}
 
 \item{control}{a list with control parameters. See \code{\link{hopit.control}}.}
+
+\item{na.action}{a function which indicates what should happen when the \code{data} contain \code{NA}s. The default is \code{\link[stats]{na.fail}},
+which generates an error if missing values are found. The alternative is \code{\link[stats]{na.omit}}
+(or \code{\link[stats]{na.exclude}} equivalently), which removes rows with missing
+values from the \code{data}. Using \code{\link[stats]{na.pass}} will lead to an error.}
 }
 \value{
 a \code{hopit} object used by other functions and methods. The object is a list with following components:
