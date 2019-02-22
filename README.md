@@ -1,9 +1,9 @@
 [![Travis-CI Build Status](https://travis-ci.org/MaciejDanko/hopit.svg?branch=master)](https://travis-ci.org/MaciejDanko/hopit)
 [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/MaciejDanko/hopit?branch=master&svg=true)](https://ci.appveyor.com/project/MaciejDanko/hopit)
 
-# Analysis of the reporting styles using generalized ordered probit models
+# R-package *hopit*: Hierarchical ordered probit models with application to reporting heterogeneity.
 
-## Installation
+### Installation
 1. Make sure you have the most recent version of R
 
 2. Run the following code in your R console 
@@ -12,7 +12,7 @@
    install.packages("hopit") 
    ```
 
-## Updating to the latest version of `hopit` package
+### Updating to the latest version of `hopit` package
 You can track (and contribute to) the development of `hopit` at https://github.com/MaciejDanko/hopit. To install it:
 
 1. Install the release version of `devtools` from CRAN with `install.packages("devtools")`.
@@ -22,27 +22,26 @@ You can track (and contribute to) the development of `hopit` at https://github.c
     * **Mac**: Install `Xcode` from the Mac App Store.
     * **Linux**: Install a compiler and various development libraries (details vary across different flavors of Linux).
 
-3a. To install the development version of `hopit` run:
-   
+3. To install the development version of `hopit` run:
    ```R
-   devtools::install_github("MaciejDanko/hopit"
+   devtools::install_github("MaciejDanko/hopit")
    ```
    
-3b. To install the development version of `hopit` with included vignettes run:
-
+4. To install the development version of `hopit` with included vignettes run:
    ```R
    install.packages("tinytex")
    install.packages("pander")
    tinytex::install_tinytex(force=TRUE)
    devtools::install_github("MaciejDanko/hopit", build_vignettes=TRUE)
    ```
+   
+### Introduction
+Get started with `hopit` by checking the [vignette](https://github.com/MaciejDanko/hopit/blob/master/vignettes/introduction_to_hopit.pdf) or run:
 
-## Introduction
-Get started with `hopit` by checking the [vignette](https://github.com/MaciejDanko/hopit/blob/master/vignettes/introduction_to_hopit.pdf) 
- ```R
- browseVignettes(package = "hopit") 
- ```
+   ```R
+   browseVignettes(package = "hopit") 
+   ```
 
-## Contributing
+### Contributing
 This software is an academic project. Any issues and pull requests are welcome.
 * If `hopit` is malfunctioning, please report the case by submitting an issue on GitHub.
