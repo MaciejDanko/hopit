@@ -30,4 +30,4 @@ r_packages:
   - pander
 
 after_success:
-- travis_wait 45 Rscript -e 'covr::codecov(quiet = FALSE, type = "tests", token="‘$CODECOV_TOKEN‘")'
+- travis_wait 45 Rscript -e 'covr::codecov(quiet = FALSE, type = "tests")'

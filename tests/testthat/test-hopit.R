@@ -544,19 +544,18 @@ expect_error(hopit(latent.formula = latent.formula.1,
                    overdispersion = FALSE,
                    decreasing.levels = TRUE))
 
-suppressWarnings(rm(m0,m1,m2,m3,m4,m5,m6,m7,m9,mB,mC,mG,mH,mJ,mK,mM))
-
+suppressWarnings(rm(m0,m1,m2,m3,m4,m5,m6,m7,m9,mB,mC,mG,mO,mJ,mK,mM))
+suppressWarnings(rm(mL,mF,mA,mD,mE,m8,mN))
 #if (TRUE) {
   skip_on_cran()
   skip_on_travis()
-  test_hopit(mO, data = newhealthsurvey)
-  test_hopit(mL, data = newhealthsurvey)
-  #test_hopit(mF, data = newhealthsurvey)
-  test_hopit(mA, data = newhealthsurvey)
-  test_hopit(mD, data = newhealthsurvey)
-  test_hopit(mE, data = newhealthsurvey)
-  test_hopit(m8, data = newhealthsurvey)
-  test_hopit(mN, data = newhealthsurvey)
+  test_hopit(mH, data = newhealthsurvey)
+  # test_hopit(mL, data = newhealthsurvey)
+  # #test_hopit(mF, data = newhealthsurvey)
+  # test_hopit(mA, data = newhealthsurvey)
+  # test_hopit(mD, data = newhealthsurvey)
+  # test_hopit(mE, data = newhealthsurvey)
+  # test_hopit(m8, data = newhealthsurvey)
+  # test_hopit(mN, data = newhealthsurvey)
 #}
 
-rm(list = ls())
