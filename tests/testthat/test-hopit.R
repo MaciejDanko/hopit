@@ -546,7 +546,7 @@ expect_error(hopit(latent.formula = latent.formula.1,
 
 suppressWarnings(rm(m0,m1,m2,m3,m4,m5,m6,m7,m9,mB,mC,mG,mO,mJ,mK,mM))
 suppressWarnings(rm(mL,mF,mA,mD,mE,m8,mN))
-#if (TRUE) {
+test_that("Model fit test",{
   skip_on_cran()
   skip_on_travis()
   test_hopit(mH, data = newhealthsurvey)
@@ -557,5 +557,5 @@ suppressWarnings(rm(mL,mF,mA,mD,mE,m8,mN))
   # test_hopit(mE, data = newhealthsurvey)
   # test_hopit(m8, data = newhealthsurvey)
   # test_hopit(mN, data = newhealthsurvey)
-#}
+})
 
