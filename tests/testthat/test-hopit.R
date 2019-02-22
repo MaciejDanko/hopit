@@ -361,7 +361,8 @@ expect_error(hopit(latent.formula = latent.formula.1,
 
 # Passes -------------------------
 
-m0  <- hopit(latent.formula = latent.formula.8,
+test_that("Hopit works",{
+m0  <<- hopit(latent.formula = latent.formula.8,
              thresh.formula = thresh.formula.1,
              data = newhealthsurvey,
              decreasing.levels = TRUE)
@@ -454,11 +455,11 @@ mG  <- hopit(latent.formula = latent.formula.1,
             data = newhealthsurvey,
             decreasing.levels = TRUE)
 
-mH  <- hopit(latent.formula = latent.formula.1,
-            thresh.formula = thresh.formula.1,
-            data = newhealthsurvey,
-            overdispersion = TRUE,
-            decreasing.levels = TRUE)
+mH  <<- hopit(latent.formula = latent.formula.1,
+             thresh.formula = thresh.formula.1,
+             data = newhealthsurvey,
+             overdispersion = TRUE,
+             decreasing.levels = TRUE)
 
 mI  <- hopit(latent.formula = latent.formula.1,
             thresh.formula = thresh.formula.1,
@@ -483,7 +484,7 @@ mK  <- hopit(latent.formula = latent.formula.1,
             overdispersion = FALSE,
             decreasing.levels = TRUE)
 
-mL  <- hopit(latent.formula = latent.formula.1,
+mL  <<- hopit(latent.formula = latent.formula.1,
             thresh.formula = thresh.formula.1,
             data = newhealthsurvey,
             start = c(coef(mK)),
@@ -505,12 +506,15 @@ mN  <- hopit(latent.formula = latent.formula.3,
              decreasing.levels = TRUE)
 
 
-mO  <- hopit(latent.formula = latent.formula.H,
+mO  <<- hopit(latent.formula = latent.formula.H,
              thresh.formula = thresh.formula.1,
              data = newhealthsurvey,
              overdispersion = FALSE,
              decreasing.levels = TRUE)
 
+})
+
+test_hopit(mH, data = newhealthsurvey)
 
 # lrt and Anova -------------------------
 lrt1 <- lrt.hopit(m0, mL)
@@ -544,18 +548,18 @@ expect_error(hopit(latent.formula = latent.formula.1,
                    overdispersion = FALSE,
                    decreasing.levels = TRUE))
 
-suppressWarnings(rm(m0,m1,m2,m3,m4,m5,m6,m7,m9,mB,mC,mG,mO,mJ,mK,mM))
-suppressWarnings(rm(mL,mF,mA,mD,mE,m8,mN))
-test_that("Model fit test",{
-  skip_on_cran()
-  skip_on_travis()
-  test_hopit(mH, data = newhealthsurvey)
-  # test_hopit(mL, data = newhealthsurvey)
-  # #test_hopit(mF, data = newhealthsurvey)
-  # test_hopit(mA, data = newhealthsurvey)
-  # test_hopit(mD, data = newhealthsurvey)
-  # test_hopit(mE, data = newhealthsurvey)
-  # test_hopit(m8, data = newhealthsurvey)
-  # test_hopit(mN, data = newhealthsurvey)
-})
+# suppressWarnings(rm(m0,m1,m2,m3,m4,m5,m6,m7,m9,mB,mC,mG,mO,mJ,mK,mM))
+# suppressWarnings(rm(mL,mF,mA,mD,mE,m8,mN))
+# test_that("Model fit test",{
+#   skip_on_cran()
+#   skip_on_travis()
+#   test_hopit(mH, data = newhealthsurvey)
+#   # test_hopit(mL, data = newhealthsurvey)
+#   # #test_hopit(mF, data = newhealthsurvey)
+#   # test_hopit(mA, data = newhealthsurvey)
+#   # test_hopit(mD, data = newhealthsurvey)
+#   # test_hopit(mE, data = newhealthsurvey)
+#   # test_hopit(m8, data = newhealthsurvey)
+#   # test_hopit(mN, data = newhealthsurvey)
+# })
 
