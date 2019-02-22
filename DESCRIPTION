@@ -1,7 +1,7 @@
 Package: hopit
 Type: Package
 Title: Hierarchical Ordered ProbIT models with application to reporting heterogeneity
-Version: 0.7.209
+Version: 0.7.210
 Depends: R (>= 3.4.0), survey (>= 3.35)
 Imports: MASS, Rcpp, RcppEigen, Matrix, Rdpack, graphics, stats, grDevices
 LinkingTo: Rcpp, RcppEigen

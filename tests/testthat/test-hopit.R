@@ -26,6 +26,7 @@ test_hopit <- function (object, data) {
     if (!length(object$design)) expect_identical(object$vcov, object$vcov.basic)
     tmp <- profile(object)
     expect_output(print(tmp, plotf = FALSE))
+    expect_equal(sum(is.na(tmp)),0)
     expect_equal(capture_output(print(tmp, plotf = FALSE)),
                  "All parameters seem to be at arg.max (at optimum).")
     expect_true(length(healthIndex(object))>0)
@@ -33,11 +34,9 @@ test_hopit <- function (object, data) {
     expect_true(length(disabilityWeights(object))>0)
     expect_equal(length(disabilityWeights(object)),
                  length(coef(object,aslist = T)$latent.params))
+    expect_equal(length(coef(object)), sum(object$parcount))
     if (!object$hasdisp) {
-      expect_equal(length(coef(object)), sum(object$parcount))
-      expect_equal(getTheta(object), 1)
-    } else {
-      expect_equal(length(coef(object))-1, sum(object$parcount))
+      expect_equal(round(getTheta(object),8), 1)
     }
     hl <- getLevels(model=object, formula=~ sex + ageclass, data = healthsurvey,
                     sep=' ', plotf=FALSE)
@@ -404,7 +403,7 @@ m7  <- hopit(latent.formula = latent.formula.1,
              control = list(transform.thresh = 'standardize'),
              decreasing.levels = TRUE)
 
-m8  <- hopit(latent.formula = latent.formula.1,
+m8  <<- hopit(latent.formula = latent.formula.1,
              thresh.formula = thresh.formula.5,
              data = newhealthsurvey,
              control = list(transform.thresh = 'min'),
@@ -438,7 +437,7 @@ mD  <- hopit(latent.formula = latent.formula.1,
             data = newhealthsurvey,
             decreasing.levels = TRUE)
 
-mE  <- hopit(latent.formula = latent.formula.9,
+mE  <<- hopit(latent.formula = latent.formula.9,
             thresh.formula = thresh.formula.1,
             data = newhealthsurvey,
             decreasing.levels = TRUE)
@@ -514,7 +513,11 @@ mO  <<- hopit(latent.formula = latent.formula.H,
 
 })
 
-test_hopit(mH, data = newhealthsurvey)
+# test hopit object -------------------------
+
+test_hopit(object=mH, data = newhealthsurvey)
+test_hopit(object=mE, data = newhealthsurvey)
+test_hopit(object=m8, data = newhealthsurvey)
 
 # lrt and Anova -------------------------
 lrt1 <- lrt.hopit(m0, mL)
@@ -547,19 +550,3 @@ expect_error(hopit(latent.formula = latent.formula.1,
                    start = c(coef(mH), logTheta = log(getTheta(mH))),
                    overdispersion = FALSE,
                    decreasing.levels = TRUE))
-
-# suppressWarnings(rm(m0,m1,m2,m3,m4,m5,m6,m7,m9,mB,mC,mG,mO,mJ,mK,mM))
-# suppressWarnings(rm(mL,mF,mA,mD,mE,m8,mN))
-# test_that("Model fit test",{
-#   skip_on_cran()
-#   skip_on_travis()
-#   test_hopit(mH, data = newhealthsurvey)
-#   # test_hopit(mL, data = newhealthsurvey)
-#   # #test_hopit(mF, data = newhealthsurvey)
-#   # test_hopit(mA, data = newhealthsurvey)
-#   # test_hopit(mD, data = newhealthsurvey)
-#   # test_hopit(mE, data = newhealthsurvey)
-#   # test_hopit(m8, data = newhealthsurvey)
-#   # test_hopit(mN, data = newhealthsurvey)
-# })
-
