@@ -22,9 +22,18 @@ You can track (and contribute to) the development of `hopit` at https://github.c
     * **Mac**: Install `Xcode` from the Mac App Store.
     * **Linux**: Install a compiler and various development libraries (details vary across different flavors of Linux).
 
-3. To install the development version of `hopit` with included vignette run:
+3a. To install the development version of `hopit` run:
+   
+   ```R
+   devtools::install_github("MaciejDanko/hopit"
+   ```
+   
+3b. To install the development version of `hopit` with included vignettes run:
 
    ```R
+   install.packages("tinytex")
+   install.packages("pander")
+   tinytex::install_tinytex(force=TRUE)
    devtools::install_github("MaciejDanko/hopit", build_vignettes=TRUE)
    ```
 
@@ -35,5 +44,5 @@ Get started with `hopit` by checking the [vignette](https://github.com/MaciejDan
  ```
 
 ## Contributing
-This software is an academic project. Any issues and pull requests is welcome.
+This software is an academic project. Any issues and pull requests are welcome.
 * If `hopit` is malfunctioning, please report the case by submitting an issue on GitHub.
