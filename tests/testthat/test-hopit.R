@@ -7,48 +7,46 @@ library(hopit)
 # Test function -------------------------------
 
 test_hopit <- function (object, data) {
-  test_that("Test hopit", {
-    N <- object$N
-    expect_s3_class(object, "hopit")
-    expect_output(print(object))
-    expect_output(print(summary(object)))
-    expect_true(length(object$estfun)>0)
-    expect_true(length(object$hessian)>0)
-    expect_true(length(object$vcov)>0)
-    expect_true(length(object$vcov.basic)>0)
-    expect_equal(length(object$y_i), N)
-    expect_equal(length(object$y_latent_i), N)
-    expect_equal(length(object$Ey_i), N)
-    expect_equal(nrow(data), N)
-    expect_gt(object$LL, -Inf)
-    expect_false(is.na(object$LL))
-    if (length(object$design)) expect_true(is.na(object$AIC))
-    if (!length(object$design)) expect_identical(object$vcov, object$vcov.basic)
-    tmp <- profile(object)
-    expect_output(print(tmp, plotf = FALSE))
-    expect_equal(sum(is.na(tmp)),0)
-    expect_equal(capture_output(print(tmp, plotf = FALSE)),
-                 "All parameters seem to be at arg.max (at optimum).")
-    expect_true(length(healthIndex(object))>0)
-    expect_equal(length(healthIndex(object)), N)
-    expect_true(length(disabilityWeights(object))>0)
-    expect_equal(length(disabilityWeights(object)),
-                 length(coef(object,aslist = T)$latent.params))
-    expect_equal(length(coef(object)), sum(object$parcount))
-    if (!object$hasdisp) {
-      expect_equal(round(getTheta(object),8), 1)
-    }
-    hl <- getLevels(model=object, formula=~ sex + ageclass, data = healthsurvey,
-                    sep=' ', plotf=FALSE)
-    expect_equal(dim(hl$original), dim(hl$adjusted))
-    expect_equal(length(hl), 7)
-    cp <- getCutPoints(object, plotf = FALSE)
-    expect_equal(length(cp),2)
-    expect_equal(length(cp$cutpoints), object$J-1)
-    expect_equal(length(cp$adjusted.levels), N)
-    print(which(is.na(cp$adjusted.levels)))
-    expect_equal(sum(is.na(cp$adjusted.levels)),0)
-  })
+  N <- object$N
+  expect_s3_class(object, "hopit")
+  expect_output(print(object))
+  expect_output(print(summary(object)))
+  expect_true(length(object$estfun)>0)
+  expect_true(length(object$hessian)>0)
+  expect_true(length(object$vcov)>0)
+  expect_true(length(object$vcov.basic)>0)
+  expect_equal(length(object$y_i), N)
+  expect_equal(length(object$y_latent_i), N)
+  expect_equal(length(object$Ey_i), N)
+  expect_equal(nrow(data), N)
+  expect_gt(object$LL, -Inf)
+  expect_false(is.na(object$LL))
+  if (length(object$design)) expect_true(is.na(object$AIC))
+  if (!length(object$design)) expect_identical(object$vcov, object$vcov.basic)
+  # tmp <- profile(object)
+  # expect_output(print(tmp, plotf = FALSE))
+  # expect_equal(sum(is.na(tmp)),0)
+  # expect_equal(capture_output(print(tmp, plotf = FALSE)),
+  #             "All parameters seem to be at arg.max (at optimum).")
+  expect_true(length(healthIndex(object))>0)
+  expect_equal(length(healthIndex(object)), N)
+  expect_true(length(disabilityWeights(object))>0)
+  expect_equal(length(disabilityWeights(object)),
+               length(coef(object,aslist = T)$latent.params))
+  expect_equal(length(coef(object)), sum(object$parcount))
+  if (!object$hasdisp) {
+    expect_equal(round(getTheta(object),8), 1)
+  }
+  hl <- getLevels(model=object, formula=~ sex + ageclass, data = healthsurvey,
+                  sep=' ', plotf=FALSE)
+  expect_equal(dim(hl$original), dim(hl$adjusted))
+  expect_equal(length(hl), 7)
+  cp <- getCutPoints(object, plotf = FALSE)
+  expect_equal(length(cp),2)
+  expect_equal(length(cp$cutpoints), object$J-1)
+  expect_equal(length(cp$adjusted.levels), N)
+  print(which(is.na(cp$adjusted.levels)))
+  expect_equal(sum(is.na(cp$adjusted.levels)),0)
   invisible()
 }
 
