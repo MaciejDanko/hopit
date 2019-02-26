@@ -2,7 +2,7 @@
 % Please edit documentation in R/generics.R
 \name{AIC.hopit}
 \alias{AIC.hopit}
-\title{Extracts Akaike Information Criterion from the fitted model}
+\title{Extracting Akaike Information Criterion from the fitted model}
 \usage{
 \method{AIC}{hopit}(object, ..., k = 2L)
 }
@@ -15,7 +15,7 @@
 classical AIC.}
 }
 \description{
-Extracts Akaike Information Criterion from the fitted model
+Extract Akaike Information Criterion (AIC) from a fitted \code{hopit} model.
 }
 \author{
 Maciej J. Danko

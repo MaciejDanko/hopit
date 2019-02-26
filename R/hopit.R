@@ -1,9 +1,9 @@
-#' INTERNAL: Calculate model cut-points (thresholds)
+#' INTERNAL: Calculate model cut-points (alpha)
 #'
 #' @author Maciej J. Danko
 #' @keywords internal
 #' @param thresh.lambda,thresh.gamma vectors with model parameters.
-#' @param model a \code{hopit} object.
+#' @param model an \code{hopit} object.
 #' @useDynLib hopit
 #' @importFrom Rcpp evalCpp
 hopit_Threshold<-function(thresh.lambda, thresh.gamma, model){
@@ -16,7 +16,8 @@ hopit_Threshold<-function(thresh.lambda, thresh.gamma, model){
                 thresh_1_exp = model$control$thresh.1.exp) #RcppEigen
 }
 
-#' INTERNAL: Calculate predicted continous latent measure.
+
+#' INTERNAL: Calculate predicted continous latent measure (h_i).
 #'
 #' @param latent.params vectors with model parameters.
 #' @param model a \code{hopit} object
@@ -25,10 +26,11 @@ hopit_Threshold<-function(thresh.lambda, thresh.gamma, model){
 hopit_Latent <- function(latent.params, model = NULL)
   model$latent.mm %*% (as.matrix(latent.params))
 
+
 #' INTERNAL: Extract model parameters as a list
 #'
 #' Extract model parameters as a list.
-#' @param model \code{hopit} object.
+#' @param model an \code{hopit} object.
 #' @param parameters model parameters (optional). If not delivered then taken from \code{model$coef}.
 #' @param parcount vector with parameter counts for latent, lambda, and gamma.
 #' @author Maciej J. Danko
@@ -77,7 +79,7 @@ hopit_ExtractParameters <- function(model,
 #' INTERNAL: The log likelihood function
 #'
 #' @param parameters model parameters (optional). If not delivered then taken from \code{model$coef}.
-#' @param model \code{hopit} object.
+#' @param model an \code{hopit} object.
 #' @param collapse a logical indicating if to sum individual LL contributions.
 #' @param use_weights a logical indicating if to use model weights.
 #' @param negative a logical indicating if the function should return negative LL or not.
@@ -135,7 +137,7 @@ hopit_negLL <- function(parameters = model$coef,
 #' INTERNAL: The gradient of the log likelihood function
 #'
 #' @param parameters model parameters (optional). If not delivered then taken from \code{model$coef}.
-#' @param model \code{hopit} object.
+#' @param model an \code{hopit} object.
 #' @param collapse a logical indicating if to sum individual LL contributions.
 #' @param use_weights a logical indicating if to use model weights.
 #' @param negative  a logical indicating if the function should return negative LL or not.
@@ -202,7 +204,7 @@ hopit_derivLL <- function(parameters=model$coef, model,
 #' INTERNAL: Fit \code{hopit} model given a starting parameters
 #'
 #' Fit the model.
-#' @param model a \code{hopit} object.
+#' @param model an \code{hopit} object.
 #' @param start starting parameters.
 #' @param use_weights a logical indicating if to use model weights.
 #' @author Maciej J. Danko
@@ -307,7 +309,7 @@ hopit_fitter <- function(model, start = model$start, use_weights){
 }
 
 
-#' Auxiliary for controlling the fitting of \code{hopit} model
+#' Auxiliary for controlling the fitting of an \code{hopit} model
 #'
 #' @description
 #' Auxiliary function for controlling the fitting of \code{hopit} model.
@@ -315,7 +317,7 @@ hopit_fitter <- function(model, start = model$start, use_weights){
 #' parameters of the \code{\link{hopit}} and other related functions.
 #' @param grad.eps epsilon for numerical Hessian function.
 #' @param quick.fit logical, if TRUE extensive \code{nlm} optimization method
-#' is ignored and only BFGS and CG methods are run.
+#' is ignored and only BFGS and/or CG methods are run.
 #' @param bgfs.maxit,cg.maxit,nlm.maxit the maximum number of iterations.
 #' See \code{\link{optim}} and \code{\link{nlm}} for details.
 #' @param bgfs.reltol,cg.reltol relative convergence tolerance.
@@ -371,7 +373,7 @@ hopit.control<-function(grad.eps = 3e-5,
 }
 
 
-#' Extract Theta parameter from the \code{hopit} model
+#' Extract Theta parameter from an \code{hopit} model
 #'
 #' @param model a fitted \code{hopit} model.
 #' @export
@@ -489,7 +491,7 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' @return a \code{hopit} object used by other functions and methods. The object is a list with following components:
 #'  \item{control}{ a list with control parameters. See \code{\link{hopit.control}}.}
 #'  \item{link}{ the used link funtion.}
-#'  \item{hasdisp}{ logical, was overdispersion modeled?}
+#'  \item{hasdisp}{ logical indicating if overdispersion was modeled.}
 #'  \item{use.weights}{ logical indicating if any weights were used.}
 #'  \item{weights}{ vector with model weights.}
 #'  \item{latent.formula}{ used latent formula. It is updated by cross-interactions if crossinter.formula is delivered.}
@@ -798,7 +800,10 @@ hopit<- function(latent.formula,
 
   model$weights <- NULL
   check_design(weights, design, model$N)
-  if (length(design)) model$weights <- design$prob else if (length(weights))
+  model$design <- design
+  if (length(design)) {
+    model$weights <- design$prob
+  } else if (length(weights))
     model$weights <- weights
   if (!length(model$weights)) {
     model$weights <- rep(1, model$N)

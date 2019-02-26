@@ -2,20 +2,20 @@
 % Please edit documentation in R/utils.R
 \name{get.hopit.start}
 \alias{get.hopit.start}
-\title{INTERNAL: Translate glm() to hopit() start parameters}
+\title{INTERNAL: Get starting parameters}
 \usage{
 get.hopit.start(object, data)
 }
 \arguments{
-\item{object}{\code{hopit} object.}
+\item{object}{an \code{hopit} object.}
 
 \item{data}{data.frame with data used to fit the object.}
 }
 \value{
-updated \code{hopit} object.
+an updated \code{hopit} object.
 }
 \description{
-INTERNAL: Translate glm() to hopit() start parameters
+INTERNAL: Get starting parameters
 }
 \author{
 Maciej J. Danko

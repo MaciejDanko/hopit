@@ -2,7 +2,7 @@
 % Please edit documentation in R/generics.R
 \name{vcov.hopit}
 \alias{vcov.hopit}
-\title{Extracting variance-covariance matrix from the fitted hopit}
+\title{Variance-covariance matrix from the fitted model}
 \usage{
 \method{vcov}{hopit}(object, robust.vcov, ...)
 }
@@ -16,7 +16,7 @@ If survey deign is detected than this option is ignored.}
 \item{...}{further arguments passed to or from other methods.}
 }
 \description{
-Extracting variance-covariance matrix from the fitted hopit
+Returns the variance-covariance matrix of the main parameters of a fitted \code{hopit} model object.
 }
 \author{
 Maciej J. Danko

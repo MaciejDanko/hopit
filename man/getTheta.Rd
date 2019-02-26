@@ -2,7 +2,7 @@
 % Please edit documentation in R/hopit.R
 \name{getTheta}
 \alias{getTheta}
-\title{Extract Theta parameter from the \code{hopit} model}
+\title{Extract Theta parameter from an \code{hopit} model}
 \usage{
 getTheta(model)
 }
@@ -10,7 +10,7 @@ getTheta(model)
 \item{model}{a fitted \code{hopit} model.}
 }
 \description{
-Extract Theta parameter from the \code{hopit} model
+Extract Theta parameter from an \code{hopit} model
 }
 \author{
 Maciej J. Danko

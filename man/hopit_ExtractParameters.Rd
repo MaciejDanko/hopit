@@ -7,7 +7,7 @@
 hopit_ExtractParameters(model, parameters, parcount = model$parcount)
 }
 \arguments{
-\item{model}{\code{hopit} object.}
+\item{model}{an \code{hopit} object.}
 
 \item{parameters}{model parameters (optional). If not delivered then taken from \code{model$coef}.}
 

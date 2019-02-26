@@ -19,7 +19,7 @@ If survey deign is detected than this option is ignored.}
 See \code{\link{hopit.control}}.}
 }
 \description{
-Calculate model summary
+Summarize a \code{hopit}  model.
 }
 \author{
 Maciej J. Danko

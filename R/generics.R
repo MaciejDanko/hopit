@@ -1,5 +1,6 @@
-#' Extracting coefficients of the fitted \code{hopit} model
+#' Extracting model coefficients
 #'
+#' Extract model coefficients from \code{hopit} model.
 #' @param object an \code{hopit} object.
 #' @param aslist logical indicating if model coefficients should be returned
 #' as a list of three vectors
@@ -17,6 +18,7 @@ coef.hopit <- function(object, aslist = FALSE, ...)
 
 #' Printing basic information about fitted \code{hopit} model
 #'
+#' Print a \code{hopit} model.
 #' @param x an \code{hopit} object.
 #' @param ...	further arguments passed to or from other methods.
 #' @export
@@ -47,8 +49,9 @@ print.hopit<-function(x, ...){
 }
 
 
-#' Extracting variance-covariance matrix from the fitted hopit
+#' Variance-covariance matrix from the fitted model
 #'
+#' Returns the variance-covariance matrix of the main parameters of a fitted \code{hopit} model object.
 #' @param object an \code{hopit} object.
 #' @param robust.vcov logical indicating if to use sandwich estimator to
 #' calculate variance-covariance matrix.
@@ -67,7 +70,7 @@ vcov.hopit<-function(object, robust.vcov, ...){
   if (length(object$design)){
     if (!missing(robust.vcov) && (robust.vcov)) {
       warning(call. = FALSE, hopit_msg(39))
-      robust.vcov <- NA
+      robust.vcov <- FALSE
     }
   } else {
     if (missing(robust.vcov)) robust.vcov <- TRUE
@@ -83,12 +86,14 @@ vcov.hopit<-function(object, robust.vcov, ...){
 }
 
 
-#' Print object calculated by \code{\link{vcov.hopit}}
-#'
-#' @param x an \code{hopit} object
-#' @param digits see \code{\link{print.default}}.
-#' @param ... further arguments passed to or from other methods.
-#' @usage \method{print}{vcov.hopit}(x, digits = 3L, ...)
+# Printing variance-covariance matrix
+#
+# Print variance-covariance matrix calcualted by \code{\link{vcov.hopit}}.
+# @param x an \code{vcov.hopit} object
+# @param digits see \code{\link{print.default}}.
+# @param ... further arguments passed to or from other methods.
+# @usage \method{print}{vcov.hopit}(x, digits = 3L, ...)
+#' @noRd
 #' @method print vcov.hopit
 #' @keywords internal
 #' @export
@@ -104,6 +109,7 @@ print.vcov.hopit <- function(x, digits = 3L, ...){
 
 #' Calculate model summary
 #'
+#' Summarize a \code{hopit}  model.
 #' @param object an \code{hopit} object.
 #' @param robust.se logical indicating if to use robust standard errors based
 #' on the sandwich estimator.
@@ -120,6 +126,7 @@ print.vcov.hopit <- function(x, digits = 3L, ...){
 #' @importFrom Rcpp evalCpp
 summary.hopit <- function(object, robust.se = TRUE, ...){
   varcov <- vcov.hopit(object, robust.se, ...)
+  robust.se <- attr(varcov, 'robust.vcov')
   dvcov <- diag(varcov)
   if (any(dvcov<0)) warning(hopit_msg(43),call.=NA)
   SE <- suppressWarnings(sqrt(abs(dvcov)))
@@ -140,15 +147,16 @@ summary.hopit <- function(object, robust.se = TRUE, ...){
 }
 
 
-#' Print an object calculated by \code{\link{summary.hopit}}
-#'
-#' @param x an object created with \code{\link{summary.hopit}}.
-#' @param ...	further arguments passed to or from other methods.
+# Print an object calculated by \code{\link{summary.hopit}}
+#
+# @param x an object created with \code{\link{summary.hopit}}.
+# @param ...	further arguments passed to or from other methods.
 #' @keywords internal
 #' @export
-#' @usage \method{print}{summary.hopit}(x, ...)
+# @usage \method{print}{summary.hopit}(x, ...)
 #' @method print summary.hopit
-#' @author Maciej J. Danko
+# @author Maciej J. Danko
+#' @noRd
 print.summary.hopit <- function(x, ...){
   model <- x$model
   cat(hopit_msg(65), deparse(model$latent.formula), fill = TRUE)
@@ -169,8 +177,9 @@ print.summary.hopit <- function(x, ...){
 }
 
 
-#' Extracts a log likelihood of the fitted model
+#' Extracting a log-likelihood of the fitted model
 #'
+#' Extract log-likelihood of a \code{hopit} model.
 #' @param object an \code{hopit} object.
 #' @param ... additional objects of the class \code{hopit}.
 #' @keywords internal
@@ -188,8 +197,9 @@ logLik.hopit<-function(object, ...) {
   res
 }
 
-#' Extracts Akaike Information Criterion from the fitted model
+#' Extracting Akaike Information Criterion from the fitted model
 #'
+#' Extract Akaike Information Criterion (AIC) from a fitted \code{hopit} model.
 #' @param object an \code{hopit} object.
 #' @param k a penalty per parameter to be used; the default k = 2 is the
 #' classical AIC.
@@ -213,7 +223,7 @@ AIC.hopit<-function(object, ..., k = 2L) {
 
 #' Likelihood Ratio Test Tables
 #'
-#' Compute likelihood ratio test for two or more \code{hopit} objecs.
+#' Perform likelihood ratio test(s) for two or more \code{hopit} objecs.
 #' @param object an object containing the results returned by a \code{hopit}.
 #' @param ...	additional objects of the same type.
 #' @param method the method of model comparison. Choose \code{"sequential"}
@@ -356,16 +366,17 @@ anova.hopit<-function(object, ..., method = c('sequential', 'with.most.complex',
 }
 
 
-#' Print an object calculated by \code{\link{anova.hopit}}
-#'
-#' @param x an object generated by \code{\link{anova.hopit}}.
-#' @param ...	further arguments passed to or from other methods.
+# Print an object calculated by \code{\link{anova.hopit}}
+#
+# @param x an object generated by \code{\link{anova.hopit}}.
+# @param ...	further arguments passed to or from other methods.
 #' @keywords internal
 #' @export
-#' @author Maciej J. Danko
-#' @usage \method{print}{anova.hopit}(x, ...)
-#' @seealso \code{\link{anova.hopit}}, \code{\link{hopit}}.
+# @author Maciej J. Danko
+# @usage \method{print}{anova.hopit}(x, ...)
+# @seealso \code{\link{anova.hopit}}, \code{\link{hopit}}.
 #' @method print anova.hopit
+#' @noRd
 print.anova.hopit <- function(x, ...){
   cat(hopit_msg(49), x$method, '"\n\n', sep = '')
   stats::printCoefmat(x$table, signif.stars = TRUE, P.values = TRUE,
@@ -475,10 +486,10 @@ lrt.hopit <- function(full, nested){
 }
 
 
-#' Print an  object calculated by \code{\link{lrt.hopit}}
+#' Printing an object calculated by \code{\link{lrt.hopit}}
 #'
 #' @param x an object obtained from \code{\link{lrt.hopit}}.
-#' @param short logical indicating if to show shortened description.
+#' @param short logical indicating if to show a shortened description.
 #' @param ...	further arguments passed to or from other methods.
 #' @keywords internal
 #' @export

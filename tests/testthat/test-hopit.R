@@ -458,7 +458,7 @@ mH  <<- hopit(latent.formula = latent.formula.1,
              overdispersion = TRUE,
              decreasing.levels = TRUE)
 
-mI  <- hopit(latent.formula = latent.formula.1,
+mI  <<- hopit(latent.formula = latent.formula.1,
             thresh.formula = thresh.formula.1,
             data = newhealthsurvey,
             design = svydesign(ids = ~ country + psu,
@@ -516,9 +516,9 @@ mO  <<- hopit(latent.formula = latent.formula.H,
 test_hopit(object=mH, data = newhealthsurvey)
 test_hopit(object=mE, data = newhealthsurvey)
 test_hopit(object=m8, data = newhealthsurvey)
+expect_warning(test_hopit(object=mI, data = newhealthsurvey))
 
-# lrt and Anova -------------------------
-lrt1 <- lrt.hopit(m0, mL)
+# Anova -------------------------
 an1 <- anova(m0, mL)
 expect_equal(length(an1),5)
 expect_message(anova(mL, mH))

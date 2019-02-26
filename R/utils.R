@@ -26,14 +26,16 @@
 
 
 #' @noRd
+#' @keywords internal
 rep_row <- function(mat, times) t(matrix(t(mat), NCOL(mat), NROW(mat) * times))
 
 
-#' INTERNAL: Calculate special matrices for gradient calculation
-#' @param model fitted model.
-#' @return updated model.
+# INTERNAL: Calculate special matrices for gradient calculation
+# @param model fitted model.
+# @return updated model.
 #' @keywords internal
-#' @author Maciej J. Danko
+# @author Maciej J. Danko
+#' @noRd
 calcYYY<-function(model){
   y <- as.numeric(unclass(model$y_i))
   dY <- Vector2DummyMat(y)
@@ -52,7 +54,6 @@ calcYYY<-function(model){
 
 
 #' INTERNAL: numerical gradient
-
 #' @keywords internal
 #' @param fn function.
 #' @param par parameters
@@ -68,11 +69,8 @@ my.grad <- function(fn, par, eps, ...){
 }
 
 
-#' INTERNAL: Decode link parameter
-#' @param model fitted model.
-#' @return updated model.
+#' @noRd
 #' @keywords internal
-#' @author Maciej J. Danko
 hopit_c_link<-function(model){
   model$link <- tolower(model$link)
   if (model$link %in% c('probit','logit')){
@@ -82,10 +80,8 @@ hopit_c_link<-function(model){
 }
 
 
-#' INTERNAL: Converts a vector of an categorical variable into a matrix with dummies in columns
-#'
-#' @param V a vector of categories.
-#' @author Maciej J. Danko
+# INTERNAL: Converts a vector of an categorical variable into a matrix with dummies in columns
+#' @noRd
 #' @keywords internal
 Vector2DummyMat<-function(V) sapply(levels(as.factor(V)), function(k)
   as.factor(V) == k)*1L
@@ -129,19 +125,17 @@ formula2classes <- function(formula, data, sep='_', add.var.names = FALSE,
 }
 
 
-#' INTERNAL: Do cumsum() in each row of a matrix
-#'
-#' @param mat a matrix.
+#' @noRd
 #' @keywords internal
-#' @author Maciej J. Danko
 cumsum_row<-function(mat) t(apply(as.matrix(mat), 1L, cumsum))
 
 
-#' INTERNAL: Clasify individuals according to the latent.params and calculated thresholds
-#'
+# INTERNAL: Clasify individuals according to the latent.params and calculated thresholds
+#
 #' @keywords internal
-#' @param model \code{hopit} object.
-#' @author Maciej J. Danko
+# @param model \code{hopit} object.
+# @author Maciej J. Danko
+#' @noRd
 classify.ind<-function(model){
   p <- hopit_ExtractParameters(model, model$coef)
   a <- hopit_Threshold(thresh.lambda = p$thresh.lambda,
@@ -180,14 +174,15 @@ order.as.in<-function(x, y){
 #order.as.in(x=c('aa','cc','bb'),y=c('c','a','b'))
 
 
-#' INTERNAL: Use glm() to get starting parameters
-#'
-#' @param object \code{hopit} object.
-#' @param data data.frame with data used to fit the object.
-#' @return updated \code{hopit} object.
+# INTERNAL: Use glm() to get starting parameters
+#
+# @param object \code{hopit} object.
+# @param data data.frame with data used to fit the object.
+# @return updated \code{hopit} object.
 #' @keywords internal
-#' @author Maciej J. Danko
-start.glm<-function(object, data){
+# @author Maciej J. Danko
+#' @noRd
+start_glm<-function(object, data){
   g <- as.numeric(object$y_i)
   Y <- sapply(2:max(g), function(k) g<k)
   res <- sapply(seq_len(ncol(Y)),function(yi){
@@ -236,18 +231,18 @@ start.glm<-function(object, data){
 }
 
 
-#' INTERNAL: Translate glm() to hopit() start parameters
+#' INTERNAL: Get starting parameters
 #'
-#' @param object \code{hopit} object.
+#' @param object an \code{hopit} object.
 #' @param data data.frame with data used to fit the object.
-#' @return updated \code{hopit} object.
+#' @return an updated \code{hopit} object.
 #' @author Maciej J. Danko
 #' @keywords internal
 #' @useDynLib hopit
 #' @importFrom Rcpp evalCpp
 get.hopit.start<-function(object, data){
   logTheta <- 0
-  object <- suppressWarnings(start.glm(object, data))
+  object <- suppressWarnings(start_glm(object, data))
   par.ls <- object$glm.start.ls
 
   if (object$thresh.no.cov){

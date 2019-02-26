@@ -2,7 +2,7 @@
 % Please edit documentation in R/hopit.R
 \name{hopit_Latent}
 \alias{hopit_Latent}
-\title{INTERNAL: Calculate predicted continous latent measure.}
+\title{INTERNAL: Calculate predicted continous latent measure (h_i).}
 \usage{
 hopit_Latent(latent.params, model = NULL)
 }
@@ -12,7 +12,7 @@ hopit_Latent(latent.params, model = NULL)
 \item{model}{a \code{hopit} object}
 }
 \description{
-INTERNAL: Calculate predicted continous latent measure.
+INTERNAL: Calculate predicted continous latent measure (h_i).
 }
 \author{
 Maciej J. Danko

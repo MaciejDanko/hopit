@@ -7,7 +7,7 @@
 hopit_fitter(model, start = model$start, use_weights)
 }
 \arguments{
-\item{model}{a \code{hopit} object.}
+\item{model}{an \code{hopit} object.}
 
 \item{start}{starting parameters.}
 

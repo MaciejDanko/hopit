@@ -12,7 +12,7 @@
 \item{...}{further arguments passed to or from other methods.}
 }
 \description{
-Printing basic information about fitted \code{hopit} model
+Print a \code{hopit} model.
 }
 \author{
 Maciej J. Danko

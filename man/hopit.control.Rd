@@ -2,7 +2,7 @@
 % Please edit documentation in R/hopit.R
 \name{hopit.control}
 \alias{hopit.control}
-\title{Auxiliary for controlling the fitting of \code{hopit} model}
+\title{Auxiliary for controlling the fitting of an \code{hopit} model}
 \usage{
 hopit.control(grad.eps = 3e-05, bgfs.maxit = 10000, cg.maxit = 10000,
   nlm.maxit = 150, bgfs.reltol = 5e-10, cg.reltol = 5e-10,
@@ -26,7 +26,7 @@ minimum allowable relative step length. See \code{\link{nlm}}.}
 \item{fit.methods}{'CG', 'BFGS' or both. If both then CG is run first and then BFGS. See \code{\link{optim}}.}
 
 \item{quick.fit}{logical, if TRUE extensive \code{nlm} optimization method
-is ignored and only BFGS and CG methods are run.}
+is ignored and only BFGS and/or CG methods are run.}
 
 \item{trace}{logical, if to trace model fitting.}
 

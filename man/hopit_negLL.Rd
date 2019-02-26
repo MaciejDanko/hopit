@@ -10,7 +10,7 @@ hopit_negLL(parameters = model$coef, model, collapse = TRUE,
 \arguments{
 \item{parameters}{model parameters (optional). If not delivered then taken from \code{model$coef}.}
 
-\item{model}{\code{hopit} object.}
+\item{model}{an \code{hopit} object.}
 
 \item{collapse}{a logical indicating if to sum individual LL contributions.}
 

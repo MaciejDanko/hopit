@@ -44,7 +44,7 @@ values from the \code{data}. Using \code{\link[stats]{na.pass}} will lead to an 
 a \code{hopit} object used by other functions and methods. The object is a list with following components:
 \item{control}{ a list with control parameters. See \code{\link{hopit.control}}.}
 \item{link}{ the used link funtion.}
-\item{hasdisp}{ logical, was overdispersion modeled?}
+\item{hasdisp}{ logical indicating if overdispersion was modeled.}
 \item{use.weights}{ logical indicating if any weights were used.}
 \item{weights}{ vector with model weights.}
 \item{latent.formula}{ used latent formula. It is updated by cross-interactions if crossinter.formula is delivered.}

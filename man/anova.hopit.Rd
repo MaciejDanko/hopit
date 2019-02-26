@@ -25,7 +25,7 @@ where 1 is the most complex model.}
 a vector or a matrix with results of the test(s).
 }
 \description{
-Compute likelihood ratio test for two or more \code{hopit} objecs.
+Perform likelihood ratio test(s) for two or more \code{hopit} objecs.
 }
 \examples{
 # DATA
