@@ -7,7 +7,7 @@ hopit_msg <- function(x)
          '3'  = 'Wrong number of parameters.',
          '4'  = 'Lambda must be given.',
          '5'  = 'Improving fit using nlm() method...',
-         '6'  = 'Optimization cannot continue.',
+         '6'  = 'Optimization error. Probably bad starting parameters or model is unidentifiable.',
          '7'  = 'Something is wrong with the survey package.',
          '8'  = 'Please specify the method of fit',
          '9'  = 'Unknown fit method.',

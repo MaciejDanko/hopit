@@ -102,7 +102,7 @@ anova(model1, model2, model3, model4,
       direction = "increasing", method = "with.least.complex")
 }
 \seealso{
-\code{\link{print.anova.hopit}}, \code{\link{print.lrt.hopit}},
+\code{\link{print.lrt.hopit}},
 \code{\link{lrt.hopit}}, \code{\link{hopit}}.
 }
 \author{

@@ -240,7 +240,7 @@ AIC.hopit<-function(object, ..., k = 2L) {
 #' @export
 #' @return a vector or a matrix with results of the test(s).
 #' @author Maciej J. Danko
-#' @seealso \code{\link{print.anova.hopit}}, \code{\link{print.lrt.hopit}},
+#' @seealso \code{\link{print.lrt.hopit}},
 #' \code{\link{lrt.hopit}}, \code{\link{hopit}}.
 #' @examples
 #' # DATA

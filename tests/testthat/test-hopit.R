@@ -8,9 +8,13 @@ library(hopit)
 
 test_hopit <- function (object, data) {
   N <- object$N
+  cat('class ')
   expect_s3_class(object, "hopit")
+  cat('print ')
   expect_output(print(object))
+  cat('print.summary ')
   expect_output(print(summary(object)))
+  cat('non-empty tests ')
   expect_true(length(object$estfun)>0)
   expect_true(length(object$hessian)>0)
   expect_true(length(object$vcov)>0)
@@ -19,8 +23,10 @@ test_hopit <- function (object, data) {
   expect_equal(length(object$y_latent_i), N)
   expect_equal(length(object$Ey_i), N)
   expect_equal(nrow(data), N)
+  cat('LL ')
   expect_gt(object$LL, -Inf)
   expect_false(is.na(object$LL))
+  cat('design ')
   if (length(object$design)) expect_true(is.na(object$AIC))
   if (!length(object$design)) expect_identical(object$vcov, object$vcov.basic)
   # tmp <- profile(object)
@@ -28,25 +34,32 @@ test_hopit <- function (object, data) {
   # expect_equal(sum(is.na(tmp)),0)
   # expect_equal(capture_output(print(tmp, plotf = FALSE)),
   #             "All parameters seem to be at arg.max (at optimum).")
+  cat('HI ')
   expect_true(length(healthIndex(object))>0)
   expect_equal(length(healthIndex(object)), N)
+  cat('D ')
   expect_true(length(disabilityWeights(object))>0)
   expect_equal(length(disabilityWeights(object)),
                length(coef(object,aslist = T)$latent.params))
+  cat('coef ')
   expect_equal(length(coef(object)), sum(object$parcount))
+  cat('theta ')
   if (!object$hasdisp) {
     expect_equal(round(getTheta(object),8), 1)
   }
+  cat('levels ')
   hl <- getLevels(model=object, formula=~ sex + ageclass, data = healthsurvey,
                   sep=' ', plotf=FALSE)
   expect_equal(dim(hl$original), dim(hl$adjusted))
   expect_equal(length(hl), 7)
+  cat('cut-points ')
   cp <- getCutPoints(object, plotf = FALSE)
   expect_equal(length(cp),2)
   expect_equal(length(cp$cutpoints), object$J-1)
   expect_equal(length(cp$adjusted.levels), N)
-  print(which(is.na(cp$adjusted.levels)))
+  # print(which(is.na(cp$adjusted.levels)))
   expect_equal(sum(is.na(cp$adjusted.levels)),0)
+  cat('end \n')
   invisible()
 }
 
@@ -359,16 +372,17 @@ expect_error(hopit(latent.formula = latent.formula.1,
 # Passes -------------------------
 
 test_that("Hopit works",{
+  print('m0')
 m0  <<- hopit(latent.formula = latent.formula.8,
              thresh.formula = thresh.formula.1,
              data = newhealthsurvey,
              decreasing.levels = TRUE)
-
+print('m1')
 m1  <- hopit(latent.formula = latent.formula.8,
              thresh.formula = thresh.formula.1,
              data = newhealthsurvey,
              decreasing.levels = TRUE)
-
+print('m2')
 m2  <- hopit(latent.formula = latent.formula.7,
              thresh.formula = thresh.formula.3,
              data = newhealthsurvey,
@@ -383,81 +397,81 @@ m2  <- hopit(latent.formula = latent.formula.7,
 #              thresh.formula = thresh.formula.H,
 #              data = newhealthsurvey,
 #              decreasing.levels = TRUE)
-
+print('m5')
 m5  <- hopit(latent.formula = latent.formula.1,
              thresh.formula = thresh.formula.9,
              data = newhealthsurvey,
              decreasing.levels = TRUE)
-
+print('m6')
 m6  <- hopit(latent.formula = latent.formula.9,
              thresh.formula = thresh.formula.9,
              data = newhealthsurvey,
              control = list(transform.latent = 'min'),
              decreasing.levels = TRUE)
-
+print('m7')
 m7  <- hopit(latent.formula = latent.formula.1,
              thresh.formula = thresh.formula.5,
              data = newhealthsurvey,
              control = list(transform.thresh = 'standardize'),
              decreasing.levels = TRUE)
-
+print('m8')
 m8  <<- hopit(latent.formula = latent.formula.1,
              thresh.formula = thresh.formula.5,
              data = newhealthsurvey,
              control = list(transform.thresh = 'min'),
              decreasing.levels = TRUE)
-
+print('m9')
 m9  <- hopit(latent.formula = latent.formula.3,
              thresh.formula = thresh.formula.5,
              data = newhealthsurvey,
              control = list(transform.thresh = 'min'),
              decreasing.levels = TRUE)
-
+print('mA')
 mA  <- hopit(latent.formula = latent.formula.3,
              thresh.formula = thresh.formula.1,
              data = newhealthsurvey,
              control = list(transform.thresh = 'min'),
              decreasing.levels = TRUE)
-
+print('mB')
 mB  <- hopit(latent.formula = latent.formula.1,
              thresh.formula = thresh.formula.7,
              data = newhealthsurvey,
              control = list(transform.thresh = 'standardize'),
              decreasing.levels = TRUE)
-
+print('mC')
 mC  <- hopit(latent.formula = latent.formula.2,
             thresh.formula = thresh.formula.B,
             data = newhealthsurvey,
             decreasing.levels = TRUE)
-
+print('mD')
 mD  <- hopit(latent.formula = latent.formula.1,
             thresh.formula = thresh.formula.C,
             data = newhealthsurvey,
             decreasing.levels = TRUE)
-
+print('mE')
 mE  <<- hopit(latent.formula = latent.formula.9,
             thresh.formula = thresh.formula.1,
             data = newhealthsurvey,
             decreasing.levels = TRUE)
-
+print('mF')
 mF  <- hopit(latent.formula = latent.formula.1,
             thresh.formula = thresh.formula.J,
             data = newhealthsurvey,
             control = list(bgfs.maxit = 1e5,
                            bgfs.reltol = 1e-12),
             decreasing.levels = TRUE)
-
+print('mG')
 mG  <- hopit(latent.formula = latent.formula.1,
             thresh.formula = thresh.formula.N,
             data = newhealthsurvey,
             decreasing.levels = TRUE)
-
+print('mH')
 mH  <<- hopit(latent.formula = latent.formula.1,
              thresh.formula = thresh.formula.1,
              data = newhealthsurvey,
              overdispersion = TRUE,
              decreasing.levels = TRUE)
-
+print('mI')
 mI  <<- hopit(latent.formula = latent.formula.1,
             thresh.formula = thresh.formula.1,
             data = newhealthsurvey,
@@ -466,35 +480,35 @@ mI  <<- hopit(latent.formula = latent.formula.1,
                                data = newhealthsurvey),
             overdispersion = TRUE,
             decreasing.levels = TRUE)
-
+print('mJ')
 mJ  <- hopit(latent.formula = latent.formula.1,
                    thresh.formula = thresh.formula.7,
                    data = newhealthsurvey,
                    control = list(transform.latent = 'standardize',
                             transform.thresh = 'standardise'),
                    decreasing.levels = TRUE)
-
+print('mK')
 mK  <- hopit(latent.formula = latent.formula.1,
             thresh.formula = thresh.formula.1,
             data = newhealthsurvey,
             weights = runif(10000),
             overdispersion = FALSE,
             decreasing.levels = TRUE)
-
+print('mL')
 mL  <<- hopit(latent.formula = latent.formula.1,
             thresh.formula = thresh.formula.1,
             data = newhealthsurvey,
             start = c(coef(mK)),
             overdispersion = FALSE,
             decreasing.levels = TRUE)
-
+print('mM')
 mM  <- hopit(latent.formula = latent.formula.1,
              thresh.formula = thresh.formula.1,
              data = newhealthsurvey,
              start = c(coef(mH), logTheta = log(getTheta(mH))),
              overdispersion = TRUE,
              decreasing.levels = TRUE)
-
+print('mN')
 mN  <- hopit(latent.formula = latent.formula.3,
              thresh.formula = thresh.formula.5,
              data = newhealthsurvey,
@@ -502,7 +516,7 @@ mN  <- hopit(latent.formula = latent.formula.3,
                             transform.thresh = 'standardise'),
              decreasing.levels = TRUE)
 
-
+print('mO')
 mO  <<- hopit(latent.formula = latent.formula.H,
              thresh.formula = thresh.formula.1,
              data = newhealthsurvey,
@@ -512,13 +526,14 @@ mO  <<- hopit(latent.formula = latent.formula.H,
 })
 
 # test hopit object -------------------------
-
+print('test obj')
 test_hopit(object=mH, data = newhealthsurvey)
 test_hopit(object=mE, data = newhealthsurvey)
 test_hopit(object=m8, data = newhealthsurvey)
 expect_warning(test_hopit(object=mI, data = newhealthsurvey))
 
 # Anova -------------------------
+print('test anova')
 an1 <- anova(m0, mL)
 expect_equal(length(an1),5)
 expect_message(anova(mL, mH))
@@ -532,7 +547,7 @@ an4 <- anova(mO, mL, m0, method='with.least.complex', direction = 'increasing')
 expect_equal(dim(an4$table),c(2,3))
 
 # other errors --------------------------
-
+print('other')
 expect_error(anova(mO, mL, m0, method='with.least.complex', direction = 'decreasing'))
 
 expect_error(hopit(latent.formula = latent.formula.1,
@@ -548,3 +563,4 @@ expect_error(hopit(latent.formula = latent.formula.1,
                    start = c(coef(mH), logTheta = log(getTheta(mH))),
                    overdispersion = FALSE,
                    decreasing.levels = TRUE))
+

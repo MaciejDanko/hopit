@@ -215,7 +215,7 @@ hopit_fitter <- function(model, start = model$start, use_weights){
 
   if (missing(use_weights)) {
     if (length(model$use.weights)) use_weights <- model$use.weights else
-      stop(hopit_msg(95))
+      stop(hopit_msg(95), call.=NULL)
   }
 
   #be compatible with older versions
@@ -226,7 +226,7 @@ hopit_fitter <- function(model, start = model$start, use_weights){
 
   link <- hopit_c_link(model)
 
-  LLgr <- function(par, neg = TRUE)
+  LLgr <- function(par, neg = TRUE){
     LLGradFunc(par,
                yi = as.numeric(unclass(model$y_i)),
                YYY1 = model$YYY1,
@@ -245,8 +245,9 @@ hopit_fitter <- function(model, start = model$start, use_weights){
                weights = model$weights,
                thresh_start = model$control$thresh.start,
                use_weights = use_weights)
+  }
 
-  LLfn <- function(par, neg = TRUE)
+  LLfn <- function(par, neg = TRUE){
     LLFunc(par,
            yi = as.numeric(unclass(model$y_i)),
            latent_mm = model$latent.mm,
@@ -261,43 +262,53 @@ hopit_fitter <- function(model, start = model$start, use_weights){
            thresh_start=model$control$thresh.start,
            out_val = model$control$LL_out_val,
            hasdisp = model$hasdisp)
-
+  }
   #Two methods one after each other
   fastgradfit <- function(fit, meto){
     #BFGS and CG method
-    try({
-      if (meto == 'BFGS') {
-        fit <- stats::optim(par = fit$par, fn = LLfn, gr = LLgr,
-                     method = 'BFGS', hessian = FALSE,
-                     control = list(maxit = model$control$bgfs.maxit,
-                                  reltol = model$control$bgfs.reltol))
-      } else if (meto == 'CG'){
-        fit <- stats::optim(par = fit$par, fn = LLfn, gr = LLgr,
-                     method = 'CG', hessian = FALSE,
-                     control = list(maxit = model$control$cg.maxit,
-                                  reltol = model$control$cg.reltol))
-      }
-    }, silent = FALSE)
+    #try({
+    if (meto == 'BFGS') {
+      fit <- stats::optim(par = fit$par, fn = LLfn, gr = LLgr,
+                          method = 'BFGS', hessian = FALSE,
+                          control = list(maxit = model$control$bgfs.maxit,
+                                         reltol = model$control$bgfs.reltol))
+    } else if (meto == 'CG'){
+      fit <- stats::optim(par = fit$par, fn = LLfn, gr = LLgr,
+                          method = 'CG', hessian = FALSE,
+                          control = list(maxit = model$control$cg.maxit,
+                                         reltol = model$control$cg.reltol))
+    }
+    #}, silent = TRUE)
 
     return(fit)
   }
 
-  z <- try({
-    fit <- list(par = start)
-    if ('CG' %in% control$fit.methods) fit <- fastgradfit(fit, meto = 'CG')
-    if ('BFGS' %in% control$fit.methods) fit <- fastgradfit(fit, meto = 'BFGS')
-    if (!model$control$quick.fit || !length(fit$par)) {
-      if (!length(fit$par)) fit$par <- start
-      if (model$control$trace) cat(hopit_msg(13),hopit_msg(5),sep='')
-      fit <- suppressWarnings(stats::nlm(f = LLfn, p=fit$par,
-                                         gradtol = model$control$nlm.gradtol,
-                                         steptol = model$control$nlm.steptol,
-                                         hessian = FALSE,
-                                         iterlim=model$control$nlm.maxit))
-      fit <- list(par=fit$estimate, value=fit$minimum)
-    }
-  }, silent = FALSE)
-  if (class(z) == "try-error") stop(call.=NULL, hopit_msg(6))
+  #z <- try({
+  z1 <- z2 <- NULL
+  fit <- list(par = start)
+  if ('CG' %in% control$fit.methods)
+    z1 <- try({fit <- fastgradfit(fit, meto = 'CG')}, silent=TRUE)
+  if ('BFGS' %in% control$fit.methods)
+    z2 <- try({fit <- fastgradfit(fit, meto = 'BFGS')}, silent=TRUE)
+  if (!model$control$quick.fit || !length(fit$par)) {
+    if (!length(fit$par)) fit$par <- start #delete?
+    if (model$control$trace) cat(hopit_msg(13),hopit_msg(5),sep='')
+    fit <- suppressWarnings(stats::nlm(f = LLfn, p=fit$par,
+                                       gradtol = model$control$nlm.gradtol,
+                                       steptol = model$control$nlm.steptol,
+                                       hessian = FALSE,
+                                       iterlim=model$control$nlm.maxit))
+    fit <- list(par=fit$estimate, value=fit$minimum)
+  }
+  fit
+  #}, silent = TRUE)
+  both <- length(z1) & length(z2)
+  err1 <- class(z1) == "try-error"
+  err2 <- class(z2) == "try-error"
+  if ((both && err1 && err2) ||
+      (!both && length(z1) && err1) ||
+      (!both && length(z2) && err2) ||
+      LLfn(fit$par) == Inf)  stop(call.=NULL, hopit_msg(6))
 
   model$coef <- fit$par
   model$LL <- unname(-fit$value)
