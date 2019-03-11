@@ -169,18 +169,18 @@ expect_message(hopit(latent.formula = latent.formula.I,
 
 # non-finite value supplied by optim
 expect_warning(hopit(latent.formula = latent.formula.1,
-                   thresh.formula = thresh.formula.2,
-                   data = newhealthsurvey,
-                   decreasing.levels = TRUE))
+                     thresh.formula = thresh.formula.2,
+                     data = newhealthsurvey,
+                     decreasing.levels = TRUE))
 
 
 # Errors --------------------------
 
 #Error in na.fail.default(data) : missing values in object
 expect_error(hopit(latent.formula = latent.formula.1,
-      thresh.formula = thresh.formula.1,
-      data = newhealthsurvey2,
-      decreasing.levels = TRUE))
+                   thresh.formula = thresh.formula.1,
+                   data = newhealthsurvey2,
+                   decreasing.levels = TRUE))
 # hopit(latent.formula = latent.formula.1,
 #       thresh.formula = thresh.formula.1,
 #       data = newhealthsurvey2,
@@ -364,166 +364,166 @@ expect_error(hopit(latent.formula = latent.formula.1,
 
 # Cannot find starting parameters. Please
 expect_error(hopit(latent.formula = latent.formula.1,
-             thresh.formula = thresh.formula.7,
-             data = newhealthsurvey,
-             decreasing.levels = TRUE))
+                   thresh.formula = thresh.formula.7,
+                   data = newhealthsurvey,
+                   decreasing.levels = TRUE))
 
 
 # Passes -------------------------
 
-test_that("Hopit works",{
+#test_that("Hopit works",{
   print('m0')
-m0  <<- hopit(latent.formula = latent.formula.8,
-             thresh.formula = thresh.formula.1,
-             data = newhealthsurvey,
-             decreasing.levels = TRUE)
-print('m1')
-m1  <- hopit(latent.formula = latent.formula.8,
-             thresh.formula = thresh.formula.1,
-             data = newhealthsurvey,
-             decreasing.levels = TRUE)
-print('m2')
-m2  <- hopit(latent.formula = latent.formula.7,
-             thresh.formula = thresh.formula.3,
-             data = newhealthsurvey,
-             decreasing.levels = TRUE)
+  m0  <<- hopit(latent.formula = latent.formula.8,
+                thresh.formula = thresh.formula.1,
+                data = newhealthsurvey,
+                decreasing.levels = TRUE)
+  print('m1')
+  m1  <- hopit(latent.formula = latent.formula.8,
+               thresh.formula = thresh.formula.1,
+               data = newhealthsurvey,
+               decreasing.levels = TRUE)
+  print('m2')
+  m2  <- hopit(latent.formula = latent.formula.7,
+               thresh.formula = thresh.formula.3,
+               data = newhealthsurvey,
+               decreasing.levels = TRUE)
 
-# m3  <- hopit(latent.formula = latent.formula.1,
-#              thresh.formula = thresh.formula.G,
-#              data = newhealthsurvey,
-#              decreasing.levels = TRUE)
-#
-# m4  <- hopit(latent.formula = latent.formula.1,
-#              thresh.formula = thresh.formula.H,
-#              data = newhealthsurvey,
-#              decreasing.levels = TRUE)
-print('m5')
-m5  <- hopit(latent.formula = latent.formula.1,
-             thresh.formula = thresh.formula.9,
-             data = newhealthsurvey,
-             decreasing.levels = TRUE)
-print('m6')
-m6  <- hopit(latent.formula = latent.formula.9,
-             thresh.formula = thresh.formula.9,
-             data = newhealthsurvey,
-             control = list(transform.latent = 'min'),
-             decreasing.levels = TRUE)
-print('m7')
-m7  <- hopit(latent.formula = latent.formula.1,
-             thresh.formula = thresh.formula.5,
-             data = newhealthsurvey,
-             control = list(transform.thresh = 'standardize'),
-             decreasing.levels = TRUE)
-print('m8')
-m8  <<- hopit(latent.formula = latent.formula.1,
-             thresh.formula = thresh.formula.5,
-             data = newhealthsurvey,
-             control = list(transform.thresh = 'min'),
-             decreasing.levels = TRUE)
-print('m9')
-m9  <- hopit(latent.formula = latent.formula.3,
-             thresh.formula = thresh.formula.5,
-             data = newhealthsurvey,
-             control = list(transform.thresh = 'min'),
-             decreasing.levels = TRUE)
-print('mA')
-mA  <- hopit(latent.formula = latent.formula.3,
-             thresh.formula = thresh.formula.1,
-             data = newhealthsurvey,
-             control = list(transform.thresh = 'min'),
-             decreasing.levels = TRUE)
-print('mB')
-mB  <- hopit(latent.formula = latent.formula.1,
-             thresh.formula = thresh.formula.7,
-             data = newhealthsurvey,
-             control = list(transform.thresh = 'standardize'),
-             decreasing.levels = TRUE)
-print('mC')
-mC  <- hopit(latent.formula = latent.formula.2,
-            thresh.formula = thresh.formula.B,
-            data = newhealthsurvey,
-            decreasing.levels = TRUE)
-print('mD')
-mD  <- hopit(latent.formula = latent.formula.1,
-            thresh.formula = thresh.formula.C,
-            data = newhealthsurvey,
-            decreasing.levels = TRUE)
-print('mE')
-mE  <<- hopit(latent.formula = latent.formula.9,
-            thresh.formula = thresh.formula.1,
-            data = newhealthsurvey,
-            decreasing.levels = TRUE)
-print('mF')
-mF  <- hopit(latent.formula = latent.formula.1,
-            thresh.formula = thresh.formula.J,
-            data = newhealthsurvey,
-            control = list(bgfs.maxit = 1e5,
-                           bgfs.reltol = 1e-12),
-            decreasing.levels = TRUE)
-print('mG')
-mG  <- hopit(latent.formula = latent.formula.1,
-            thresh.formula = thresh.formula.N,
-            data = newhealthsurvey,
-            decreasing.levels = TRUE)
-print('mH')
-mH  <<- hopit(latent.formula = latent.formula.1,
-             thresh.formula = thresh.formula.1,
-             data = newhealthsurvey,
-             overdispersion = TRUE,
-             decreasing.levels = TRUE)
-print('mI')
-mI  <<- hopit(latent.formula = latent.formula.1,
-            thresh.formula = thresh.formula.1,
-            data = newhealthsurvey,
-            design = svydesign(ids = ~ country + psu,
-                               weights = healthsurvey$csw,
-                               data = newhealthsurvey),
-            overdispersion = TRUE,
-            decreasing.levels = TRUE)
-print('mJ')
-mJ  <- hopit(latent.formula = latent.formula.1,
-                   thresh.formula = thresh.formula.7,
-                   data = newhealthsurvey,
-                   control = list(transform.latent = 'standardize',
-                            transform.thresh = 'standardise'),
-                   decreasing.levels = TRUE)
-print('mK')
-mK  <- hopit(latent.formula = latent.formula.1,
-            thresh.formula = thresh.formula.1,
-            data = newhealthsurvey,
-            weights = runif(10000),
-            overdispersion = FALSE,
-            decreasing.levels = TRUE)
-print('mL')
-mL  <<- hopit(latent.formula = latent.formula.1,
-            thresh.formula = thresh.formula.1,
-            data = newhealthsurvey,
-            start = c(coef(mK)),
-            overdispersion = FALSE,
-            decreasing.levels = TRUE)
-print('mM')
-mM  <- hopit(latent.formula = latent.formula.1,
-             thresh.formula = thresh.formula.1,
-             data = newhealthsurvey,
-             start = c(coef(mH), logTheta = log(getTheta(mH))),
-             overdispersion = TRUE,
-             decreasing.levels = TRUE)
-print('mN')
-mN  <- hopit(latent.formula = latent.formula.3,
-             thresh.formula = thresh.formula.5,
-             data = newhealthsurvey,
-             control = list(transform.latent = 'standardize',
-                            transform.thresh = 'standardise'),
-             decreasing.levels = TRUE)
+  # m3  <- hopit(latent.formula = latent.formula.1,
+  #              thresh.formula = thresh.formula.G,
+  #              data = newhealthsurvey,
+  #              decreasing.levels = TRUE)
+  #
+  # m4  <- hopit(latent.formula = latent.formula.1,
+  #              thresh.formula = thresh.formula.H,
+  #              data = newhealthsurvey,
+  #              decreasing.levels = TRUE)
+  print('m5')
+  m5  <- hopit(latent.formula = latent.formula.1,
+               thresh.formula = thresh.formula.9,
+               data = newhealthsurvey,
+               decreasing.levels = TRUE)
+  print('m6')
+  m6  <- hopit(latent.formula = latent.formula.9,
+               thresh.formula = thresh.formula.9,
+               data = newhealthsurvey,
+               control = list(transform.latent = 'min'),
+               decreasing.levels = TRUE)
+  print('m7')
+  m7  <- hopit(latent.formula = latent.formula.1,
+               thresh.formula = thresh.formula.5,
+               data = newhealthsurvey,
+               control = list(transform.thresh = 'standardize'),
+               decreasing.levels = TRUE)
+  print('m8')
+  m8  <<- hopit(latent.formula = latent.formula.1,
+                thresh.formula = thresh.formula.5,
+                data = newhealthsurvey,
+                control = list(transform.thresh = 'min'),
+                decreasing.levels = TRUE)
+  print('m9')
+  m9  <- hopit(latent.formula = latent.formula.3,
+               thresh.formula = thresh.formula.5,
+               data = newhealthsurvey,
+               control = list(transform.thresh = 'min'),
+               decreasing.levels = TRUE)
+  print('mA')
+  mA  <- hopit(latent.formula = latent.formula.3,
+               thresh.formula = thresh.formula.1,
+               data = newhealthsurvey,
+               control = list(transform.thresh = 'min'),
+               decreasing.levels = TRUE)
+  print('mB')
+  mB  <- hopit(latent.formula = latent.formula.1,
+               thresh.formula = thresh.formula.7,
+               data = newhealthsurvey,
+               control = list(transform.thresh = 'standardize'),
+               decreasing.levels = TRUE)
+  print('mC')
+  mC  <- hopit(latent.formula = latent.formula.2,
+               thresh.formula = thresh.formula.B,
+               data = newhealthsurvey,
+               decreasing.levels = TRUE)
+  print('mD')
+  mD  <- hopit(latent.formula = latent.formula.1,
+               thresh.formula = thresh.formula.C,
+               data = newhealthsurvey,
+               decreasing.levels = TRUE)
+  print('mE')
+  mE  <<- hopit(latent.formula = latent.formula.9,
+                thresh.formula = thresh.formula.1,
+                data = newhealthsurvey,
+                decreasing.levels = TRUE)
+  print('mF')
+  mF  <- hopit(latent.formula = latent.formula.1,
+               thresh.formula = thresh.formula.J,
+               data = newhealthsurvey,
+               control = list(bgfs.maxit = 1e5,
+                              bgfs.reltol = 1e-12),
+               decreasing.levels = TRUE)
+  print('mG')
+  mG  <- hopit(latent.formula = latent.formula.1,
+               thresh.formula = thresh.formula.N,
+               data = newhealthsurvey,
+               decreasing.levels = TRUE)
+  print('mH')
+  mH  <<- hopit(latent.formula = latent.formula.1,
+                thresh.formula = thresh.formula.1,
+                data = newhealthsurvey,
+                overdispersion = TRUE,
+                decreasing.levels = TRUE)
+  print('mI')
+  mI  <<- hopit(latent.formula = latent.formula.1,
+                thresh.formula = thresh.formula.1,
+                data = newhealthsurvey,
+                design = svydesign(ids = ~ country + psu,
+                                   weights = healthsurvey$csw,
+                                   data = newhealthsurvey),
+                overdispersion = TRUE,
+                decreasing.levels = TRUE)
+  print('mJ')
+  mJ  <- hopit(latent.formula = latent.formula.1,
+               thresh.formula = thresh.formula.7,
+               data = newhealthsurvey,
+               control = list(transform.latent = 'standardize',
+                              transform.thresh = 'standardise'),
+               decreasing.levels = TRUE)
+  print('mK')
+  mK  <- hopit(latent.formula = latent.formula.1,
+               thresh.formula = thresh.formula.1,
+               data = newhealthsurvey,
+               weights = runif(10000),
+               overdispersion = FALSE,
+               decreasing.levels = TRUE)
+  print('mL')
+  mL  <<- hopit(latent.formula = latent.formula.1,
+                thresh.formula = thresh.formula.1,
+                data = newhealthsurvey,
+                start = c(coef(mK)),
+                overdispersion = FALSE,
+                decreasing.levels = TRUE)
+  print('mM')
+  mM  <- hopit(latent.formula = latent.formula.1,
+               thresh.formula = thresh.formula.1,
+               data = newhealthsurvey,
+               start = c(coef(mH), logTheta = log(getTheta(mH))),
+               overdispersion = TRUE,
+               decreasing.levels = TRUE)
+  print('mN')
+  mN  <- hopit(latent.formula = latent.formula.3,
+               thresh.formula = thresh.formula.5,
+               data = newhealthsurvey,
+               control = list(transform.latent = 'standardize',
+                              transform.thresh = 'standardise'),
+               decreasing.levels = TRUE)
 
-print('mO')
-mO  <<- hopit(latent.formula = latent.formula.H,
-             thresh.formula = thresh.formula.1,
-             data = newhealthsurvey,
-             overdispersion = FALSE,
-             decreasing.levels = TRUE)
+  print('mO')
+  mO  <<- hopit(latent.formula = latent.formula.H,
+                thresh.formula = thresh.formula.1,
+                data = newhealthsurvey,
+                overdispersion = FALSE,
+                decreasing.levels = TRUE)
 
-})
+#})
 
 # test hopit object -------------------------
 print('test obj')

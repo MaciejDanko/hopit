@@ -5,6 +5,7 @@
 ^LICENSE$
 ^tmp$
 ^old$
+^myscripts$
 ^README.Rmd$
 ^test$
 ^.Rhistory$

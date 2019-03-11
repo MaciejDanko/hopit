@@ -9,7 +9,7 @@ get.hopit.start(object, data)
 \arguments{
 \item{object}{an \code{hopit} object.}
 
-\item{data}{data.frame with data used to fit the object.}
+\item{data}{a data.frame with data used to fit the object.}
 }
 \value{
 an updated \code{hopit} object.

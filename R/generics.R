@@ -225,11 +225,11 @@ AIC.hopit<-function(object, ..., k = 2L) {
 #'
 #' Perform likelihood ratio test(s) for two or more \code{hopit} objecs.
 #' @param object an object containing the results returned by a \code{hopit}.
-#' @param ...	additional objects of the same type.
-#' @param method the method of model comparison. Choose \code{"sequential"}
+#' @param ...	additional object(s) of the same type.
+#' @param method the method of ordered model comparisons. Choose \code{"sequential"}
 #' for 1-2, 2-3, 3-4, ... comparisons or
 #' \code{"with.most.complex"} for 1-2, 1-3, 1-4, ... comparisons,
-#' where 1 is the most complex model.
+#' where 1 is the most complex model (the least complex for \code{"with.least.complex"}).
 #' @param direction determine if complexity of listed models is
 #' \code{"increasing"} or \code{"decreasing"} (default).
 # @keywords internal
@@ -246,8 +246,8 @@ AIC.hopit<-function(object, ..., k = 2L) {
 #' # DATA
 #' data(healthsurvey)
 #'
-#' # the order of response levels is decreasing (from the best health to
-#' # the worst health)
+#' # the order of response levels decreases from the best health to
+#' # the worst health, hence hopit() parameter decreasing.levels = TRUE
 #' levels(healthsurvey$health)
 #'
 #' # Example 1 ---------------------
@@ -262,7 +262,7 @@ AIC.hopit<-function(object, ..., k = 2L) {
 #'               control = list(trace = FALSE),
 #'               data = healthsurvey)
 #'
-#' # model with interaction between hypertension and high_cholesterol
+#' # a model with interaction between hypertension and high_cholesterol
 #' model2 <- hopit(latent.formula = health ~ hypertension * high_cholesterol +
 #'                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
 #'                 depression + respiratory_problems +
@@ -272,14 +272,14 @@ AIC.hopit<-function(object, ..., k = 2L) {
 #'               control = list(trace = FALSE),
 #'               data = healthsurvey)
 #'
-#' # Likelihood ratio test
+#' # a likelihood ratio test
 #' lrt1 <- anova(model1, model2)
 #' lrt1
 #'
 #' # print results in shorter form
 #' print(lrt1, short = TRUE)
 #'
-#' # equivalently
+#' # or equivalently
 #' lrt.hopit(model2, model1)
 #'
 #' # Example 2 ---------------------
@@ -308,11 +308,11 @@ AIC.hopit<-function(object, ..., k = 2L) {
 #' anova(model1, model2, model3, model4,
 #'       direction = "increasing", method = "sequential")
 #'
-#' # likelihood ratio tests of the most complex model with the rest
+#' # likelihood ratio tests of the most complex model with the rest of models
 #' anova(model1, model2, model3, model4,
 #'       direction = "increasing", method = "with.most.complex")
 #'
-#' # likelihood ratio tests of the least complex model with the rest
+#' # likelihood ratio tests of the least complex model with the rest of models
 #' anova(model1, model2, model3, model4,
 #'       direction = "increasing", method = "with.least.complex")
 anova.hopit<-function(object, ..., method = c('sequential', 'with.most.complex',

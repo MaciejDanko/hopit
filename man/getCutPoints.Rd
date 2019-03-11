@@ -16,11 +16,11 @@ getCutPoints(model, subset = NULL, plotf = TRUE, mar = c(4, 4, 1, 1),
 
 \item{plotf}{a logical indicating if to plot the results.}
 
-\item{mar, oma}{see \code{\link{par}}.}
+\item{mar, oma}{graphic parameters, see \code{\link{par}}.}
 
-\item{XLab, XLab.cex}{label and size of the label for x axis.}
+\item{XLab, XLab.cex}{a label of x axis and it's size.}
 
-\item{YLab, YLab.cex}{label and size of the label for y axis.}
+\item{YLab, YLab.cex}{a label of y axis and it's size.}
 
 \item{decreasing.levels}{logical indicating if self-reported health classes are ordered in decreasing order.}
 
@@ -38,13 +38,13 @@ Calculate threshold cut-points and individual ajusted responses using Jurges' me
 # DATA
 data(healthsurvey)
 
-# the order of response levels is decreasing (from the best health to the
-# worst health)
+# the order of response levels decreases from the best health to
+# the worst health, hence hopit() parameter decreasing.levels = TRUE
 levels(healthsurvey$health)
 
 # Example 1 ---------------------
 
-# fitting a model
+# fit a model
 model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
                 depression + respiratory_problems +
@@ -54,17 +54,17 @@ model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
               control = list(trace = FALSE),
               data = healthsurvey)
 
-# health index cut-points
+# calculate health index cut-points
 z <- getCutPoints(model = model1)
 z$cutpoints
 
-# adjusted health levels for individuals: Jurges method
+# tabulate adjusted health levels for individuals: Jurges method
 rev(table(z$adjusted.levels))
 
-# original health levels for individuals
+# tabulate original health levels for individuals
 table(model1$y_i)
 
-# adjusted health levels for individuals: Estimated model thresholds
+# tabulate predicted health levels
 table(model1$Ey_i)
 }
 \references{

@@ -7,8 +7,9 @@
 '%notin%' <-function(x, y) match(x, y, nomatch = 0L) == 0L
 
 
-#' Check if one set is a subset of an another subset
+#' Check if one set contains all elements of another set
 #'
+#' Check if y set contains all elements of set x
 #' @param x,y numeric vectors
 #' @usage x \%c\% y
 #' @author Maciej J. Danko
@@ -18,6 +19,7 @@
 
 #' Not \%c\% function
 #'
+#' Check if y set contains none of elements of set x
 #' @param x,y numeric vectors
 #' @usage x \%notc\% y
 #' @author Maciej J. Danko
@@ -53,13 +55,14 @@ calcYYY<-function(model){
 }
 
 
-#' INTERNAL: numerical gradient
+# INTERNAL: numerical gradient
 #' @keywords internal
-#' @param fn function.
-#' @param par parameters
-#' @param eps epsilon.
-#' @param ... other parameters passed to fn
-#' @author Maciej J. Danko
+# @param fn function.
+# @param par parameters
+# @param eps epsilon.
+# @param ... other parameters passed to fn
+# @author Maciej J. Danko
+#' @noRd
 my.grad <- function(fn, par, eps, ...){
   sapply(1L : length(par), function(k){
     epsi <- rep(0L, length(par))
@@ -234,7 +237,7 @@ start_glm<-function(object, data){
 #' INTERNAL: Get starting parameters
 #'
 #' @param object an \code{hopit} object.
-#' @param data data.frame with data used to fit the object.
+#' @param data a data.frame with data used to fit the object.
 #' @return an updated \code{hopit} object.
 #' @author Maciej J. Danko
 #' @keywords internal

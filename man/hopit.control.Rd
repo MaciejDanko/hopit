@@ -2,36 +2,36 @@
 % Please edit documentation in R/hopit.R
 \name{hopit.control}
 \alias{hopit.control}
-\title{Auxiliary for controlling the fitting of an \code{hopit} model}
+\title{Auxiliary for controlling the fitting of a \code{hopit} model}
 \usage{
 hopit.control(grad.eps = 3e-05, bgfs.maxit = 10000, cg.maxit = 10000,
   nlm.maxit = 150, bgfs.reltol = 5e-10, cg.reltol = 5e-10,
   nlm.gradtol = 1e-07, nlm.steptol = 1e-07, fit.methods = "BFGS",
-  quick.fit = TRUE, trace = TRUE, transform.latent = "none",
+  nlm.fit = FALSE, trace = TRUE, transform.latent = "none",
   transform.thresh = "none")
 }
 \arguments{
-\item{grad.eps}{epsilon for numerical Hessian function.}
+\item{grad.eps}{an epsilon parameter ("a very small number") used to calculate Hessian from the gradient function.}
 
 \item{bgfs.maxit, cg.maxit, nlm.maxit}{the maximum number of iterations.
 See \code{\link{optim}} and \code{\link{nlm}} for details.}
 
-\item{bgfs.reltol, cg.reltol}{relative convergence tolerance.
+\item{bgfs.reltol, cg.reltol}{relative convergence tolerances for BFGS and CG methods.
 See \code{\link{optim}} for details.}
 
-\item{nlm.gradtol, nlm.steptol}{tolerance at which the scaled gradient is
+\item{nlm.gradtol, nlm.steptol}{a tolerance at which the scaled gradient is
 considered close enough to zero and
-minimum allowable relative step length. See \code{\link{nlm}}.}
+a minimum allowable relative step length for nlm method. See \code{\link{nlm}}.}
 
 \item{fit.methods}{'CG', 'BFGS' or both. If both then CG is run first and then BFGS. See \code{\link{optim}}.}
 
-\item{quick.fit}{logical, if TRUE extensive \code{nlm} optimization method
-is ignored and only BFGS and/or CG methods are run.}
+\item{nlm.fit}{a logical, if FALSE (default) the \code{nlm} optimization method
+is omitted and only BFGS and/or CG methods are run.}
 
-\item{trace}{logical, if to trace model fitting.}
+\item{trace}{a logical, if to trace process of model fitting.}
 
-\item{transform.latent, transform.thresh}{type of the transformation apllied to
-the all latent or all threshold numerical variables. Possible values:
+\item{transform.latent, transform.thresh}{a type of transformation apllied to
+the all latent's or all threshold's numeric variables. Possible values:
 \itemize{
 \item{"none"} {- no transformation}
 \item{"min"} {- subtract minimum from a variable}
@@ -41,7 +41,7 @@ the all latent or all threshold numerical variables. Possible values:
 }}
 }
 \description{
-Auxiliary function for controlling the fitting of \code{hopit} model.
+An auxiliary function for controlling fitting of \code{hopit} model.
 Use this function to set control
 parameters of the \code{\link{hopit}} and other related functions.
 }

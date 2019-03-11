@@ -290,7 +290,7 @@ hopit_fitter <- function(model, start = model$start, use_weights){
     z1 <- try({fit <- fastgradfit(fit, meto = 'CG')}, silent=TRUE)
   if ('BFGS' %in% control$fit.methods)
     z2 <- try({fit <- fastgradfit(fit, meto = 'BFGS')}, silent=TRUE)
-  if (!model$control$quick.fit || !length(fit$par)) {
+  if (model$control$nlm.fit || !length(fit$par)) {
     if (!length(fit$par)) fit$par <- start #delete?
     if (model$control$trace) cat(hopit_msg(13),hopit_msg(5),sep='')
     fit <- suppressWarnings(stats::nlm(f = LLfn, p=fit$par,
@@ -320,26 +320,26 @@ hopit_fitter <- function(model, start = model$start, use_weights){
 }
 
 
-#' Auxiliary for controlling the fitting of an \code{hopit} model
+#' Auxiliary for controlling the fitting of a \code{hopit} model
 #'
 #' @description
-#' Auxiliary function for controlling the fitting of \code{hopit} model.
+#' An auxiliary function for controlling fitting of \code{hopit} model.
 #' Use this function to set control
 #' parameters of the \code{\link{hopit}} and other related functions.
-#' @param grad.eps epsilon for numerical Hessian function.
-#' @param quick.fit logical, if TRUE extensive \code{nlm} optimization method
-#' is ignored and only BFGS and/or CG methods are run.
+#' @param grad.eps an epsilon parameter ("a very small number") used to calculate Hessian from the gradient function.
+#' @param nlm.fit a logical, if FALSE (default) the \code{nlm} optimization method
+#' is omitted and only BFGS and/or CG methods are run.
 #' @param bgfs.maxit,cg.maxit,nlm.maxit the maximum number of iterations.
 #' See \code{\link{optim}} and \code{\link{nlm}} for details.
-#' @param bgfs.reltol,cg.reltol relative convergence tolerance.
+#' @param bgfs.reltol,cg.reltol relative convergence tolerances for BFGS and CG methods.
 #' See \code{\link{optim}} for details.
-#' @param nlm.gradtol,nlm.steptol tolerance at which the scaled gradient is
+#' @param nlm.gradtol,nlm.steptol a tolerance at which the scaled gradient is
 #' considered close enough to zero and
-#' minimum allowable relative step length. See \code{\link{nlm}}.
+#' a minimum allowable relative step length for nlm method. See \code{\link{nlm}}.
 #' @param fit.methods 'CG', 'BFGS' or both. If both then CG is run first and then BFGS. See \code{\link{optim}}.
-#' @param trace logical, if to trace model fitting.
-#' @param transform.latent,transform.thresh type of the transformation apllied to
-#' the all latent or all threshold numerical variables. Possible values:
+#' @param trace a logical, if to trace process of model fitting.
+#' @param transform.latent,transform.thresh a type of transformation apllied to
+#' the all latent's or all threshold's numeric variables. Possible values:
 #' \itemize{
 #'   \item{"none"} {- no transformation}
 #'   \item{"min"} {- subtract minimum from a variable}
@@ -359,7 +359,7 @@ hopit.control<-function(grad.eps = 3e-5,
                         nlm.gradtol = 1e-7,
                         nlm.steptol = 1e-7,
                         fit.methods = 'BFGS',
-                        quick.fit = TRUE,
+                        nlm.fit = FALSE,
                         trace = TRUE,
                         transform.latent = 'none',
                         transform.thresh = 'none'){
@@ -377,15 +377,16 @@ hopit.control<-function(grad.eps = 3e-5,
        nlm.gradtol = nlm.gradtol,
        nlm.steptol = nlm.steptol,
        fit.methods = fit.methods,
-       quick.fit = quick.fit,
+       nlm.fit = nlm.fit,
        trace = trace,
        transform.latent = transform.latent,
        transform.thresh = transform.thresh)
 }
 
 
-#' Extract Theta parameter from an \code{hopit} model
+#' Extract \code{Theta} parameter from a \code{hopit} model
 #'
+#' Extract \code{Theta} parameter from a \code{hopit} model
 #' @param model a fitted \code{hopit} model.
 #' @export
 #' @author Maciej J. Danko
@@ -477,63 +478,66 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' i.e. main latent effects must be speciffied in the latent formula and main threshold effect must be speciffied in the threshold formula.
 #' See also \code{Example 3} below.\cr
 #'
-#' For more details please see the package vignette: "introduction_to_hopit".
+#' For more details please see the package vignette: "introduction_to_hopit", which is also available under this link:
+#' \href{https://github.com/MaciejDanko/hopit/blob/master/vignettes/introduction_to_hopit.pdf}{introduction_to_hopit.pdf}
 #'
-#' @param latent.formula formula used to model latent variable. It should not contain any threshold variable.
+#' @param latent.formula a formula used to model latent variable. It should not contain any threshold variable.
 #' To specify interactions between latent and threshold variables see details.
-#' @param thresh.formula formula used to model threshold variable. It should not contain any latent variable.
+#' @param thresh.formula a formula used to model threshold variable. It should not contain any latent variable.
 #' To specify interactions between latent and threshold variables see details.
 #' Any dependent variable (left side of "~" in the formula) will be ignored.
 #' @param data a data frame including all modeled variables.
-#' @param decreasing.levels logical indicating if self-reported health classes are ordered in decreasing order.
-#' @param overdispersion logical indicting if to fit additional parameter theta, which models a variance of the error term.
+#' @param decreasing.levels a logical indicating if self-reported health classes are ordered in decreasing order.
+#' @param overdispersion a logical indicting if to fit additional parameter theta, which models a variance of the error term.
 #' @param design an optional survey design. Use \code{\link[survey]{svydesign}} function to specify the design.
 #' The design cannot be specified together with parameter \code{weights}.
 #' @param weights optional model weights. Use design to construct survey weights.
-#' @param link the link function. The possible values are \code{"probit"} (default) and \code{"logit"}.
+#' @param link a link function. The possible values are \code{"probit"} (default) and \code{"logit"}.
 #' @param start a vector with starting coefficient values in the form \code{c(latent_parameters, threshold_lambdas, threshold_gammas)} or
 #' \code{c(latent_parameters, threshold_lambdas, threshold_gammas, logTheta)} if the \code{overdispersion == TRUE}.
 #' @param control a list with control parameters. See \code{\link{hopit.control}}.
-#' @param na.action a function which indicates what should happen when the \code{data} contain \code{NA}s. The default is \code{\link[stats]{na.fail}},
-#' which generates an error if missing values are found. The alternative is \code{\link[stats]{na.omit}}
+#' @param na.action a function which indicates what should happen when the \code{data} contain \code{NA}s.
+#' The default is \code{\link[stats]{na.fail}},
+#' which generates an error if any missing value is found. The alternative is \code{\link[stats]{na.omit}}
 #' (or \code{\link[stats]{na.exclude}} equivalently), which removes rows with missing
 #' values from the \code{data}. Using \code{\link[stats]{na.pass}} will lead to an error.
 #' @importFrom stats na.fail
+#' @importFrom Rdpack reprompt
 #' @return a \code{hopit} object used by other functions and methods. The object is a list with following components:
 #'  \item{control}{ a list with control parameters. See \code{\link{hopit.control}}.}
-#'  \item{link}{ the used link funtion.}
-#'  \item{hasdisp}{ logical indicating if overdispersion was modeled.}
-#'  \item{use.weights}{ logical indicating if any weights were used.}
-#'  \item{weights}{ vector with model weights.}
-#'  \item{latent.formula}{ used latent formula. It is updated by cross-interactions if crossinter.formula is delivered.}
-#'  \item{latent.mm}{ latent model matrix.}
-#'  \item{latent.terms}{ used latent variables and their interactions.}
-#'  \item{cross.inter.latent}{ part of the latent formula modeling cross-interactions in the latent model}
-#'  \item{thresh.formula}{ used threshold formula.}
+#'  \item{link}{ a used link funtion.}
+#'  \item{hasdisp}{ a logical indicating if overdispersion was modeled.}
+#'  \item{use.weights}{ a logical indicating if any weights were used.}
+#'  \item{weights}{ a vector with model weights.}
+#'  \item{latent.formula}{ a latent formula used to fit the model.}
+#'  \item{latent.mm}{ a latent model matrix.}
+#'  \item{latent.terms}{ a used latent variables and their interactions.}
+#'  \item{cross.inter.latent}{  part of the latent formula modeling cross-interactions in the latent model}
+#'  \item{thresh.formula}{ a threshold formula used to fit the model.}
 #'  \item{thresh.mm}{ threshold model matrix.}
-#'  \item{thresh.extd}{ threshold extended model matrix.}
+#'  \item{thresh.extd}{ an extended threshold model matrix.}
 #'  \item{thresh.terms}{ used threshold variables and their interactions.}
 #'  \item{cross.inter.thresh}{ part of the threshold formula modeling cross-interactions in the threshold model}
-#'  \item{thresh.no.cov}{ logical, are gamma parameters present?}
-#'  \item{parcount}{ 3-element vector with number of parmeters for latent latent variable (beta),
+#'  \item{thresh.no.cov}{ a logical indicating if gamma parameters are present.}
+#'  \item{parcount}{ a 3-element vector with number of parmeters for latent variable (beta),
 #'  threshold intercept (lambda), and threshold covariates (gamma).}
-#'  \item{coef}{ a vector with coefficients.}
+#'  \item{coef}{ a vector with model coefficients.}
 #'  \item{coef.ls}{ coefficients as a list.}
-#'  \item{start}{ vector with starting vlues of coefficients.}
+#'  \item{start}{ a vector with starting vlues of coefficients.}
 #'  \item{alpha}{ estimated individual-specific thresholds.}
-#'  \item{y_i}{ the response variable.}
-#'  \item{y_latent_i}{ predicted latent measure.}
-#'  \item{Ey_i}{ predicted categorical response.}
-#'  \item{J}{ the number of response levels.}
-#'  \item{N}{ the number of observations.}
-#'  \item{deviance}{ deviance.}
-#'  \item{LL}{ log likelihood.}
-#'  \item{AIC}{ AIC for models without survey design.}
-#'  \item{vcov}{ variance-covariance matrix.}
-#'  \item{vcov.basic}{ variance-covariance matrix ignoring survey design.}
+#'  \item{y_i}{ a vector with individual responses - the response variable.}
+#'  \item{y_latent_i}{ a vector with predicted latent measures for each individual.}
+#'  \item{Ey_i}{ a vector with predicted categorical responses for each individual.}
+#'  \item{J}{ a number of response levels.}
+#'  \item{N}{ a number of observations.}
+#'  \item{deviance}{ a deviance.}
+#'  \item{LL}{ a log likelihood.}
+#'  \item{AIC}{ a AIC for models without survey design.}
+#'  \item{vcov}{ a variance-covariance matrix.}
+#'  \item{vcov.basic}{ a variance-covariance matrix ignoring survey design.}
 #'  \item{hessian}{ a Hessian matrix.}
-#'  \item{estfun}{ gradient (vector of partial derivatives) of the log likelihood function at estimated coefficient values.}
-#'  \item{YYY1,YYY2,YY3}{ internal objects used for calculation of gradient and Hessian functions.}
+#'  \item{estfun}{ a gradient (a vector of partial derivatives) of the log likelihood function at estimated coefficient values.}
+#'  \item{YYY1,YYY2,YY3}{ an internal objects used for calculation of gradient and Hessian functions.}
 #' @references \insertAllCited{}
 #' @export
 #' @author Maciej J. Danko
@@ -561,8 +565,8 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #'
 #' # Example 1 ---------------------
 #'
-#' # the order is decreasing (from the best health to the worst health)
-#' # so we set: decreasing.levels = TRUE
+#' # the order of response levels decreases from the best health to
+#' # the worst health, hence hopit() parameter decreasing.levels = TRUE
 #' # fitting the model:
 #' model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
 #'                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
@@ -582,7 +586,7 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #' # names of returned coefficients
 #' names(cm1)
 #'
-#' # extracting latent health coefficients
+#' # extract latent health coefficients
 #' cm1$latent.params
 #'
 #' # check the fit
@@ -590,7 +594,7 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #'
 #' # Example 2 ---------------------
 #'
-#' # incorporating survey design
+#' # incorporate survey design
 #' design <- svydesign(ids = ~ country + psu, weights = healthsurvey$csw,
 #' data = healthsurvey)
 #'
@@ -610,7 +614,8 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #'
 #' # Example 3 ---------------------
 #'
-#' # interactions beetween threshold and latent variables
+#' # defining interactions beetween threshold and latent variables
+#'
 #' # correctly defined interactions:
 #' model3 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
 #'                 heart_attack_or_stroke + poor_mobility * very_poor_grip +
@@ -624,7 +629,7 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #'
 #' # badly defined interactions:
 #' \dontrun{
-#' # 1) lack of main effect of "other_diseases" in both formulas
+#' # 1) lack of main effect of "other_diseases" in any formula
 #' # it can be solved by adding " + other_diseases" to the latent formula
 #' model3a <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
 #'                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
@@ -635,7 +640,7 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #'               control = list(trace = FALSE),
 #'               data = healthsurvey)
 #'
-#' # 2) Main effect of sex present in both formulas.
+#' # 2) main effect of sex present in both formulas.
 #' # it can be solved by exchanging "*" into ":" in "other_diseases * sex"
 #' model3b <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
 #'                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
@@ -649,7 +654,7 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #'
 #' # Example 4 ---------------------
 #'
-#' # model with overdispersion
+#' # a model accounting for overdispersion
 #' model4 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
 #'                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
 #'                 depression + respiratory_problems +
@@ -660,11 +665,10 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #'               control = list(trace = FALSE),
 #'               data = healthsurvey)
 #'
-#' # estimated variance of the error term:
+#' # an estimated variance of the error term:
 #' getTheta(model4)
 #'
-#' # compare fit of model1 and model4
-#' # Likelihood Ratio Test
+#' # compare fit of model1 and model4 suing Likelihood Ratio Test
 #' print(anova(model1, model4), short = TRUE)
 #'
 #' # Example 5 ---------------------
@@ -679,7 +683,7 @@ getTheta <- function(model) unname(exp(model$coef.ls$logTheta))
 #'   depression + respiratory_problems +
 #'   IADL_problems + obese + diabetes + other_diseases
 #'
-#' # in some cases, when continouse variables are used, the start.glm() function
+#' # in some cases, when continouse variables are used, the hopit:::get.hopit.start() function
 #' # may not find starting parameters (R version 3.4.4 (2018-03-15)):
 #' model5 <- hopit(latent.formula = latent.formula,
 #'                 thresh.formula = ~ sex + cont_var,
@@ -878,7 +882,7 @@ hopit<- function(latent.formula,
 
   if (length(model$design)) {
     if (model$control$trace) cat(hopit_msg(16))
-    model$vcov <- svy.varcoef.hopit(model$vcov.basic, model$estfun, design)
+    model$vcov <- svy.varcoef_hopit(model$vcov.basic, model$estfun, design)
     model$AIC <- NA
     if (model$control$trace) cat(hopit_msg(13))
   } else {

@@ -15,32 +15,32 @@ getLevels(model, formula = model$thresh.formula,
 
 \item{formula}{a formula containing the grouping variables. It is by default set to threshold formula.}
 
-\item{data}{data used to fit the model.}
+\item{data}{a data used to fit the model.}
 
-\item{decreasing.levels}{logical indicating if self-reported health classes are ordered in increasing order.}
+\item{decreasing.levels}{a logical indicating if self-reported health classes are ordered in increasing order.}
 
-\item{sort.flag}{logical indicating if to sort the levels.}
+\item{sort.flag}{a logical indicating if to sort the levels.}
 
 \item{plotf}{a logical indicating if to plot the results.}
 
-\item{sep}{separator for levels names.}
+\item{sep}{a separator for levels names.}
 
-\item{mar, oma}{see \code{\link{par}}.}
+\item{mar, oma}{graphic parameters, see \code{\link{par}}.}
 
-\item{YLab, YLab.cex}{label and size of the label for y axis.}
+\item{YLab, YLab.cex}{a label of y axis and it's size.}
 
-\item{legbg}{legend background color. See \code{bg} parameter in \code{\link{legend}}.}
+\item{legbg}{a legend background color. See \code{bg} parameter in \code{\link{legend}}.}
 
-\item{legbty}{legend box type. See \code{bty} parameter in \code{\link{legend}}.}
+\item{legbty}{a legend box type. See \code{bty} parameter in \code{\link{legend}}.}
 }
 \value{
 a list with following components:
 \item{original}{ frequencies of original response levels for selected groups/categories.}
 \item{adjusted}{ frequencies of adjusted response levels (Jurges 2007 method) for selected groups/categories.}
-\item{N.original}{ numbers of original response levels for selected groups/categories.}
-\item{N.adjusted}{ numbers of adjusted response levels (Jurges 2007 method) for selected groups/categories.}
+\item{N.original}{ number of original response levels for selected groups/categories.}
+\item{N.adjusted}{ number of adjusted response levels (Jurges 2007 method) for selected groups/categories.}
 \item{categories}{ selected groups/categories used in summary.}
-\item{tab}{ original vs. adjusted contingency table.}
+\item{tab}{ a original vs. adjusted contingency table.}
 \item{mat}{ a matrix with columns: grouping variables, original response levels, adjusted response levels.
 Each row corresponds to a single individual from the data used to fit the model.}
 }
@@ -51,11 +51,11 @@ Summarize adjusted and original self-rated response levels.
 # DATA
 data(healthsurvey)
 
-# the order of response levels is decreasing (from the best health to the
-# worst health)
+# the order of response levels decreases from the best health to
+# the worst health, hence hopit() parameter decreasing.levels = TRUE
 levels(healthsurvey$health)
 
-# fitting a model
+# fit a model
 model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
                 depression + respiratory_problems +
@@ -67,15 +67,15 @@ model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
 
 # Example 1 ---------------------
 
-# summary by country
+# calcualte a summary by country
 hl <- getLevels(model=model1, formula=~ country,
                 data = healthsurvey,
                 sep=' ', plotf=TRUE)
 
-# differences in frequencies between original and adjusted health levels
+# differences between frequencies of original and adjusted health levels
 round(100*(hl$original - hl$adjusted),2)
 
-# extract good and bad health (combine levels)
+# extract good and bad health (combined levels)
 Org <- cbind(bad = rowSums(hl$original[,1:2]),
              good = rowSums(hl$original[,4:5]))
 Adj <- cbind(bad = rowSums(hl$adjusted[,1:2]),
@@ -91,8 +91,8 @@ legend('top', c('Bad health','Good health'),
        density = 20, angle = c(-45, 45),
        fill = c('pink4', 'green2'), bty = 'n', cex = 1.2)
 
-# in country X the bad health seems to be over-reported and good health
-# under reported, in country Z the good health is highly over-reported.
+# in country X bad health seems to be over-reported while good health
+# under reported; in country Z the good health is highly over-reported.
 
 # Example 2 ---------------------
 
@@ -101,7 +101,7 @@ hl <- getLevels(model = model1, formula=~ sex + ageclass,
                 data = healthsurvey,
                 sep=' ', plotf=TRUE)
 
-# differences in frequencies between original and adjusted health levels
+# differences between frequencies of original and adjusted health levels
 round(100*(hl$original - hl$adjusted),2)
 
 # extract good health levels (combined "Very good" and "Excelent" levels)
@@ -118,7 +118,7 @@ abline(h = 0); box(); par(mar = pmar)
 legend('top', c('Man','Woman'), density = 20, angle = c(-45, 45),
        fill = c('blue', 'orange'), bty = 'n', cex = 1.2)
 
-# the results show that women in general tend to over-report good health,
+# results show that women in general tend to over-report good health,
 # while men in ages 50-59 greatly under-report good health.
 
 # more examples can be found in the description of boot.hopit() function.

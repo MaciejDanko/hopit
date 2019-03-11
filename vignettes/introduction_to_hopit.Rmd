@@ -1,7 +1,7 @@
 ---
 title: "Analysis of the reporting behavior using generalized ordered probit models: an introduction to *hopit* package"
 author: "Maciej J. Dańko"
-date: "22 II 2019"
+date: "11 III 2019"
 output:
   pdf_document: 
     highlight: tango
@@ -16,7 +16,7 @@ vignette: >
   %\VignetteIndexEntry{Introduction to hopit}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-bibliography: ../inst/REFERENCES.bib
+bibliography: ../inst/REFERENCES_VIG.bib
 biblio-style: apalike
 link-citations: true
 ---
@@ -43,7 +43,7 @@ Once the model is fitted, its estimates (latent measure and threshold coefficien
 library(pander)
 dd <- c(
 'Categorical response           ',	'$y$',	'Dependent variable obtained during the survey',	'Self-rated health, self-rated happiness',
-'Latent measure                 ',	'$h$',	'Modeled continues latent measure of investigated response variable',	'Latent health, latent happiness',
+'Latent measure                 ',	'$h$',	'Modeled continuous latent measure of investigated response variable',	'Latent health, latent happiness',
 'Latent index                   ',	'$H$',	'Standardized latent measure',	'Health index, happiness index',
 'Latent variables               ',  '  ---',	 	'Variables used to model latent measure',	'Health variables, happiness variables',
 'Latent terms                   ',	'$X$',	'Terms of design matrix used to modeled latent measure', '',
@@ -84,7 +84,7 @@ y_i = J~ \Leftrightarrow~ \alpha_{i,J-1} \leq h_i < \alpha_{i,J}\\
 \end{cases}
 \end{equation}
 
-The thresholds (cut points, $\alpha$) are modeled by threshold variables coded as design matrix $Y$, their coefficients $\gamma$, and intercepts $\lambda$. It is assumed that they model contextual characteristics of the respondent (e.g. country, gender, age, etc. ). Threshold variables are modeled without parallel regression assumption, thus each threshold is modeled by a variable independently [@Boes2006; @Green2014]. 
+The thresholds (cut points, $\alpha$) are modeled by threshold variables coded as design matrix $Y$, their coefficients $\gamma$, and intercepts $\lambda$. It is assumed that they model contextual characteristics of the respondent (e.g. country, gender, age, etc.). Threshold variables are modeled without parallel regression assumption, thus each threshold is modeled by a variable independently [@Boes2006; @Green2014]. 
 
 Different parametrizations of thresholds exist [@Green2014; @Rebelo2014; @Jurges2007]. In the package, @King2004 and @Jurges2007 parametrization is used, which assumes that: 
 
@@ -134,7 +134,7 @@ H_i = 1-\frac{h_i-\displaystyle\min_i h_i}{\displaystyle\max_i h_i-\displaystyle
 
 In the self-rated health example $H_i$ is a proxy for true underlying health of an individual, and varies from 0 representing the (model-based) worst health state to 1 representing the (model-based) best health in the sample. 
 
-The predicted latent measure $h_i$ obtained from the model is also used to standardize latent variable coefficients. In the self-rated health example the standardized coefficients are called disability weights $D_k$ [@Jurges2007] and are calculated for each health variable to provide information about the impact of a specific health measure on the latent index $H_i$. The disability weight for a health variable is equal to the ratio of corresponding health coefficient and the difference between the lowest and highest values of predicted latent health. In other words, disability weight reduces $H_i$ by some given amount or percentage (i.e.  of every individual is reduced by the same amount if heart attack or other heart problems are present)[@Jurges2007].
+The predicted latent measure $h_i$ obtained from the model is also used to standardize latent variable coefficients. In the self-rated health example the standardized coefficients are called disability weights $D_k$ [@Jurges2007] and are calculated for each health variable to provide information about the impact of a specific health measure on the latent index $H_i$. The disability weight for a health variable is equal to the ratio of corresponding health coefficient and the difference between the lowest and highest values of predicted latent health. In other words, disability weight reduces $H_i$ by some given amount or percentage (i.e. $H_i$ of every individual is reduced by the same amount if heart attack or other heart problems are present)[@Jurges2007].
 
 \begin{equation}
 \label{eq:9}
@@ -210,7 +210,7 @@ model1<- hopit(latent.formula = health ~ hypertension + high_cholesterol +
 summary(model1)
 ```
 
-*model1* contains 11 dichotomous health variables and two threshold variables. The fitted coefficient can be accessed by *coef*() function
+*model1* contains 11 dichotomous health variables and two threshold variables. The fitted coefficient includes $\beta$s ("latent.params", first 11 coefficients in the summary), $\lambda$s ("thresh.lambda", threshold intercepts, "(L)" prefix in the summary), and $\gamma$s ("thresh.gamma", parameters related to threshold covariates, "(G)" prefix in the summary). Model coefficients can be accessed by *coef*() function.
 
 ```{r, echo=TRUE, cache=TRUE}
 # extract parameters in a form of list
@@ -242,7 +242,7 @@ The fit of both models can be compared using AIC() function:
 AIC(model2, model1)
 ```
 
-or using Likelihood Ratio Test (LRT) as models are nested:
+or using Likelihood Ratio Test (LRT) because models are nested:
 
 ```{r, echo=TRUE, cache=TRUE}
 anova(model2, model1)
@@ -362,13 +362,13 @@ z <- getCutPoints(model=model3)
 # Health index cut-points
 z$cutpoints
 
-# Adjusted health levels for individuals: Jürges method
+# Adjusted health levels for individuals (using Jürges method)
 rev(table(z$adjusted.levels))
 
 # Original health levels for individuals
 table(model3$y_i)
 
-# Adjusted health levels for individuals: Estimated model thresholds
+# Adjusted health levels for individuals (using Estimated model thresholds)
 table(model3$Ey_i)
 ```
 
@@ -376,7 +376,7 @@ The analysis of health levels is done by *getLevels*() function
 
 ```{r, echo=TRUE, cache=TRUE, fig.height = 4, fig.width = 6, fig.align = "center", cache=TRUE}
 # Health levels for combination of age and gender, and pooled country of origin.
-hl <- getLevels(model=model3, formula=~ sex + ageclass, data = healthsurvey, 
+hl <- getLevels(model = model3, formula = ~ sex + ageclass, data = healthsurvey, 
                       sep=' ', plotf=TRUE)
 ```
 
@@ -394,8 +394,8 @@ The package offers functions to calculate confidence intervals for any measure d
 ```{r, echo=TRUE, fig.height = 5.6, fig.width = 4.7, fig.align = "center", cache=TRUE}
 # the function to be bootstraped
 diff_BadHealth <- function(model, data) {
-  hl <- getLevels(model=model, formula=~ sex + ageclass, data = data, 
-                  sep=' ', plotf=FALSE)
+  hl <- getLevels(model = model, formula = ~ sex + ageclass, data = data, 
+                  sep = ' ', plotf = FALSE)
   hl$original[,1] + hl$original[,2] - hl$adjusted[,1]- hl$adjusted[,2]
 }
 
@@ -423,7 +423,7 @@ The results show that men tend to over-report bad health at ages (50,60] and (50
 
 ## 8. Acknowledgements
 
-I thank Anna Oksuzyan, Christian Dudel, Marius Pascariu, Laszlo Nemeth, Tim  Riffe, and Oskar Burger for help and suggestions on the package and the vignette. I also thank Max-Planck Institute for Demographic Research for all the support.
+I thank Anna Oksuzyan, Christian Dudel, Marius Pascariu, Laszlo Nemeth, and Oskar Burger for help and suggestions on the package and the vignette. I also thank Max-Planck Institute for Demographic Research for all the support.
 
 The artificially generated data used in the package examples is based on distributions of some major socjo-demographic and health related characteristics of WAVE 1 SHARE database. None of the records represent any part of the true data. The SHARE data collection has been primarily funded by the European Commission through FP5 (QLK6-CT-2001-00360), FP6 (SHARE-I3: RII-CT-2006-062193, COMPARE: CIT5-CT-2005-028857, SHARELIFE: CIT4-CT-2006-028812) and FP7 (SHARE-PREP: N°211909, SHARE-LEAP: N°227822, SHARE M4: N°261982). Additional funding from the German Ministry of Education and Research, the Max Planck Society for the Advancement of Science, the U.S. National Institute on Aging (U01_AG09740-13S2, P01_AG005842, P01_AG08291, P30_AG12815, R21_AG025169, Y1-AG-4553-01, IAG_BSR06-11, OGHA_04-064, HHSN271201300071C) and from various national funding sources is gratefully acknowledged (see www.share-project.org).
 

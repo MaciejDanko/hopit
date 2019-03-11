@@ -10,7 +10,7 @@ x \%notc\% y
 \item{x, y}{numeric vectors}
 }
 \description{
-Not \%c\% function
+Check if y set contains none of elements of set x
 }
 \author{
 Maciej J. Danko

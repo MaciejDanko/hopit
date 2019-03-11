@@ -16,11 +16,11 @@ healthIndex(model, decreasing.levels = TRUE, subset = NULL,
 \arguments{
 \item{model}{a fitted \code{hopit} model.}
 
-\item{decreasing.levels}{logical indicating if self-reported (e.g. health) classes are ordered in decreasing order.}
+\item{decreasing.levels}{a logical indicating if self-reported (e.g. health) classes are ordered in decreasing order.}
 
 \item{subset}{an optional vector specifying a subset of observations.}
 
-\item{plotf}{logical indicating if to plot summary figure.}
+\item{plotf}{a logical indicating if to plot summary figure.}
 
 \item{response}{X axis plotting option, choose \code{'data'} for raw responses and \code{'fitted'} for model reclassified responses}
 
@@ -40,13 +40,13 @@ to the best predicted health (minimal observed value for the latent measure).
 # DATA
 data(healthsurvey)
 
-# the order of response levels is decreasing (from the best health to the
-# worst health)
+# the order of response levels decreases from the best health to
+# the worst health, hence hopit() parameter decreasing.levels = TRUE
 levels(healthsurvey$health)
 
 # Example 1 ---------------------
 
-# fitting a model
+# fit a model
 model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
                 depression + respiratory_problems +
@@ -56,20 +56,20 @@ model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
               control = list(trace = FALSE),
               data = healthsurvey)
 
-# calculate health index and plotting reported health status
+# calculate the health index and plot reported health status
 # vs. health index.
 hi <- latentIndex(model1, plotf = TRUE, response = "data",
                   ylab = 'Health index', col='deepskyblue3')
 
-# a simple histogram of the function output
+# plot a simple histogram of the function output
 hist(hi)
 
-# calculate health index and plotting adjusted health status (Jurges 2007)
-# vs. health index.
+# calculate health index and plot adjusted health status vs. health index
+# using Jurges (Jurges 2007) method.
 latentIndex(model1, plotf = TRUE, response = "Jurges",
                  ylab = 'Health index', col='deepskyblue3')
 
-# calculate health index and plotting predicted health status
+# calculate health index and plot model-predicted health levels
 # vs. health index.
 latentIndex(model1, plotf = TRUE, response = "fitted",
                  ylab = 'Health index', col='deepskyblue3')

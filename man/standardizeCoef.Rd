@@ -21,15 +21,15 @@ disabilityWeights(model, ordered = TRUE, plotf = FALSE,
 \arguments{
 \item{model}{a fitted \code{hopit} model.}
 
-\item{ordered}{logical indicating if to order the disability weights.}
+\item{ordered}{a logical indicating if to sort the disability weights.}
 
-\item{plotf}{logical indicating if to plot results.}
+\item{plotf}{a logical indicating if to plot results.}
 
-\item{plotpval}{logical indicating if to plot p-values.}
+\item{plotpval}{a logical indicating if to plot p-values.}
 
-\item{mar, oma}{see \code{\link{par}}.}
+\item{mar, oma}{graphic parameters, see \code{\link{par}}.}
 
-\item{YLab, YLab.cex}{label and \code{cex} of y axis.}
+\item{YLab, YLab.cex}{a label of y axis and it's size.}
 
 \item{namesf}{a vector of names of coefficients or one argument function that modifies names of coefficients.}
 
@@ -45,19 +45,19 @@ In the self-rated health example the standardized coefficients are called disabi
 and are calculated for each health variable to provide information about the impact of a specific health measure on the latent index
 (see \code{\link{latentIndex}}). The disability weight for a health variable is equal to the ratio of corresponding health coefficient
 and the difference between the lowest and highest values of predicted latent health. In other words, disability weight reduces
-latent index by some given amount or percentage (i.e.  of every individual is reduced by the same amount if heart attack or other
+latent index by some given amount or percentage (i.e. latent index of every individual is reduced by the same amount if heart attack or other
 heart problems are present)\insertCite{Jurges2007;textual}{hopit}.
 }
 \examples{
 # DATA
 data(healthsurvey)
 
-# the order of response levels is decreasing (from the best health to the worst health)
-levels(healthsurvey$health)
+# the order of response levels decreases from the best health to
+# the worst health, hence hopit() parameter decreasing.levels = TRUE
 
 # Example 1 ---------------------
 
-# fitting a model
+# fit a model
 model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
                 depression + respiratory_problems +
@@ -67,10 +67,10 @@ model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
               control = list(trace = FALSE),
               data = healthsurvey)
 
-# A function that modifies coefficient names.
+# a function that modifies coefficient names.
 txtfun <- function(x) gsub('_',' ',substr(x,1,nchar(x)-3))
 
-# Calculate and plot disability weights
+# calculate and plot disability weights
 sc <- standardizeCoef(model1, plotf = TRUE, namesf = txtfun)
 sc
 }

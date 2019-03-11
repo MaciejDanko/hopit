@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{\%c\%}
 \alias{\%c\%}
-\title{Check if one set is a subset of an another subset}
+\title{Check if one set contains all elements of another set}
 \usage{
 x \%c\% y
 }
@@ -10,7 +10,7 @@ x \%c\% y
 \item{x, y}{numeric vectors}
 }
 \description{
-Check if one set is a subset of an another subset
+Check if y set contains all elements of set x
 }
 \author{
 Maciej J. Danko

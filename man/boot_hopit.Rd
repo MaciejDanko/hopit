@@ -10,15 +10,15 @@ boot_hopit(model, data, func, nboot = 500, unlist = TRUE,
 \arguments{
 \item{model}{a fitted \code{hopit} model.}
 
-\item{data}{data used to fit the model.}
+\item{data}{a data used to fit the model.}
 
-\item{func}{function to be bootstrapped of the form \code{func(model, data, ...)}.}
+\item{func}{a function to be bootstrapped of the form \code{func(model, data, ...)}.}
 
-\item{nboot}{number of bootstrap replicates.}
+\item{nboot}{a number of bootstrap replicates.}
 
-\item{unlist}{logical indicting if to unlist boot object.}
+\item{unlist}{a logical indicting if to unlist boot object.}
 
-\item{boot.only.latent}{logical indicating if to perform the bootstrap only on latent variables.}
+\item{boot.only.latent}{a logical indicating if to perform the bootstrap only on latent variables.}
 
 \item{robust.vcov}{see \code{\link{vcov.hopit}}.}
 
@@ -54,7 +54,7 @@ model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
 # Example 1 ---------------------
 # bootstrapping cut-points
 
-# Function to be bootstrapped
+# a function to be bootstrapped
 cutpoints <-  function(model, data) getCutPoints(model, plotf = FALSE)$cutpoints
 B <- boot_hopit(model = model1, data = healthsurvey,
                 func = cutpoints, nboot = 100)
@@ -67,16 +67,16 @@ cutpoints(model1, healthsurvey)
 cutpoints.CI
 
 # Example 2 ---------------------
-# bootstrapping health levels differences
+# bootstrapping differences in health levels
 
-# the function to be bootstrapped
+# a function to be bootstrapped
 diff_BadHealth <- function(model, data) {
   hl <- getLevels(model = model, formula=~ sex + ageclass, data = data,
                   sep=' ', plotf=FALSE)
   hl$original[,1] + hl$original[,2] - hl$adjusted[,1]- hl$adjusted[,2]
 }
 
-# estimate of the difference
+# estimate the difference
 est.org <- diff_BadHealth(model = model1, data = healthsurvey)
 
 # perform the bootstrap

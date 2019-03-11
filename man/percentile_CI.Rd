@@ -2,19 +2,19 @@
 % Please edit documentation in R/boot.R
 \name{percentile_CI}
 \alias{percentile_CI}
-\title{Calculating confidence intervals of bootstrapped function using percentile method}
+\title{Calculating confidence intervals of bootstrapped function using the percentile method}
 \usage{
 percentile_CI(boot, alpha = 0.05, bounds = c("both", "lo", "up"))
 }
 \arguments{
 \item{boot}{a matrix or list of vectors with bootstrapped elements. If a list then each element of the list is one replication.}
 
-\item{alpha}{significance level.}
+\item{alpha}{a significance level.}
 
-\item{bounds}{one of \code{"both"}, \code{"lo"}, \code{"up"}.}
+\item{bounds}{which bounds to return; one of \code{"both"}, \code{"lo"}, \code{"up"}.}
 }
 \description{
-Calculating confidence intervals of bootstrapped function using percentile method
+Calculate confidence intervals of bootstrapped function using the percentile method.
 }
 \examples{
 # see examples in boot_hopit() function.

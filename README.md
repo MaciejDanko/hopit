@@ -29,9 +29,15 @@ You can track (and contribute to) the development of `hopit` at https://github.c
    
 4. To install the development version of `hopit` with included vignettes run:
    ```R
-   install.packages("tinytex")
+   install.packages("knitr")
+   install.packages("rmarkdown")
+   install.packages("roxygen2")
+   install.packages("Rdpack")
    install.packages("pander")
+   
+   install.packages("tinytex")
    tinytex::install_tinytex(force=TRUE)
+   
    devtools::install_github("MaciejDanko/hopit", build_vignettes=TRUE)
    ```
    

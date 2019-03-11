@@ -81,17 +81,20 @@ clone.of.ppsvar<-function (x, design)
 #' Calculation of variance-covariance matrix for specified survey design (experimental function)
 #'
 #' @param Ainv a variance-covariance matrix.
-#' @param estfun LL gradient function.
+#' @param estfun a gradient function of the log-likelihood function.
 #' @param design a \code{survey.design} object.
 #' @description
 #' This is a modification of \code{survey:::svy.varcoef}. In the original approach \code{estfun} is calcualted from
 #' glm's working residuals:\cr
 #' \code{estfun <- model.matrix(glm.object) * resid(glm.object, "working") * glm.object$weights}\cr
 #' In the hopit package estfun is directly calculated as a gradient (vector of partial derivatives) of log likelihood function.
+#' @seealso
+#' \code{\link[survey]{svydesign}}
+#' \code{\link{hopit}}
 #' @details Based on the survey v3.35 package.
 #' @importFrom survey svyrecvar twophasevar twophase2var svyCprod
 #' @author Thomas Lumley, modified by Maciej J. Danko
-svy.varcoef.hopit <- function (Ainv, estfun, design) {
+svy.varcoef_hopit <- function (Ainv, estfun, design) {
   if (inherits(design, "survey.design2"))
     V <- survey::svyrecvar(estfun %*% Ainv, design$cluster, design$strata,
                            design$fpc, postStrata = design$postStrata)

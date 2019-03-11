@@ -1,16 +1,18 @@
-#' INTERNAL : updating model uses new set of latent variable coefficients
-#'
-#' @details
-#' LL gradient and Hessian and variance-covariance matrices are not re-calcualted in this function!
-#' @param model a fitted \code{hopit} model.
-#' @param newregcoef a new set of latent variable coefficients. Vector of length of first element of model$parcount.
-#' @param data used to fit original model.
-#' @author Maciej J. Danko
+# INTERNAL : updating a model using new set ofvariable coefficients
+#
+# @details
+# Gradient and Hessian of log-likelihood function as well as variance-covariance matrix are not re-calcualted in this function!
+# @param model a fitted \code{hopit} model.
+# @param newregcoef a new set of variable coefficients. A vector of length lower or equal to the length of \code{model$coef}.
+# The coeficients are replaced starting from the first one.
+# @param data a data used to fit original model.
+# @author Maciej J. Danko
+#' @noRd
 #' @keywords internal
 update.latent <- function(model, newregcoef, data){
   coefnames <- names(model$coef)
   thresh.names <- colnames(model$thresh.mm)
-  model$coef[seq_len(model$parcount[1])] <- newregcoef
+  model$coef[seq_along(newregcoef)] <- newregcoef
   class(model) <- 'hopit'
   names(model$coef) <- coefnames
   colnames(model$thresh.mm) <- thresh.names
@@ -42,11 +44,11 @@ update.latent <- function(model, newregcoef, data){
 #' as a mean and using model variance-covariance matrix (see \code{\link{vcov.hopit}}).
 #' The drawn coefficients are then used to calculate the measure of interest using a function delivered by \code{func} parameter.
 #' @param model a fitted \code{hopit} model.
-#' @param data data used to fit the model.
-#' @param func function to be bootstrapped of the form \code{func(model, data, ...)}.
-#' @param nboot number of bootstrap replicates.
-#' @param unlist logical indicting if to unlist boot object.
-#' @param boot.only.latent logical indicating if to perform the bootstrap only on latent variables.
+#' @param data a data used to fit the model.
+#' @param func a function to be bootstrapped of the form \code{func(model, data, ...)}.
+#' @param nboot a number of bootstrap replicates.
+#' @param unlist a logical indicting if to unlist boot object.
+#' @param boot.only.latent a logical indicating if to perform the bootstrap only on latent variables.
 #' @param robust.vcov see \code{\link{vcov.hopit}}.
 #' @param ... other parameters passed to the \code{func}.
 #' @importFrom MASS mvrnorm
@@ -74,7 +76,7 @@ update.latent <- function(model, newregcoef, data){
 #' # Example 1 ---------------------
 #' # bootstrapping cut-points
 #'
-#' # Function to be bootstrapped
+#' # a function to be bootstrapped
 #' cutpoints <-  function(model, data) getCutPoints(model, plotf = FALSE)$cutpoints
 #' B <- boot_hopit(model = model1, data = healthsurvey,
 #'                 func = cutpoints, nboot = 100)
@@ -87,16 +89,16 @@ update.latent <- function(model, newregcoef, data){
 #' cutpoints.CI
 #'
 #' # Example 2 ---------------------
-#' # bootstrapping health levels differences
+#' # bootstrapping differences in health levels
 #'
-#' # the function to be bootstrapped
+#' # a function to be bootstrapped
 #' diff_BadHealth <- function(model, data) {
 #'   hl <- getLevels(model = model, formula=~ sex + ageclass, data = data,
 #'                   sep=' ', plotf=FALSE)
 #'   hl$original[,1] + hl$original[,2] - hl$adjusted[,1]- hl$adjusted[,2]
 #' }
 #'
-#' # estimate of the difference
+#' # estimate the difference
 #' est.org <- diff_BadHealth(model = model1, data = healthsurvey)
 #'
 #' # perform the bootstrap
@@ -137,11 +139,12 @@ boot_hopit<-function(model, data, func, nboot = 500, unlist = TRUE,
   boots
 }
 
-#' Calculating confidence intervals of bootstrapped function using percentile method
+#' Calculating confidence intervals of bootstrapped function using the percentile method
 #'
+#' Calculate confidence intervals of bootstrapped function using the percentile method.
 #' @param boot a matrix or list of vectors with bootstrapped elements. If a list then each element of the list is one replication.
-#' @param alpha significance level.
-#' @param bounds one of \code{"both"}, \code{"lo"}, \code{"up"}.
+#' @param alpha a significance level.
+#' @param bounds which bounds to return; one of \code{"both"}, \code{"lo"}, \code{"up"}.
 #' @author Maciej J. Danko
 #' @seealso \code{\link{boot_hopit}}, \code{\link{getLevels}}, \code{\link{getCutPoints}}, \code{\link{latentIndex}}, \code{\link{standardiseCoef}}, \code{\link{hopit}}.
 #' @export
