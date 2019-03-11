@@ -26,7 +26,7 @@ hopit_msg <- function(x)
          '22' = 'boot must be of class "hopit.boot".', #boot
          '23' = 'No vcov detected.', #boot
          '24' = 'Are the levels', #checks
-         '25' = 'sorted in incresing order?', #checks
+         '25' = 'sorted in increasing order?', #checks
          '26' = 'if not please set decreasing.levels to TRUE.', #checks
          '27' = '"decreasing.levels" must be given.', #checks
          '28' = 'Unknown method.', #checks
@@ -44,7 +44,7 @@ hopit_msg <- function(x)
          '40' = 'Variance-covariance matrix:\n', #generics
          '41' = '\nVariance-covariance matrix adjusted for survey design.\n', #generics
          '42' = '\nVariance-covariance matrix based on sandwich estimator.\n', #generics
-         '43' = 'Negative variaces detected, try different robust.se/survey options and check the fit!', #generics
+         '43' = 'Negative variances detected, try different robust.se/survey options and check the fit!', #generics
          '44' = 'Survey weights detected. Standard errors were adjusted for survey design.\n', #generics
          '45' = 'Problem with some standard errors, please try option "robust.se" == TRUE.', #generics
          '46' = 'Something wrong.', #generics
@@ -72,7 +72,7 @@ hopit_msg <- function(x)
          '68' = 'Latent formulas are not nested.', #generics
          '69' = 'Threshold formulas are not nested.', #generics
          '70' = "Theta:", #generics
-         '71' = '\nRobust SE were used (sandwich estimator of varcov).\n', #generics
+         '71' = '\nRobust SE were used (sandwich estimator of variance-covariance matrix).\n', #generics
          '72' = 'Link:', #generics
          '73' = 'Number of cases:', #generics
          '74' = 'Response levels:', #generics
@@ -88,10 +88,10 @@ hopit_msg <- function(x)
          '84' = 'Unknown group.labels.type.', #reporting styles
          '85' = 'Some cut-points are NA or duplicated.', #reporting styles
          '86' = '"formula" must be of class formula.', #reporting styles
-         '87' = 'Elements of interaction(s)', #hopit
-         '88' = 'should be present both in threshold and latent formula.',
-         '89' = 'Latent variables present in threshold formula (or vice versa).',
-         '90' = 'Non-interaction terms removed from crossinter.formula.',
+         '87' = '',
+         '88' = '',
+         '89' = '',
+         '90' = '',
          '91' = 'The same terms found in latent and threshold model:',
          '92' = 'Model cannot use the same variables (or their interactions) to model thresholds and latent measure. Also, avoid using "*" to model latent-threshold interactions.',
          '93' = 'No main effects found for the',
@@ -101,7 +101,7 @@ hopit_msg <- function(x)
          '97' = 'I(...) not implemented yet.',
          '98' = 'Cannot find starting parameters. Please consider scaling, transforming, or re-coding as factor one or more numerical (continuous) variables used in the model. The very basic transformations can be done using control parameter (see example 5 in the hopit() function).',
          '99' = 'Unknown transformation type.',
-         '100' = 'No latent variales detected in the latent formula.',
+         '100' = 'No latent variables detected in the latent formula.',
          '101' = 'No response detected in the latent formula.',
          '102' = 'Response found in latent or threshold formulas.',
          '103' = 'Should not happen.',

@@ -60,7 +60,8 @@ update.latent <- function(model, newregcoef, data){
 #' # DATA
 #' data(healthsurvey)
 #'
-#' # the order of response levels is decreasing (from the best health to the worst health)
+#' # the order of response levels decreases from the best health to
+#' # the worst health, hence hopit() parameter decreasing.levels = TRUE
 #' levels(healthsurvey$health)
 #'
 #' # fit a model

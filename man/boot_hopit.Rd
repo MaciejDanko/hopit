@@ -38,7 +38,8 @@ The drawn coefficients are then used to calculate the measure of interest using 
 # DATA
 data(healthsurvey)
 
-# the order of response levels is decreasing (from the best health to the worst health)
+# the order of response levels decreases from the best health to
+# the worst health, hence hopit() parameter decreasing.levels = TRUE
 levels(healthsurvey$health)
 
 # fit a model
