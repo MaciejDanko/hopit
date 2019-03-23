@@ -3,21 +3,21 @@
 \name{coef.hopit}
 \alias{coef.hopit}
 \alias{coefficients.hopit}
-\title{Extracting model coefficients}
+\title{Extracting the model coefficients}
 \usage{
 \method{coef}{hopit}(object, aslist = FALSE, ...)
 }
 \arguments{
-\item{object}{an \code{hopit} object.}
+\item{object}{a \code{hopit} object.}
 
-\item{aslist}{logical indicating if model coefficients should be returned
+\item{aslist}{a logical indicating whether the model coefficients should be returned
 as a list of three vectors
-related to latent variable, threshold lambdas, and threshold gammas.}
+related to latent variables, threshold lambdas, and threshold gammas.}
 
 \item{...}{further arguments passed to or from other methods.}
 }
 \description{
-Extract model coefficients from \code{hopit} model.
+Extract the model coefficients from the \code{hopit} model.
 }
 \author{
 Maciej J. Danko

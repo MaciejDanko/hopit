@@ -10,59 +10,60 @@ hopit(latent.formula, thresh.formula = ~1, data, decreasing.levels,
   na.action = na.fail)
 }
 \arguments{
-\item{latent.formula}{a formula used to model latent variable. It should not contain any threshold variable.
-To specify interactions between latent and threshold variables see details.}
+\item{latent.formula}{a formula used to model the latent variable. It should not contain any threshold variable.
+To specify the interactions between the latent and the threshold variables, see details.}
 
-\item{thresh.formula}{a formula used to model threshold variable. It should not contain any latent variable.
-To specify interactions between latent and threshold variables see details.
+\item{thresh.formula}{a formula used to model the threshold variable. It should not contain any latent variable.
+To specify interactions between the latent and the threshold variables, see details.
 Any dependent variable (left side of "~" in the formula) will be ignored.}
 
-\item{data}{a data frame including all modeled variables.}
+\item{data}{a data frame that includes all modeled variables.}
 
-\item{decreasing.levels}{a logical indicating if self-reported health classes are ordered in decreasing order.}
+\item{decreasing.levels}{a logical indicating whether self-reported health classes are ordered in decreasing order.}
 
 \item{start}{a vector with starting coefficient values in the form \code{c(latent_parameters, threshold_lambdas, threshold_gammas)} or
-\code{c(latent_parameters, threshold_lambdas, threshold_gammas, logTheta)} if the \code{overdispersion == TRUE}.}
+\code{c(latent_parameters, threshold_lambdas, threshold_gammas, logSigma)} if the \code{overdispersion == TRUE}.}
 
-\item{overdispersion}{a logical indicting if to fit additional parameter theta, which models a variance of the error term.}
+\item{overdispersion}{a logical indicating whether to fit an additional parameter sigma,
+which models a standard deviation of the error term.}
 
-\item{design}{an optional survey design. Use \code{\link[survey]{svydesign}} function to specify the design.
+\item{design}{an optional survey design. Use the \code{\link[survey]{svydesign}} function to specify the design.
 The design cannot be specified together with parameter \code{weights}.}
 
-\item{weights}{optional model weights. Use design to construct survey weights.}
+\item{weights}{optional model weights. Use the design to construct survey weights.}
 
 \item{link}{a link function. The possible values are \code{"probit"} (default) and \code{"logit"}.}
 
 \item{control}{a list with control parameters. See \code{\link{hopit.control}}.}
 
-\item{na.action}{a function which indicates what should happen when the \code{data} contain \code{NA}s.
+\item{na.action}{a function that indicates what should happen when the \code{data} contain \code{NA}s.
 The default is \code{\link[stats]{na.fail}},
 which generates an error if any missing value is found. The alternative is \code{\link[stats]{na.omit}}
 (or \code{\link[stats]{na.exclude}} equivalently), which removes rows with missing
 values from the \code{data}. Using \code{\link[stats]{na.pass}} will lead to an error.}
 }
 \value{
-a \code{hopit} object used by other functions and methods. The object is a list with following components:
+a \code{hopit} object used by other functions and methods. The object is a list with the following components:
 \item{control}{ a list with control parameters. See \code{\link{hopit.control}}.}
-\item{link}{ a used link funtion.}
-\item{hasdisp}{ a logical indicating if overdispersion was modeled.}
-\item{use.weights}{ a logical indicating if any weights were used.}
+\item{link}{ a link function used.}
+\item{hasdisp}{ a logical indicating whether overdispersion was modeled.}
+\item{use.weights}{ a logical indicating whether any weights were used.}
 \item{weights}{ a vector with model weights.}
 \item{latent.formula}{ a latent formula used to fit the model.}
 \item{latent.mm}{ a latent model matrix.}
-\item{latent.terms}{ a used latent variables and their interactions.}
-\item{cross.inter.latent}{  part of the latent formula modeling cross-interactions in the latent model}
+\item{latent.terms}{ latent variables used, and their interactions.}
+\item{cross.inter.latent}{ a part of the latent formula used for modeling cross-interactions in the latent model}
 \item{thresh.formula}{ a threshold formula used to fit the model.}
-\item{thresh.mm}{ threshold model matrix.}
+\item{thresh.mm}{ a threshold model matrix.}
 \item{thresh.extd}{ an extended threshold model matrix.}
-\item{thresh.terms}{ used threshold variables and their interactions.}
-\item{cross.inter.thresh}{ part of the threshold formula modeling cross-interactions in the threshold model}
-\item{thresh.no.cov}{ a logical indicating if gamma parameters are present.}
-\item{parcount}{ a 3-element vector with number of parmeters for latent variable (beta),
-threshold intercept (lambda), and threshold covariates (gamma).}
+\item{thresh.terms}{ threshold variables used, and their interactions.}
+\item{cross.inter.thresh}{ a part of the threshold formula used for modeling cross-interactions in the threshold model}
+\item{thresh.no.cov}{ a logical indicating whether gamma parameters are present.}
+\item{parcount}{ a 3-element vector with a number of parameters for the latent variables (beta),
+the threshold intercepts (lambda), and the threshold covariates (gamma).}
 \item{coef}{ a vector with model coefficients.}
-\item{coef.ls}{ coefficients as a list.}
-\item{start}{ a vector with starting vlues of coefficients.}
+\item{coef.ls}{ model coefficients as a list.}
+\item{start}{ a vector with the starting values of the coefficients.}
 \item{alpha}{ estimated individual-specific thresholds.}
 \item{y_i}{ a vector with individual responses - the response variable.}
 \item{y_latent_i}{ a vector with predicted latent measures for each individual.}
@@ -71,111 +72,116 @@ threshold intercept (lambda), and threshold covariates (gamma).}
 \item{N}{ a number of observations.}
 \item{deviance}{ a deviance.}
 \item{LL}{ a log likelihood.}
-\item{AIC}{ a AIC for models without survey design.}
+\item{AIC}{ an AIC for models without a survey design.}
 \item{vcov}{ a variance-covariance matrix.}
-\item{vcov.basic}{ a variance-covariance matrix ignoring survey design.}
+\item{vcov.basic}{ a variance-covariance matrix that ignores the survey design.}
 \item{hessian}{ a Hessian matrix.}
-\item{estfun}{ a gradient (a vector of partial derivatives) of the log likelihood function at estimated coefficient values.}
-\item{YYY1,YYY2,YY3}{ an internal objects used for calculation of gradient and Hessian functions.}
+\item{estfun}{ a gradient (a vector of partial derivatives) of the log likelihood function at the estimated coefficient values.}
+\item{YYY1,YYY2,YYY3}{ an internal objects used for the calculation of gradient and Hessian functions.}
 }
 \description{
-The ordered response data classifies a measure of interest into ordered categories
-collected during a survey. For example, if the dependent variable were a happiness
-rating, then a respondent typically answers a question like: “Taking all things
+The ordered response data classify a measure of interest into ordered categories
+collected during a survey. For example, if the dependent variable is a happiness
+rating, a respondent typically answers a question such as: “Taking all things
 together, would you say you are ... ?" and then selects from response options
-along the lines of: "very happy", "pretty happy", "not too happy", "very unhappy"
-\insertCite{Liao2005}{hopit}. Similarly if interviewees are asked to evaluate their
-health in general (e.g. “Would you say your health is ... ?”) they may choose among
+along the lines of: "very happy", "pretty happy", "not too happy", and "very unhappy"
+\insertCite{Liao2005}{hopit}. Similarly, if interviewees are asked to evaluate their
+health in general (e.g., “Would you say your health is ... ?”) they, can typically choose among
 several categories, such as "very good", "good", "fair", "bad", and "very bad"
-\insertCite{King2004,Jurges2007,Rebelo2014}{hopit}. In political sciences a respondent
+\insertCite{King2004,Jurges2007,Rebelo2014}{hopit}. In political science, a respondent
 may be asked for an opinion about recent legislation (e.g. “Rate your feelings about
 the proposed legislation.") and asked to choose among categories like: "strongly
-oppose", "mildly oppose", "indifferent", "mildly support", "strongly support"
+oppose", "mildly oppose", "indifferent", "mildly support", and "strongly support"
 \insertCite{GreeneHensher2010}{hopit}. It is easy to imagine other multi-level ordinal
 variables that might be used during a survey and to which the methodology described
-below could be applied to.\cr
+below could be applied.\cr
 
-Practically, it is assumed that when responding to a survey question about their
-general happiness, health, feeling, attitude or other status, participants assess
-their true value of this unobserved continuous variable, and project it to a provided
-discrete scale. The thresholds that each individual uses to categorize their true status
-into a specific response option may be affected by the choice of a reference group,
-earlier life experiences, and cross-cultural differences in using scales, and thus,
-may differ across individuals depending on their gender, age, cultural background,
-education, and personality traits, among other factors.\cr
-
-From the reporting behavior modeling perspective, one of the main tasks is to compute
-this continuous estimate of individuals’ underlying, latent measure based on several
-specific characteristics of the considered response (e.g. health variables or happiness
-variables) and accounting also for variations in reporting across socio-demographic
-and cultural groups. More specifically, to build the latent, underlying measure a
-generalized hierarchical ordered threshold model is fitted, which regresses the
-reported status/attitude/feeling on two sets of independent variables
-\insertCite{Boes2006,Green2014}{hopit}. When a dependent reported ordered variable is
-self-rated health status then the first set of variables - health variables -
-assesses individuals’ specific aspects of health, and might include chronic
-conditions, mobility level, difficulties with a range of daily activities,
-performance on grip strength test, anthropometric measures, lifestyle behaviors,
-etc. Using the second set of independent variables (threshold variables), the model
-also adjusts for the differences across socio-demographic and cultural groups like
-cultural background, gender, age, education, etc. \insertCite{King2004,Jurges2007}{hopit}.\cr
+In practice, it is assumed that when responding to a survey question about their general
+happiness, health, feelings, attitudes or other status, participants are
+assessing their true value of this unobserved continuous variable, and
+project it onto the discrete scale provided. The thresholds that individuals
+use to categorize their true status by selecting a specific response option
+may be affected by the reference group chosen, their earlier life experiences,
+and cross-cultural differences in using scales. Thus, the responses of
+individuals may differ depending on their gender, age, cultural background,
+education, and personality traits; among other factors.\cr
+From the perspective of reporting behavior modeling, one of the main tasks
+researchers face is to compute this continuous estimate of the underlying,
+latent measures of individuals based on several specific characteristics
+of the responses considered (e.g., health variables or happiness variables),
+and to account for variations in reporting across socio-demographic and
+cultural groups. More specifically, to build a latent, underlying measure,
+a generalized hierarchical ordered threshold model is fitted that regresses
+the reported status/attitude/feeling on two sets of independent variables
+\insertCite{Boes2006,Green2014}{hopit}. When the dependent reported ordered
+variable is self-rated health status, then the first set of variables –
+i.e., health variables – assess specific aspects of individuals’ health,
+such as measures of chronic conditions, mobility, difficulties with a range
+of daily activities, grip strength, anthropometric characteristics, and
+lifestyle behaviors. Using the second set of independent variables
+(threshold variables), the model also adjusts for differences across
+socio-demographic and cultural groups, such as differences in cultural
+background, gender, age, and education
+\insertCite{King2004,Jurges2007}{hopit}.\cr
 
 Ordered threshold models are used to fit ordered categorical dependent variables.
 The generalized ordered threshold models \insertCite{Terza1985,Boes2006,Green2014}{hopit}
-are an extension to the ordered threshold models \insertCite{McKelvey1975}{hopit}.
-In the latter models, the thresholds are constant, whereas generalized models allows
-thresholds to be dependent on covariates.
-\insertCite{GreeneHensher2010,Green2014;textual}{hopit} pointed out that also
-thresholds must be ordered so that a model has a sense.
-This motivated Greene and coauthors to call this models \emph{HOPIT}, which stands
+are an extension of the ordered threshold models \insertCite{McKelvey1975}{hopit}.
+Whereas in the latter models, the thresholds are constant, in the generalized models the
+thresholds are allowed to be dependent on covariates.
+\insertCite{GreeneHensher2010,Green2014;textual}{hopit} pointed out that for a
+model to make sense, the thresholds must also be ordered.
+This observation motivated Greene and coauthors to call these models \emph{HOPIT}, which stands
 for hierarchical ordered probit models.
 
-The fitted \emph{hopit} model is used to analyse heterogeneity in reporting behavior.
+The fitted \emph{hopit} model is used to analyze heterogeneity in reporting behavior.
 See \code{\link{standardizeCoef}}, \code{\link{latentIndex}},
 \code{\link{getCutPoints}}, and \code{\link{getLevels}}.
 }
 \details{
-The function fits generelaized hierarchical ordered threshold models.\cr
+The function fits generalized hierarchical ordered threshold models.\cr
 
-\code{latent.formula} models latent variable.
-if the response variable is self-rated health then latent measure can depend on different health
+\code{latent.formula} models the latent variable.
+If the response variable is self-rated health, then the latent measure can depend on different health
 conditions and diseases (latent variables are called health variables).
-Latent variables are modeled with parallel regression assumption. According to the assumption, coefficients,
-which describe the relationship between lowest and all higher response categories, are the same as those coefficients,
-which describe the relationship between another (e.g. adjacent) lowest and the remaining higher response categories.
-The predicted latent variable is modeled as a linear function of health variables and corresponding coefficients.\cr
+Latent variables are modeled with the parallel regression assumption. According to this assumption, the coefficients
+that describe the relationship between the lowest response category and all of the higher response categories, are the same as the coefficients
+that describe the relationship between another (e.g., adjacent) lowest response category and the remaining higher response categories.
+The predicted latent variable is modeled as a linear function of the health variables and the corresponding coefficients.\cr
 
-\code{thresh.formula} models threshold variable.
-The thresholds (cut points, \code{alpha}) are modeled by threshold variables \code{gamma} and intercepts \code{lambda}.
-It is assumed that they model contextual characteristics of the respondent (e.g. country, gender, age, etc. ).
-Threshold variables are modeled without parallel regression assumption, thus each threshold is modeled by
+\code{thresh.formula} models the threshold variable.
+The thresholds (cut-points, \code{alpha}) are modeled by the threshold variables \code{gamma} and the intercepts \code{lambda}.
+It is assumed that they model the contextual characteristics of the respondent (e.g., country, gender, and age).
+The threshold variables are modeled without the parallel regression assumption; thus, each threshold is modeled by
 a variable independently \insertCite{Boes2006,Green2014}{hopit}.
-\code{hopit}() function uses parametrization of tresholds proposed by \insertCite{Jurges2007;textual}{hopit}.\cr
+The \code{hopit}() function uses the parameterization of thresholds proposed by \insertCite{Jurges2007;textual}{hopit}.\cr
 
-\code{decreasing.levels} it is the logical that determines the ordering of levels of the categorical response variable.
-It is always good to check first the ordering of the levels before starting (see example 1)\cr
+\code{decreasing.levels} it is the logical that determines the ordering of the levels of the categorical response variable.
+It is always advisable to first check the ordering of the levels before starting (see example 1)\cr
 
-It is possible to model interactions, including interactions beetwen latent and threshold variables. Interactions added to the latent formula
-models only the latent measure and interactions modeled in threshold formula models only thresholds.
-The general rule for modeling any kind of interactions is to use "*" to specify interactions within latent (or threshold) formula and to
-use ':' to specify interactions between latent and threshold variables. In the latter case the main effects of an interaction must be also speciffied,
-i.e. main latent effects must be speciffied in the latent formula and main threshold effect must be speciffied in the threshold formula.
+It is possible to model the interactions, including interactions between the latent and the threshold variables. The interactions added to the latent formula
+only model the latent measure, and the interactions modeled in the threshold formula only model the thresholds.
+The general rule for modeling any kind of interaction is to use "*" to specify interactions within a latent (or threshold) formula and to
+use ':' to specify interactions between the latent and the threshold variables. In the latter case, the main effects of an interaction must also be specified;
+i.e., the main latent effects must be specified in the latent formula, and the main threshold effect must be speciffied in the threshold formula.
 See also \code{Example 3} below.\cr
 
-For more details please see the package vignette: "introduction_to_hopit", which is also available under this link:
+For more details, please see the package vignette: "introduction_to_hopit", which is also available under this link:
 \href{https://github.com/MaciejDanko/hopit/blob/master/vignettes/introduction_to_hopit.pdf}{introduction_to_hopit.pdf}
 }
 \examples{
 # DATA
 data(healthsurvey)
 
-# first determine the order of levels of dependent variable
+# first determine the order of the levels of the dependent variable
 levels(healthsurvey$health)
+
+# the order of response levels decreases from the best health to
+# the worst health; hence the hopit() parameter decreasing.levels
+# is set to TRUE
 
 # Example 1 ---------------------
 
-# the order of response levels decreases from the best health to
-# the worst health, hence hopit() parameter decreasing.levels = TRUE
 # fitting the model:
 model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
@@ -189,13 +195,13 @@ model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
 # summarize the fit:
 summary(model1)
 
-# extract parameters in a form of list
+# extract parameters in the form of a list
 cm1 <- coef(model1, aslist = TRUE)
 
-# names of returned coefficients
+# names of the returned coefficients
 names(cm1)
 
-# extract latent health coefficients
+# extract the latent health coefficients
 cm1$latent.params
 
 # check the fit
@@ -203,7 +209,7 @@ profile(model1)
 
 # Example 2 ---------------------
 
-# incorporate survey design
+# incorporate the survey design
 design <- svydesign(ids = ~ country + psu, weights = healthsurvey$csw,
 data = healthsurvey)
 
@@ -217,13 +223,13 @@ model2 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
                 control = list(trace = FALSE),
                 data = healthsurvey)
 
-# compare latent variables
+# compare the latent variables
 cbind('No survey design' = coef(model1, aslist = TRUE)$latent.par,
 'Has survey design' = coef(model2, aslist = TRUE)$latent.par)
 
 # Example 3 ---------------------
 
-# defining interactions beetween threshold and latent variables
+# defining the interactions between the threshold and the latent variables
 
 # correctly defined interactions:
 model3 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
@@ -238,7 +244,7 @@ model3 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
 
 # badly defined interactions:
 \dontrun{
-# 1) lack of main effect of "other_diseases" in any formula
+# 1) lack of a main effect of "other_diseases" in any formula
 # it can be solved by adding " + other_diseases" to the latent formula
 model3a <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
@@ -249,8 +255,8 @@ model3a <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
               control = list(trace = FALSE),
               data = healthsurvey)
 
-# 2) main effect of sex present in both formulas.
-# it can be solved by exchanging "*" into ":" in "other_diseases * sex"
+# 2) the main effect of sex is present in both formulas.
+# it can be solved by replacing "*" with ":" in "other_diseases * sex"
 model3b <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
                 depression + respiratory_problems +
@@ -274,10 +280,10 @@ model4 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
               control = list(trace = FALSE),
               data = healthsurvey)
 
-# an estimated variance of the error term:
-getTheta(model4)
+# an estimated standard deviation of the error term:
+sigma(model4)
 
-# compare fit of model1 and model4 suing Likelihood Ratio Test
+# compare the fit of model1 and model4 using the Likelihood Ratio Test
 print(anova(model1, model4), short = TRUE)
 
 # Example 5 ---------------------
@@ -292,8 +298,8 @@ latent.formula = health ~ hypertension + high_cholesterol +
   depression + respiratory_problems +
   IADL_problems + obese + diabetes + other_diseases
 
-# in some cases, when continouse variables are used, the hopit:::get.hopit.start() function
-# may not find starting parameters (R version 3.4.4 (2018-03-15)):
+# in some cases, when continuous variables are used, the hopit:::get.hopit.start() function
+# do not find starting parameters (R version 3.4.4 (2018-03-15)):
 model5 <- hopit(latent.formula = latent.formula,
                 thresh.formula = ~ sex + cont_var,
                 decreasing.levels = TRUE,
@@ -307,7 +313,7 @@ model5b <- hopit(latent.formula = latent.formula,
                  decreasing.levels = TRUE,
                  data = hs)
 
-# this can also be done automatically using control parameter
+# this can also be done automatically usingthe  control parameter
 model5c <- hopit(latent.formula = latent.formula,
                  thresh.formula = ~ sex + cont_var,
                  decreasing.levels = TRUE,

@@ -2,44 +2,45 @@
 % Please edit documentation in R/reportingheterogeneity.R
 \name{getCutPoints}
 \alias{getCutPoints}
-\title{Calculate threshold cut-points and individual ajusted responses using Jurges' method}
+\title{Calculate threshold cut-points and individual adjusted responses using Jurges' method}
 \usage{
-getCutPoints(model, subset = NULL, plotf = TRUE, mar = c(4, 4, 1, 1),
-  oma = c(0, 0, 0, 0), XLab = "Health index", XLab.cex = 1.1,
-  YLab = "Counts", YLab.cex = 1.1, decreasing.levels = TRUE,
-  group.labels.type = c("middle", "border", "none"))
+getCutPoints(model, decreasing.levels = TRUE, subset = NULL,
+  plotf = TRUE, mar = c(4, 4, 1, 1), oma = c(0, 0, 0, 0),
+  XLab = "Health index", XLab.cex = 1.1, YLab = "Counts",
+  YLab.cex = 1.1, group.labels.type = c("middle", "border", "none"))
 }
 \arguments{
 \item{model}{a fitted \code{hopit} model.}
 
+\item{decreasing.levels}{a logical indicating wheter self-reported health classes are ordered in decreasing order.}
+
 \item{subset}{an optional vector specifying a subset of observations.}
 
-\item{plotf}{a logical indicating if to plot the results.}
+\item{plotf}{a logical indicating whether to plot the results.}
 
 \item{mar, oma}{graphic parameters, see \code{\link{par}}.}
 
-\item{XLab, XLab.cex}{a label of x axis and it's size.}
+\item{XLab, XLab.cex}{a label of the x axis and it's size.}
 
-\item{YLab, YLab.cex}{a label of y axis and it's size.}
-
-\item{decreasing.levels}{logical indicating if self-reported health classes are ordered in decreasing order.}
+\item{YLab, YLab.cex}{a label of the y axis and it's size.}
 
 \item{group.labels.type}{position of the legend. One of \code{middel}, \code{border}, or \code{none}.}
 }
 \value{
-a list with following components:
-\item{cutpoints}{ cutpoints for adjusted categorical response levels with corresponding percentiles of latent index.}
+a list with the following components:
+\item{cutpoints}{ cut-points for the adjusted categorical response levels with the corresponding percentiles of the latent index.}
 \item{adjusted.levels}{ adjusted categorical response levels for each individual.}
 }
 \description{
-Calculate threshold cut-points and individual ajusted responses using Jurges' method
+Calculate threshold cut-points and individual adjusted responses using Jurges' method
 }
 \examples{
 # DATA
 data(healthsurvey)
 
 # the order of response levels decreases from the best health to
-# the worst health, hence hopit() parameter decreasing.levels = TRUE
+# the worst health; hence the hopit() parameter decreasing.levels
+# is set to TRUE
 levels(healthsurvey$health)
 
 # Example 1 ---------------------
@@ -54,17 +55,17 @@ model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
               control = list(trace = FALSE),
               data = healthsurvey)
 
-# calculate health index cut-points
+# calculate the health index cut-points
 z <- getCutPoints(model = model1)
 z$cutpoints
 
-# tabulate adjusted health levels for individuals: Jurges method
+# tabulate the adjusted health levels for individuals: Jurges method
 rev(table(z$adjusted.levels))
 
-# tabulate original health levels for individuals
+# tabulate the original health levels for individuals
 table(model1$y_i)
 
-# tabulate predicted health levels
+# tabulate the predicted health levels
 table(model1$Ey_i)
 }
 \references{

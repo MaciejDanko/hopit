@@ -6,17 +6,17 @@
 #' \describe{
 #'   \item{ID}{ personal identification number. }
 #'   \item{health}{ reported health, 5 levels. }
-#'   \item{diabetes}{ has diabetes? "yes" or "no"?}
-#'   \item{obese}{ has obese? "yes" or "no"?}
-#'   \item{IADL_problems}{ has problems in Instrumental Activities of Daily Living? "yes" or "no"?}
-#'   \item{hypertension}{ has hypertension? "yes" or "no"?}
-#'   \item{high_cholesterol}{ has high cholesterol? "yes" or "no"?}
-#'   \item{respiratory_problems}{ has respirator problems? "yes" or "no"?}
-#'   \item{heart_attack_or_stroke}{ had stroke or heart attack? "yes" or "no"?}
-#'   \item{poor_mobility}{ has poor mobility? "yes" or "no"?}
-#'   \item{very_poor_grip}{ cannot perform grip strength? "yes" or "no"?}
-#'   \item{depression}{ has depression? "yes" or "no"?}
-#'   \item{other_diseases}{ has other diseases? "yes" or "no"?}
+#'   \item{diabetes}{ has diabetes? "yes" or "no".}
+#'   \item{obese}{ is obese? "yes" or "no".}
+#'   \item{IADL_problems}{ has problems with Instrumental Activities of Daily Living? "yes" or "no".}
+#'   \item{hypertension}{ has hypertension? "yes" or "no".}
+#'   \item{high_cholesterol}{ has high cholesterol? "yes" or "no".}
+#'   \item{respiratory_problems}{ has respiratory problems? "yes" or "no".}
+#'   \item{heart_attack_or_stroke}{ had a stroke or a heart attack? "yes" or "no".}
+#'   \item{poor_mobility}{ has poor mobility? "yes" or "no".}
+#'   \item{very_poor_grip}{ cannot perform grip strength test? "yes" or "no".}
+#'   \item{depression}{ has depression? "yes" or "no".}
+#'   \item{other_diseases}{ has other diseases? "yes" or "no".}
 #'   \item{sex}{ sex/gender: "woman" or "man".}
 #'   \item{ageclass}{ categorized age: [50,60), [60,70), [70,80), [80,120).}
 #'   \item{education}{ two levels of education: primary or lower ("prim-") and secondary or higher ("sec+".}
@@ -26,9 +26,9 @@
 #' }
 #'
 #' @source
-#' \code{healthsurvey} is completely artificial data set simulated using distributions of
-#' some major health and socio-demographic characteristics. The distributions and data
-#' structure is roughly based on WAVE1 SHARE database (DOIs: 10.6103/SHARE.w1.600) see
+#' \code{healthsurvey} is a completely artificial data set simulated using distributions of
+#' some major health and socio-demographic characteristics. The distributions and the data
+#' structure are roughly based on the WAVE1 SHARE database (DOIs: 10.6103/SHARE.w1.600); see
 #' \insertCite{Borsch2013}{hopit} for technical details.
 #' None of the records represent any part of the true data.
 #'
@@ -40,6 +40,6 @@
 #' # load *healthsurvey* dataset
 #' data(healthsurvey)
 #'
-#' # horizontal view on the dataset (omitting ID)
+#' # horizontal view of the dataset (omitting ID)
 #' print(t(healthsurvey[1:6,-1]), quote=FALSE, na.print='NA', right=TRUE)
 "healthsurvey"

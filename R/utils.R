@@ -7,9 +7,9 @@
 '%notin%' <-function(x, y) match(x, y, nomatch = 0L) == 0L
 
 
-#' Check if one set contains all elements of another set
+#' Check whether one set contains all elements of another set
 #'
-#' Check if y set contains all elements of set x
+#' Check whether the y set contains all elements of set x
 #' @param x,y numeric vectors
 #' @usage x \%c\% y
 #' @author Maciej J. Danko
@@ -244,7 +244,7 @@ start_glm<-function(object, data){
 #' @useDynLib hopit
 #' @importFrom Rcpp evalCpp
 get.hopit.start<-function(object, data){
-  logTheta <- 0
+  logSigma <- 0
   object <- suppressWarnings(start_glm(object, data))
   par.ls <- object$glm.start.ls
 
@@ -260,7 +260,7 @@ get.hopit.start<-function(object, data){
   }
 
   if (object$hasdisp) {
-    object$start <- c(z$coef, logTheta)
+    object$start <- c(z$coef, logSigma)
   } else object$start <- z$coef
 
   object

@@ -1,10 +1,21 @@
-#' Extracting model coefficients
+#' Extract the \code{Sigma} parameter from a \code{hopit} model
 #'
-#' Extract model coefficients from \code{hopit} model.
-#' @param object an \code{hopit} object.
-#' @param aslist logical indicating if model coefficients should be returned
+#' Extract the \code{Sigma} parameter from a \code{hopit} model
+#' @param model a fitted \code{hopit} model.
+#' @usage \method{sigma}{hopit}(object, ...)
+#' @method sigma hopit
+#' @export
+#' @author Maciej J. Danko
+sigma.hopit <- function(object, ...) unname(exp(object$coef.ls$logSigma))
+
+
+#' Extracting the model coefficients
+#'
+#' Extract the model coefficients from the \code{hopit} model.
+#' @param object a \code{hopit} object.
+#' @param aslist a logical indicating whether the model coefficients should be returned
 #' as a list of three vectors
-#' related to latent variable, threshold lambdas, and threshold gammas.
+#' related to latent variables, threshold lambdas, and threshold gammas.
 #' @param ...	further arguments passed to or from other methods.
 #' @export
 #' @usage \method{coef}{hopit}(object, aslist = FALSE, ...)
@@ -41,9 +52,9 @@ print.hopit<-function(x, ...){
     cat(hopit_msg(80))
     print(x$coef.ls$thresh.gamma)
   }
-  #if(length(x$coef.ls$logTheta)){
+  #if(length(x$coef.ls$logSigma)){
   if (x$hasdisp) cat(hopit_msg(82)) else cat(hopit_msg(81))
-  cat(exp(x$coef.ls$logTheta),'\n')
+  cat(exp(x$coef.ls$logSigma),'\n')
   #}
   invisible(NULL)
 }
@@ -168,7 +179,7 @@ print.summary.hopit <- function(x, ...){
   cat('\n')
   stats::printCoefmat(x = x$coef, P.values = TRUE,
                       has.Pvalue = TRUE, digits = 4L, dig.tst = 2L)
-  cat(hopit_msg(70), exp(model$coef.ls$logTheta), fill = TRUE)
+  cat(hopit_msg(70), exp(model$coef.ls$logSigma), fill = TRUE)
   cat(hopit_msg(75), model$LL, fill = TRUE)
   cat(hopit_msg(76), model$deviance, fill = TRUE)
   if (!length(model$design)) cat('AIC:', AIC.hopit(model), fill = TRUE)
@@ -197,9 +208,9 @@ logLik.hopit<-function(object, ...) {
   res
 }
 
-#' Extracting Akaike Information Criterion from the fitted model
+#' Extracting the Akaike Information Criterion from the fitted model
 #'
-#' Extract Akaike Information Criterion (AIC) from a fitted \code{hopit} model.
+#' Extract the Akaike Information Criterion (AIC) from a fitted \code{hopit} model.
 #' @param object an \code{hopit} object.
 #' @param k a penalty per parameter to be used; the default k = 2 is the
 #' classical AIC.
@@ -223,14 +234,14 @@ AIC.hopit<-function(object, ..., k = 2L) {
 
 #' Likelihood Ratio Test Tables
 #'
-#' Perform likelihood ratio test(s) for two or more \code{hopit} objecs.
+#' Perform the likelihood ratio test(s) for two or more \code{hopit} objects.
 #' @param object an object containing the results returned by a \code{hopit}.
-#' @param ...	additional object(s) of the same type.
+#' @param ...	an additional object(s) of the same type.
 #' @param method the method of ordered model comparisons. Choose \code{"sequential"}
 #' for 1-2, 2-3, 3-4, ... comparisons or
 #' \code{"with.most.complex"} for 1-2, 1-3, 1-4, ... comparisons,
 #' where 1 is the most complex model (the least complex for \code{"with.least.complex"}).
-#' @param direction determine if complexity of listed models is
+#' @param direction determine if the complexity of listed models is
 #' \code{"increasing"} or \code{"decreasing"} (default).
 # @keywords internal
 #' @usage \method{anova}{hopit}(object, ..., method = c("sequential",
@@ -238,7 +249,7 @@ AIC.hopit<-function(object, ..., k = 2L) {
 #' direction = c("decreasing", "increasing"))
 #' @method anova hopit
 #' @export
-#' @return a vector or a matrix with results of the test(s).
+#' @return a vector or a matrix with the results of the test(s).
 #' @author Maciej J. Danko
 #' @seealso \code{\link{print.lrt.hopit}},
 #' \code{\link{lrt.hopit}}, \code{\link{hopit}}.
@@ -247,7 +258,8 @@ AIC.hopit<-function(object, ..., k = 2L) {
 #' data(healthsurvey)
 #'
 #' # the order of response levels decreases from the best health to
-#' # the worst health, hence hopit() parameter decreasing.levels = TRUE
+#' # the worst health; hence the hopit() parameter decreasing.levels
+#' # is set to TRUE
 #' levels(healthsurvey$health)
 #'
 #' # Example 1 ---------------------
@@ -262,7 +274,7 @@ AIC.hopit<-function(object, ..., k = 2L) {
 #'               control = list(trace = FALSE),
 #'               data = healthsurvey)
 #'
-#' # a model with interaction between hypertension and high_cholesterol
+#' # a model with an interaction between hypertension and high_cholesterol
 #' model2 <- hopit(latent.formula = health ~ hypertension * high_cholesterol +
 #'                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
 #'                 depression + respiratory_problems +
@@ -308,11 +320,11 @@ AIC.hopit<-function(object, ..., k = 2L) {
 #' anova(model1, model2, model3, model4,
 #'       direction = "increasing", method = "sequential")
 #'
-#' # likelihood ratio tests of the most complex model with the rest of models
+#' # likelihood ratio tests of the most complex model with the rest of the models
 #' anova(model1, model2, model3, model4,
 #'       direction = "increasing", method = "with.most.complex")
 #'
-#' # likelihood ratio tests of the least complex model with the rest of models
+#' # likelihood ratio tests of the least complex model with the rest of the models
 #' anova(model1, model2, model3, model4,
 #'       direction = "increasing", method = "with.least.complex")
 anova.hopit<-function(object, ..., method = c('sequential', 'with.most.complex',
@@ -575,7 +587,7 @@ print.lrt.hopit <- function(x, short = FALSE, ...){
 #' plot(pr, relative = TRUE)
 profile.hopit<-function(fitted, ..., scope=0.15, steps=101){
   steps <- floor(steps/2)*2+1
-  if (fitted$hasdisp) COEF <- c(fitted$coef, fitted$coef.ls$logTheta) else
+  if (fitted$hasdisp) COEF <- c(fitted$coef, fitted$coef.ls$logSigma) else
     COEF <- fitted$coef
   sub <- function(x,y) if (x==1) c(y,COEF[2:length(COEF)]) else
     if (x==length(COEF)) c(COEF[-length(COEF)],y) else
@@ -599,11 +611,11 @@ profile.hopit<-function(fitted, ..., scope=0.15, steps=101){
 #'
 #' Plot method for profile.hopit object.
 #' @param x an \code{profile.hopit} object.
-#' @param leg.cex character expansion factor relative to current
+#' @param leg.cex a character expansion factor relative to current
 #' \code{par("cex")} (see \code{\link{legend}}).
-#' @param leg.col the color used for the legend text.
+#' @param leg.col a color used for the legend text.
 #' @param ylim see \code{\link{plot}}.
-#' @param relative logical indicating if \code{ylim} on each panel should be the
+#' @param relative a logical indicating if \code{ylim} on each panel should be the
 #'  same (\code{TRUE}) or not (\code{FALSE}).
 #' @param ... arguments to be passed to \code{\link{plot}}() function (see
 #' \code{\link{par}}).

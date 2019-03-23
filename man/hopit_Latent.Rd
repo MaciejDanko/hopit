@@ -9,7 +9,7 @@ hopit_Latent(latent.params, model = NULL)
 \arguments{
 \item{latent.params}{vectors with model parameters.}
 
-\item{model}{a \code{hopit} object}
+\item{model}{an \code{hopit} object}
 }
 \description{
 INTERNAL: Calculate predicted continous latent measure (h_i).

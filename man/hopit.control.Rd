@@ -11,38 +11,38 @@ hopit.control(grad.eps = 3e-05, bgfs.maxit = 10000, cg.maxit = 10000,
   transform.thresh = "none")
 }
 \arguments{
-\item{grad.eps}{an epsilon parameter ("a very small number") used to calculate Hessian from the gradient function.}
+\item{grad.eps}{an epsilon parameter ("a very small number") used to calculate the Hessian from the gradient function.}
 
 \item{bgfs.maxit, cg.maxit, nlm.maxit}{the maximum number of iterations.
 See \code{\link{optim}} and \code{\link{nlm}} for details.}
 
-\item{bgfs.reltol, cg.reltol}{relative convergence tolerances for BFGS and CG methods.
+\item{bgfs.reltol, cg.reltol}{the relative convergence tolerances for the BFGS and the CG methods.
 See \code{\link{optim}} for details.}
 
 \item{nlm.gradtol, nlm.steptol}{a tolerance at which the scaled gradient is
 considered close enough to zero and
-a minimum allowable relative step length for nlm method. See \code{\link{nlm}}.}
+a minimum allowable relative step length for the nlm method. See \code{\link{nlm}}.}
 
-\item{fit.methods}{'CG', 'BFGS' or both. If both then CG is run first and then BFGS. See \code{\link{optim}}.}
+\item{fit.methods}{"CG", "BFGS", or both. If both, the CG is run first, followed by the BFGS. See \code{\link{optim}}.}
 
-\item{nlm.fit}{a logical, if FALSE (default) the \code{nlm} optimization method
-is omitted and only BFGS and/or CG methods are run.}
+\item{nlm.fit}{a logical; if FALSE (default) the \code{nlm} optimization method
+is omitted and only the BFGS and/or the CG methods are run.}
 
-\item{trace}{a logical, if to trace process of model fitting.}
+\item{trace}{a logical for whether to trace the process of model fitting.}
 
-\item{transform.latent, transform.thresh}{a type of transformation apllied to
-the all latent's or all threshold's numeric variables. Possible values:
+\item{transform.latent, transform.thresh}{a type of transformation applied to
+the all of the latent's or all of the threshold's numeric variables. Possible values:
 \itemize{
 \item{"none"} {- no transformation}
-\item{"min"} {- subtract minimum from a variable}
-\item{"scale_01"} {- ransform variable to fit the range from 0 to 1}
-\item{"standardize" or "standardise"} {- subtract mean from a variable then divide it by it's standard deviation}
-\item{"standardize_trunc" or "standardise_trunc"} {- subtract minimum from a variable then divide it by it's standard deviation}
+\item{"min"} {- subtract the minimum from a variable}
+\item{"scale_01"} {- transform the variable to fit the range from 0 to 1}
+\item{"standardize" or "standardise"} {- subtract the mean from a variable then divide it by it's standard deviation}
+\item{"standardize_trunc" or "standardise_trunc"} {- subtract the minimum from a variable then divide it by it's standard deviation}
 }}
 }
 \description{
-An auxiliary function for controlling fitting of \code{hopit} model.
-Use this function to set control
+An auxiliary function for controlling the fitting of a \code{hopit} model.
+Use this function to set the control
 parameters of the \code{\link{hopit}} and other related functions.
 }
 \seealso{

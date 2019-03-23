@@ -15,13 +15,13 @@ leg.cex = 0.85, leg.col = 'blue4')
 
 \item{ylim}{see \code{\link{plot}}.}
 
-\item{relative}{logical indicating if \code{ylim} on each panel should be the
+\item{relative}{a logical indicating if \code{ylim} on each panel should be the
 same (\code{TRUE}) or not (\code{FALSE}).}
 
-\item{leg.cex}{character expansion factor relative to current
+\item{leg.cex}{a character expansion factor relative to current
 \code{par("cex")} (see \code{\link{legend}}).}
 
-\item{leg.col}{the color used for the legend text.}
+\item{leg.col}{a color used for the legend text.}
 }
 \description{
 Plot method for profile.hopit object.

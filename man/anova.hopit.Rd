@@ -11,28 +11,29 @@ direction = c("decreasing", "increasing"))
 \arguments{
 \item{object}{an object containing the results returned by a \code{hopit}.}
 
-\item{...}{additional object(s) of the same type.}
+\item{...}{an additional object(s) of the same type.}
 
 \item{method}{the method of ordered model comparisons. Choose \code{"sequential"}
 for 1-2, 2-3, 3-4, ... comparisons or
 \code{"with.most.complex"} for 1-2, 1-3, 1-4, ... comparisons,
 where 1 is the most complex model (the least complex for \code{"with.least.complex"}).}
 
-\item{direction}{determine if complexity of listed models is
+\item{direction}{determine if the complexity of listed models is
 \code{"increasing"} or \code{"decreasing"} (default).}
 }
 \value{
-a vector or a matrix with results of the test(s).
+a vector or a matrix with the results of the test(s).
 }
 \description{
-Perform likelihood ratio test(s) for two or more \code{hopit} objecs.
+Perform the likelihood ratio test(s) for two or more \code{hopit} objects.
 }
 \examples{
 # DATA
 data(healthsurvey)
 
 # the order of response levels decreases from the best health to
-# the worst health, hence hopit() parameter decreasing.levels = TRUE
+# the worst health; hence the hopit() parameter decreasing.levels
+# is set to TRUE
 levels(healthsurvey$health)
 
 # Example 1 ---------------------
@@ -47,7 +48,7 @@ model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
               control = list(trace = FALSE),
               data = healthsurvey)
 
-# a model with interaction between hypertension and high_cholesterol
+# a model with an interaction between hypertension and high_cholesterol
 model2 <- hopit(latent.formula = health ~ hypertension * high_cholesterol +
                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
                 depression + respiratory_problems +
@@ -93,11 +94,11 @@ model4 <- hopit(latent.formula = health ~ hypertension * high_cholesterol +
 anova(model1, model2, model3, model4,
       direction = "increasing", method = "sequential")
 
-# likelihood ratio tests of the most complex model with the rest of models
+# likelihood ratio tests of the most complex model with the rest of the models
 anova(model1, model2, model3, model4,
       direction = "increasing", method = "with.most.complex")
 
-# likelihood ratio tests of the least complex model with the rest of models
+# likelihood ratio tests of the least complex model with the rest of the models
 anova(model1, model2, model3, model4,
       direction = "increasing", method = "with.least.complex")
 }

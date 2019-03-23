@@ -10,15 +10,15 @@ boot_hopit(model, data, func, nboot = 500, unlist = TRUE,
 \arguments{
 \item{model}{a fitted \code{hopit} model.}
 
-\item{data}{a data used to fit the model.}
+\item{data}{data used to fit the model.}
 
 \item{func}{a function to be bootstrapped of the form \code{func(model, data, ...)}.}
 
 \item{nboot}{a number of bootstrap replicates.}
 
-\item{unlist}{a logical indicting if to unlist boot object.}
+\item{unlist}{a logical indicating whether to unlist the boot object.}
 
-\item{boot.only.latent}{a logical indicating if to perform the bootstrap only on latent variables.}
+\item{boot.only.latent}{a logical indicating whether to perform the bootstrap on latent variables only.}
 
 \item{robust.vcov}{see \code{\link{vcov.hopit}}.}
 
@@ -28,18 +28,19 @@ boot_hopit(model, data, func, nboot = 500, unlist = TRUE,
 a list with bootstrapped elements.
 }
 \description{
-\code{boot_hopit} performs bootstrap of a function dependent on fitted model.
-In each of the bootstrap repetitions a set of new model coefficients is drawn from the multivariate normal distribution,
-assuming originally estimated model coefficients (see \code{\link{coef.hopit}})
-as a mean and using model variance-covariance matrix (see \code{\link{vcov.hopit}}).
-The drawn coefficients are then used to calculate the measure of interest using a function delivered by \code{func} parameter.
+\code{boot_hopit} performs the bootstrap of a function dependent on a fitted model.
+In each of the bootstrap repetitions, a set of new model coefficients is drawn from the multivariate normal distribution,
+assuming the originally estimated model coefficients (see \code{\link{coef.hopit}})
+as a mean and using the model variance-covariance matrix (see \code{\link{vcov.hopit}}).
+The drawn coefficients are then used to calculate the measure of interest using a function delivered by the \code{func} parameter.
 }
 \examples{
 # DATA
 data(healthsurvey)
 
 # the order of response levels decreases from the best health to
-# the worst health, hence hopit() parameter decreasing.levels = TRUE
+# the worst health; hence the hopit() parameter decreasing.levels
+# is set to TRUE
 levels(healthsurvey$health)
 
 # fit a model
@@ -60,7 +61,7 @@ cutpoints <-  function(model, data) getCutPoints(model, plotf = FALSE)$cutpoints
 B <- boot_hopit(model = model1, data = healthsurvey,
                 func = cutpoints, nboot = 100)
 
-# calculate lower and upper bounds using percentile method
+# calculate lower and upper bounds using the percentile method
 cutpoints.CI <- percentile_CI(B)
 
 # print estimated cutpoints and their confidence intervals
@@ -84,7 +85,7 @@ est.org <- diff_BadHealth(model = model1, data = healthsurvey)
 B <- boot_hopit(model = model1, data = healthsurvey,
                 func = diff_BadHealth, nboot = 100)
 
-# calculate lower and upper bounds using percentile method
+# calculate lower and upper bounds using the percentile method
 est.CI <- percentile_CI(B)
 
 # plot the difference and its (asymmetrical) confidence intervals
