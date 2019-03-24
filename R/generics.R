@@ -1,14 +1,3 @@
-#' Extract the \code{Sigma} parameter from a \code{hopit} model
-#'
-#' Extract the \code{Sigma} parameter from a \code{hopit} model
-#' @param model a fitted \code{hopit} model.
-#' @usage \method{sigma}{hopit}(object, ...)
-#' @method sigma hopit
-#' @export
-#' @author Maciej J. Danko
-sigma.hopit <- function(object, ...) unname(exp(object$coef.ls$logSigma))
-
-
 #' Extracting the model coefficients
 #'
 #' Extract the model coefficients from the \code{hopit} model.
@@ -670,3 +659,16 @@ print.profile.hopit<-function(x, ..., plotf = TRUE){
     cat(hopit_msg(62))
   }
 }
+
+
+#' Extract the \code{Sigma} parameter from a \code{hopit} model
+#'
+#' Extract the \code{Sigma} parameter from a \code{hopit} model
+#' @param model a fitted \code{hopit} model.
+#' @usage \method{sigma}{hopit}(object, ...)
+#' @keywords internal
+#' @export
+#' @author Maciej J. Danko
+#' @method sigma hopit
+sigma.hopit <- function(object, ...)
+  unname(exp(object$coef.ls$logSigma))

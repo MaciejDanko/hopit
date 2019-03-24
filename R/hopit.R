@@ -499,6 +499,8 @@ hopit.control<-function(grad.eps = 3e-5,
 #' (or \code{\link[stats]{na.exclude}} equivalently), which removes rows with missing
 #' values from the \code{data}. Using \code{\link[stats]{na.pass}} will lead to an error.
 #' @importFrom stats na.fail
+#' @importFrom stats sigma
+#' @importFrom stats coef
 #' @importFrom Rdpack reprompt
 #' @return a \code{hopit} object used by other functions and methods. The object is a list with the following components:
 #'  \item{control}{ a list with control parameters. See \code{\link{hopit.control}}.}

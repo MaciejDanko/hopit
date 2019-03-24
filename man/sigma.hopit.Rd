@@ -15,3 +15,4 @@ Extract the \code{Sigma} parameter from a \code{hopit} model
 \author{
 Maciej J. Danko
 }
+\keyword{internal}

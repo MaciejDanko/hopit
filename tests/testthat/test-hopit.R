@@ -43,9 +43,9 @@ test_hopit <- function (object, data) {
                length(coef(object,aslist = T)$latent.params))
   cat('coef ')
   expect_equal(length(coef(object)), sum(object$parcount))
-  cat('theta ')
+  cat('sigma ')
   if (!object$hasdisp) {
-    expect_equal(round(getTheta(object),8), 1)
+    expect_equal(round(sigma(object),8), 1)
   }
   cat('levels ')
   hl <- getLevels(model=object, formula=~ sex + ageclass, data = healthsurvey,
@@ -505,7 +505,7 @@ expect_error(hopit(latent.formula = latent.formula.1,
   mM  <- hopit(latent.formula = latent.formula.1,
                thresh.formula = thresh.formula.1,
                data = newhealthsurvey,
-               start = c(coef(mH), logTheta = log(getTheta(mH))),
+               start = c(coef(mH), logSigma = log(sigma(mH))),
                overdispersion = TRUE,
                decreasing.levels = TRUE)
   print('mN')
@@ -560,7 +560,7 @@ expect_error(hopit(latent.formula = latent.formula.1,
 expect_error(hopit(latent.formula = latent.formula.1,
                    thresh.formula = thresh.formula.1,
                    data = newhealthsurvey,
-                   start = c(coef(mH), logTheta = log(getTheta(mH))),
+                   start = c(coef(mH), logSigma = log(sigma(mH))),
                    overdispersion = FALSE,
                    decreasing.levels = TRUE))
 
