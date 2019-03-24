@@ -1,9 +1,9 @@
-#' INTERNAL: Calculate model cut-points (alpha)
+#' INTERNAL: Calculate the model cut-points (alpha)
 #'
 #' @author Maciej J. Danko
 #' @keywords internal
 #' @param thresh.lambda,thresh.gamma vectors with model parameters.
-#' @param model an \code{hopit} object.
+#' @param model a \code{hopit} object.
 #' @useDynLib hopit
 #' @importFrom Rcpp evalCpp
 hopit_Threshold<-function(thresh.lambda, thresh.gamma, model){
@@ -17,10 +17,10 @@ hopit_Threshold<-function(thresh.lambda, thresh.gamma, model){
 }
 
 
-#' INTERNAL: Calculate predicted continous latent measure (h_i).
+#' INTERNAL: Calculate the predicted continuous latent measure (h_i).
 #'
 #' @param latent.params vectors with model parameters.
-#' @param model an \code{hopit} object
+#' @param model a \code{hopit} object
 #' @author Maciej J. Danko
 #' @keywords internal
 hopit_Latent <- function(latent.params, model = NULL)
@@ -30,7 +30,7 @@ hopit_Latent <- function(latent.params, model = NULL)
 # INTERNAL: Extract model parameters as a list
 #
 # Extract model parameters as a list.
-# @param model an \code{hopit} object.
+# @param model a \code{hopit} object.
 # @param parameters model parameters (optional). If not delivered then taken from \code{model$coef}.
 # @param parcount vector with parameter counts for latent, lambda, and gamma.
 # @author Maciej J. Danko
@@ -79,11 +79,11 @@ hopit_ExtractParameters <- function(model,
 
 #' INTERNAL: The log likelihood function
 #'
-#' @param parameters model parameters (optional). If not delivered then taken from \code{model$coef}.
-#' @param model an \code{hopit} object.
-#' @param collapse a logical indicating if to sum individual LL contributions.
-#' @param use_weights a logical indicating if to use model weights.
-#' @param negative a logical indicating if the function should return negative LL or not.
+#' @param parameters model parameters (optional). If the parameters are not delivered, they are taken from \code{model$coef}.
+#' @param model a \code{hopit} object.
+#' @param collapse a logical indicating whether to sum the individual LL contributions.
+#' @param use_weights a logical indicating whether to use model weights.
+#' @param negative a logical indicating whether the function should return negative.
 #' @author Maciej J. Danko
 #' @keywords internal
 #' @useDynLib hopit
@@ -137,11 +137,11 @@ hopit_negLL <- function(parameters = model$coef,
 
 #' INTERNAL: The gradient of the log likelihood function
 #'
-#' @param parameters model parameters (optional). If not delivered then taken from \code{model$coef}.
-#' @param model an \code{hopit} object.
-#' @param collapse a logical indicating if to sum individual LL contributions.
-#' @param use_weights a logical indicating if to use model weights.
-#' @param negative  a logical indicating if the function should return negative LL or not.
+#' @param parameters model parameters (optional). If the parameters not delivered, they are taken from the \code{model$coef}.
+#' @param model a \code{hopit} object.
+#' @param collapse a logical indicating whether to sum individual LL contributions.
+#' @param use_weights a logical indicating whether to use model weights.
+#' @param negative  a logical indicating whether the function should return negative LL.
 #' @author Maciej J. Danko
 #' @keywords internal
 #' @useDynLib hopit
@@ -202,12 +202,12 @@ hopit_derivLL <- function(parameters=model$coef, model,
 }
 
 
-#' INTERNAL: Fit \code{hopit} model given a starting parameters
+#' INTERNAL: Fit a \code{hopit} model given the starting parameters
 #'
 #' Fit the model.
-#' @param model an \code{hopit} object.
+#' @param model a \code{hopit} object.
 #' @param start starting parameters.
-#' @param use_weights a logical indicating if to use model weights.
+#' @param use_weights a logical indicating whether to use model weights.
 #' @author Maciej J. Danko
 #' @keywords internal
 #' @useDynLib hopit
@@ -699,7 +699,7 @@ hopit.control<-function(grad.eps = 3e-5,
 #'                  decreasing.levels = TRUE,
 #'                  data = hs)
 #'
-#' # this can also be done automatically usingthe  control parameter
+#' # this can also be done automatically usingthe the control parameter
 #' model5c <- hopit(latent.formula = latent.formula,
 #'                  thresh.formula = ~ sex + cont_var,
 #'                  decreasing.levels = TRUE,

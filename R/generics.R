@@ -19,7 +19,7 @@ coef.hopit <- function(object, aslist = FALSE, ...)
 #' Printing basic information about fitted \code{hopit} model
 #'
 #' Print a \code{hopit} model.
-#' @param x an \code{hopit} object.
+#' @param x a \code{hopit} object.
 #' @param ...	further arguments passed to or from other methods.
 #' @export
 #' @usage \method{print}{hopit}(x, ...)
@@ -52,10 +52,10 @@ print.hopit<-function(x, ...){
 #' Variance-covariance matrix from the fitted model
 #'
 #' Returns the variance-covariance matrix of the main parameters of a fitted \code{hopit} model object.
-#' @param object an \code{hopit} object.
-#' @param robust.vcov logical indicating if to use sandwich estimator to
-#' calculate variance-covariance matrix.
-#' If survey deign is detected than this option is ignored.
+#' @param object a \code{hopit} object.
+#' @param robust.vcov a logical indicating whether to use the sandwich estimator to
+#' calculate the variance-covariance matrix.
+#' If a survey design is detected, then this option is ignored.
 #' @param ... further arguments passed to or from other methods.
 #' @export
 #' @usage \method{vcov}{hopit}(object, robust.vcov, ...)
@@ -86,10 +86,10 @@ vcov.hopit<-function(object, robust.vcov, ...){
 }
 
 
-# Printing variance-covariance matrix
+# Printing the variance-covariance matrix
 #
-# Print variance-covariance matrix calcualted by \code{\link{vcov.hopit}}.
-# @param x an \code{vcov.hopit} object
+# Print the variance-covariance matrix calculated by the \code{\link{vcov.hopit}}.
+# @param x a \code{vcov.hopit} object
 # @param digits see \code{\link{print.default}}.
 # @param ... further arguments passed to or from other methods.
 # @usage \method{print}{vcov.hopit}(x, digits = 3L, ...)
@@ -107,13 +107,13 @@ print.vcov.hopit <- function(x, digits = 3L, ...){
 }
 
 
-#' Calculate model summary
+#' Calculate the model summary
 #'
 #' Summarize a \code{hopit}  model.
-#' @param object an \code{hopit} object.
-#' @param robust.se logical indicating if to use robust standard errors based
+#' @param object a \code{hopit} object.
+#' @param robust.se a logical indicating whether to use robust standard errors based
 #' on the sandwich estimator.
-#' If survey deign is detected than this option is ignored.
+#' If a survey design is detected, then this option is ignored.
 #' @param control a list with control parameters.
 #' See \code{\link{hopit.control}}.
 #' @param ... further arguments passed to or from other methods.
@@ -177,10 +177,10 @@ print.summary.hopit <- function(x, ...){
 }
 
 
-#' Extracting a log-likelihood of the fitted model
+#' Extracting a log likelihood of the fitted model
 #'
-#' Extract log-likelihood of a \code{hopit} model.
-#' @param object an \code{hopit} object.
+#' Extract the log likelihood of a \code{hopit} model.
+#' @param object a \code{hopit} object.
 #' @param ... additional objects of the class \code{hopit}.
 #' @keywords internal
 #' @export
@@ -200,7 +200,7 @@ logLik.hopit<-function(object, ...) {
 #' Extracting the Akaike Information Criterion from the fitted model
 #'
 #' Extract the Akaike Information Criterion (AIC) from a fitted \code{hopit} model.
-#' @param object an \code{hopit} object.
+#' @param object a \code{hopit} object.
 #' @param k a penalty per parameter to be used; the default k = 2 is the
 #' classical AIC.
 #' @param ... additional objects of the class \code{hopit}.
@@ -277,7 +277,7 @@ AIC.hopit<-function(object, ..., k = 2L) {
 #' lrt1 <- anova(model1, model2)
 #' lrt1
 #'
-#' # print results in shorter form
+#' # print results in a shorter form
 #' print(lrt1, short = TRUE)
 #'
 #' # or equivalently
@@ -390,7 +390,7 @@ print.anova.hopit <- function(x, ...){
 #'
 #' @param full,nested models to be compared.
 #' @keywords internal
-#' @return a vector with results of the test.
+#' @return a vector with the results of the test.
 #' @export
 #' @author Maciej J. Danko
 #' @seealso \code{\link{print.lrt.hopit}}, \code{\link{anova.hopit}},
@@ -399,8 +399,9 @@ print.anova.hopit <- function(x, ...){
 #' # DATA
 #' data(healthsurvey)
 #'
-#' # the order of response levels is decreasing (from the best health to the
-#' # worst health)
+#' # the order of response levels decreases from the best health to
+#' # the worst health; hence the hopit() parameter decreasing.levels
+#' # is set to TRUE
 #' levels(healthsurvey$health)
 #'
 #' # Example 1 ---------------------
@@ -415,7 +416,7 @@ print.anova.hopit <- function(x, ...){
 #'               control = list(trace = FALSE),
 #'               data = healthsurvey)
 #'
-#' # model with interaction between hypertension and high_cholesterol
+#' # model with an interaction between hypertension and high_cholesterol
 #' model2 <- hopit(latent.formula = health ~ hypertension * high_cholesterol +
 #'                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
 #'                 depression + respiratory_problems +
@@ -429,7 +430,7 @@ print.anova.hopit <- function(x, ...){
 #' lrt1 <- lrt.hopit(full = model2, nested = model1)
 #' lrt1
 #'
-#' # print results in shorter form
+#' # print the results in shorter form
 #' print(lrt1, short = TRUE)
 #'
 #' # equivalently
@@ -490,7 +491,7 @@ lrt.hopit <- function(full, nested){
 #' Printing an object calculated by \code{\link{lrt.hopit}}
 #'
 #' @param x an object obtained from \code{\link{lrt.hopit}}.
-#' @param short logical indicating if to show a shortened description.
+#' @param short a logical indicating whether to show a shortened description.
 #' @param ...	further arguments passed to or from other methods.
 #' @keywords internal
 #' @export
@@ -529,13 +530,13 @@ print.lrt.hopit <- function(x, short = FALSE, ...){
 }
 
 
-#' Calculate log likelihood profile for fitted \code{hopit} model
+#' Calculate the log likelihood profile for the fitted \code{hopit} model
 #'
-#' @param fitted  an \code{hopit} object (a fitted model).
-#' @param scope value (fraction) defining plotting range for a coefficient.
+#' @param fitted a \code{hopit} object (a fitted model).
+#' @param scope a value (fraction) defining the plotting range for a coefficient.
 #' The range is \code{c(coef \* (1-scope), coef \* (1+scope))}.
-#' @param steps at how many equally spaced points calculate the log likelihood
-#' function for each coefficient.
+#' @param steps at how many equally spaced points the log likelihood
+#' function is calculated for each coefficient.
 #' @param ... unused now.
 #' @export
 #' @keywords internal
@@ -548,13 +549,13 @@ print.lrt.hopit <- function(x, short = FALSE, ...){
 #' # DATA
 #' data(healthsurvey)
 #'
-#' # first determine the order of levels of dependent variable
+#' # the order of response levels decreases from the best health to
+#' # the worst health; hence the hopit() parameter decreasing.levels
+#' # is set to TRUE
 #' levels(healthsurvey$health)
 #'
 #' # Example 1 ---------------------
 #'
-#' # the order is decreasing (from the best health to the worst health)
-#' # so we set: decreasing.levels = TRUE
 #' # fitting the model:
 #' model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
 #'                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
@@ -565,7 +566,7 @@ print.lrt.hopit <- function(x, short = FALSE, ...){
 #'               control = list(trace = FALSE),
 #'               data = healthsurvey)
 #'
-#' # check the fit using profile function (at 51 points)
+#' # check the fit using the profile function (at 51 points)
 #' pr <- profile(model1, steps = 51)
 #' print(pr, plotf = FALSE)
 #'
@@ -598,15 +599,15 @@ profile.hopit<-function(fitted, ..., scope=0.15, steps=101){
 
 #' Plot the log likelihood profile for a profile.hopit object
 #'
-#' Plot method for profile.hopit object.
-#' @param x an \code{profile.hopit} object.
-#' @param leg.cex a character expansion factor relative to current
+#' Plot the method for a profile.hopit object.
+#' @param x a \code{profile.hopit} object.
+#' @param leg.cex a character expansion factor relative to the current
 #' \code{par("cex")} (see \code{\link{legend}}).
 #' @param leg.col a color used for the legend text.
 #' @param ylim see \code{\link{plot}}.
-#' @param relative a logical indicating if \code{ylim} on each panel should be the
+#' @param relative a logical indicating whether \code{ylim} on each panel should be the
 #'  same (\code{TRUE}) or not (\code{FALSE}).
-#' @param ... arguments to be passed to \code{\link{plot}}() function (see
+#' @param ... arguments to be passed to the \code{\link{plot}}() function (see
 #' \code{\link{par}}).
 #' @export
 #' @keywords internal
@@ -635,11 +636,11 @@ plot.profile.hopit<-function(x, ..., ylim = NULL, relative = FALSE,
 }
 
 
-#' Print method for profile.hopit object
+#' Print method for a profile.hopit object
 #'
-#' @param x an \code{profile.hopit} object.
-#' @param plotf a logical indicating if to plot the profile.
-#' @param ... arguments to be passed to \code{plot}() function (see
+#' @param x a \code{profile.hopit} object.
+#' @param plotf a logical indicating whether to plot the profile.
+#' @param ... arguments to be passed to the \code{plot}() function (see
 #' \code{\link{plot.profile.hopit}}).
 #' @export
 #' @keywords internal

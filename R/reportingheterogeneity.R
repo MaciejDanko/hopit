@@ -1,16 +1,16 @@
-#' Calculate latent index
+#' Calculate the latent index
 #' @description
-#' Calculate latent index from the fitted model. Latent index is a standardized latent measure, it takes values from 0 to 1, where
-#' zero is prescribed to the worse predicted state (maximal observed value for the latent measure) and 1 is prescribed
-#' to the best predicted health (minimal observed value for the latent measure).
+#' Calculate the latent index from the fitted model. The latent index is a standardized latent measure that takes values from 0 to 1, where
+#' 0 refers to the worst predicted state (the maximal observed value for the latent measure) and 1 refers
+#' to the best predicted state (the minimal observed value for the latent measure).
 #' @param model a fitted \code{hopit} model.
-#' @param decreasing.levels a logical indicating if self-reported (e.g. health) classes are ordered in decreasing order.
-#' @param subset an optional vector specifying a subset of observations.
-#' @param plotf a logical indicating if to plot summary figure.
-#' @param response X axis plotting option, choose \code{'data'} for raw responses and \code{'fitted'} for model reclassified responses
-#' @param ylab a label of y axis.
+#' @param decreasing.levels a logical indicating whether self-reported (e.g., health) classes are ordered in decreasing order.
+#' @param subset an optional vector that specifies a subset of observations.
+#' @param plotf a logical indicating whether to plot the summary figure.
+#' @param response X-axis plotting option; choose \code{'data'} for the raw responses and \code{'fitted'} for the responses reclassified by the model.
+#' @param ylab a label of the y-axis.
 #' @param ... further parameters passed to the \code{\link{plot}} function.
-#' @return a vector with latent index for each individual.
+#' @return a vector with a latent index for each individual.
 #' @references \insertRef{Jurges2007}{hopit}
 #' @author Maciej J. Danko
 #' @export
@@ -20,7 +20,8 @@
 #' data(healthsurvey)
 #'
 #' # the order of response levels decreases from the best health to
-#' # the worst health, hence hopit() parameter decreasing.levels = TRUE
+#' # the worst health; hence the hopit() parameter decreasing.levels
+#' # is set to TRUE
 #' levels(healthsurvey$health)
 #'
 #' # Example 1 ---------------------
@@ -35,21 +36,21 @@
 #'               control = list(trace = FALSE),
 #'               data = healthsurvey)
 #'
-#' # calculate the health index and plot reported health status
-#' # vs. health index.
+#' # calculate the health index and plot the reported health status
+#' # versus the health index.
 #' hi <- latentIndex(model1, plotf = TRUE, response = "data",
 #'                   ylab = 'Health index', col='deepskyblue3')
 #'
 #' # plot a simple histogram of the function output
 #' hist(hi)
 #'
-#' # calculate health index and plot adjusted health status vs. health index
+#' # calculate the health index and plot the adjusted health status vs. the health index
 #' # using Jurges (Jurges 2007) method.
 #' latentIndex(model1, plotf = TRUE, response = "Jurges",
 #'                  ylab = 'Health index', col='deepskyblue3')
 #'
-#' # calculate health index and plot model-predicted health levels
-#' # vs. health index.
+#' # calculate the health index and plot the model-predicted health levels
+#' # versus the health index.
 #' latentIndex(model1, plotf = TRUE, response = "fitted",
 #'                  ylab = 'Health index', col='deepskyblue3')
 latentIndex <- function(model, decreasing.levels = TRUE,
@@ -80,23 +81,23 @@ latentIndex <- function(model, decreasing.levels = TRUE,
 healthIndex <- latentIndex
 
 
-#' Standardization of coefficients
+#' Standardization of the coefficients
 #' @description
-#' Calculate standardized coefficients (e.g. disability weights for health variables) using
+#' Calculate standardized the coefficients (e.g. disability weights for the health variables) using
 #' the predicted latent measure obtained from the model.\cr
 #' In the self-rated health example the standardized coefficients are called disability weights \insertCite{Jurges2007;textual}{hopit}
 #' and are calculated for each health variable to provide information about the impact of a specific health measure on the latent index
-#' (see \code{\link{latentIndex}}). The disability weight for a health variable is equal to the ratio of corresponding health coefficient
-#'  and the difference between the lowest and highest values of predicted latent health. In other words, disability weight reduces
-#'  latent index by some given amount or percentage (i.e. latent index of every individual is reduced by the same amount if heart attack or other
-#'  heart problems are present)\insertCite{Jurges2007;textual}{hopit}.
+#' (see \code{\link{latentIndex}}). The disability weight for a health variable is equal to the ratio of the corresponding health coefficient
+#'  and the difference between the lowest and the highest values of the predicted latent health. In other words, the disability weight reduces
+#'  the latent index by some given amount or percentage (i.e., the latent index of every individual is reduced by the same amount if the person had a heart attack or other
+#'  heart problems)\insertCite{Jurges2007}{hopit}.
 #' @param model a fitted \code{hopit} model.
-#' @param ordered a logical indicating if to sort the disability weights.
-#' @param plotf a logical indicating if to plot results.
-#' @param plotpval a logical indicating if to plot p-values.
+#' @param ordered a logical indicating whether to sort the disability weights.
+#' @param plotf a logical indicating whether to plot the results.
+#' @param plotpval a logical indicating whether to plot the p-values.
 #' @param mar,oma graphic parameters, see \code{\link{par}}.
-#' @param YLab,YLab.cex a label of y axis and it's size.
-#' @param namesf a vector of names of coefficients or one argument function that modifies names of coefficients.
+#' @param YLab,YLab.cex a label of the y-axis and it's size.
+#' @param namesf a vector of the names of coefficients or one argument function that modifies the names of coefficients.
 #' @param ... arguments passed to \code{\link{boxplot}}.
 #' @name standardizeCoef
 #' @return a vector with standardized coefficients.
@@ -109,7 +110,9 @@ healthIndex <- latentIndex
 #' data(healthsurvey)
 #'
 #' # the order of response levels decreases from the best health to
-#' # the worst health, hence hopit() parameter decreasing.levels = TRUE
+#' # the worst health; hence the hopit() parameter decreasing.levels
+#' # is set to TRUE
+#' levels(healthsurvey$health)
 #'
 #' # Example 1 ---------------------
 #'
@@ -123,10 +126,10 @@ healthIndex <- latentIndex
 #'               control = list(trace = FALSE),
 #'               data = healthsurvey)
 #'
-#' # a function that modifies coefficient names.
+#' # a function that modifies the coefficient names.
 #' txtfun <- function(x) gsub('_',' ',substr(x,1,nchar(x)-3))
 #'
-#' # calculate and plot disability weights
+#' # calculate and plot the disability weights
 #' sc <- standardizeCoef(model1, plotf = TRUE, namesf = txtfun)
 #' sc
 standardizeCoef <- function (model,
@@ -182,11 +185,11 @@ standardiseCoef<-standardizeCoef
 disabilityWeights<-standardizeCoef
 
 
-#' Calculate threshold cut-points and individual adjusted responses using Jurges' method
+#' Calculate the threshold cut-points and individual adjusted responses using Jurges' method
 #' @description
-#' Calculate threshold cut-points and individual adjusted responses using Jurges' method
+#' Calculate the threshold cut-points and individual adjusted responses using Jurges' method
 #' @param model a fitted \code{hopit} model.
-#' @param decreasing.levels a logical indicating wheter self-reported health classes are ordered in decreasing order.
+#' @param decreasing.levels a logical indicating whether self-reported health classes are ordered in decreasing order.
 #' @param subset an optional vector specifying a subset of observations.
 #' @param plotf a logical indicating whether to plot the results.
 #' @param XLab,XLab.cex a label of the x axis and it's size.
@@ -360,7 +363,7 @@ getCutPoints <- function(model,
 #' # differences between frequencies of original and adjusted health levels
 #' round(100*(hl$original - hl$adjusted),2)
 #'
-#' # extract good and bad health (combined levels)
+#' # extract good and bad health levels (combined levels)
 #' Org <- cbind(bad = rowSums(hl$original[,1:2]),
 #'              good = rowSums(hl$original[,4:5]))
 #' Adj <- cbind(bad = rowSums(hl$adjusted[,1:2]),

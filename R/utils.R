@@ -19,7 +19,7 @@
 
 #' Not \%c\% function
 #'
-#' Check if y set contains none of elements of set x
+#' Check whether the y set contains none of elements of the x set
 #' @param x,y numeric vectors
 #' @usage x \%notc\% y
 #' @author Maciej J. Danko
@@ -234,9 +234,9 @@ start_glm<-function(object, data){
 }
 
 
-#' INTERNAL: Get starting parameters
+#' INTERNAL: Get the starting parameters
 #'
-#' @param object an \code{hopit} object.
+#' @param object a \code{hopit} object.
 #' @param data a data.frame with data used to fit the object.
 #' @return an updated \code{hopit} object.
 #' @author Maciej J. Danko

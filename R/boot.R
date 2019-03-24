@@ -141,10 +141,10 @@ boot_hopit<-function(model, data, func, nboot = 500, unlist = TRUE,
   boots
 }
 
-#' Calculating confidence intervals of bootstrapped function using the percentile method
+#' Calculating the confidence intervals of the bootstrapped function using the percentile method
 #'
-#' Calculate confidence intervals of bootstrapped function using the percentile method.
-#' @param boot a matrix or list of vectors with bootstrapped elements. If a list then each element of the list is one replication.
+#' Calculate the confidence intervals of the bootstrapped function using the percentile method.
+#' @param boot a matrix or a list of vectors with bootstrapped elements. If it is list, then each element of the list is one replication.
 #' @param alpha a significance level.
 #' @param bounds which bounds to return; one of \code{"both"}, \code{"lo"}, \code{"up"}.
 #' @author Maciej J. Danko
