@@ -11,3 +11,4 @@
 ^.Rhistory$
 ^inst\doc$
 ^appveyor\.yml$
+^cran-comments.md

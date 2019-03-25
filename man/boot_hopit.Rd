@@ -35,6 +35,7 @@ as a mean and using the model variance-covariance matrix (see \code{\link{vcov.h
 The drawn coefficients are then used to calculate the measure of interest using a function delivered by the \code{func} parameter.
 }
 \examples{
+\dontrun{
 # DATA
 data(healthsurvey)
 
@@ -95,6 +96,7 @@ pos <- barplot(est.org, names.arg = names(est.org), las = 3, ylab = 'Original - 
                ylim=c(-m, m), density = 20, angle = c(45, -45), col = c('blue', 'orange'))
 for (k in seq_along(pos)) lines(c(pos[k,1],pos[k,1]), est.CI[,k], lwd = 2, col = 2)
 abline(h = 0); box(); par(mar = pmar)
+}
 }
 \seealso{
 \code{\link{percentile_CI}}, \code{\link{getLevels}}, \code{\link{getCutPoints}}, \code{\link{latentIndex}}, \code{\link{standardiseCoef}}, \code{\link{hopit}}.

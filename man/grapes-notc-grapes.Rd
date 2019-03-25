@@ -10,7 +10,7 @@ x \%notc\% y
 \item{x, y}{numeric vectors}
 }
 \description{
-Check if y set contains none of elements of set x
+Check whether the y set contains none of elements of the x set
 }
 \author{
 Maciej J. Danko

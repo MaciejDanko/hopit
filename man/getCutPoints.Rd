@@ -2,7 +2,7 @@
 % Please edit documentation in R/reportingheterogeneity.R
 \name{getCutPoints}
 \alias{getCutPoints}
-\title{Calculate threshold cut-points and individual adjusted responses using Jurges' method}
+\title{Calculate the threshold cut-points and individual adjusted responses using Jurges' method}
 \usage{
 getCutPoints(model, decreasing.levels = TRUE, subset = NULL,
   plotf = TRUE, mar = c(4, 4, 1, 1), oma = c(0, 0, 0, 0),
@@ -12,7 +12,7 @@ getCutPoints(model, decreasing.levels = TRUE, subset = NULL,
 \arguments{
 \item{model}{a fitted \code{hopit} model.}
 
-\item{decreasing.levels}{a logical indicating wheter self-reported health classes are ordered in decreasing order.}
+\item{decreasing.levels}{a logical indicating whether self-reported health classes are ordered in decreasing order.}
 
 \item{subset}{an optional vector specifying a subset of observations.}
 
@@ -32,7 +32,7 @@ a list with the following components:
 \item{adjusted.levels}{ adjusted categorical response levels for each individual.}
 }
 \description{
-Calculate threshold cut-points and individual adjusted responses using Jurges' method
+Calculate the threshold cut-points and individual adjusted responses using Jurges' method
 }
 \examples{
 # DATA

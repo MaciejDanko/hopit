@@ -57,6 +57,7 @@ update.latent <- function(model, newregcoef, data){
 #' @export
 #' @seealso \code{\link{percentile_CI}}, \code{\link{getLevels}}, \code{\link{getCutPoints}}, \code{\link{latentIndex}}, \code{\link{standardiseCoef}}, \code{\link{hopit}}.
 #' @examples
+#' \dontrun{
 #' # DATA
 #' data(healthsurvey)
 #'
@@ -117,6 +118,7 @@ update.latent <- function(model, newregcoef, data){
 #'                ylim=c(-m, m), density = 20, angle = c(45, -45), col = c('blue', 'orange'))
 #' for (k in seq_along(pos)) lines(c(pos[k,1],pos[k,1]), est.CI[,k], lwd = 2, col = 2)
 #' abline(h = 0); box(); par(mar = pmar)
+#' }
 boot_hopit<-function(model, data, func, nboot = 500, unlist = TRUE,
                      boot.only.latent = TRUE, robust.vcov = TRUE, ...){
   data <- model$na.action(data)

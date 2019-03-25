@@ -28,6 +28,7 @@ a vector or a matrix with the results of the test(s).
 Perform the likelihood ratio test(s) for two or more \code{hopit} objects.
 }
 \examples{
+\dontrun{
 # DATA
 data(healthsurvey)
 
@@ -62,7 +63,7 @@ model2 <- hopit(latent.formula = health ~ hypertension * high_cholesterol +
 lrt1 <- anova(model1, model2)
 lrt1
 
-# print results in shorter form
+# print results in a shorter form
 print(lrt1, short = TRUE)
 
 # or equivalently
@@ -101,6 +102,7 @@ anova(model1, model2, model3, model4,
 # likelihood ratio tests of the least complex model with the rest of the models
 anova(model1, model2, model3, model4,
       direction = "increasing", method = "with.least.complex")
+}
 }
 \seealso{
 \code{\link{print.lrt.hopit}},

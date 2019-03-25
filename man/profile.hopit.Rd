@@ -2,35 +2,36 @@
 % Please edit documentation in R/generics.R
 \name{profile.hopit}
 \alias{profile.hopit}
-\title{Calculate log likelihood profile for fitted \code{hopit} model}
+\title{Calculate the log likelihood profile for the fitted \code{hopit} model}
 \usage{
 \method{profile}{hopit}(fitted, ..., scope = 0.15, steps = 101)
 }
 \arguments{
-\item{fitted}{an \code{hopit} object (a fitted model).}
+\item{fitted}{a \code{hopit} object (a fitted model).}
 
 \item{...}{unused now.}
 
-\item{scope}{value (fraction) defining plotting range for a coefficient.
+\item{scope}{a value (fraction) defining the plotting range for a coefficient.
 The range is \code{c(coef \* (1-scope), coef \* (1+scope))}.}
 
-\item{steps}{at how many equally spaced points calculate the log likelihood
-function for each coefficient.}
+\item{steps}{at how many equally spaced points the log likelihood
+function is calculated for each coefficient.}
 }
 \description{
-Calculate log likelihood profile for fitted \code{hopit} model
+Calculate the log likelihood profile for the fitted \code{hopit} model
 }
 \examples{
+\dontrun{
 # DATA
 data(healthsurvey)
 
-# first determine the order of levels of dependent variable
+# the order of response levels decreases from the best health to
+# the worst health; hence the hopit() parameter decreasing.levels
+# is set to TRUE
 levels(healthsurvey$health)
 
 # Example 1 ---------------------
 
-# the order is decreasing (from the best health to the worst health)
-# so we set: decreasing.levels = TRUE
 # fitting the model:
 model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
@@ -41,7 +42,7 @@ model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
               control = list(trace = FALSE),
               data = healthsurvey)
 
-# check the fit using profile function (at 51 points)
+# check the fit using the profile function (at 51 points)
 pr <- profile(model1, steps = 51)
 print(pr, plotf = FALSE)
 
@@ -50,6 +51,7 @@ plot(pr, relative = FALSE)
 
 # alternative plot
 plot(pr, relative = TRUE)
+}
 }
 \seealso{
 \code{\link{plot.profile.hopit}}, \code{\link{print.profile.hopit}},

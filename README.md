@@ -3,6 +3,8 @@
 
 # R-package *hopit*: Hierarchical ordered probit models with application to reporting heterogeneity.
 
+The *hopit* package provides R functions to fit and analyze ordered response data in the context of reporting heterogeneity.
+
 ### Installation
 1. Make sure you have the most recent version of R
 

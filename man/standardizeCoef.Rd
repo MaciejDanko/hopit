@@ -4,7 +4,7 @@
 \alias{standardizeCoef}
 \alias{standardiseCoef}
 \alias{disabilityWeights}
-\title{Standardization of coefficients}
+\title{Standardization of the coefficients}
 \usage{
 standardizeCoef(model, ordered = TRUE, plotf = FALSE,
   plotpval = FALSE, mar = c(15, 4, 1, 1), oma = c(0, 0, 0, 0),
@@ -21,17 +21,17 @@ disabilityWeights(model, ordered = TRUE, plotf = FALSE,
 \arguments{
 \item{model}{a fitted \code{hopit} model.}
 
-\item{ordered}{a logical indicating if to sort the disability weights.}
+\item{ordered}{a logical indicating whether to sort the disability weights.}
 
-\item{plotf}{a logical indicating if to plot results.}
+\item{plotf}{a logical indicating whether to plot the results.}
 
-\item{plotpval}{a logical indicating if to plot p-values.}
+\item{plotpval}{a logical indicating whether to plot the p-values.}
 
 \item{mar, oma}{graphic parameters, see \code{\link{par}}.}
 
-\item{YLab, YLab.cex}{a label of y axis and it's size.}
+\item{YLab, YLab.cex}{a label of the y-axis and it's size.}
 
-\item{namesf}{a vector of names of coefficients or one argument function that modifies names of coefficients.}
+\item{namesf}{a vector of the names of coefficients or one argument function that modifies the names of coefficients.}
 
 \item{...}{arguments passed to \code{\link{boxplot}}.}
 }
@@ -39,21 +39,23 @@ disabilityWeights(model, ordered = TRUE, plotf = FALSE,
 a vector with standardized coefficients.
 }
 \description{
-Calculate standardized coefficients (e.g. disability weights for health variables) using
+Calculate standardized the coefficients (e.g. disability weights for the health variables) using
 the predicted latent measure obtained from the model.\cr
 In the self-rated health example the standardized coefficients are called disability weights \insertCite{Jurges2007;textual}{hopit}
 and are calculated for each health variable to provide information about the impact of a specific health measure on the latent index
-(see \code{\link{latentIndex}}). The disability weight for a health variable is equal to the ratio of corresponding health coefficient
-and the difference between the lowest and highest values of predicted latent health. In other words, disability weight reduces
-latent index by some given amount or percentage (i.e. latent index of every individual is reduced by the same amount if heart attack or other
-heart problems are present)\insertCite{Jurges2007;textual}{hopit}.
+(see \code{\link{latentIndex}}). The disability weight for a health variable is equal to the ratio of the corresponding health coefficient
+and the difference between the lowest and the highest values of the predicted latent health. In other words, the disability weight reduces
+the latent index by some given amount or percentage (i.e., the latent index of every individual is reduced by the same amount if the person had a heart attack or other
+heart problems)\insertCite{Jurges2007}{hopit}.
 }
 \examples{
 # DATA
 data(healthsurvey)
 
 # the order of response levels decreases from the best health to
-# the worst health, hence hopit() parameter decreasing.levels = TRUE
+# the worst health; hence the hopit() parameter decreasing.levels
+# is set to TRUE
+levels(healthsurvey$health)
 
 # Example 1 ---------------------
 
@@ -67,10 +69,10 @@ model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
               control = list(trace = FALSE),
               data = healthsurvey)
 
-# a function that modifies coefficient names.
+# a function that modifies the coefficient names.
 txtfun <- function(x) gsub('_',' ',substr(x,1,nchar(x)-3))
 
-# calculate and plot disability weights
+# calculate and plot the disability weights
 sc <- standardizeCoef(model1, plotf = TRUE, namesf = txtfun)
 sc
 }

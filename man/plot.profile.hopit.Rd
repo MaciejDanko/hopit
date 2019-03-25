@@ -8,23 +8,23 @@
 leg.cex = 0.85, leg.col = 'blue4')
 }
 \arguments{
-\item{x}{an \code{profile.hopit} object.}
+\item{x}{a \code{profile.hopit} object.}
 
-\item{...}{arguments to be passed to \code{\link{plot}}() function (see
+\item{...}{arguments to be passed to the \code{\link{plot}}() function (see
 \code{\link{par}}).}
 
 \item{ylim}{see \code{\link{plot}}.}
 
-\item{relative}{a logical indicating if \code{ylim} on each panel should be the
+\item{relative}{a logical indicating whether \code{ylim} on each panel should be the
 same (\code{TRUE}) or not (\code{FALSE}).}
 
-\item{leg.cex}{a character expansion factor relative to current
+\item{leg.cex}{a character expansion factor relative to the current
 \code{par("cex")} (see \code{\link{legend}}).}
 
 \item{leg.col}{a color used for the legend text.}
 }
 \description{
-Plot method for profile.hopit object.
+Plot the method for a profile.hopit object.
 }
 \seealso{
 \code{\link{profile.hopit}}, \code{\link{print.profile.hopit}},

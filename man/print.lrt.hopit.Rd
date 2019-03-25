@@ -9,7 +9,7 @@
 \arguments{
 \item{x}{an object obtained from \code{\link{lrt.hopit}}.}
 
-\item{short}{logical indicating if to show a shortened description.}
+\item{short}{a logical indicating whether to show a shortened description.}
 
 \item{...}{further arguments passed to or from other methods.}
 }

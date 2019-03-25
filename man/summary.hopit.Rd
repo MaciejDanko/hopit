@@ -2,16 +2,16 @@
 % Please edit documentation in R/generics.R
 \name{summary.hopit}
 \alias{summary.hopit}
-\title{Calculate model summary}
+\title{Calculate the model summary}
 \usage{
 \method{summary}{hopit}(object, robust.se = TRUE, ...)
 }
 \arguments{
-\item{object}{an \code{hopit} object.}
+\item{object}{a \code{hopit} object.}
 
-\item{robust.se}{logical indicating if to use robust standard errors based
+\item{robust.se}{a logical indicating whether to use robust standard errors based
 on the sandwich estimator.
-If survey deign is detected than this option is ignored.}
+If a survey design is detected, then this option is ignored.}
 
 \item{...}{further arguments passed to or from other methods.}
 

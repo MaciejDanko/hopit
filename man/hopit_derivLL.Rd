@@ -8,15 +8,15 @@ hopit_derivLL(parameters = model$coef, model, collapse = TRUE,
   use_weights, negative = FALSE)
 }
 \arguments{
-\item{parameters}{model parameters (optional). If not delivered then taken from \code{model$coef}.}
+\item{parameters}{model parameters (optional). If the parameters not delivered, they are taken from the \code{model$coef}.}
 
-\item{model}{an \code{hopit} object.}
+\item{model}{a \code{hopit} object.}
 
-\item{collapse}{a logical indicating if to sum individual LL contributions.}
+\item{collapse}{a logical indicating whether to sum individual LL contributions.}
 
-\item{use_weights}{a logical indicating if to use model weights.}
+\item{use_weights}{a logical indicating whether to use model weights.}
 
-\item{negative}{a logical indicating if the function should return negative LL or not.}
+\item{negative}{a logical indicating whether the function should return negative LL.}
 }
 \description{
 INTERNAL: The gradient of the log likelihood function

@@ -243,6 +243,7 @@ AIC.hopit<-function(object, ..., k = 2L) {
 #' @seealso \code{\link{print.lrt.hopit}},
 #' \code{\link{lrt.hopit}}, \code{\link{hopit}}.
 #' @examples
+#' \dontrun{
 #' # DATA
 #' data(healthsurvey)
 #'
@@ -316,6 +317,7 @@ AIC.hopit<-function(object, ..., k = 2L) {
 #' # likelihood ratio tests of the least complex model with the rest of the models
 #' anova(model1, model2, model3, model4,
 #'       direction = "increasing", method = "with.least.complex")
+#' }
 anova.hopit<-function(object, ..., method = c('sequential', 'with.most.complex',
                                               'with.least.complex'),
                       direction = c('decreasing', 'increasing')){
@@ -396,6 +398,7 @@ print.anova.hopit <- function(x, ...){
 #' @seealso \code{\link{print.lrt.hopit}}, \code{\link{anova.hopit}},
 #' \code{\link{hopit}}.
 #' @examples
+#' \dontrun{
 #' # DATA
 #' data(healthsurvey)
 #'
@@ -435,6 +438,7 @@ print.anova.hopit <- function(x, ...){
 #'
 #' # equivalently
 #' print(anova(model2, model1), short = TRUE)
+#' }
 lrt.hopit <- function(full, nested){
   if (!identical(full$design, nested$design)) stop(hopit_msg(51),call. = NULL)
   if (length(full$coef) + full$hasdisp <= length(nested$coef)+ nested$hasdisp)
@@ -546,6 +550,7 @@ print.lrt.hopit <- function(x, short = FALSE, ...){
 #' @seealso \code{\link{plot.profile.hopit}}, \code{\link{print.profile.hopit}},
 #'  \code{\link{hopit}}
 #' @examples
+#' \dontrun{
 #' # DATA
 #' data(healthsurvey)
 #'
@@ -575,6 +580,7 @@ print.lrt.hopit <- function(x, short = FALSE, ...){
 #'
 #' # alternative plot
 #' plot(pr, relative = TRUE)
+#' }
 profile.hopit<-function(fitted, ..., scope=0.15, steps=101){
   steps <- floor(steps/2)*2+1
   if (fitted$hasdisp) COEF <- c(fitted$coef, fitted$coef.ls$logSigma) else

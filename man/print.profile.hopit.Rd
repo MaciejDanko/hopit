@@ -2,20 +2,20 @@
 % Please edit documentation in R/generics.R
 \name{print.profile.hopit}
 \alias{print.profile.hopit}
-\title{Print method for profile.hopit object}
+\title{Print method for a profile.hopit object}
 \usage{
 \method{print}{profile.hopit}(x, ..., plotf = TRUE)
 }
 \arguments{
-\item{x}{an \code{profile.hopit} object.}
+\item{x}{a \code{profile.hopit} object.}
 
-\item{...}{arguments to be passed to \code{plot}() function (see
+\item{...}{arguments to be passed to the \code{plot}() function (see
 \code{\link{plot.profile.hopit}}).}
 
-\item{plotf}{a logical indicating if to plot the profile.}
+\item{plotf}{a logical indicating whether to plot the profile.}
 }
 \description{
-Print method for profile.hopit object
+Print method for a profile.hopit object
 }
 \seealso{
 \code{\link{profile.hopit}}, \code{\link{plot.profile.hopit}},

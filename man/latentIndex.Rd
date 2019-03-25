@@ -3,7 +3,7 @@
 \name{latentIndex}
 \alias{latentIndex}
 \alias{healthIndex}
-\title{Calculate latent index}
+\title{Calculate the latent index}
 \usage{
 latentIndex(model, decreasing.levels = TRUE, subset = NULL,
   plotf = FALSE, response = c("data", "fitted", "Jurges"),
@@ -16,32 +16,33 @@ healthIndex(model, decreasing.levels = TRUE, subset = NULL,
 \arguments{
 \item{model}{a fitted \code{hopit} model.}
 
-\item{decreasing.levels}{a logical indicating if self-reported (e.g. health) classes are ordered in decreasing order.}
+\item{decreasing.levels}{a logical indicating whether self-reported (e.g., health) classes are ordered in decreasing order.}
 
-\item{subset}{an optional vector specifying a subset of observations.}
+\item{subset}{an optional vector that specifies a subset of observations.}
 
-\item{plotf}{a logical indicating if to plot summary figure.}
+\item{plotf}{a logical indicating whether to plot the summary figure.}
 
-\item{response}{X axis plotting option, choose \code{'data'} for raw responses and \code{'fitted'} for model reclassified responses}
+\item{response}{X-axis plotting option; choose \code{'data'} for the raw responses and \code{'fitted'} for the responses reclassified by the model.}
 
-\item{ylab}{a label of y axis.}
+\item{ylab}{a label of the y-axis.}
 
 \item{...}{further parameters passed to the \code{\link{plot}} function.}
 }
 \value{
-a vector with latent index for each individual.
+a vector with a latent index for each individual.
 }
 \description{
-Calculate latent index from the fitted model. Latent index is a standardized latent measure, it takes values from 0 to 1, where
-zero is prescribed to the worse predicted state (maximal observed value for the latent measure) and 1 is prescribed
-to the best predicted health (minimal observed value for the latent measure).
+Calculate the latent index from the fitted model. The latent index is a standardized latent measure that takes values from 0 to 1, where
+0 refers to the worst predicted state (the maximal observed value for the latent measure) and 1 refers
+to the best predicted state (the minimal observed value for the latent measure).
 }
 \examples{
 # DATA
 data(healthsurvey)
 
 # the order of response levels decreases from the best health to
-# the worst health, hence hopit() parameter decreasing.levels = TRUE
+# the worst health; hence the hopit() parameter decreasing.levels
+# is set to TRUE
 levels(healthsurvey$health)
 
 # Example 1 ---------------------
@@ -56,21 +57,21 @@ model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
               control = list(trace = FALSE),
               data = healthsurvey)
 
-# calculate the health index and plot reported health status
-# vs. health index.
+# calculate the health index and plot the reported health status
+# versus the health index.
 hi <- latentIndex(model1, plotf = TRUE, response = "data",
                   ylab = 'Health index', col='deepskyblue3')
 
 # plot a simple histogram of the function output
 hist(hi)
 
-# calculate health index and plot adjusted health status vs. health index
+# calculate the health index and plot the adjusted health status vs. the health index
 # using Jurges (Jurges 2007) method.
 latentIndex(model1, plotf = TRUE, response = "Jurges",
                  ylab = 'Health index', col='deepskyblue3')
 
-# calculate health index and plot model-predicted health levels
-# vs. health index.
+# calculate the health index and plot the model-predicted health levels
+# versus the health index.
 latentIndex(model1, plotf = TRUE, response = "fitted",
                  ylab = 'Health index', col='deepskyblue3')
 }

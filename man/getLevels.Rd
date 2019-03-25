@@ -76,7 +76,7 @@ hl <- getLevels(model=model1, formula=~ country,
 # differences between frequencies of original and adjusted health levels
 round(100*(hl$original - hl$adjusted),2)
 
-# extract good and bad health (combined levels)
+# extract good and bad health levels (combined levels)
 Org <- cbind(bad = rowSums(hl$original[,1:2]),
              good = rowSums(hl$original[,4:5]))
 Adj <- cbind(bad = rowSums(hl$adjusted[,1:2]),

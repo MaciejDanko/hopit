@@ -556,6 +556,7 @@ hopit.control<-function(grad.eps = 3e-5,
 #' \code{\link{getCutPoints}},
 #' \code{\link{getLevels}}.
 #' @examples
+#' \dontrun{
 #' # DATA
 #' data(healthsurvey)
 #'
@@ -734,7 +735,7 @@ hopit.control<-function(grad.eps = 3e-5,
 #'               coef(model5e),
 #'               coef(model5f))),4)
 #'
-#' }
+#' }}
 hopit<- function(latent.formula,
                  thresh.formula = ~ 1,
                  data,

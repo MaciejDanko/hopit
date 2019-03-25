@@ -10,17 +10,19 @@ lrt.hopit(full, nested)
 \item{full, nested}{models to be compared.}
 }
 \value{
-a vector with results of the test.
+a vector with the results of the test.
 }
 \description{
 Likelihood ratio test for a pair of models
 }
 \examples{
+\dontrun{
 # DATA
 data(healthsurvey)
 
-# the order of response levels is decreasing (from the best health to the
-# worst health)
+# the order of response levels decreases from the best health to
+# the worst health; hence the hopit() parameter decreasing.levels
+# is set to TRUE
 levels(healthsurvey$health)
 
 # Example 1 ---------------------
@@ -35,7 +37,7 @@ model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
               control = list(trace = FALSE),
               data = healthsurvey)
 
-# model with interaction between hypertension and high_cholesterol
+# model with an interaction between hypertension and high_cholesterol
 model2 <- hopit(latent.formula = health ~ hypertension * high_cholesterol +
                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
                 depression + respiratory_problems +
@@ -49,11 +51,12 @@ model2 <- hopit(latent.formula = health ~ hypertension * high_cholesterol +
 lrt1 <- lrt.hopit(full = model2, nested = model1)
 lrt1
 
-# print results in shorter form
+# print the results in shorter form
 print(lrt1, short = TRUE)
 
 # equivalently
 print(anova(model2, model1), short = TRUE)
+}
 }
 \seealso{
 \code{\link{print.lrt.hopit}}, \code{\link{anova.hopit}},

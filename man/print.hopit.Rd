@@ -7,7 +7,7 @@
 \method{print}{hopit}(x, ...)
 }
 \arguments{
-\item{x}{an \code{hopit} object.}
+\item{x}{a \code{hopit} object.}
 
 \item{...}{further arguments passed to or from other methods.}
 }

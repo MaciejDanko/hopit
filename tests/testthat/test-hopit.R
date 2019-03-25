@@ -7,6 +7,7 @@ library(hopit)
 # Test function -------------------------------
 
 test_hopit <- function (object, data) {
+  skip_on_cran()
   N <- object$N
   cat('class ')
   expect_s3_class(object, "hopit")
@@ -371,7 +372,8 @@ expect_error(hopit(latent.formula = latent.formula.1,
 
 # Passes -------------------------
 
-#test_that("Hopit works",{
+test_that("Hopit works",{
+  skip_on_cran()
   print('m0')
   m0  <<- hopit(latent.formula = latent.formula.8,
                 thresh.formula = thresh.formula.1,
@@ -523,44 +525,46 @@ expect_error(hopit(latent.formula = latent.formula.1,
                 overdispersion = FALSE,
                 decreasing.levels = TRUE)
 
-#})
+})
 
-# test hopit object -------------------------
-print('test obj')
-test_hopit(object=mH, data = newhealthsurvey)
-test_hopit(object=mE, data = newhealthsurvey)
-test_hopit(object=m8, data = newhealthsurvey)
-expect_warning(test_hopit(object=mI, data = newhealthsurvey))
+test_that("Hopit works2",{
+  skip_on_cran()
+  # test hopit object -------------------------
+  print('test obj')
+  test_hopit(object=mH, data = newhealthsurvey)
+  test_hopit(object=mE, data = newhealthsurvey)
+  test_hopit(object=m8, data = newhealthsurvey)
+  expect_warning(test_hopit(object=mI, data = newhealthsurvey))
 
-# Anova -------------------------
-print('test anova')
-an1 <- anova(m0, mL)
-expect_equal(length(an1),5)
-expect_message(anova(mL, mH))
-expect_true(all(diff(c(length(coef(mO)),length(coef(mL)),length(coef(m0))))>0))
-an2 <- anova(mO, mL, m0, method='sequential', direction = 'increasing')
-expect_output(print(an2))
-expect_equal(dim(an2$table),c(2,3))
-an3 <- anova(mO, mL, m0, method='with.most.complex', direction = 'increasing')
-expect_equal(dim(an3$table),c(2,3))
-an4 <- anova(mO, mL, m0, method='with.least.complex', direction = 'increasing')
-expect_equal(dim(an4$table),c(2,3))
+  # Anova -------------------------
+  print('test anova')
+  an1 <- anova(m0, mL)
+  expect_equal(length(an1),5)
+  expect_message(anova(mL, mH))
+  expect_true(all(diff(c(length(coef(mO)),length(coef(mL)),length(coef(m0))))>0))
+  an2 <- anova(mO, mL, m0, method='sequential', direction = 'increasing')
+  expect_output(print(an2))
+  expect_equal(dim(an2$table),c(2,3))
+  an3 <- anova(mO, mL, m0, method='with.most.complex', direction = 'increasing')
+  expect_equal(dim(an3$table),c(2,3))
+  an4 <- anova(mO, mL, m0, method='with.least.complex', direction = 'increasing')
+  expect_equal(dim(an4$table),c(2,3))
 
-# other errors --------------------------
-print('other')
-expect_error(anova(mO, mL, m0, method='with.least.complex', direction = 'decreasing'))
+  # other errors --------------------------
+  print('other')
+  expect_error(anova(mO, mL, m0, method='with.least.complex', direction = 'decreasing'))
 
-expect_error(hopit(latent.formula = latent.formula.1,
-                   thresh.formula = thresh.formula.1,
-                   data = newhealthsurvey,
-                   start = coef(mH),
-                   overdispersion = TRUE,
-                   decreasing.levels = TRUE))
+  expect_error(hopit(latent.formula = latent.formula.1,
+                     thresh.formula = thresh.formula.1,
+                     data = newhealthsurvey,
+                     start = coef(mH),
+                     overdispersion = TRUE,
+                     decreasing.levels = TRUE))
 
-expect_error(hopit(latent.formula = latent.formula.1,
-                   thresh.formula = thresh.formula.1,
-                   data = newhealthsurvey,
-                   start = c(coef(mH), logSigma = log(sigma(mH))),
-                   overdispersion = FALSE,
-                   decreasing.levels = TRUE))
-
+  expect_error(hopit(latent.formula = latent.formula.1,
+                     thresh.formula = thresh.formula.1,
+                     data = newhealthsurvey,
+                     start = c(coef(mH), logSigma = log(sigma(mH))),
+                     overdispersion = FALSE,
+                     decreasing.levels = TRUE))
+})

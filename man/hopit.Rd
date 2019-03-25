@@ -170,6 +170,7 @@ For more details, please see the package vignette: "introduction_to_hopit", whic
 \href{https://github.com/MaciejDanko/hopit/blob/master/vignettes/introduction_to_hopit.pdf}{introduction_to_hopit.pdf}
 }
 \examples{
+\dontrun{
 # DATA
 data(healthsurvey)
 
@@ -313,7 +314,7 @@ model5b <- hopit(latent.formula = latent.formula,
                  decreasing.levels = TRUE,
                  data = hs)
 
-# this can also be done automatically usingthe  control parameter
+# this can also be done automatically usingthe the control parameter
 model5c <- hopit(latent.formula = latent.formula,
                  thresh.formula = ~ sex + cont_var,
                  decreasing.levels = TRUE,
@@ -348,7 +349,7 @@ round(t(rbind(coef(model5b),
               coef(model5e),
               coef(model5f))),4)
 
-}
+}}
 }
 \references{
 \insertAllCited{}
