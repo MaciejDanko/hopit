@@ -1,7 +1,7 @@
 ---
 title: "Analysis of reporting behavior using generalized ordered probit models: an introduction to the *hopit* package"
 author: "Maciej J. Dańko"
-date: "11 III 2019"
+date: "26 III 2019"
 output:
   pdf_document: 
     highlight: tango

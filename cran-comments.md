@@ -6,8 +6,13 @@
 
 ## R CMD check results
 
-0 ERRORs | 0 WARNINGs | 0 NOTES.
+0 ERRORs | 0 WARNINGs | 1 NOTE.
+
+checking installed package size ... NOTE
+  installed size is 10.1Mb
+  sub-directories of 1Mb or more:
+    libs   9.4Mb
 
 ## Downstream dependencies
 
-* I did not test all dependencies, but do not think any of the changes should effect them.
+* First submission to CRAN
