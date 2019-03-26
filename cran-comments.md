@@ -6,7 +6,7 @@
 
 ## R CMD check results
 
-0 ERRORs | 0 WARNINGs | 3 NOTEs.
+0 ERRORs | 0 WARNINGs | 2 NOTEs.
 
 1) 
 
@@ -20,10 +20,6 @@ Maintainer: ‘Maciej J. Danko <Maciej.Danko@gmail.com>’
   sub-directories of 1Mb or more:
     libs   9.4Mb
     
-3)
-
-
-
 ## Downstream dependencies
 
 * First submission to CRAN

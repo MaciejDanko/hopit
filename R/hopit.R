@@ -630,7 +630,7 @@ hopit.control<-function(grad.eps = 3e-5,
 #'               data = healthsurvey)
 #'
 #' # badly defined interactions:
-#' \dontrun{
+#'
 #' # 1) lack of a main effect of "other_diseases" in any formula
 #' # it can be solved by adding " + other_diseases" to the latent formula
 #' model3a <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
@@ -652,7 +652,6 @@ hopit.control<-function(grad.eps = 3e-5,
 #'               decreasing.levels = TRUE,
 #'               control = list(trace = FALSE),
 #'               data = healthsurvey)
-#' }
 #'
 #' # Example 4 ---------------------
 #'
@@ -675,7 +674,6 @@ hopit.control<-function(grad.eps = 3e-5,
 #'
 #' # Example 5 ---------------------
 #'
-#' \dontrun{
 #' # construct a naive continuous variable:
 #' hs <- healthsurvey
 #' hs$cont_var <- sample(5000:5020,nrow(hs),replace=TRUE)
@@ -735,7 +733,7 @@ hopit.control<-function(grad.eps = 3e-5,
 #'               coef(model5e),
 #'               coef(model5f))),4)
 #'
-#' }}
+#' }
 hopit<- function(latent.formula,
                  thresh.formula = ~ 1,
                  data,

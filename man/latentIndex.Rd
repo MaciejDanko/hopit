@@ -37,6 +37,7 @@ Calculate the latent index from the fitted model. The latent index is a standard
 to the best predicted state (the minimal observed value for the latent measure).
 }
 \examples{
+\dontrun{
 # DATA
 data(healthsurvey)
 
@@ -74,6 +75,7 @@ latentIndex(model1, plotf = TRUE, response = "Jurges",
 # versus the health index.
 latentIndex(model1, plotf = TRUE, response = "fitted",
                  ylab = 'Health index', col='deepskyblue3')
+}
 }
 \references{
 \insertRef{Jurges2007}{hopit}

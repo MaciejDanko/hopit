@@ -244,7 +244,7 @@ model3 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
               data = healthsurvey)
 
 # badly defined interactions:
-\dontrun{
+
 # 1) lack of a main effect of "other_diseases" in any formula
 # it can be solved by adding " + other_diseases" to the latent formula
 model3a <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
@@ -266,7 +266,6 @@ model3b <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
               decreasing.levels = TRUE,
               control = list(trace = FALSE),
               data = healthsurvey)
-}
 
 # Example 4 ---------------------
 
@@ -289,7 +288,6 @@ print(anova(model1, model4), short = TRUE)
 
 # Example 5 ---------------------
 
-\dontrun{
 # construct a naive continuous variable:
 hs <- healthsurvey
 hs$cont_var <- sample(5000:5020,nrow(hs),replace=TRUE)
@@ -349,7 +347,7 @@ round(t(rbind(coef(model5b),
               coef(model5e),
               coef(model5f))),4)
 
-}}
+}
 }
 \references{
 \insertAllCited{}
