@@ -6,12 +6,23 @@
 
 ## R CMD check results
 
-0 ERRORs | 0 WARNINGs | 1 NOTE.
+0 ERRORs | 0 WARNINGs | 3 NOTEs.
 
-checking installed package size ... NOTE
+1) 
+
+* checking CRAN incoming feasibility ... NOTE
+Maintainer: ‘Maciej J. Danko <Maciej.Danko@gmail.com>’
+
+2)
+
+* checking installed package size ... NOTE
   installed size is 10.1Mb
   sub-directories of 1Mb or more:
     libs   9.4Mb
+    
+3)
+
+
 
 ## Downstream dependencies
 

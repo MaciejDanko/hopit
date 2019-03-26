@@ -16,6 +16,7 @@
 #' @export
 #' @seealso \code{\link{standardizeCoef}}, \code{\link{getCutPoints}}, \code{\link{getLevels}}, \code{\link{hopit}}.
 #' @examples
+#' \dontrun{
 #' # DATA
 #' data(healthsurvey)
 #'
@@ -53,6 +54,7 @@
 #' # versus the health index.
 #' latentIndex(model1, plotf = TRUE, response = "fitted",
 #'                  ylab = 'Health index', col='deepskyblue3')
+#' }
 latentIndex <- function(model, decreasing.levels = TRUE,
                         subset = NULL, plotf = FALSE,
                         response = c('data','fitted','Jurges'),
@@ -106,6 +108,7 @@ healthIndex <- latentIndex
 #' @export
 #' @seealso \code{\link{latentIndex}}, \code{\link{getCutPoints}}, \code{\link{getLevels}}, \code{\link{hopit}}.
 #' @examples
+#' \dontrun{
 #' # DATA
 #' data(healthsurvey)
 #'
@@ -132,6 +135,7 @@ healthIndex <- latentIndex
 #' # calculate and plot the disability weights
 #' sc <- standardizeCoef(model1, plotf = TRUE, namesf = txtfun)
 #' sc
+#' }
 standardizeCoef <- function (model,
                              ordered = TRUE,
                              plotf = FALSE,
@@ -204,6 +208,7 @@ disabilityWeights<-standardizeCoef
 #' @export
 #' @seealso \code{\link{latentIndex}}, \code{\link{standardiseCoef}}, \code{\link{getLevels}}, \code{\link{hopit}}.
 #' @examples
+#' \dontrun{
 #' # DATA
 #' data(healthsurvey)
 #'
@@ -236,6 +241,7 @@ disabilityWeights<-standardizeCoef
 #'
 #' # tabulate the predicted health levels
 #' table(model1$Ey_i)
+#' }
 getCutPoints <- function(model,
                          decreasing.levels=TRUE,
                          subset=NULL,
@@ -335,6 +341,7 @@ getCutPoints <- function(model,
 #' @export
 #' @seealso \code{\link{getCutPoints}}, \code{\link{latentIndex}}, \code{\link{standardiseCoef}}, \code{\link{hopit}}.
 #' @examples
+#' \dontrun{
 #' # DATA
 #' data(healthsurvey)
 #'
@@ -410,6 +417,7 @@ getCutPoints <- function(model,
 #' # while men aged 50-59 greatly under-report good health.
 #'
 #' # more examples can be found in the description of the boot.hopit() function.
+#' }
 getLevels<-function(model,
                     formula=model$thresh.formula,
                     data = environment(model$thresh.formula),
