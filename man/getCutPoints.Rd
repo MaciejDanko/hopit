@@ -71,7 +71,8 @@ table(model1$Ey_i)
 }
 }
 \references{
-\insertRef{Jurges2007}{hopit}
+\insertRef{Jurges2007}{hopit}\cr\cr
+\insertRef{OKSUZYAN2019}{hopit}
 }
 \seealso{
 \code{\link{latentIndex}}, \code{\link{standardiseCoef}}, \code{\link{getLevels}}, \code{\link{hopit}}.

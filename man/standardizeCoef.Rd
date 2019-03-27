@@ -79,7 +79,8 @@ sc
 }
 }
 \references{
-\insertRef{Jurges2007}{hopit}
+\insertRef{Jurges2007}{hopit}\cr\cr
+\insertRef{OKSUZYAN2019}{hopit}
 }
 \seealso{
 \code{\link{latentIndex}}, \code{\link{getCutPoints}}, \code{\link{getLevels}}, \code{\link{hopit}}.

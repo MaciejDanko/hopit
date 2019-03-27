@@ -88,7 +88,7 @@ along the lines of: "very happy", "pretty happy", "not too happy", and "very unh
 \insertCite{Liao2005}{hopit}. Similarly, if interviewees are asked to evaluate their
 health in general (e.g., “Would you say your health is ... ?”) they, can typically choose among
 several categories, such as "very good", "good", "fair", "bad", and "very bad"
-\insertCite{King2004,Jurges2007,Rebelo2014}{hopit}. In political science, a respondent
+\insertCite{King2004,Jurges2007,Rebelo2014,OKSUZYAN2019}{hopit}. In political science, a respondent
 may be asked for an opinion about recent legislation (e.g. “Rate your feelings about
 the proposed legislation.") and asked to choose among categories like: "strongly
 oppose", "mildly oppose", "indifferent", "mildly support", and "strongly support"
@@ -104,7 +104,8 @@ use to categorize their true status by selecting a specific response option
 may be affected by the reference group chosen, their earlier life experiences,
 and cross-cultural differences in using scales. Thus, the responses of
 individuals may differ depending on their gender, age, cultural background,
-education, and personality traits; among other factors.\cr
+education, and personality traits; among other factors
+\insertCite{King2004,Jurges2007,OKSUZYAN2019}{hopit}.\cr
 From the perspective of reporting behavior modeling, one of the main tasks
 researchers face is to compute this continuous estimate of the underlying,
 latent measures of individuals based on several specific characteristics
@@ -122,7 +123,7 @@ lifestyle behaviors. Using the second set of independent variables
 (threshold variables), the model also adjusts for differences across
 socio-demographic and cultural groups, such as differences in cultural
 background, gender, age, and education
-\insertCite{King2004,Jurges2007}{hopit}.\cr
+\insertCite{King2004,Jurges2007,OKSUZYAN2019}{hopit}.\cr
 
 Ordered threshold models are used to fit ordered categorical dependent variables.
 The generalized ordered threshold models \insertCite{Terza1985,Boes2006,Green2014}{hopit}

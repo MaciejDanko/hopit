@@ -78,7 +78,8 @@ latentIndex(model1, plotf = TRUE, response = "fitted",
 }
 }
 \references{
-\insertRef{Jurges2007}{hopit}
+\insertRef{Jurges2007}{hopit}\cr\cr
+\insertRef{OKSUZYAN2019}{hopit}
 }
 \seealso{
 \code{\link{standardizeCoef}}, \code{\link{getCutPoints}}, \code{\link{getLevels}}, \code{\link{hopit}}.

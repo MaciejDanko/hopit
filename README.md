@@ -1,5 +1,10 @@
 [![Travis-CI Build Status](https://travis-ci.org/MaciejDanko/hopit.svg?branch=master)](https://travis-ci.org/MaciejDanko/hopit)
 [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/MaciejDanko/hopit?branch=master&svg=true)](https://ci.appveyor.com/project/MaciejDanko/hopit)
+[![CRAN_Version](https://www.r-pkg.org/badges/version/hopit)](https://cran.r-project.org/package=hopit)
+[![lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
+[![license](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://github.com/MaciejDanko/hopit/blob/master/LICENSE)
+[![CRAN_Download_Badge1](https://cranlogs.r-pkg.org/badges/grand-total/hopit)](https://CRAN.R-project.org/package=hopit)
+[![CRAN_Download_Badge2](https://cranlogs.r-pkg.org/badges/hopit)](https://CRAN.R-project.org/package=hopit)
 
 # R-package *hopit*: Hierarchical ordered probit models with application to reporting heterogeneity.
 
@@ -39,3 +44,7 @@ Get started with `hopit` by checking the [vignette](https://github.com/MaciejDan
 ### Contributing
 This software is an academic project. Any issues and pull requests are welcome.
 * If `hopit` is malfunctioning, please report the case by submitting an issue on GitHub.
+
+### References
+Jurges to be added
+Oksuzyan to be added

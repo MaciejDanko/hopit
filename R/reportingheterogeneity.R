@@ -11,7 +11,9 @@
 #' @param ylab a label of the y-axis.
 #' @param ... further parameters passed to the \code{\link{plot}} function.
 #' @return a vector with a latent index for each individual.
-#' @references \insertRef{Jurges2007}{hopit}
+#' @references
+#'  \insertRef{Jurges2007}{hopit}\cr\cr
+#'  \insertRef{OKSUZYAN2019}{hopit}
 #' @author Maciej J. Danko
 #' @export
 #' @seealso \code{\link{standardizeCoef}}, \code{\link{getCutPoints}}, \code{\link{getLevels}}, \code{\link{hopit}}.
@@ -103,7 +105,9 @@ healthIndex <- latentIndex
 #' @param ... arguments passed to \code{\link{boxplot}}.
 #' @name standardizeCoef
 #' @return a vector with standardized coefficients.
-#' @references \insertRef{Jurges2007}{hopit}
+#' @references
+#'  \insertRef{Jurges2007}{hopit}\cr\cr
+#'  \insertRef{OKSUZYAN2019}{hopit}
 #' @author Maciej J. Danko
 #' @export
 #' @seealso \code{\link{latentIndex}}, \code{\link{getCutPoints}}, \code{\link{getLevels}}, \code{\link{hopit}}.
@@ -203,7 +207,9 @@ disabilityWeights<-standardizeCoef
 #' @return a list with the following components:
 #'  \item{cutpoints}{ cut-points for the adjusted categorical response levels with the corresponding percentiles of the latent index.}
 #'  \item{adjusted.levels}{ adjusted categorical response levels for each individual.}
-#' @references \insertRef{Jurges2007}{hopit}
+#' @references
+#'  \insertRef{Jurges2007}{hopit}\cr\cr
+#'  \insertRef{OKSUZYAN2019}{hopit}
 #' @author Maciej J. Danko
 #' @export
 #' @seealso \code{\link{latentIndex}}, \code{\link{standardiseCoef}}, \code{\link{getLevels}}, \code{\link{hopit}}.
@@ -336,7 +342,9 @@ getCutPoints <- function(model,
 #'  \item{tab}{ an original vs. an adjusted contingency table.}
 #'  \item{mat}{ a matrix with columns: grouping variables, original response levels, adjusted response levels.
 #'  Each row corresponds to a single individual from the data used to fit the model.}
-#' @references \insertRef{Jurges2007}{hopit}
+#' @references
+#'  \insertRef{Jurges2007}{hopit}\cr\cr
+#'  \insertRef{OKSUZYAN2019}{hopit}
 #' @author Maciej J. Danko
 #' @export
 #' @seealso \code{\link{getCutPoints}}, \code{\link{latentIndex}}, \code{\link{standardiseCoef}}, \code{\link{hopit}}.

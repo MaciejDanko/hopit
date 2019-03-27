@@ -127,7 +127,8 @@ legend('top', c('Man','Woman'), density = 20, angle = c(-45, 45),
 }
 }
 \references{
-\insertRef{Jurges2007}{hopit}
+\insertRef{Jurges2007}{hopit}\cr\cr
+\insertRef{OKSUZYAN2019}{hopit}
 }
 \seealso{
 \code{\link{getCutPoints}}, \code{\link{latentIndex}}, \code{\link{standardiseCoef}}, \code{\link{hopit}}.
