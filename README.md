@@ -46,5 +46,6 @@ This software is an academic project. Any issues and pull requests are welcome.
 * If `hopit` is malfunctioning, please report the case by submitting an issue on GitHub.
 
 ### References
-Jurges to be added
-Oksuzyan to be added
+Jurges H (2007). “True health vs response styles: exploring cross-country differences in self-reported health.” Health Economics, 16(2), pp. 163-178. doi: 10.1002/hec.1134.
+
+Oksuzyan A, Danko MJ, Caputo J, Jasilionis D and Shkolnikov VM (2019). “Is the story about sensitive women and stoical men true? Gender differences in health after adjustment for reporting behavior.” Social Science & Medicine, 228, pp. 41-50. doi: 10.1016/j.socscimed.2019.03.002. 
