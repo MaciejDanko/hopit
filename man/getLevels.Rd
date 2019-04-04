@@ -122,7 +122,7 @@ legend('top', c('Man','Woman'), density = 20, angle = c(-45, 45),
 # results show that women in general tend to over-report good health,
 # while men aged 50-59 greatly under-report good health.
 
-# more examples can be found in the description of the boot.hopit() function.
+# more examples can be found in the description of the boot_hopit() function.
 }
 \references{
 \insertRef{Jurges2007}{hopit}\cr\cr

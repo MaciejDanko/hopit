@@ -136,7 +136,7 @@ for hierarchical ordered probit models.
 
 The fitted \emph{hopit} model is used to analyze heterogeneity in reporting behavior.
 See \code{\link{standardizeCoef}}, \code{\link{latentIndex}},
-\code{\link{getCutPoints}}, and \code{\link{getLevels}}.
+\code{\link{getCutPoints}}, \code{\link{getLevels}}, and \code{\link{boot_hopit}}.
 }
 \details{
 The function fits generalized hierarchical ordered threshold models.\cr
@@ -210,6 +210,7 @@ profile(model1)
 }
 # Example 2 ---------------------
 
+\donttest{
 # incorporate the survey design
 design <- svydesign(ids = ~ country + psu, weights = healthsurvey$csw,
 data = healthsurvey)
@@ -227,6 +228,7 @@ model2 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
 # compare the latent variables
 cbind('No survey design' = coef(model1, aslist = TRUE)$latent.par,
 'Has survey design' = coef(model2, aslist = TRUE)$latent.par)
+}
 \donttest{
 # Example 3 ---------------------
 
@@ -351,7 +353,8 @@ For heterogeneity in reporting behavior analysis see:\cr
 \code{\link{standardizeCoef}},
 \code{\link{latentIndex}},
 \code{\link{getCutPoints}},
-\code{\link{getLevels}}.
+\code{\link{getLevels}},
+\code{\link{boot_hopit}},
 }
 \author{
 Maciej J. Danko

@@ -446,7 +446,7 @@ hopit.control<-function(grad.eps = 3e-5,
 #'
 #' The fitted *hopit* model is used to analyze heterogeneity in reporting behavior.
 #' See \code{\link{standardizeCoef}}, \code{\link{latentIndex}},
-#' \code{\link{getCutPoints}}, and \code{\link{getLevels}}.
+#' \code{\link{getCutPoints}}, \code{\link{getLevels}}, and \code{\link{boot_hopit}}.
 #' @details
 #' The function fits generalized hierarchical ordered threshold models.\cr
 #'
@@ -555,7 +555,8 @@ hopit.control<-function(grad.eps = 3e-5,
 #' \code{\link{standardizeCoef}},
 #' \code{\link{latentIndex}},
 #' \code{\link{getCutPoints}},
-#' \code{\link{getLevels}}.
+#' \code{\link{getLevels}},
+#' \code{\link{boot_hopit}},
 #' @examples
 #' # DATA
 #' data(healthsurvey)
@@ -597,6 +598,7 @@ hopit.control<-function(grad.eps = 3e-5,
 #' }
 #' # Example 2 ---------------------
 #'
+#' \donttest{
 #' # incorporate the survey design
 #' design <- svydesign(ids = ~ country + psu, weights = healthsurvey$csw,
 #' data = healthsurvey)
@@ -614,6 +616,7 @@ hopit.control<-function(grad.eps = 3e-5,
 #' # compare the latent variables
 #' cbind('No survey design' = coef(model1, aslist = TRUE)$latent.par,
 #' 'Has survey design' = coef(model2, aslist = TRUE)$latent.par)
+#' }
 #' \donttest{
 #' # Example 3 ---------------------
 #'

@@ -252,7 +252,7 @@ AIC.hopit<-function(object, ..., k = 2L) {
 #' levels(healthsurvey$health)
 #'
 #' # Example 1 ---------------------
-#'
+#' \donttest{
 #' # fitting two nested models
 #' model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
 #'                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
@@ -282,7 +282,7 @@ AIC.hopit<-function(object, ..., k = 2L) {
 #'
 #' # or equivalently
 #' lrt.hopit(model2, model1)
-#'
+#' }
 #' # Example 2 ---------------------
 #' \donttest{
 #' # fitting additional nested models

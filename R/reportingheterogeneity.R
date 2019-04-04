@@ -418,7 +418,7 @@ getCutPoints <- function(model,
 #' # results show that women in general tend to over-report good health,
 #' # while men aged 50-59 greatly under-report good health.
 #'
-#' # more examples can be found in the description of the boot.hopit() function.
+#' # more examples can be found in the description of the boot_hopit() function.
 getLevels<-function(model,
                     formula=model$thresh.formula,
                     data = environment(model$thresh.formula),
