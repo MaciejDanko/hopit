@@ -5,9 +5,8 @@
 \title{Generalized hierarchical ordered threshold models.}
 \usage{
 hopit(latent.formula, thresh.formula = ~1, data, decreasing.levels,
-  start = NULL, overdispersion = FALSE, design = list(),
-  weights = NULL, link = c("probit", "logit"), control = list(),
-  na.action = na.fail)
+  start = NULL, fit.sigma = FALSE, design = list(), weights = NULL,
+  link = c("probit", "logit"), control = list(), na.action = na.fail)
 }
 \arguments{
 \item{latent.formula}{a formula used to model the latent variable. It should not contain any threshold variable.
@@ -22,10 +21,10 @@ Any dependent variable (left side of "~" in the formula) will be ignored.}
 \item{decreasing.levels}{a logical indicating whether self-reported health classes are ordered in decreasing order.}
 
 \item{start}{a vector with starting coefficient values in the form \code{c(latent_parameters, threshold_lambdas, threshold_gammas)} or
-\code{c(latent_parameters, threshold_lambdas, threshold_gammas, logSigma)} if the \code{overdispersion == TRUE}.}
+\code{c(latent_parameters, threshold_lambdas, threshold_gammas, logSigma)} if the \code{fit.sigma == TRUE}.}
 
-\item{overdispersion}{a logical indicating whether to fit an additional parameter sigma,
-which models a standard deviation of the error term.}
+\item{fit.sigma}{a logical indicating whether to fit an additional parameter sigma,
+which models a standard deviation of the error term (e.g., the standard deviation of the cumulative normal distribution in the probit model).}
 
 \item{design}{an optional survey design. Use the \code{\link[survey]{svydesign}} function to specify the design.
 The design cannot be specified together with parameter \code{weights}.}
@@ -46,7 +45,7 @@ values from the \code{data}. Using \code{\link[stats]{na.pass}} will lead to an 
 a \code{hopit} object used by other functions and methods. The object is a list with the following components:
 \item{control}{ a list with control parameters. See \code{\link{hopit.control}}.}
 \item{link}{ a link function used.}
-\item{hasdisp}{ a logical indicating whether overdispersion was modeled.}
+\item{hasdisp}{ a logical indicating whether fit.sigma was modeled.}
 \item{use.weights}{ a logical indicating whether any weights were used.}
 \item{weights}{ a vector with model weights.}
 \item{latent.formula}{ a latent formula used to fit the model.}
@@ -171,7 +170,6 @@ For more details, please see the package vignette: "introduction_to_hopit", whic
 \href{https://github.com/MaciejDanko/hopit/blob/master/vignettes/introduction_to_hopit.pdf}{introduction_to_hopit.pdf}
 }
 \examples{
-\dontrun{
 # DATA
 data(healthsurvey)
 
@@ -207,8 +205,9 @@ names(cm1)
 cm1$latent.params
 
 # check the fit
+\donttest{
 profile(model1)
-
+}
 # Example 2 ---------------------
 
 # incorporate the survey design
@@ -228,7 +227,7 @@ model2 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
 # compare the latent variables
 cbind('No survey design' = coef(model1, aslist = TRUE)$latent.par,
 'Has survey design' = coef(model2, aslist = TRUE)$latent.par)
-
+\donttest{
 # Example 3 ---------------------
 
 # defining the interactions between the threshold and the latent variables
@@ -243,7 +242,8 @@ model3 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
               decreasing.levels = TRUE,
               control = list(trace = FALSE),
               data = healthsurvey)
-
+}
+\dontrun{
 # badly defined interactions:
 
 # 1) lack of a main effect of "other_diseases" in any formula
@@ -268,27 +268,10 @@ model3b <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
               control = list(trace = FALSE),
               data = healthsurvey)
 
+}
 # Example 4 ---------------------
 
-# a model accounting for overdispersion
-model4 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
-                heart_attack_or_stroke + poor_mobility + very_poor_grip +
-                depression + respiratory_problems +
-                IADL_problems + obese + diabetes + other_diseases,
-              thresh.formula = ~ sex + ageclass + country,
-              overdispersion = TRUE,
-              decreasing.levels = TRUE,
-              control = list(trace = FALSE),
-              data = healthsurvey)
-
-# an estimated standard deviation of the error term:
-sigma(model4)
-
-# compare the fit of model1 and model4 using the Likelihood Ratio Test
-print(anova(model1, model4), short = TRUE)
-
-# Example 5 ---------------------
-
+\donttest{
 # construct a naive continuous variable:
 hs <- healthsurvey
 hs$cont_var <- sample(5000:5020,nrow(hs),replace=TRUE)
@@ -300,53 +283,54 @@ latent.formula = health ~ hypertension + high_cholesterol +
 
 # in some cases, when continuous variables are used, the hopit:::get.hopit.start() function
 # do not find starting parameters (R version 3.4.4 (2018-03-15)):
-model5 <- hopit(latent.formula = latent.formula,
+\dontrun{
+model4 <- hopit(latent.formula = latent.formula,
                 thresh.formula = ~ sex + cont_var,
                 decreasing.levels = TRUE,
                 data = hs)
-
+}
 # one of the solutions is to transform one or more continuous variables:
 hs$cont_var_t <- hs$cont_var-min(hs$cont_var)
 
-model5b <- hopit(latent.formula = latent.formula,
+model4b <- hopit(latent.formula = latent.formula,
                  thresh.formula = ~ sex + cont_var_t,
                  decreasing.levels = TRUE,
                  data = hs)
 
-# this can also be done automatically usingthe the control parameter
-model5c <- hopit(latent.formula = latent.formula,
+# this can also be done automatically using the the control parameter
+model4c <- hopit(latent.formula = latent.formula,
                  thresh.formula = ~ sex + cont_var,
                  decreasing.levels = TRUE,
                  control = list(transform.thresh = 'min',
                                 transform.latent = 'none'),
                  data = hs)
 
-model5d <- hopit(latent.formula = latent.formula,
+model4d <- hopit(latent.formula = latent.formula,
                  thresh.formula = ~ sex + cont_var,
                  decreasing.levels = TRUE,
                  control = list(transform.thresh = 'scale_01',
                                 transform.latent = 'none'),
                  data = hs)
 
-model5e <- hopit(latent.formula = latent.formula,
+model4e <- hopit(latent.formula = latent.formula,
                  thresh.formula = ~ sex + cont_var,
                  decreasing.levels = TRUE,
                  control = list(transform.thresh = 'standardize',
                                 transform.latent = 'none'),
                  data = hs)
 
-model5f <- hopit(latent.formula = latent.formula,
+model4f <- hopit(latent.formula = latent.formula,
                  thresh.formula = ~ sex + cont_var,
                  decreasing.levels = TRUE,
                  control = list(transform.thresh = 'standardize_trunc',
                                 transform.latent = 'none'),
                  data = hs)
 
-round(t(rbind(coef(model5b),
-              coef(model5c),
-              coef(model5d),
-              coef(model5e),
-              coef(model5f))),4)
+round(t(rbind(coef(model4b),
+              coef(model4c),
+              coef(model4d),
+              coef(model4e),
+              coef(model4f))),4)
 
 }
 }

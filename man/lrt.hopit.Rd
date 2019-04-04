@@ -16,7 +16,7 @@ a vector with the results of the test.
 Likelihood ratio test for a pair of models
 }
 \examples{
-\dontrun{
+\donttest{
 # DATA
 data(healthsurvey)
 

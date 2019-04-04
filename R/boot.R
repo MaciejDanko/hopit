@@ -57,7 +57,7 @@ update.latent <- function(model, newregcoef, data){
 #' @export
 #' @seealso \code{\link{percentile_CI}}, \code{\link{getLevels}}, \code{\link{getCutPoints}}, \code{\link{latentIndex}}, \code{\link{standardiseCoef}}, \code{\link{hopit}}.
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # DATA
 #' data(healthsurvey)
 #'

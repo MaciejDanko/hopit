@@ -21,7 +21,7 @@ function is calculated for each coefficient.}
 Calculate the log likelihood profile for the fitted \code{hopit} model
 }
 \examples{
-\dontrun{
+\donttest{
 # DATA
 data(healthsurvey)
 

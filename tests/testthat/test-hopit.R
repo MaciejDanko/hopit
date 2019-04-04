@@ -360,7 +360,7 @@ expect_error(hopit(latent.formula = latent.formula.1,
                    design = svydesign(ids = ~ country + psu,
                                       weights = healthsurvey$csw,
                                       data = newhealthsurvey),
-                   overdispersion = TRUE,
+                   fit.sigma = TRUE,
                    decreasing.levels = TRUE))
 
 # # Cannot find starting parameters. Please
@@ -471,7 +471,7 @@ test_that("Hopit works",{
   mH  <<- hopit(latent.formula = latent.formula.1,
                 thresh.formula = thresh.formula.1,
                 data = newhealthsurvey,
-                overdispersion = TRUE,
+                fit.sigma = TRUE,
                 decreasing.levels = TRUE)
   print('mI')
   mI  <<- hopit(latent.formula = latent.formula.1,
@@ -480,7 +480,7 @@ test_that("Hopit works",{
                 design = svydesign(ids = ~ country + psu,
                                    weights = healthsurvey$csw,
                                    data = newhealthsurvey),
-                overdispersion = TRUE,
+                fit.sigma = TRUE,
                 decreasing.levels = TRUE)
   print('mJ')
   mJ  <- hopit(latent.formula = latent.formula.1,
@@ -494,21 +494,21 @@ test_that("Hopit works",{
                thresh.formula = thresh.formula.1,
                data = newhealthsurvey,
                weights = runif(10000),
-               overdispersion = FALSE,
+               fit.sigma = FALSE,
                decreasing.levels = TRUE)
   print('mL')
   mL  <<- hopit(latent.formula = latent.formula.1,
                 thresh.formula = thresh.formula.1,
                 data = newhealthsurvey,
                 start = c(coef(mK)),
-                overdispersion = FALSE,
+                fit.sigma = FALSE,
                 decreasing.levels = TRUE)
   print('mM')
   mM  <- hopit(latent.formula = latent.formula.1,
                thresh.formula = thresh.formula.1,
                data = newhealthsurvey,
                start = c(coef(mH), logSigma = log(sigma(mH))),
-               overdispersion = TRUE,
+               fit.sigma = TRUE,
                decreasing.levels = TRUE)
   print('mN')
   mN  <- hopit(latent.formula = latent.formula.3,
@@ -522,7 +522,7 @@ test_that("Hopit works",{
   mO  <<- hopit(latent.formula = latent.formula.H,
                 thresh.formula = thresh.formula.1,
                 data = newhealthsurvey,
-                overdispersion = FALSE,
+                fit.sigma = FALSE,
                 decreasing.levels = TRUE)
 
 })
@@ -558,13 +558,13 @@ test_that("Hopit works2",{
                      thresh.formula = thresh.formula.1,
                      data = newhealthsurvey,
                      start = coef(mH),
-                     overdispersion = TRUE,
+                     fit.sigma = TRUE,
                      decreasing.levels = TRUE))
 
   expect_error(hopit(latent.formula = latent.formula.1,
                      thresh.formula = thresh.formula.1,
                      data = newhealthsurvey,
                      start = c(coef(mH), logSigma = log(sigma(mH))),
-                     overdispersion = FALSE,
+                     fit.sigma = FALSE,
                      decreasing.levels = TRUE))
 })

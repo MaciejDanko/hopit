@@ -243,7 +243,6 @@ AIC.hopit<-function(object, ..., k = 2L) {
 #' @seealso \code{\link{print.lrt.hopit}},
 #' \code{\link{lrt.hopit}}, \code{\link{hopit}}.
 #' @examples
-#' \dontrun{
 #' # DATA
 #' data(healthsurvey)
 #'
@@ -285,7 +284,7 @@ AIC.hopit<-function(object, ..., k = 2L) {
 #' lrt.hopit(model2, model1)
 #'
 #' # Example 2 ---------------------
-#'
+#' \donttest{
 #' # fitting additional nested models
 #' model3 <- hopit(latent.formula = health ~ hypertension * high_cholesterol +
 #'                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
@@ -398,7 +397,7 @@ print.anova.hopit <- function(x, ...){
 #' @seealso \code{\link{print.lrt.hopit}}, \code{\link{anova.hopit}},
 #' \code{\link{hopit}}.
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # DATA
 #' data(healthsurvey)
 #'
@@ -550,7 +549,7 @@ print.lrt.hopit <- function(x, short = FALSE, ...){
 #' @seealso \code{\link{plot.profile.hopit}}, \code{\link{print.profile.hopit}},
 #'  \code{\link{hopit}}
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # DATA
 #' data(healthsurvey)
 #'

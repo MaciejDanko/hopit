@@ -49,7 +49,6 @@ the latent index by some given amount or percentage (i.e., the latent index of e
 heart problems)\insertCite{Jurges2007}{hopit}.
 }
 \examples{
-\dontrun{
 # DATA
 data(healthsurvey)
 
@@ -76,7 +75,6 @@ txtfun <- function(x) gsub('_',' ',substr(x,1,nchar(x)-3))
 # calculate and plot the disability weights
 sc <- standardizeCoef(model1, plotf = TRUE, namesf = txtfun)
 sc
-}
 }
 \references{
 \insertRef{Jurges2007}{hopit}\cr\cr

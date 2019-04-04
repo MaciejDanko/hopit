@@ -28,7 +28,6 @@ a vector or a matrix with the results of the test(s).
 Perform the likelihood ratio test(s) for two or more \code{hopit} objects.
 }
 \examples{
-\dontrun{
 # DATA
 data(healthsurvey)
 
@@ -70,7 +69,7 @@ print(lrt1, short = TRUE)
 lrt.hopit(model2, model1)
 
 # Example 2 ---------------------
-
+\donttest{
 # fitting additional nested models
 model3 <- hopit(latent.formula = health ~ hypertension * high_cholesterol +
                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
