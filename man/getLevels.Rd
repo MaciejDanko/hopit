@@ -48,7 +48,6 @@ Each row corresponds to a single individual from the data used to fit the model.
 Summarize the adjusted and the original self-rated response levels.
 }
 \examples{
-\dontrun{
 # DATA
 data(healthsurvey)
 
@@ -124,7 +123,6 @@ legend('top', c('Man','Woman'), density = 20, angle = c(-45, 45),
 # while men aged 50-59 greatly under-report good health.
 
 # more examples can be found in the description of the boot.hopit() function.
-}
 }
 \references{
 \insertRef{Jurges2007}{hopit}\cr\cr

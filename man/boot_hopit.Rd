@@ -35,7 +35,7 @@ as a mean and using the model variance-covariance matrix (see \code{\link{vcov.h
 The drawn coefficients are then used to calculate the measure of interest using a function delivered by the \code{func} parameter.
 }
 \examples{
-\dontrun{
+\donttest{
 # DATA
 data(healthsurvey)
 

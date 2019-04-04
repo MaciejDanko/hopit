@@ -35,7 +35,6 @@ a list with the following components:
 Calculate the threshold cut-points and individual adjusted responses using Jurges' method
 }
 \examples{
-\dontrun{
 # DATA
 data(healthsurvey)
 
@@ -68,7 +67,6 @@ table(model1$y_i)
 
 # tabulate the predicted health levels
 table(model1$Ey_i)
-}
 }
 \references{
 \insertRef{Jurges2007}{hopit}\cr\cr
