@@ -7,7 +7,8 @@
 getCutPoints(model, decreasing.levels = TRUE, subset = NULL,
   plotf = TRUE, mar = c(4, 4, 1, 1), oma = c(0, 0, 0, 0),
   XLab = "Health index", XLab.cex = 1.1, YLab = "Counts",
-  YLab.cex = 1.1, group.labels.type = c("middle", "border", "none"))
+  YLab.cex = 1.1, border.col = 2, border.lty = 2, border.lwd = 1.5,
+  group.labels.type = c("middle", "border", "none"))
 }
 \arguments{
 \item{model}{a fitted \code{hopit} model.}
@@ -24,7 +25,9 @@ getCutPoints(model, decreasing.levels = TRUE, subset = NULL,
 
 \item{YLab, YLab.cex}{a label of the y axis and it's size.}
 
-\item{group.labels.type}{position of the legend. One of \code{middel}, \code{border}, or \code{none}.}
+\item{border.lwd, border.lty, border.col}{graphic parameters for vertical lines used to plot cut-points.}
+
+\item{group.labels.type}{a position of the legend. One of \code{middle}, \code{border}, or \code{none}.}
 }
 \value{
 a list with the following components:

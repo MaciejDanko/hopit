@@ -432,7 +432,7 @@ print.anova.hopit <- function(x, ...){
 #' lrt1 <- lrt.hopit(full = model2, nested = model1)
 #' lrt1
 #'
-#' # print the results in shorter form
+#' # print the results in a shorter form
 #' print(lrt1, short = TRUE)
 #'
 #' # equivalently
@@ -513,22 +513,22 @@ print.lrt.hopit <- function(x, short = FALSE, ...){
     cat("--",hopit_msg(65), deparse(x$nested$latent.formula), fill = TRUE)
     cat("--",hopit_msg(66), deparse(x$nested$thresh.formula), fill = TRUE)
     cat("--",hopit_msg(70),x$nested$hasdisp, fill=TRUE)
+    cat('\n')
   }
-  #uzyc signif
   cat(hopit_msg(59))
-  if (length(x$df)) {
-    out <- t(as.matrix(c('Chi^2' = unname(x$chisq), df = unname(x$df),
-                         'Pr(>Chi^2)' = unname(x$pval))))
-    out2 <- NULL
-  } else {
-    out <- t(as.matrix(c('Chi^2' = unname(x$chisq),
-                         'Pr(>Chi^2)' = unname(x$pval))))
-    out2 <- x$scalef
-  }
+  # if (length(x$df)) {
+  out <- t(as.matrix(c('Chi^2' = unname(x$chisq), df = unname(x$df),
+                       'Pr(>Chi^2)' = unname(x$pval))))
+  #  out2 <- NULL
+  # else {
+  #   out <- t(as.matrix(c('Chi^2' = unname(x$chisq),
+  #                        'Pr(>Chi^2)' = unname(x$pval))))
+  #   out2 <- x$scalef
+  # }
   row.names(out) <- ''
   stats::printCoefmat(out, signif.stars = TRUE, P.values = TRUE,
                   has.Pvalue = TRUE, digits = 5L, dig.tst = 3L, tst.ind = 1L)
-  if (length(out2)) print(paste(hopit_msg(63),out2))
+  # if (length(out2)) print(paste(hopit_msg(63),out2))
   invisible(NULL)
 }
 

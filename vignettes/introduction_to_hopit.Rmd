@@ -148,7 +148,7 @@ While the latent index $H_i$ is intended to reflect the underlying health, happi
 H_i = C-\sum_{k=1}^K D_kX_{i,k}, ~~~\text{where}~C=\frac{\displaystyle\max_i h_i}{\displaystyle\max_i h_i-\displaystyle\min_i h_i}
 \end{equation}
 
-Reporting behavior analysis is based on the reclassification of individuals into new response categories. There are two methods of reclassification: (1) @Jurges2007 percentile method [see also @Rebelo2014 and @OKSUZYAN2019] and (2) reclassification based on estimated thresholds.  
+Reporting behavior analysis is based on the reclassification of individuals into new response categories. There are two methods of reclassification: (1) @Jurges2007 percentile method [see also @Rebelo2014; @OKSUZYAN2019] and (2) reclassification based on estimated thresholds.  
 
 In the first method, the classification is based on the calculated latent index $H_i$ and is thus adjusted for inter-individual differences in reporting behavior. Jürges' percentile method is based on the original distribution of the categorical response variable. First for each category $j$ an empirical distribution function is constructed.
 
@@ -176,7 +176,7 @@ library(hopit)
 ```{r, echo=FALSE,  results='hide', eval=TRUE, include=FALSE}
 g <- capture.output(library(hopit))
 ```
-In the examples presented below I use *healthsurvey*, which is a completely artificial data set yhat is simulated using the distributions of some major health and socio-demographic characteristics. The distributions and the data structure is roughly based on the WAVE1 SHARE database (DOIs: 10.6103/SHARE.w1.600) see @Borsch2013 for technical details. See also the acknowledgements.
+In the examples presented below I use *healthsurvey*, which is a completely artificial data set that is simulated using the distributions of some major health and socio-demographic characteristics. The distributions and the data structure is roughly based on the WAVE1 SHARE database (DOIs: 10.6103/SHARE.w1.600) see @Borsch2013 for technical details. See also the acknowledgements.
 
 ```{r, echo=TRUE, cache=TRUE}
 # load *healthsurvey* dataset
@@ -281,7 +281,7 @@ print(anova(model3,model4), short=TRUE)
 
 ```
 
-The *hopit*() function also has an option to include the survey design using the *survey* package. 
+The *hopit*() function also has an option to include the survey design using the *survey* package [@Lumley2004; @Lumley2019]. 
 The example below fits a model using a simple two-level cluster sampling design.
 
 ```{r, echo=TRUE, cache=TRUE}

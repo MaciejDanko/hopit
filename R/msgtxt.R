@@ -60,7 +60,7 @@ hopit_msg <- function(x)
          '56' = 'Probably non nested latent formulas (check reg.formula)).', #generics
          '57' = 'Probably non nested threshold formulas (check thresh.formula)).', #generics
          '58' = 'LRT for models with a survey design is not yet implemented.', #generics
-         '59' = '\nLikelihood ratio test:\n', #generics
+         '59' = 'Likelihood ratio test:\n', #generics
          '60' = 'Log likelihood maximum not reached.', #generics
          '61' = 'Problem in:', #generics
          '62' = 'All parameters seem to be at arg.max (at the optimum).\n', #generics

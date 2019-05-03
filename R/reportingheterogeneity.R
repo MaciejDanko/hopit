@@ -199,8 +199,9 @@ disabilityWeights<-standardizeCoef
 #' @param plotf a logical indicating whether to plot the results.
 #' @param XLab,XLab.cex a label of the x axis and it's size.
 #' @param YLab,YLab.cex a label of the y axis and it's size.
+#' @param border.lwd,border.lty,border.col graphic parameters for vertical lines used to plot cut-points.
 #' @param mar,oma graphic parameters, see \code{\link{par}}.
-#' @param group.labels.type position of the legend. One of \code{middel}, \code{border}, or \code{none}.
+#' @param group.labels.type a position of the legend. One of \code{middle}, \code{border}, or \code{none}.
 #' @return a list with the following components:
 #'  \item{cutpoints}{ cut-points for the adjusted categorical response levels with the corresponding percentiles of the latent index.}
 #'  \item{adjusted.levels}{ adjusted categorical response levels for each individual.}
@@ -253,6 +254,9 @@ getCutPoints <- function(model,
                          XLab.cex=1.1,
                          YLab='Counts',
                          YLab.cex=1.1,
+                         border.col=2,
+                         border.lty=2,
+                         border.lwd=1.5,
                          group.labels.type=c('middle','border','none')){
   if (length(subset) == 0) subset=seq_along(model$y_i)
   Y <- model$y_i[subset]
@@ -272,8 +276,8 @@ getCutPoints <- function(model,
       stop(hopit_msg(84),call.=NULL)
     opar <- graphics::par(c('mar','oma'))
     graphics::par(mar=mar, oma=oma)
-    z<-graphics::hist(h.index, 200,xlab='',ylab='' ,
-            main='', yaxs='i', col=grDevices::grey(0.8, alpha = 0.5),
+    z<-graphics::hist(h.index, 100,xlab='',ylab='' ,
+            main='', yaxs='i', col=grDevices::grey(0.4, alpha = 0.5),
             border=grDevices::grey(0.4, alpha = 0.5))
     if (group.labels.type == 'border') {
       for (j in seq_along(Nm)) graphics::text(x=R1[j],y=(1.1*max(z$counts))/2,
@@ -290,7 +294,7 @@ getCutPoints <- function(model,
                                               col=2)
     }
     graphics::box()
-    graphics::abline(v=R1,lwd=2,col=2)
+    graphics::abline(v=R1,lwd=border.lwd,col=border.col,lty=border.lty)
     graphics::mtext(XLab, 1, cex=XLab.cex, line = 2.5)
     graphics::mtext(YLab, 2, cex=YLab.cex, line = 2.5)
     suppressWarnings(graphics::par(opar))

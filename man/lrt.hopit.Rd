@@ -51,7 +51,7 @@ model2 <- hopit(latent.formula = health ~ hypertension * high_cholesterol +
 lrt1 <- lrt.hopit(full = model2, nested = model1)
 lrt1
 
-# print the results in shorter form
+# print the results in a shorter form
 print(lrt1, short = TRUE)
 
 # equivalently
