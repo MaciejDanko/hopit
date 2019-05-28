@@ -12,3 +12,5 @@
 ^inst\doc$
 ^appveyor\.yml$
 ^cran-comments.md
+^MPIDR_WP$
+^JOSS$

@@ -33,17 +33,17 @@ hopit_msg <- function(x)
          '29' = 'The threshold formula should be given without the dependent variable.', #checks
          '30' = 'The strata formula should be given without the dependent variable.', #checks
          '31' = 'Offset is not supported.', #checks
-         '32' = 'Model is probably unidentifiable, $vcov (variance-covariance matrix) cannot be computed.', #checks
+         '32' = 'Model is probably unidentifiable, $vcov (the variance-covariance matrix) cannot be computed.', #checks
          '33' = 'Response must be a factor with ordered levels.', #checks
          '34' = 'Response must have 3 or more levels.', #checks
          '35' = 'Multiple weights specification detected. Please use either the design or the weights parameter.', #checks
          '36' = 'Vector of the survey weights must be of the same length as the data.', #checks
-         '37' = 'Cannot compute variance-covariance matrix:\n', #generics
+         '37' = 'Cannot compute the variance-covariance matrix:\n', #generics
          '38' = 'Hessian cannot be calculated.', #generics
          '39' = '"robust.vcov" parameter ignored, survey design was detected.', #generics
-         '40' = 'Variance-covariance matrix:\n', #generics
-         '41' = '\nVariance-covariance matrix adjusted for the survey design.\n', #generics
-         '42' = '\nVariance-covariance matrix based on a sandwich estimator.\n', #generics
+         '40' = 'The variance-covariance matrix:\n', #generics
+         '41' = '\nThe variance-covariance matrix adjusted for the survey design.\n', #generics
+         '42' = '\nThe variance-covariance matrix based on a sandwich estimator.\n', #generics
          '43' = 'Negative variances were detected; try different robust.se/survey options and check the fit!', #generics
          '44' = 'Survey weights were detected. Standard errors were adjusted for the survey design.\n', #generics
          '45' = 'Problem with some standard errors; please try the option "robust.se" == TRUE.', #generics
@@ -72,7 +72,7 @@ hopit_msg <- function(x)
          '68' = 'Latent formulas are not nested.', #generics
          '69' = 'Threshold formulas are not nested.', #generics
          '70' = "Sigma:", #generics
-         '71' = '\nRobust SE were used (sandwich estimator of variance-covariance matrix).\n', #generics
+         '71' = '\nRobust SE were used (sandwich estimator of the variance-covariance matrix).\n', #generics
          '72' = 'Link:', #generics
          '73' = 'Number of cases:', #generics
          '74' = 'Response levels:', #generics
