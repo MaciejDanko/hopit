@@ -9,6 +9,8 @@ myscripts/
 old/
 tmp/
 test/
+MPIDR_WP/
+JOSSraw/
 # bib/
 
 README.Rmd
