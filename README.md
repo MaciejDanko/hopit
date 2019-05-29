@@ -6,7 +6,7 @@
 
 # R-package *hopit*: Hierarchical ordered probit models with application to reporting heterogeneity.
 
-The *hopit* package provides R functions to fit and analyze ordered response data in the context of reporting heterogeneity.
+Self-reported health, happiness, attitudes, and other statuses or perceptions are often the subject of biases that may come from different sources. For example, the evaluation of an individual’s own health may depend on previous medical diagnoses, functional status, and symptoms and signs of illness; as on well as life-style behaviors, including contextual social, gender, age-specific, linguistic and other cultural factors (Oksuzyan et al. 2019). The **hopit** package offers versatile functions for analyzing different self-reported ordinal variables, and for helping to estimate their biases. Specifically, the package provides the function to fit a generalized ordered probit model that regresses original self-reported status measures on two sets of independent variables (King et al. 2004; Jurges 2007; Oksuzyan et al. 2019). included in the regression are individual statuses and characteristics that are directly related to the self-reported variable. In the case of self-reported health, these could be chronic conditions, mobility level, difficulties with daily activities, performance on grip strength tests, anthropometric measures, and lifestyle behaviors. The second set of independent variables (threshold variables) is used to model cut-points between adjacent self-reported response categories as functions of individual characteristics, such as gender, age group, education, and country (Oksuzyan et al. 2019). The model helps to adjust for specific socio-demographic and cultural differences in how the continuous latent health is projected onto the ordinal self-rated measure. The fitted model can beused to calculate an individual predicted latent status variable, a latent index, and standardized latent coefficients; and makes it possible to reclassify a categorical status measure that has been adjusted for inter-individual differences in reporting behavior.
 
 ### Installation
 1. Make sure you have the most recent version of R
@@ -44,6 +44,8 @@ This software is an academic project. Any issues and pull requests are welcome.
 * If `hopit` is malfunctioning, please report the case by submitting an issue on GitHub.
 
 ### References
+King, GCh, Murray JL, Salomon JA, and Tandon A. (2004). “Enhancing the Validity and Cross-Cultural Comparability of Measurement in Survey Research.” American Political Science Review 98 (1). Cambridge University Press: 191–207. doi: 10.1017/S000305540400108X.
+
 Jurges H (2007). “True health vs response styles: exploring cross-country differences in self-reported health.” Health Economics, 16(2), pp. 163-178. doi: 10.1002/hec.1134.
 
-Oksuzyan A, Danko MJ, Caputo J, Jasilionis D and Shkolnikov VM (2019). “Is the story about sensitive women and stoical men true? Gender differences in health after adjustment for reporting behavior.” Social Science & Medicine, 228, pp. 41-50. doi: 10.1016/j.socscimed.2019.03.002. 
+Oksuzyan A, Danko MJ, Caputo J, Jasilionis D, and Shkolnikov VM (2019). “Is the story about sensitive women and stoical men true? Gender differences in health after adjustment for reporting behavior.” Social Science & Medicine, 228, pp. 41-50. doi: 10.1016/j.socscimed.2019.03.002. 
