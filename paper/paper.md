@@ -16,7 +16,7 @@ affiliations:
 - name: Max Planck Institute for Demographic Research, Rostock, Germany
   index: 1
 date: "3 May 2019"
-bibliography: REFERENCESVIG.bib
+bibliography: paper.bib
 link-citations: true
 header-includes: \usepackage{float}
 # output:
