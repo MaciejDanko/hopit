@@ -32,42 +32,21 @@ The ``hopit`` package delivers functions and methods to fit (```hopit```), summa
 
 Once the model is fitted, the model estimates are used to determine reporting behavior; i.e., how the continuous latent measure is projected onto the categorical response. In practice, this is done by comparing actual categorical ordered responses with theoretical responses that are adjusted for heterogeneity in reporting behaviors, and are, therefore, more comparable across individuals.
 
-<!--
-\begin{figure}[H]
-{\centering\includegraphics{HI-2.pdf}
-
-}
-\caption[Health index vs. self-reported health for a model fitted to an exemplary data.]{Health index vs. self-reported health for a model fitted to an exemplary data.}\label{fig:HI-2}
-\end{figure}-->
 ![Health index vs. self-reported health for a model fitted to an exemplary data.](HI-2.pdf)
 
 One of the first steps of the analysis is the standardization of the latent measure to obtain the latent index. In the self-rated health example the latent health index is a proxy for the true underlying health of an individual, and varies from 0, representing the (model-based) worst health state in the sample, to 1, representing the (model-based) best health state in the sample (Fig. 1).
 
 The predicted latent measure obtained from the model is also used to standardize the latent variable coefficients. In the self-rated health example the standardized coefficients are called disability weights [@Jurges2007; @OKSUZYAN2019] and are calculated for each health variable to provide information about the impact of a specific health measure on the latent index (Fig. 2). The disability weight for a health variable is equal to the ratio of the corresponding health coefficient and the difference between the lowest and the highest values of predicted latent health. In other words, the disability weight reduces health index by some given amount or percentage; i.e. the health index of every individual is reduced by the same amount if the person had a heart attack or other heart problems)[@Jurges2007; @OKSUZYAN2019]. While the latent index is intended to reflect the underlying health, happiness or other status across individuals, the standardized coefficients (disability weights for health case), are computed for an average individual in the study population. 
 
-<!-- 
-\begin{figure}[H]
-{\centering\includegraphics{D-2.pdf}
-
-}
-\caption[Disability weights for the fitted model.]{Disability weights for the fitted model.}\label{fig:D-2}
-\end{figure} -->
 ![Disability weights for the fitted model.](D-2.pdf) 
 
 Reporting behavior analysis is based on the reclassification of individuals into new response categories. There are two methods of reclassification: (1) @Jurges2007 percentile method [see also @Rebelo2014; @OKSUZYAN2019] and (2) reclassification directly based on model-estimated thresholds. In the first method, the classification is based on the calculated latent index which is adjusted for inter-individual differences in reporting behavior. This method is based on the original distribution of the categorical response variable (see also @OKSUZYAN2019). 
 
+<![Differences between original and adjusted prevalances of bad health for the fitted model. The confidence intervals were calculated using percentile bootstrap method.](B-2.pdf) 
+
 The package offers functions ```boot_hopit``` and ```percentile_CI``` for calculating the confidence intervals for any measure derived from the model using parametric bootstrap methods. In each of the bootstrap repetitions, a set of new model coefficients is drawn from the multivariate normal distribution, assuming the originally estimated model coefficients as a mean and using the model estimated variance-covariance matrix. The drawn coefficients are then used to calculate the measure of interest via a user defined function. In the example presented in Fig. 3, the confidence intervals of the difference between the original and the adjusted frequencies of bad health are calculated. The bad health is determined by the presence of "```Poor```" or "```Fair```" self-rated health categories.
 
 The results (Fig.3) show that men tend to over-report bad health at ages (50,60] and (50,70], whereas women tend to over-report bad health at ages [70,80); and that both sexes at ages above 80 tend to under-report bad health. See also @OKSUZYAN2019 for similar analyses done on true SHARE data.
-
-<!-- 
-\begin{figure}[H]
-{\centering\includegraphics{B-2.pdf}
-
-}
-\caption[Differences between original and adjusted prevalances of bad health for the fitted model. The confidence intervals were calculated using percentile bootstrap method.]{Differences between original and adjusted prevalances of bad health for the fitted model. The confidence intervals were calculated using percentile bootstrap method.}\label{fig:B-2}
-\end{figure} -->
-![Differences between original and adjusted prevalances of bad health for the fitted model. The confidence intervals were calculated using percentile bootstrap method.](B-2.pdf) 
 
 # Acknowledgements
 
