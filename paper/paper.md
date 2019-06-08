@@ -47,7 +47,7 @@ The predicted latent measure obtained from the model is also used to standardize
 Reporting behavior analysis is based on the reclassification of individuals into new response categories. There are two methods of reclassification: (1) @Jurges2007 percentile method [see also @Rebelo2014; @OKSUZYAN2019] and (2) reclassification directly based on model-estimated thresholds. In the first method, the classification is based on the calculated latent index which is adjusted for inter-individual differences in reporting behavior. This method is based on the original distribution of the categorical response variable (see also @OKSUZYAN2019). 
 
 
-<![Differences between original and adjusted prevalances of bad health for the fitted model.](B-2.pdf) 
+![Differences between original and adjusted prevalences of bad health for the fitted model.](B-2.pdf) 
 
 
 The package offers functions ```boot_hopit``` and ```percentile_CI``` for calculating the confidence intervals for any measure derived from the model using parametric bootstrap methods. In each of the bootstrap repetitions, a set of new model coefficients is drawn from the multivariate normal distribution, assuming the originally estimated model coefficients as a mean and using the model estimated variance-covariance matrix. The drawn coefficients are then used to calculate the measure of interest via a user defined function. In the example presented in Fig. 3, the confidence intervals of the difference between the original and the adjusted frequencies of bad health are calculated. The bad health is determined by the presence of "```Poor```" or "```Fair```" self-rated health categories.
