@@ -310,10 +310,10 @@ that are calculated according the Jurges (2007) method:
 
 ``` r
 rev(table(z$adjusted.levels))
+##  
+##  Excellent Very good      Good      Fair      Poor 
+##       1876      2422      3923      1325       454
 ```
-
-    ##  Excellent Very good      Good      Fair      Poor 
-    ##       1876      2422      3923      1325       454
 
 The analysis of health level frequencies is performed using the
 `getLevels`
