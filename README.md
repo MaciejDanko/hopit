@@ -455,22 +455,22 @@ acknowledged (see www. share-project.org).
 
 ### References
 
-Börsch-Supan, Axel, Martina Brandt, Christian Hunkler, Thorsten Kneip,
-Julie Korbmacher, Frederic Malter, Barbara Schaan, Stephanie Stuck, and
-Sabrina Zuber. 2013. “Data Resource Profile: The Survey of Health,
-Ageing and Retirement in Europe (Share).” International Journal of
-Epidemiology 42 (4): 992–1001. doi: 10.1093/ije/dyt088.
+Borsch-Supan A, Brandt M, Hunkler C, Kneip T, Korbmacher J, Malter F,
+Schaan B, Stuck S, and Zuber S. (2013). “Data Resource Profile: The
+Survey of Health, Ageing and Retirement in Europe (Share).”
+International Journal of Epidemiology 42 (4): 992–1001. doi:
+10.1093/ije/dyt088.
 
-Jurges H (2007). “True health vs response styles: exploring
+Jurges H,. (2007). “True health vs response styles: exploring
 cross-country differences in self-reported health.” Health Economics,
 16(2), pp. 163-178. doi: 10.1002/hec.1134.
 
-King, GCh, Murray JL, Salomon JA, and Tandon A. (2004). “Enhancing the
+King GC, Murray JL, Salomon JA, and Tandon A. (2004). “Enhancing the
 Validity and Cross-Cultural Comparability of Measurement in Survey
 Research.” American Political Science Review 98 (1). Cambridge
 University Press: 191–207. doi: 10.1017/S000305540400108X.
 
-Oksuzyan A, Danko MJ, Caputo J, Jasilionis D, and Shkolnikov VM (2019).
+Oksuzyan A, Danko MJ, Caputo J, Jasilionis D, and Shkolnikov V. (2019).
 “Is the story about sensitive women and stoical men true? Gender
 differences in health after adjustment for reporting behavior.” Social
 Science & Medicine, 228, pp. 41-50. doi:
