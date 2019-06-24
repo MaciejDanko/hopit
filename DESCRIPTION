@@ -2,9 +2,20 @@ Package: hopit
 Type: Package
 Title: Hierarchical Ordered Probit Models with Application to Reporting Heterogeneity
 Version: 0.9.2.9000
-Depends: R (>= 3.4.0), survey (>= 3.35)
-Imports: MASS, Rcpp, Matrix, Rdpack, graphics, stats, grDevices
-LinkingTo: Rcpp, RcppEigen
+Depends: 
+   R (>= 3.4.0), 
+   survey (>= 3.35)
+Imports: 
+   MASS, 
+   Rcpp, 
+   Matrix, 
+   graphics, 
+   stats, 
+   grDevices,
+   Rdpack (>= 0.11.0)
+LinkingTo: 
+   Rcpp, 
+   RcppEigen
 Authors@R: person("Maciej J.", "Danko", role = c("aut", "cre"), 
  email = "Maciej.Danko@gmail.com", comment = c(ORCID = "0000-0002-7924-9022"))
 Description: Self-reported health, happiness, attitudes, and other statuses or perceptions are often the subject of biases that may come from different sources. For example, the evaluation of an individual’s own health may depend on previous medical diagnoses, functional status, and symptoms and signs of illness; as on well as life-style behaviors, including contextual social, gender, age-specific, linguistic and other cultural factors (Jylha 2009 <doi:10.1016/j.socscimed.2009.05.013>; Oksuzyan et al. 2019 <doi:10.1016/j.socscimed.2019.03.002>). The hopit package offers versatile functions for analyzing different self-reported ordinal variables, and for helping to estimate their biases. Specifically, the package provides the function to fit a generalized ordered probit model that regresses original self-reported status measures on two sets of independent variables (King et al. 2004 <doi:10.1017/S0003055403000881>; Jurges 2007  <doi:10.1002/hec.1134>; Oksuzyan et al. 2019  <doi:10.1016/j.socscimed.2019.03.002>). included in the regression are individual statuses and characteristics that are directly related to the self-reported variable. In the case of self-reported health, these could be chronic conditions, mobility level, difficulties with daily activities, performance on grip strength tests, anthropometric measures, and lifestyle behaviors. The second set of independent variables (threshold variables) is used to model cut-points between adjacent self-reported response categories as functions of individual characteristics, such as gender, age group, education, and country (Oksuzyan et al. 2019 <doi:10.1016/j.socscimed.2019.03.002>). The model helps to adjust for specific socio-demographic and cultural differences in how the continuous latent health is projected onto the ordinal self-rated measure. The fitted model can be used to calculate an individual predicted latent status variable, a latent index, and standardized latent coefficients; and makes it possible to reclassify a categorical status measure that has been adjusted for inter-individual differences in reporting behavior.
@@ -15,12 +26,11 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.1
 SystemRequirements: C++11
 Suggests: 
-    knitr,
-    rmarkdown,
-    roxygen2,
-    pander,
-    testthat,
-    usethis,
-    R.rsp
+    testthat (>= 2.1.0),
+    R.rsp (>= 0.43.0),
+    usethis (>= 1.5.0),
+    knitr (>= 1.20),
+    rmarkdown (>= 1.12),
+    roxygen2 (>= 6.1.1)
 VignetteBuilder: R.rsp
 RdMacros: Rdpack
