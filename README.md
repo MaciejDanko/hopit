@@ -34,7 +34,7 @@ You can track (and contribute to) the development of `hopit` at https://github.c
    ```
    
 ### Introduction
-Get started with `hopit` by checking the [vignette](https://github.com/MaciejDanko/hopit/blob/master/vignettes/introduction_to_hopit.pdf) or run:
+Get started with `hopit` by checking the [vignette](https://github.com/MaciejDanko/hopit/blob/master/vignettes/vig_hopit.pdf) or run:
 
    ```R
    browseVignettes(package = "hopit") 
