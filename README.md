@@ -221,15 +221,15 @@ summary(model1)
 ```
 
 `model1` contains 11 dichotomous health variables and two threshold
-variables. The fitted coefficient includes \(\beta\) (`latent.params`,
-first 11 coefficients in the summary), \(\lambda\) (`thresh.lambda`,
-threshold intercepts, “(L)” prefix in the summary), and \(\gamma\)
-(`thresh.gamma`, parameters related to threshold covariates, “(G)”
-prefix in the summary). The model coefficients can be accessed directly
-by the generic `coef(model1, aslist = TRUE)` function, which has an
-option to group parameters into a list (`aslist = TRUE`); or simply by
-calling `model1$coef.ls`. The fitted model can be further used to
-analyze reporting heterogeneity.
+variables. The fitted coefficient includes beta (`latent.params`, first
+11 coefficients in the summary), lambda (`thresh.lambda`, threshold
+intercepts, “(L)” prefix in the summary), and gamma (`thresh.gamma`,
+parameters related to threshold covariates, “(G)” prefix in the
+summary). The model coefficients can be accessed directly by the generic
+`coef(model1, aslist = TRUE)` function, which has an option to group
+parameters into a list (`aslist = TRUE`); or simply by calling
+`model1$coef.ls`. The fitted model can be further used to analyze
+reporting heterogeneity.
 
 The latent health variables can be directly accessed using
 `model1$coef.ls$latent.params`. We can, however, standardize these
