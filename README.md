@@ -88,7 +88,7 @@ To load the package simply run the following code:
 library(hopit)
 ```
 
-In the examples presented below I use `healthsurvey`, which is a
+In the example presented below I use `healthsurvey`, which is a
 completely artificial data set that is simulated using the distributions
 of some major health and socio-demographic characteristics. The
 distributions and the data structure are roughly based on the WAVE1
@@ -98,7 +98,6 @@ for technical details about the SHARE database. The structure of
 
 ``` r
 data("healthsurvey")
-
 print(t(healthsurvey[1:6,-1]), quote=FALSE, na.print='NA', right=TRUE)
 >                                1       2       3       4         5       6
 > health                 Very good    Good    Good    Good Excellent    Good
@@ -241,12 +240,15 @@ the `standardizeCoef` function.
 
 ``` r
 txtfun <- function(x) gsub('_',' ',substr(x, 1, nchar(x)-3))
-sc <- standardizeCoef(model1, plotf = TRUE, namesf = txtfun)
+sc <- standardizeCoef(model1, plotf = TRUE, namesf = txtfun, 
+                      mar = c(10, 4, 1, 1))
 ```
 
-<img src="man/figures/README-unnamed-chunk-6-1.png" title="Disability weights" alt="Disability weights" width="3.9in" height="3.9in" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
 
-The `plotf = TRUE` enables plotting (Fig. 2), while the `namesf`
+**Figure 1.** Disability weights.
+
+The `plotf = TRUE` enables plotting (Fig. 1), while the `namesf`
 argument is a function or a character vector that is used to rename the
 coefficients. The exact values of disability weights are stored in `sc`:
 
@@ -276,19 +278,22 @@ hi <- latentIndex(model1, plotf = TRUE, response = "data",
                   ylab = 'Health index', col='deepskyblue3')
 ```
 
-<img src="man/figures/README-unnamed-chunk-8-1.png" title="Health index vs. self-reported health" alt="Health index vs. self-reported health" width="3.9in" height="3.25in" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
+
+**Figure 2.** Health index vs. self-reported health.
 
 The main aim of the reporting heterogeneity analyses is to determine the
 cut-points used to calculate the adjusted health status for each
 individual. The calculation and the plotting of cut-points are realized
-using the `getCutPoints`
-function.
+using the `getCutPoints` function.
 
 ``` r
 z <- getCutPoints(model = model1, decreasing.levels = TRUE)
 ```
 
-<img src="man/figures/README-unnamed-chunk-9-1.png" title="Health index cut-points for adjusted health levels" alt="Health index cut-points for adjusted health levels" width="3.9in" height="3.25in" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
+
+**Figure 3.** Health index cut-points for adjusted health levels.
 
 Returned cut-points:
 
@@ -317,13 +322,15 @@ hl <- getLevels(model = model1, formula = ~ sex + ageclass, data = healthsurvey,
                       sep = ' ', plotf = TRUE)
 ```
 
-<img src="man/figures/README-unnamed-chunk-13-1.png" title="Adjusted and original health levels" alt="Adjusted and original health levels" width="5.2in" height="3.9in" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />
+
+**Figure 4.** Adjusted and original health levels.
 
 The formula describes the grouping variables. It is set to the threshold
 formula by default, but it can be changed. Here, the country variable is
 omitted, which means that the age-gender-specific frequencies are
 calculated for the combined countries. The results are plotted by
-setting the `plotf = TRUE` option (Fig. 5). The differences between the
+setting the `plotf = TRUE` option (Fig. 4). The differences between the
 original and the adjusted frequencies (%) can be calculated directly
 using the `getLevels` output:
 
@@ -400,9 +407,13 @@ for (k in seq_along(pos))
 abline(h = 0); box(); par(mar = pmar)
 ```
 
-<img src="man/figures/README-unnamed-chunk-19-1.png" title="Difference between the original and the adjusted prevalences of bad health. The confidence intervals were calculated using the percentile bootstrap method." alt="Difference between the original and the adjusted prevalences of bad health. The confidence intervals were calculated using the percentile bootstrap method." width="3.9in" height="3.9in" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-19-1.png" width="100%" />
 
-The results (Fig. 6) show that men tend to over-report bad health at
+**Figure 5.** Difference between the original and the adjusted
+prevalences of bad health. The confidence intervals were calculated
+using the percentile bootstrap method.
+
+The results (Fig. 5) show that men tend to over-report bad health at
 ages (50,60\] and (50,70\], whereas women tend to over-report bad health
 at ages \[70,80); and that both sexes tend to under-report bad health at
 ages (80, 120\]. See also Oksuzyan et al. (2019) for similar analyses
