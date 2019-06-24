@@ -244,7 +244,7 @@ sc <- standardizeCoef(model1, plotf = TRUE, namesf = txtfun,
                       mar = c(10, 4, 1, 1))
 ```
 
-<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
+<img src="man/figures/README-fig1-1.png" width="65%" style="display: block; margin: auto;" />
 
 **Figure 1.** Disability weights.
 
@@ -274,24 +274,26 @@ index (or the latent index). It is simply calculated using the
 TRUE`).
 
 ``` r
-hi <- latentIndex(model1, plotf = TRUE, response = "data", 
-                  ylab = 'Health index', col='deepskyblue3')
+pmar <- par('mar'); par(mar = c(5.5, 4, 0.5, 0.5))
+hi <- latentIndex(model1, plotf = TRUE, response = "data", xlab='',
+                  ylab = 'Health index', col='deepskyblue3'); par(mar = pmar)
 ```
 
-<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
+<img src="man/figures/README-fig2-1.png" width="65%" style="display: block; margin: auto;" />
 
 **Figure 2.** Health index vs. self-reported health.
 
 The main aim of the reporting heterogeneity analyses is to determine the
 cut-points used to calculate the adjusted health status for each
 individual. The calculation and the plotting of cut-points are realized
-using the `getCutPoints` function.
+using the `getCutPoints`
+function.
 
 ``` r
 z <- getCutPoints(model = model1, decreasing.levels = TRUE)
 ```
 
-<img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
+<img src="man/figures/README-fig3-1.png" width="65%" style="display: block; margin: auto;" />
 
 **Figure 3.** Health index cut-points for adjusted health levels.
 
@@ -322,7 +324,7 @@ hl <- getLevels(model = model1, formula = ~ sex + ageclass, data = healthsurvey,
                       sep = ' ', plotf = TRUE)
 ```
 
-<img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />
+<img src="man/figures/README-fig4-1.png" width="73%" style="display: block; margin: auto;" />
 
 **Figure 4.** Adjusted and original health levels.
 
@@ -366,7 +368,7 @@ calculate the mentioned difference:
 
 ``` r
 diff_BadHealth <- function(model, data) {
-  hl <- getLevels(model = model1, formula = ~ sex + ageclass, data = data, 
+  hl <- getLevels(model = model, formula = ~ sex + ageclass, data = data, 
                   sep = ' ', plotf = FALSE)
   hl$original[,1] + hl$original[,2] - hl$adjusted[,1]- hl$adjusted[,2]
 }
@@ -397,17 +399,17 @@ The code below plots the differences and the bootstrapped confidence
 intervals
 
 ``` r
-pmar <- par('mar'); par(mar = c(9.5, 6, pmar[3:4]))
+pmar <- par('mar'); par(mar = c(7, 5, 0.5, 0.5))
 m <- max(abs(est.CI))
 pos <- barplot(est.org, names.arg = names(est.org), las = 3, 
- ylab = 'Original - adjusted differences \nin the prevalences of bad health (%)', 
- ylim = c(-m, m), density = 20, angle = c(45, -45), col = c('blue', 'orange'))
+ylab = 'Original - adjusted differences \nin the prevalences of bad health (%)', 
+ylim = c(-m, m), density = 20, angle = c(45, -45), col = c('blue', 'orange'))
 for (k in seq_along(pos)) 
-  lines(c(pos[k,1],pos[k,1]), est.CI[,k], lwd = 2, col = 2)
+   lines(c(pos[k,1],pos[k,1]), est.CI[,k], lwd = 2, col = 2)
 abline(h = 0); box(); par(mar = pmar)
 ```
 
-<img src="man/figures/README-unnamed-chunk-19-1.png" width="100%" />
+<img src="man/figures/README-fig5-1.png" width="55%" style="display: block; margin: auto;" />
 
 **Figure 5.** Difference between the original and the adjusted
 prevalences of bad health. The confidence intervals were calculated
@@ -429,7 +431,9 @@ submitting an issue on GitHub.
 
 I thank Anna Oksuzyan, Vladimir M. Shkolnikov, Christian Dudel, Marius
 Pascariu, Laszlo Nemeth, and Oskar Burger for their comments and
-suggestions. I also thank the Max Planck Institute for Demographic
+suggestions; I thank @alexhanna, the editor of the JOSS journal, and two
+JOSS peer reviewers @soodoku and @mkearney for their suggestions and
+corrections. I also thank the Max Planck Institute for Demographic
 Research for all their support.
 
 The artificially generated data used in the package examples are based
@@ -455,7 +459,7 @@ Börsch-Supan, Axel, Martina Brandt, Christian Hunkler, Thorsten Kneip,
 Julie Korbmacher, Frederic Malter, Barbara Schaan, Stephanie Stuck, and
 Sabrina Zuber. 2013. “Data Resource Profile: The Survey of Health,
 Ageing and Retirement in Europe (Share).” International Journal of
-Epidemiology 42 (4): 992–1001. <https://doi.org/10.1093/ije/dyt088>.
+Epidemiology 42 (4): 992–1001. doi: 10.1093/ije/dyt088.
 
 Jurges H (2007). “True health vs response styles: exploring
 cross-country differences in self-reported health.” Health Economics,

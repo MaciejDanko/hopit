@@ -8,6 +8,7 @@
 #' @param subset an optional vector that specifies a subset of observations.
 #' @param plotf a logical indicating whether to plot the summary figure.
 #' @param response X-axis plotting option; choose \code{'data'} for the raw responses and \code{'fitted'} for the responses reclassified by the model.
+#' @param xlab a label of the x-axis.
 #' @param ylab a label of the y-axis.
 #' @param ... further parameters passed to the \code{\link{plot}} function.
 #' @return a vector with a latent index for each individual.
@@ -59,7 +60,7 @@
 latentIndex <- function(model, decreasing.levels = TRUE,
                         subset = NULL, plotf = FALSE,
                         response = c('data','fitted','Jurges'),
-                        ylab = 'Latent index', ...) {
+                        xlab = '', ylab = 'Latent index', ...) {
   if (length(subset) == 0) subset=seq_len(model$N)
   r <- range(model$y_latent_i[subset])
   hi <- (1 - ((model$y_latent_i - r[1]) / diff(r)))[subset]
@@ -73,7 +74,7 @@ latentIndex <- function(model, decreasing.levels = TRUE,
                             plotf = FALSE)
           YY <- factor(z$adjusted.levels,levels(model$y_i))
         } else stop(hopit_msg(83),call.=NULL)
-    graphics::plot(YY[subset], hi,las=3, ylab=ylab, ...)
+    graphics::plot(YY[subset], hi,las=3, ylab=ylab, xlab=xlab,...)
   }
   if (plotf) invisible(hi) else return(hi)
 }

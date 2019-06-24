@@ -6,11 +6,11 @@
 \title{Calculate the latent index}
 \usage{
 latentIndex(model, decreasing.levels = TRUE, subset = NULL,
-  plotf = FALSE, response = c("data", "fitted", "Jurges"),
+  plotf = FALSE, response = c("data", "fitted", "Jurges"), xlab = "",
   ylab = "Latent index", ...)
 
 healthIndex(model, decreasing.levels = TRUE, subset = NULL,
-  plotf = FALSE, response = c("data", "fitted", "Jurges"),
+  plotf = FALSE, response = c("data", "fitted", "Jurges"), xlab = "",
   ylab = "Latent index", ...)
 }
 \arguments{
@@ -23,6 +23,8 @@ healthIndex(model, decreasing.levels = TRUE, subset = NULL,
 \item{plotf}{a logical indicating whether to plot the summary figure.}
 
 \item{response}{X-axis plotting option; choose \code{'data'} for the raw responses and \code{'fitted'} for the responses reclassified by the model.}
+
+\item{xlab}{a label of the x-axis.}
 
 \item{ylab}{a label of the y-axis.}
 

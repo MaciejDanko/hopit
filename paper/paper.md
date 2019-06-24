@@ -56,7 +56,7 @@ The results (Fig.3) show that men tend to over-report bad health at ages (50,60]
 
 # Acknowledgements
 
-I thank Anna Oksuzyan, Christian Dudel, Marius Pascariu, Laszlo Nemeth, and Oskar Burger for their comments and suggestions. I also thank the Max-Planck Institute for Demographic Research for all their support.
+I thank Anna Oksuzyan, Christian Dudel, Marius Pascariu, Laszlo Nemeth, and Oskar Burger for their comments and suggestions. I thank @alexhanna, the editor of the JOSS journal, and two JOSS peer reviewers @soodoku and @mkearney for their suggestions and corrections. I also thank the Max-Planck Institute for Demographic Research for all their support.
 
 In all examples presented above I use ```healthsurvey```, which is a completely artificial data set that is simulated using the distributions of some major health and socio-demographic characteristics. The distributions and the data structure is roughly based on the WAVE1 SHARE database (DOIs: 10.6103/SHARE.w1.600) see @Borsch2013 for technical details about SHARE database. None of the records represent any part of the true data. 
 
