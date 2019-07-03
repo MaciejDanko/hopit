@@ -4,30 +4,15 @@
 \alias{getCutPoints}
 \title{Calculate the threshold cut-points and individual adjusted responses using Jurges' method}
 \usage{
-getCutPoints(model, decreasing.levels = TRUE, subset = NULL,
-  plotf = TRUE, mar = c(4, 4, 1, 1), oma = c(0, 0, 0, 0),
-  XLab = "Health index", XLab.cex = 1.1, YLab = "Counts",
-  YLab.cex = 1.1, border.col = 2, border.lty = 2, border.lwd = 1.5,
-  group.labels.type = c("middle", "border", "none"))
+getCutPoints(model, decreasing.levels = model$decreasing.levels,
+  subset = NULL)
 }
 \arguments{
 \item{model}{a fitted \code{hopit} model.}
 
-\item{decreasing.levels}{a logical indicating whether self-reported health classes are ordered in decreasing order.}
+\item{decreasing.levels}{a logical indicating whether self-reported health classes are ordered in increasing order.}
 
 \item{subset}{an optional vector specifying a subset of observations.}
-
-\item{plotf}{a logical indicating whether to plot the results.}
-
-\item{mar, oma}{graphic parameters, see \code{\link{par}}.}
-
-\item{XLab, XLab.cex}{a label of the x axis and it's size.}
-
-\item{YLab, YLab.cex}{a label of the y axis and it's size.}
-
-\item{border.lwd, border.lty, border.col}{graphic parameters for vertical lines used to plot cut-points.}
-
-\item{group.labels.type}{a position of the legend. One of \code{middle}, \code{border}, or \code{none}.}
 }
 \value{
 a list with the following components:
@@ -62,7 +47,9 @@ model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
 z <- getCutPoints(model = model1)
 z$cutpoints
 
-# tabulate the adjusted health levels for individuals: Jurges method
+plot(z)
+
+# tabulate the adjusted health levels for individuals (Jurges method):
 rev(table(z$adjusted.levels))
 
 # tabulate the original health levels for individuals

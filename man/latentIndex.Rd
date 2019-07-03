@@ -5,30 +5,14 @@
 \alias{healthIndex}
 \title{Calculate the latent index}
 \usage{
-latentIndex(model, decreasing.levels = TRUE, subset = NULL,
-  plotf = FALSE, response = c("data", "fitted", "Jurges"), xlab = "",
-  ylab = "Latent index", ...)
+latentIndex(model, subset = NULL)
 
-healthIndex(model, decreasing.levels = TRUE, subset = NULL,
-  plotf = FALSE, response = c("data", "fitted", "Jurges"), xlab = "",
-  ylab = "Latent index", ...)
+healthIndex(model, subset = NULL)
 }
 \arguments{
 \item{model}{a fitted \code{hopit} model.}
 
-\item{decreasing.levels}{a logical indicating whether self-reported (e.g., health) classes are ordered in decreasing order.}
-
 \item{subset}{an optional vector that specifies a subset of observations.}
-
-\item{plotf}{a logical indicating whether to plot the summary figure.}
-
-\item{response}{X-axis plotting option; choose \code{'data'} for the raw responses and \code{'fitted'} for the responses reclassified by the model.}
-
-\item{xlab}{a label of the x-axis.}
-
-\item{ylab}{a label of the y-axis.}
-
-\item{...}{further parameters passed to the \code{\link{plot}} function.}
 }
 \value{
 a vector with a latent index for each individual.
@@ -51,32 +35,29 @@ levels(healthsurvey$health)
 
 # fit a model
 model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
-                heart_attack_or_stroke + poor_mobility + very_poor_grip +
-                depression + respiratory_problems +
-                IADL_problems + obese + diabetes + other_diseases,
-              thresh.formula = ~ sex + ageclass + country,
-              decreasing.levels = TRUE,
-              control = list(trace = FALSE),
-              data = healthsurvey)
+                  heart_attack_or_stroke + poor_mobility + very_poor_grip +
+                  depression + respiratory_problems +
+                  IADL_problems + obese + diabetes + other_diseases,
+                thresh.formula = ~ sex + ageclass + country,
+                decreasing.levels = TRUE,
+                control = list(trace = FALSE),
+                data = healthsurvey)
 
-# calculate the health index and plot the reported health status
-# versus the health index.
-hi <- latentIndex(model1, plotf = TRUE, response = "data",
-                  ylab = 'Health index', col='deepskyblue3')
+# calculate the health index
+hi <- latentIndex(model1)
+
+summary(hi)
 
 # plot a simple histogram of the function output
-hist(hi)
+hist(hi, col='deepskyblue3')
 
-# calculate the health index and plot the adjusted health status vs. the health index
-# using Jurges (Jurges 2007) method.
-latentIndex(model1, plotf = TRUE, response = "Jurges",
-                 ylab = 'Health index', col='deepskyblue3')
+#plot the reported health status versus the health index.
+plot(hi, response = "data", ylab = 'Health index',
+     col='deepskyblue3', main = 'Reported health levels')
 
-# calculate the health index and plot the model-predicted health levels
-# versus the health index.
-latentIndex(model1, plotf = TRUE, response = "fitted",
-                 ylab = 'Health index', col='deepskyblue3')
-
+# plot the model-predicted health levels versus the health index.
+plot(hi, response = "fitted", ylab = 'Health index',
+     col='deepskyblue3', main = 'Model-predicted health levels')
 }
 \references{
 \insertRef{Jurges2007}{hopit}\cr\cr

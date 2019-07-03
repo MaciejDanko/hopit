@@ -4,11 +4,9 @@
 \alias{getLevels}
 \title{Summarize the adjusted and the original self-rated response levels}
 \usage{
-getLevels(model, formula = model$thresh.formula,
-  data = environment(model$thresh.formula), decreasing.levels = TRUE,
-  sort.flag = FALSE, plotf = TRUE, sep = "_", mar = c(7, 2, 1.5,
-  0.5), oma = c(0, 3, 0, 0), YLab = "Fraction [\%]", YLab.cex = 1.1,
-  legbg = grDevices::adjustcolor("white", alpha.f = 0.4), legbty = "o")
+getLevels(model, formula = model$thresh.formula, data = model$frame,
+  sep = "_", decreasing.levels = model$decreasing.levels,
+  sort.flag = FALSE)
 }
 \arguments{
 \item{model}{a fitted \code{hopit} model.}
@@ -17,21 +15,11 @@ getLevels(model, formula = model$thresh.formula,
 
 \item{data}{data used to fit the model.}
 
+\item{sep}{a separator for the level names.}
+
 \item{decreasing.levels}{a logical indicating whether self-reported health classes are ordered in increasing order.}
 
 \item{sort.flag}{a logical indicating whether to sort the levels.}
-
-\item{plotf}{a logical indicating whether to plot the results.}
-
-\item{sep}{a separator for the level names.}
-
-\item{mar, oma}{graphic parameters, see \code{\link{par}}.}
-
-\item{YLab, YLab.cex}{a label for the y-axis and it's size.}
-
-\item{legbg}{a legend background color. See \code{bg} parameter in \code{\link{legend}}.}
-
-\item{legbty}{a legend box type. See \code{bty} parameter in \code{\link{legend}}.}
 }
 \value{
 a list with the following components:
@@ -69,9 +57,8 @@ model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
 # Example 1 ---------------------
 
 # calculate a summary by country
-hl <- getLevels(model=model1, formula=~ country,
-                data = healthsurvey,
-                sep=' ', plotf=TRUE)
+hl <- getLevels(model=model1, formula=~ country, sep=' ')
+plot(hl, las=1, mar = c(3,2,1.5,0.5))
 
 # differences between frequencies of original and adjusted health levels
 round(100*(hl$original - hl$adjusted),2)
@@ -98,9 +85,8 @@ legend('top', c('Bad health','Good health'),
 # Example 2 ---------------------
 
 # summary by gender and age
-hl <- getLevels(model = model1, formula=~ sex + ageclass,
-                data = healthsurvey,
-                sep=' ', plotf=TRUE)
+hl <- getLevels(model = model1, formula=~ sex + ageclass, sep=' ')
+plot(hl)
 
 # differences between frequencies of original and adjusted health levels
 round(100*(hl$original - hl$adjusted),2)

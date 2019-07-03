@@ -4,15 +4,15 @@
 \alias{boot_hopit}
 \title{Bootstrapping hopit model}
 \usage{
-boot_hopit(model, data, func, nboot = 500, unlist = TRUE,
-  boot.only.latent = TRUE, robust.vcov = TRUE, ...)
+boot_hopit(model, func, data = model$frame, nboot = 500,
+  unlist = TRUE, boot.only.latent = TRUE, robust.vcov, ...)
 }
 \arguments{
 \item{model}{a fitted \code{hopit} model.}
 
-\item{data}{data used to fit the model.}
+\item{func}{a function to be bootstrapped of the form \code{func(model, ...)}.}
 
-\item{func}{a function to be bootstrapped of the form \code{func(model, data, ...)}.}
+\item{data}{data used to fit the model.}
 
 \item{nboot}{a number of bootstrap replicates.}
 
@@ -58,33 +58,30 @@ model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
 # bootstrapping cut-points
 
 # a function to be bootstrapped
-cutpoints <-  function(model, data) getCutPoints(model, plotf = FALSE)$cutpoints
-B <- boot_hopit(model = model1, data = healthsurvey,
-                func = cutpoints, nboot = 100)
+cutpoints <-  function(model) getCutPoints(model)$cutpoints
+B <- boot_hopit(model = model1, func = cutpoints, nboot = 100)
 
 # calculate lower and upper bounds using the percentile method
 cutpoints.CI <- percentile_CI(B)
 
 # print estimated cutpoints and their confidence intervals
-cutpoints(model1, healthsurvey)
+cutpoints(model1)
 cutpoints.CI
 
 # Example 2 ---------------------
 # bootstrapping differences in health levels
 
 # a function to be bootstrapped
-diff_BadHealth <- function(model, data) {
-  hl <- getLevels(model = model, formula=~ sex + ageclass, data = data,
-                  sep=' ', plotf=FALSE)
+diff_BadHealth <- function(model) {
+  hl <- getLevels(model = model, formula=~ sex + ageclass, sep=' ')
   hl$original[,1] + hl$original[,2] - hl$adjusted[,1]- hl$adjusted[,2]
 }
 
 # estimate the difference
-est.org <- diff_BadHealth(model = model1, data = healthsurvey)
+est.org <- diff_BadHealth(model = model1)
 
 # perform the bootstrap
-B <- boot_hopit(model = model1, data = healthsurvey,
-                func = diff_BadHealth, nboot = 100)
+B <- boot_hopit(model = model1, func = diff_BadHealth, nboot = 100)
 
 # calculate lower and upper bounds using the percentile method
 est.CI <- percentile_CI(B)
@@ -92,9 +89,12 @@ est.CI <- percentile_CI(B)
 # plot the difference and its (asymmetrical) confidence intervals
 pmar <- par('mar'); par(mar = c(9.5,pmar[2:4]))
 m <- max(abs(est.CI))
-pos <- barplot(est.org, names.arg = names(est.org), las = 3, ylab = 'Original - Adjusted',
-               ylim=c(-m, m), density = 20, angle = c(45, -45), col = c('blue', 'orange'))
-for (k in seq_along(pos)) lines(c(pos[k,1],pos[k,1]), est.CI[,k], lwd = 2, col = 2)
+pos <- barplot(est.org, names.arg = names(est.org), las = 3,
+               ylab = 'Original - Adjusted',
+               ylim=c(-m, m), density = 20, angle = c(45, -45),
+               col = c('blue', 'orange'))
+for (k in seq_along(pos)) lines(c(pos[k,1],pos[k,1]),
+                                est.CI[,k], lwd = 2, col = 2)
 abline(h = 0); box(); par(mar = pmar)
 }
 }

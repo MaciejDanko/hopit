@@ -4,13 +4,7 @@
 #' 0 refers to the worst predicted state (the maximal observed value for the latent measure) and 1 refers
 #' to the best predicted state (the minimal observed value for the latent measure).
 #' @param model a fitted \code{hopit} model.
-#' @param decreasing.levels a logical indicating whether self-reported (e.g., health) classes are ordered in decreasing order.
 #' @param subset an optional vector that specifies a subset of observations.
-#' @param plotf a logical indicating whether to plot the summary figure.
-#' @param response X-axis plotting option; choose \code{'data'} for the raw responses and \code{'fitted'} for the responses reclassified by the model.
-#' @param xlab a label of the x-axis.
-#' @param ylab a label of the y-axis.
-#' @param ... further parameters passed to the \code{\link{plot}} function.
 #' @return a vector with a latent index for each individual.
 #' @references
 #'  \insertRef{Jurges2007}{hopit}\cr\cr
@@ -31,52 +25,37 @@
 #'
 #' # fit a model
 #' model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
-#'                 heart_attack_or_stroke + poor_mobility + very_poor_grip +
-#'                 depression + respiratory_problems +
-#'                 IADL_problems + obese + diabetes + other_diseases,
-#'               thresh.formula = ~ sex + ageclass + country,
-#'               decreasing.levels = TRUE,
-#'               control = list(trace = FALSE),
-#'               data = healthsurvey)
+#'                   heart_attack_or_stroke + poor_mobility + very_poor_grip +
+#'                   depression + respiratory_problems +
+#'                   IADL_problems + obese + diabetes + other_diseases,
+#'                 thresh.formula = ~ sex + ageclass + country,
+#'                 decreasing.levels = TRUE,
+#'                 control = list(trace = FALSE),
+#'                 data = healthsurvey)
 #'
-#' # calculate the health index and plot the reported health status
-#' # versus the health index.
-#' hi <- latentIndex(model1, plotf = TRUE, response = "data",
-#'                   ylab = 'Health index', col='deepskyblue3')
+#' # calculate the health index
+#' hi <- latentIndex(model1)
+#'
+#' summary(hi)
 #'
 #' # plot a simple histogram of the function output
-#' hist(hi)
+#' hist(hi, col='deepskyblue3')
 #'
-#' # calculate the health index and plot the adjusted health status vs. the health index
-#' # using Jurges (Jurges 2007) method.
-#' latentIndex(model1, plotf = TRUE, response = "Jurges",
-#'                  ylab = 'Health index', col='deepskyblue3')
+#' #plot the reported health status versus the health index.
+#' plot(hi, response = "data", ylab = 'Health index',
+#'      col='deepskyblue3', main = 'Reported health levels')
 #'
-#' # calculate the health index and plot the model-predicted health levels
-#' # versus the health index.
-#' latentIndex(model1, plotf = TRUE, response = "fitted",
-#'                  ylab = 'Health index', col='deepskyblue3')
-#'
-latentIndex <- function(model, decreasing.levels = TRUE,
-                        subset = NULL, plotf = FALSE,
-                        response = c('data','fitted','Jurges'),
-                        xlab = '', ylab = 'Latent index', ...) {
+#' # plot the model-predicted health levels versus the health index.
+#' plot(hi, response = "fitted", ylab = 'Health index',
+#'      col='deepskyblue3', main = 'Model-predicted health levels')
+latentIndex <- function(model, subset = NULL) {
   if (length(subset) == 0) subset=seq_len(model$N)
   r <- range(model$y_latent_i[subset])
   hi <- (1 - ((model$y_latent_i - r[1]) / diff(r)))[subset]
-  if (plotf) {
-    response <- tolower(match.arg(response))
-    if (response=='data') YY <- model$y_i else
-      if (response=='fitted') YY <- model$Ey_i else
-        if (response=='jurges') {
-          z <- getCutPoints(model=model,
-                            decreasing.levels = decreasing.levels,
-                            plotf = FALSE)
-          YY <- factor(z$adjusted.levels,levels(model$y_i))
-        } else stop(hopit_msg(83),call.=NULL)
-    graphics::plot(YY[subset], hi,las=3, ylab=ylab, xlab=xlab,...)
-  }
-  if (plotf) invisible(hi) else return(hi)
+  mi <- data.frame(y_i=model$y_i[subset], Ey_i=model$Ey_i[subset])
+  attr(hi,'model.info')<-mi
+  class(hi) <- c('hopitHI','vector')
+  hi
 }
 
 
@@ -96,14 +75,9 @@ healthIndex <- latentIndex
 #'  the latent index by some given amount or percentage (i.e., the latent index of every individual is reduced by the same amount if the person had a heart attack or other
 #'  heart problems)\insertCite{Jurges2007}{hopit}.
 #' @param model a fitted \code{hopit} model.
-#' @param ordered a logical indicating whether to sort the disability weights.
-#' @param plotf a logical indicating whether to plot the results.
-#' @param plotpval a logical indicating whether to plot the p-values.
-#' @param mar,oma graphic parameters, see \code{\link{par}}.
-#' @param YLab,YLab.cex a label of the y-axis and it's size.
 #' @param namesf a vector of the names of coefficients or one argument function that modifies the names of coefficients.
-#' @param ... arguments passed to \code{\link{boxplot}}.
 #' @name standardizeCoef
+#' @importFrom stats symnum
 #' @return a vector with standardized coefficients.
 #' @references
 #'  \insertRef{Jurges2007}{hopit}\cr\cr
@@ -136,48 +110,34 @@ healthIndex <- latentIndex
 #' txtfun <- function(x) gsub('_',' ',substr(x,1,nchar(x)-3))
 #'
 #' # calculate and plot the disability weights
-#' sc <- standardizeCoef(model1, plotf = TRUE, namesf = txtfun)
+#' sc <- standardizeCoef(model1, namesf = txtfun)
 #' sc
+#'
+#' summary(sc)
+#'
+#' plot(sc)
 standardizeCoef <- function (model,
-                             ordered = TRUE,
-                             plotf = FALSE,
-                             plotpval = FALSE,
-                             mar = c(15, 4, 1, 1), oma = c(0, 0, 0, 0),
-                             YLab = "Disability weight",
-                             YLab.cex = 1.1,
-                             namesf = identity, ...) {
+                             namesf = identity) {
 
-  z <- (model$coef)[seq_len(model$parcount[1])]
-  if (class(namesf)=='function') names(z) <- namesf(names(z)) else
-    names(z) <- namesf
-
-  if (ordered) {
-    oz <- order(z, decreasing = TRUE)
-    cfm <- z[oz]
-  } else cfm <- z
-  r <- range(model$y_latent_i)
-  res <- as.matrix((cfm)/diff(r))
-
-  if (plotf) {
-    opar <- graphics::par(c("mar", "oma"))
-    graphics::par(mar = mar, oma = oma)
-    rr <- graphics::barplot(t(res), las = 3, ...)
-    if(plotpval) {
-      y <- summary(model)
-      pval <- format(round(y$coef$`Pr(>|z|)`[seq_len(model$parcount[1])],4),
-                     digits=4,scientific=FALSE)[oz]
-      yr <- res/2
-      ind <- yr < max(res)*0.1
-      yr[ind] <- (res+max(res)*0.1)[ind]
-      graphics::text(rr,yr,paste('P =',pval),srt=90,
-                     col=c('white','black')[1+ind])
-    }
-    graphics::mtext(YLab, 2, cex = YLab.cex, line = 2.5)
-    suppressWarnings(graphics::par(opar))
+  cfm <- suppressMessages(summary(model)$coef[seq_len(model$parcount[1]),])
+  oldnames<-rownames(cfm)
+  if (class(namesf)=='function') newnames <- namesf(oldnames) else {
+    newnames <- namesf
   }
-  if (plotf)
-    invisible(res)
-  else return(res)
+
+  r <- range(model$y_latent_i)
+  res <- as.matrix((cfm[,1])/diff(r))
+  sigstar <- stats::symnum(cfm$`Pr(>|z|)`, corr = FALSE, na = FALSE,
+                   cutpoints = c(0, 0.001, 0.01, 0.05, 0.1, 1),
+                   symbols = c("***", "**", "*", ".", " "))
+  res2<- data.frame('old.names'=oldnames, 'Pr(>|z|)'=cfm$`Pr(>|z|)`,' '=sigstar,check.names = FALSE, fix.empty.names = FALSE,
+                   stringsAsFactors = FALSE)
+  rownames(res) <- rownames(res2) <- newnames
+  colnames(res) <- 'Std. coef'
+  class(res)<-c('hopitDW')
+  attr(res, 'Ptab')<- res2
+  attr(res, 'legend')<-attr(sigstar, 'legend')
+  return(res)
 }
 
 
@@ -195,14 +155,8 @@ disabilityWeights<-standardizeCoef
 #' @description
 #' Calculate the threshold cut-points and individual adjusted responses using Jurges' method
 #' @param model a fitted \code{hopit} model.
-#' @param decreasing.levels a logical indicating whether self-reported health classes are ordered in decreasing order.
+#' @param decreasing.levels a logical indicating whether self-reported health classes are ordered in increasing order.
 #' @param subset an optional vector specifying a subset of observations.
-#' @param plotf a logical indicating whether to plot the results.
-#' @param XLab,XLab.cex a label of the x axis and it's size.
-#' @param YLab,YLab.cex a label of the y axis and it's size.
-#' @param border.lwd,border.lty,border.col graphic parameters for vertical lines used to plot cut-points.
-#' @param mar,oma graphic parameters, see \code{\link{par}}.
-#' @param group.labels.type a position of the legend. One of \code{middle}, \code{border}, or \code{none}.
 #' @return a list with the following components:
 #'  \item{cutpoints}{ cut-points for the adjusted categorical response levels with the corresponding percentiles of the latent index.}
 #'  \item{adjusted.levels}{ adjusted categorical response levels for each individual.}
@@ -237,7 +191,9 @@ disabilityWeights<-standardizeCoef
 #' z <- getCutPoints(model = model1)
 #' z$cutpoints
 #'
-#' # tabulate the adjusted health levels for individuals: Jurges method
+#' plot(z)
+#'
+#' # tabulate the adjusted health levels for individuals (Jurges method):
 #' rev(table(z$adjusted.levels))
 #'
 #' # tabulate the original health levels for individuals
@@ -246,60 +202,19 @@ disabilityWeights<-standardizeCoef
 #' # tabulate the predicted health levels
 #' table(model1$Ey_i)
 getCutPoints <- function(model,
-                         decreasing.levels=TRUE,
-                         subset=NULL,
-                         plotf = TRUE,
-                         mar=c(4,4,1,1),
-                         oma=c(0,0,0,0),
-                         XLab='Health index',
-                         XLab.cex=1.1,
-                         YLab='Counts',
-                         YLab.cex=1.1,
-                         border.col=2,
-                         border.lty=2,
-                         border.lwd=1.5,
-                         group.labels.type=c('middle','border','none')){
+                         decreasing.levels=model$decreasing.levels,
+                         subset=NULL){
+
   if (length(subset) == 0) subset=seq_along(model$y_i)
   Y <- model$y_i[subset]
-  if (decreasing.levels) dorev <- rev else dorev <- identity
-  h.index <- healthIndex(model, subset, plotf = FALSE)
+  if (!length(decreasing.levels)) decreasing.levels=model$decreasing.levels
+  if (decreasing.levels) dorev <- rev.default else dorev <- identity
+  h.index <- healthIndex(model, subset)
   tY <- table(Y)
   tmp <- dorev(as.vector(tY))
   invcs <- (cumsum(tmp)/sum(tmp))[-length(tmp)]
   R1 <- stats::quantile(h.index, invcs)
 
-  lv <- dorev(as.character(levels(model$y_i)))
-  Nm <- paste(lv[-length(lv)],lv[-1],sep=' | ')
-  Nm <- sapply(Nm, function(k) bquote(bold(.(k))))
-  if (plotf) {
-    group.labels.type<-tolower(group.labels.type[1])
-    if (group.labels.type %notin%  c('middle','border','none'))
-      stop(hopit_msg(84),call.=NULL)
-    opar <- graphics::par(c('mar','oma'))
-    graphics::par(mar=mar, oma=oma)
-    z<-graphics::hist(h.index, 100,xlab='',ylab='' ,
-            main='', yaxs='i', col=grDevices::grey(0.4, alpha = 0.5),
-            border=grDevices::grey(0.4, alpha = 0.5))
-    if (group.labels.type == 'border') {
-      for (j in seq_along(Nm)) graphics::text(x=R1[j],y=(1.1*max(z$counts))/2,
-                                              labels=Nm[[j]],
-                                    srt=90,pos=2,offset=0.67,col=2)
-    } else if (group.labels.type == 'middle'){
-      R11=-diff(c(0,R1,1))/2+c(R1,1)+graphics::strheight('S',units='figure')/2
-      for (j in seq_along(lv)) graphics::text(x=R11[j],
-                                              y=(3*1.1*max(z$counts))/4,
-                                              labels=lv[j],
-                                              srt=90,
-                                              pos=3,
-                                              offset=0.67,
-                                              col=2)
-    }
-    graphics::box()
-    graphics::abline(v=R1,lwd=border.lwd,col=border.col,lty=border.lty)
-    graphics::mtext(XLab, 1, cex=XLab.cex, line = 2.5)
-    graphics::mtext(YLab, 2, cex=YLab.cex, line = 2.5)
-    suppressWarnings(graphics::par(opar))
-  }
   if (length(h.index)){
     CIN <- c(0,R1,1)
     if (anyNA(CIN)){
@@ -314,8 +229,11 @@ getCutPoints <- function(model,
     adjusted.levels<- cut(h.index, CIN,labels= dorev(levels(Y)),
                          include.lowest = TRUE)
   } else adjusted.levels <- NA
-  res <- list(cutpoints=R1, adjusted.levels=(adjusted.levels))
-  if (plotf) invisible(res) else return(res)
+  res <- list(decreasing.levels=decreasing.levels, cutpoints=R1,
+              adjusted.levels=adjusted.levels, h.index=h.index)
+  attr(res, 'y_i') <- model$y_i
+  class(res) <- c('hopitCP','list')
+  res
 }
 
 
@@ -325,14 +243,9 @@ getCutPoints <- function(model,
 #' @param model a fitted \code{hopit} model.
 #' @param formula a formula containing the grouping variables. It is by default set to threshold formula.
 #' @param data data used to fit the model.
-#' @param plotf a logical indicating whether to plot the results.
 #' @param sep a separator for the level names.
 #' @param decreasing.levels a logical indicating whether self-reported health classes are ordered in increasing order.
 #' @param sort.flag a logical indicating whether to sort the levels.
-#' @param mar,oma graphic parameters, see \code{\link{par}}.
-#' @param YLab,YLab.cex a label for the y-axis and it's size.
-#' @param legbg a legend background color. See \code{bg} parameter in \code{\link{legend}}.
-#' @param legbty a legend box type. See \code{bty} parameter in \code{\link{legend}}.
 #' @return a list with the following components:
 #'  \item{original}{ frequencies of original response levels for selected groups/categories.}
 #'  \item{adjusted}{ frequencies of adjusted response levels (Jurges 2007 method) for selected groups/categories.}
@@ -370,9 +283,8 @@ getCutPoints <- function(model,
 #' # Example 1 ---------------------
 #'
 #' # calculate a summary by country
-#' hl <- getLevels(model=model1, formula=~ country,
-#'                 data = healthsurvey,
-#'                 sep=' ', plotf=TRUE)
+#' hl <- getLevels(model=model1, formula=~ country, sep=' ')
+#' plot(hl, las=1, mar = c(3,2,1.5,0.5))
 #'
 #' # differences between frequencies of original and adjusted health levels
 #' round(100*(hl$original - hl$adjusted),2)
@@ -399,9 +311,8 @@ getCutPoints <- function(model,
 #' # Example 2 ---------------------
 #'
 #' # summary by gender and age
-#' hl <- getLevels(model = model1, formula=~ sex + ageclass,
-#'                 data = healthsurvey,
-#'                 sep=' ', plotf=TRUE)
+#' hl <- getLevels(model = model1, formula=~ sex + ageclass, sep=' ')
+#' plot(hl)
 #'
 #' # differences between frequencies of original and adjusted health levels
 #' round(100*(hl$original - hl$adjusted),2)
@@ -426,15 +337,10 @@ getCutPoints <- function(model,
 #' # more examples can be found in the description of the boot_hopit() function.
 getLevels<-function(model,
                     formula=model$thresh.formula,
-                    data = environment(model$thresh.formula),
-                    decreasing.levels = TRUE,
-                    sort.flag = FALSE,
-                    plotf = TRUE, sep='_',
-                    mar = c(7,2,1.5,0.5), oma = c(0,3,0,0),
-                    YLab = 'Fraction [%]',
-                    YLab.cex = 1.1,
-                    legbg = grDevices::adjustcolor('white',alpha.f=0.4),
-                    legbty = 'o'){
+                    data = model$frame,
+                    sep = '_',
+                    decreasing.levels = model$decreasing.levels,
+                    sort.flag = FALSE){
 
   data <- model$na.action(data)
   if (model$control$transform.latent != 'none')
@@ -452,8 +358,7 @@ getLevels<-function(model,
   namind <- inte_$class.mat
   nam <- levels(inte)
 
-  cpall <- getCutPoints(model, plotf = FALSE,
-                        decreasing.levels = decreasing.levels)
+  cpall <- getCutPoints(model, decreasing.levels = decreasing.levels)
   TAB1 <- round(table(original = model$y_i,
                       adjusted = cpall$adjusted.levels)*100/length(model$y_i),2)
   tmp <- untable(t(table(factor(model$y_i,
@@ -475,28 +380,15 @@ getLevels<-function(model,
     adjustedind <- namind[oD2,]
   } else adjustedind <- namind
 
-  if (plotf) {
-    opar <- graphics::par(c('mar','oma','mfrow'))
-    graphics::par(mfrow=c(1,2))
-    graphics::par(mar=mar,oma=oma)
-    graphics::barplot(t(tmp),las=3,main='Original')
-    graphics::barplot(t(tmp2),las=3,main='Adjusted', legend.text=TRUE,
-            args.legend = list(x='center', box.col=NA,
-                               bg=legbg, bty=legbty))
-    graphics::par(mfrow=c(1,1))
-    graphics::par(mar=mar,oma=rep(0,4))
-    graphics::mtext(YLab,2,cex=YLab.cex)
-    suppressWarnings(graphics::par(opar))
-  }
   res <- list(original= tmp,
               adjusted= tmp2,
               tab= TAB1,
               N.original= N1,
               N.adjusted= N2,
               categories = orignalind, # = adjustedind
-              mat=cbind(inte_$mat,
+              mat=as.data.frame(cbind(group=inte_$mat,
                         original= model$y_i,
-                        adjusted= cpall$adjusted.levels))
-  class(res) <- 'healthlevels'
-  if (plotf) invisible(res) else return(res)
+                        adjusted= cpall$adjusted.levels)))
+  class(res) <- c('hopitLV','list')
+  res
 }

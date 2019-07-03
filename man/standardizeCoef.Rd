@@ -6,34 +6,16 @@
 \alias{disabilityWeights}
 \title{Standardization of the coefficients}
 \usage{
-standardizeCoef(model, ordered = TRUE, plotf = FALSE,
-  plotpval = FALSE, mar = c(15, 4, 1, 1), oma = c(0, 0, 0, 0),
-  YLab = "Disability weight", YLab.cex = 1.1, namesf = identity, ...)
+standardizeCoef(model, namesf = identity)
 
-standardiseCoef(model, ordered = TRUE, plotf = FALSE,
-  plotpval = FALSE, mar = c(15, 4, 1, 1), oma = c(0, 0, 0, 0),
-  YLab = "Disability weight", YLab.cex = 1.1, namesf = identity, ...)
+standardiseCoef(model, namesf = identity)
 
-disabilityWeights(model, ordered = TRUE, plotf = FALSE,
-  plotpval = FALSE, mar = c(15, 4, 1, 1), oma = c(0, 0, 0, 0),
-  YLab = "Disability weight", YLab.cex = 1.1, namesf = identity, ...)
+disabilityWeights(model, namesf = identity)
 }
 \arguments{
 \item{model}{a fitted \code{hopit} model.}
 
-\item{ordered}{a logical indicating whether to sort the disability weights.}
-
-\item{plotf}{a logical indicating whether to plot the results.}
-
-\item{plotpval}{a logical indicating whether to plot the p-values.}
-
-\item{mar, oma}{graphic parameters, see \code{\link{par}}.}
-
-\item{YLab, YLab.cex}{a label of the y-axis and it's size.}
-
 \item{namesf}{a vector of the names of coefficients or one argument function that modifies the names of coefficients.}
-
-\item{...}{arguments passed to \code{\link{boxplot}}.}
 }
 \value{
 a vector with standardized coefficients.
@@ -73,8 +55,12 @@ model1 <- hopit(latent.formula = health ~ hypertension + high_cholesterol +
 txtfun <- function(x) gsub('_',' ',substr(x,1,nchar(x)-3))
 
 # calculate and plot the disability weights
-sc <- standardizeCoef(model1, plotf = TRUE, namesf = txtfun)
+sc <- standardizeCoef(model1, namesf = txtfun)
 sc
+
+summary(sc)
+
+plot(sc)
 }
 \references{
 \insertRef{Jurges2007}{hopit}\cr\cr

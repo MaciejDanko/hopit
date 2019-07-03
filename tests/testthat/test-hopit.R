@@ -50,12 +50,11 @@ test_hopit <- function (object, data) {
   }
   cat('levels ')
   hl <- getLevels(model=object, formula=~ sex + ageclass, data = healthsurvey,
-                  sep=' ', plotf=FALSE)
+                  sep=' ')
   expect_equal(dim(hl$original), dim(hl$adjusted))
   expect_equal(length(hl), 7)
   cat('cut-points ')
-  cp <- getCutPoints(object, plotf = FALSE)
-  expect_equal(length(cp),2)
+  cp <- getCutPoints(object)
   expect_equal(length(cp$cutpoints), object$J-1)
   expect_equal(length(cp$adjusted.levels), N)
   # print(which(is.na(cp$adjusted.levels)))
@@ -534,7 +533,7 @@ test_that("Hopit works2",{
   test_hopit(object=mH, data = newhealthsurvey)
   test_hopit(object=mE, data = newhealthsurvey)
   test_hopit(object=m8, data = newhealthsurvey)
-  expect_warning(test_hopit(object=mI, data = newhealthsurvey))
+  test_hopit(object=mI, data = newhealthsurvey)
 
   # Anova -------------------------
   print('test anova')

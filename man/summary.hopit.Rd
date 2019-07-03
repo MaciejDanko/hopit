@@ -4,7 +4,7 @@
 \alias{summary.hopit}
 \title{Calculate the model summary}
 \usage{
-\method{summary}{hopit}(object, robust.se = TRUE, ...)
+\method{summary}{hopit}(object, robust.se, ...)
 }
 \arguments{
 \item{object}{a \code{hopit} object.}

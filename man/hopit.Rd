@@ -48,6 +48,7 @@ a \code{hopit} object used by other functions and methods. The object is a list 
 \item{hasdisp}{ a logical indicating whether fit.sigma was modeled.}
 \item{use.weights}{ a logical indicating whether any weights were used.}
 \item{weights}{ a vector with model weights.}
+\item{frame}{ a model frame.}
 \item{latent.formula}{ a latent formula used to fit the model.}
 \item{latent.mm}{ a latent model matrix.}
 \item{latent.terms}{ latent variables used, and their interactions.}

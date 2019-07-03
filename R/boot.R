@@ -45,7 +45,7 @@ update.latent <- function(model, newregcoef, data){
 #' The drawn coefficients are then used to calculate the measure of interest using a function delivered by the \code{func} parameter.
 #' @param model a fitted \code{hopit} model.
 #' @param data data used to fit the model.
-#' @param func a function to be bootstrapped of the form \code{func(model, data, ...)}.
+#' @param func a function to be bootstrapped of the form \code{func(model, ...)}.
 #' @param nboot a number of bootstrap replicates.
 #' @param unlist a logical indicating whether to unlist the boot object.
 #' @param boot.only.latent a logical indicating whether to perform the bootstrap on latent variables only.
@@ -80,33 +80,30 @@ update.latent <- function(model, newregcoef, data){
 #' # bootstrapping cut-points
 #'
 #' # a function to be bootstrapped
-#' cutpoints <-  function(model, data) getCutPoints(model, plotf = FALSE)$cutpoints
-#' B <- boot_hopit(model = model1, data = healthsurvey,
-#'                 func = cutpoints, nboot = 100)
+#' cutpoints <-  function(model) getCutPoints(model)$cutpoints
+#' B <- boot_hopit(model = model1, func = cutpoints, nboot = 100)
 #'
 #' # calculate lower and upper bounds using the percentile method
 #' cutpoints.CI <- percentile_CI(B)
 #'
 #' # print estimated cutpoints and their confidence intervals
-#' cutpoints(model1, healthsurvey)
+#' cutpoints(model1)
 #' cutpoints.CI
 #'
 #' # Example 2 ---------------------
 #' # bootstrapping differences in health levels
 #'
 #' # a function to be bootstrapped
-#' diff_BadHealth <- function(model, data) {
-#'   hl <- getLevels(model = model, formula=~ sex + ageclass, data = data,
-#'                   sep=' ', plotf=FALSE)
+#' diff_BadHealth <- function(model) {
+#'   hl <- getLevels(model = model, formula=~ sex + ageclass, sep=' ')
 #'   hl$original[,1] + hl$original[,2] - hl$adjusted[,1]- hl$adjusted[,2]
 #' }
 #'
 #' # estimate the difference
-#' est.org <- diff_BadHealth(model = model1, data = healthsurvey)
+#' est.org <- diff_BadHealth(model = model1)
 #'
 #' # perform the bootstrap
-#' B <- boot_hopit(model = model1, data = healthsurvey,
-#'                 func = diff_BadHealth, nboot = 100)
+#' B <- boot_hopit(model = model1, func = diff_BadHealth, nboot = 100)
 #'
 #' # calculate lower and upper bounds using the percentile method
 #' est.CI <- percentile_CI(B)
@@ -114,13 +111,19 @@ update.latent <- function(model, newregcoef, data){
 #' # plot the difference and its (asymmetrical) confidence intervals
 #' pmar <- par('mar'); par(mar = c(9.5,pmar[2:4]))
 #' m <- max(abs(est.CI))
-#' pos <- barplot(est.org, names.arg = names(est.org), las = 3, ylab = 'Original - Adjusted',
-#'                ylim=c(-m, m), density = 20, angle = c(45, -45), col = c('blue', 'orange'))
-#' for (k in seq_along(pos)) lines(c(pos[k,1],pos[k,1]), est.CI[,k], lwd = 2, col = 2)
+#' pos <- barplot(est.org, names.arg = names(est.org), las = 3,
+#'                ylab = 'Original - Adjusted',
+#'                ylim=c(-m, m), density = 20, angle = c(45, -45),
+#'                col = c('blue', 'orange'))
+#' for (k in seq_along(pos)) lines(c(pos[k,1],pos[k,1]),
+#'                                 est.CI[,k], lwd = 2, col = 2)
 #' abline(h = 0); box(); par(mar = pmar)
 #' }
-boot_hopit<-function(model, data, func, nboot = 500, unlist = TRUE,
-                     boot.only.latent = TRUE, robust.vcov = TRUE, ...){
+boot_hopit<-function(model, func, data=model$frame, nboot = 500, unlist = TRUE,
+                     boot.only.latent = TRUE, robust.vcov, ...){
+  if (missing(robust.vcov)) {
+    if (length(model$design)) robust.vcov <- FALSE else robust.vcov <- TRUE
+  }
   data <- model$na.action(data)
   if (model$control$transform.latent != 'none')
     data <- transform.data(model$latent.formula, data,
@@ -135,7 +138,7 @@ boot_hopit<-function(model, data, func, nboot = 500, unlist = TRUE,
   bootsample <- MASS::mvrnorm(nboot, mu = model$coef[N], Sigma = VCOV[N,N])
   boots <- lapply(seq_len(nboot), function(k)
     func(model = update.latent(model,
-                 bootsample[k,N],data = data), data = data, ...))
+                 bootsample[k,N],data = data), ...))
   if (unlist) {
     boots <- sapply(boots,'[')
     class(boots) <- 'hopit.boot'

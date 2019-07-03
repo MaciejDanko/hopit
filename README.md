@@ -70,7 +70,7 @@ You can track (and contribute to) the development of `hopit` at
     devtools::install_github("MaciejDanko/hopit")
     ```
 
-### Introduction
+### Introduction and packacke manual
 
 Get started with `hopit` by checking the
 [vignette](https://github.com/MaciejDanko/hopit/blob/master/vignettes/vig_hopit.pdf)
@@ -240,43 +240,41 @@ the `standardizeCoef` function.
 
 ``` r
 txtfun <- function(x) gsub('_',' ',substr(x, 1, nchar(x)-3))
-sc <- standardizeCoef(model1, plotf = TRUE, namesf = txtfun, 
-                      mar = c(10, 4, 1, 1))
+sc <- standardizeCoef(model1, namesf = txtfun)
+plot(sc)
 ```
 
 <img src="man/figures/README-fig1-1.png" width="65%" style="display: block; margin: auto;" />
 
 **Figure 1.** Disability weights.
 
-The `plotf = TRUE` enables plotting (Fig. 1), while the `namesf`
-argument is a function or a character vector that is used to rename the
-coefficients. The exact values of disability weights are stored in `sc`:
+The `namesf` argument is a function or a character vector that is used
+to rename the coefficients. The exact values of disability weights are
+stored in `sc`:
 
 ``` r
-round(sc,4)
-##                           [,1]
-##  poor mobility          0.2028
-##  IADL problems          0.1715
-##  very poor grip         0.1385
-##  respiratory problems   0.1024
-##  heart attack or stroke 0.0958
-##  diabetes               0.0939
+print(sc, show.coef.names=FALSE)
+##                         Std. coef
+##  hypertension           0.0536   
+##  high cholesterol       0.0272   
+##  heart attack or stroke 0.0958   
+##  poor mobility          0.2028   
+##  very poor grip         0.1385   
+##  depression             0.0705   
+##  respiratory problems   0.1024   
+##  IADL problems          0.1715   
+##  obese                  0.0529   
+##  diabetes               0.0939   
 ##  other diseases         0.0934
-##  depression             0.0705
-##  hypertension           0.0536
-##  obese                  0.0529
-##  high cholesterol       0.0272
 ```
 
 The standardized health status for each individual is called the health
 index (or the latent index). It is simply calculated using the
-`latentindex` function, which also has a plotting option (`plotf =
-TRUE`).
+`latentIndex` function.
 
 ``` r
-pmar <- par('mar'); par(mar = c(5.5, 4, 0.5, 0.5))
-hi <- latentIndex(model1, plotf = TRUE, response = "data", xlab='',
-                  ylab = 'Health index', col='deepskyblue3'); par(mar = pmar)
+hi <- latentIndex(model1)
+plot(hi)
 ```
 
 <img src="man/figures/README-fig2-1.png" width="65%" style="display: block; margin: auto;" />
@@ -285,12 +283,12 @@ hi <- latentIndex(model1, plotf = TRUE, response = "data", xlab='',
 
 The main aim of the reporting heterogeneity analyses is to determine the
 cut-points used to calculate the adjusted health status for each
-individual. The calculation and the plotting of cut-points are realized
-using the `getCutPoints`
-function.
+individual. The calculation of cut-points is realized using the
+`getCutPoints` function.
 
 ``` r
-z <- getCutPoints(model = model1, decreasing.levels = TRUE)
+z <- getCutPoints(model1)
+plot(z)
 ```
 
 <img src="man/figures/README-fig3-1.png" width="65%" style="display: block; margin: auto;" />
@@ -316,12 +314,11 @@ rev(table(z$adjusted.levels))
 ```
 
 The analysis of health level frequencies is performed using the
-`getLevels`
-function:
+`getLevels` function:
 
 ``` r
-hl <- getLevels(model = model1, formula = ~ sex + ageclass, data = healthsurvey, 
-                      sep = ' ', plotf = TRUE)
+hl <- getLevels(model = model1, formula = ~ sex + ageclass, sep = ' ')
+plot(hl)
 ```
 
 <img src="man/figures/README-fig4-1.png" width="73%" style="display: block; margin: auto;" />
@@ -367,9 +364,8 @@ First, a function to be bootstrapped is defined, which is then used to
 calculate the mentioned difference:
 
 ``` r
-diff_BadHealth <- function(model, data) {
-  hl <- getLevels(model = model, formula = ~ sex + ageclass, data = data, 
-                  sep = ' ', plotf = FALSE)
+diff_BadHealth <- function(model) {
+  hl <- getLevels(model = model, formula = ~ sex + ageclass, sep = ' ')
   hl$original[,1] + hl$original[,2] - hl$adjusted[,1]- hl$adjusted[,2]
 }
 ```
@@ -378,8 +374,7 @@ The function is used in the `boot_hopit` function, which also needs to
 specify a fitted model and the data used to fit `model1`
 
 ``` r
-B <- boot_hopit(model = model1, data = healthsurvey, 
-                func = diff_BadHealth, nboot = 100)
+B <- boot_hopit(model = model1, func = diff_BadHealth, nboot = 100)
 ```
 
 The confidence intervals are calculated using the `percentile_CI`
@@ -392,7 +387,7 @@ The same function is used to calculate the difference based on the
 estimates of the model.
 
 ``` r
-est.org <- diff_BadHealth(model = model1, data = healthsurvey)
+est.org <- diff_BadHealth(model = model1)
 ```
 
 The code below plots the differences and the bootstrapped confidence
@@ -425,7 +420,8 @@ that were performed using real SHARE data.
 
 This software is an academic project. Any issues and pull requests are
 welcome. \* If `hopit` is malfunctioning, please report the case by
-submitting an issue on GitHub.
+submitting an issue on GitHub. Please see CONTRIBUTING.md for further
+details.
 
 ### Acknowledgements
 
