@@ -475,8 +475,8 @@ hopit.control<-function(grad.eps = 3e-5,
 #' i.e., the main latent effects must be specified in the latent formula, and the main threshold effect must be speciffied in the threshold formula.
 #' See also \code{Example 3} below.\cr
 #'
-#' For more details, please see the package vignette: "introduction_to_hopit", which is also available under this link:
-#' \href{https://github.com/MaciejDanko/hopit/blob/master/vignettes/introduction_to_hopit.pdf}{introduction_to_hopit.pdf}
+#' For more details, please see the package vignette, which is also available under this link:
+#' \href{https://github.com/MaciejDanko/hopit/blob/master/vignettes/vig_hopit.pdf}{vig_hopit.pdf}
 #'
 #' @param latent.formula a formula used to model the latent variable. It should not contain any threshold variable.
 #' To specify the interactions between the latent and the threshold variables, see details.

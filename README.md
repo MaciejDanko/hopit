@@ -21,11 +21,12 @@ functions for analyzing different self-reported ordinal variables, and
 for helping to estimate their biases. Specifically, the package provides
 the function to fit a generalized ordered probit model that regresses
 original self-reported status measures on two sets of independent
-variables (King et al. 2004; Jurges 2007; Oksuzyan et al. 2019).
-included in the regression are individual statuses and characteristics
-that are directly related to the self-reported variable. In the case of
-self-reported health, these could be chronic conditions, mobility level,
-difficulties with daily activities, performance on grip strength tests,
+variables (King et al. 2004; Jurges 2007; Oksuzyan et al. 2019). The
+first set of variables (e.g., health variables) included in the
+regression are individual statuses and characteristics that are directly
+related to the self-reported variable. In the case of self-reported
+health, these could be chronic conditions, mobility level, difficulties
+with daily activities, performance on grip strength tests,
 anthropometric measures, and lifestyle behaviors. The second set of
 independent variables (threshold variables) is used to model cut-points
 between adjacent self-reported response categories as functions of
