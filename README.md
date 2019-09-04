@@ -5,8 +5,8 @@ Status](https://travis-ci.org/MaciejDanko/hopit.svg?branch=master)](https://trav
 [![AppVeyor Build
 Status](https://ci.appveyor.com/api/projects/status/github/MaciejDanko/hopit?branch=master&svg=true)](https://ci.appveyor.com/project/MaciejDanko/hopit)
 [![status](http://joss.theoj.org/papers/73b926670df79a6cfa48cffa7d4775a6/status.svg)](http://joss.theoj.org/papers/73b926670df79a6cfa48cffa7d4775a6)
-[![CRAN\_Download\_Badge1](https://cranlogs.r-pkg.org/badges/grand-total/hopit)](https://CRAN.R-project.org/package=hopit)
-[![CRAN\_Download\_Badge2](https://cranlogs.r-pkg.org/badges/hopit)](https://CRAN.R-project.org/package=hopit)
+[![CRAN\_Download\_Badge1](https://cranlogs.r-pkg.org/badges/grand-total/hopit)](https://r-pkg.org/pkg/hopit)
+[![CRAN\_Download\_Badge2](https://cranlogs.r-pkg.org/badges/hopit)](https://r-pkg.org/pkg/hopit)
 [![license](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://github.com/MaciejDanko/hopit/blob/master/LICENSE)
 
 # R-package *hopit*: Hierarchical ordered probit models with application to reporting heterogeneity.
