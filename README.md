@@ -1,9 +1,12 @@
 
-[![Travis-CI Build Status](https://travis-ci.org/MaciejDanko/hopit.svg?branch=master)](https://travis-ci.org/MaciejDanko/hopit)
-[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/MaciejDanko/hopit?branch=master&svg=true)](https://ci.appveyor.com/project/MaciejDanko/hopit)
+[![CRAN\_Version](https://www.r-pkg.org/badges/version/hopit)](https://cran.r-project.org/package=hopit)
+[![Travis-CI Build
+Status](https://travis-ci.org/MaciejDanko/hopit.svg?branch=master)](https://travis-ci.org/MaciejDanko/hopit)
+[![AppVeyor Build
+Status](https://ci.appveyor.com/api/projects/status/github/MaciejDanko/hopit?branch=master&svg=true)](https://ci.appveyor.com/project/MaciejDanko/hopit)
 [![status](http://joss.theoj.org/papers/73b926670df79a6cfa48cffa7d4775a6/status.svg)](http://joss.theoj.org/papers/73b926670df79a6cfa48cffa7d4775a6)
-[![CRAN Badge1](https://cranlogs.r-pkg.org/badges/grand-total/hopit)](https://CRAN.R-project.org/package=hopit)
-[![CRAN Badge2](https://cranlogs.r-pkg.org/badges/hopit)](https://CRAN.R-project.org/package=hopit)
+[![CRAN\_Download\_Badge1](https://cranlogs.r-pkg.org/badges/grand-total/hopit)](https://CRAN.R-project.org/package=hopit)
+[![CRAN\_Download\_Badge2](https://cranlogs.r-pkg.org/badges/hopit)](https://CRAN.R-project.org/package=hopit)
 [![license](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://github.com/MaciejDanko/hopit/blob/master/LICENSE)
 
 # R-package *hopit*: Hierarchical ordered probit models with application to reporting heterogeneity.
@@ -14,12 +17,12 @@ sources. For example, the evaluation of an individual’s own health may
 depend on previous medical diagnoses, functional status, and symptoms
 and signs of illness; as on well as life-style behaviors, including
 contextual social, gender, age-specific, linguistic and other cultural
-factors (Oksuzyan et al. 2019). The **hopit** package offers versatile
+factors (Oksuzyan et al. 2019). The **hopit** package offers versatile
 functions for analyzing different self-reported ordinal variables, and
 for helping to estimate their biases. Specifically, the package provides
 the function to fit a generalized ordered probit model that regresses
 original self-reported status measures on two sets of independent
-variables (King et al. 2004; Jurges 2007; Oksuzyan et al. 2019). The
+variables (King et al. 2004; Jurges 2007; Oksuzyan et al. 2019). The
 first set of variables (e.g., health variables) included in the
 regression are individual statuses and characteristics that are directly
 related to the self-reported variable. In the case of self-reported
@@ -29,7 +32,7 @@ anthropometric measures, and lifestyle behaviors. The second set of
 independent variables (threshold variables) is used to model cut-points
 between adjacent self-reported response categories as functions of
 individual characteristics, such as gender, age group, education, and
-country (Oksuzyan et al. 2019). The model helps to adjust for specific
+country (Oksuzyan et al. 2019). The model helps to adjust for specific
 socio-demographic and cultural differences in how the continuous latent
 health is projected onto the ordinal self-rated measure. The fitted
 model can be used to calculate an individual predicted latent status
@@ -278,7 +281,7 @@ plot(hi)
 
 <img src="man/figures/README-fig2-1.png" width="65%" style="display: block; margin: auto;" />
 
-**Figure 2.** Health index vs. self-reported health.
+**Figure 2.** Health index vs. self-reported health.
 
 The main aim of the reporting heterogeneity analyses is to determine the
 cut-points used to calculate the adjusted health status for each
@@ -458,7 +461,7 @@ International Journal of Epidemiology 42 (4): 992–1001. doi:
 
 Jurges H,. (2007). “True health vs response styles: exploring
 cross-country differences in self-reported health.” Health Economics,
-16(2), pp. 163-178. doi: 10.1002/hec.1134.
+16(2), pp. 163-178. doi: 10.1002/hec.1134.
 
 King GC, Murray JL, Salomon JA, and Tandon A. (2004). “Enhancing the
 Validity and Cross-Cultural Comparability of Measurement in Survey
@@ -468,5 +471,5 @@ University Press: 191–207. doi: 10.1017/S000305540400108X.
 Oksuzyan A, Danko MJ, Caputo J, Jasilionis D, and Shkolnikov V. (2019).
 “Is the story about sensitive women and stoical men true? Gender
 differences in health after adjustment for reporting behavior.” Social
-Science & Medicine, 228, pp. 41-50. doi:
+Science & Medicine, 228, pp. 41-50. doi:
 10.1016/j.socscimed.2019.03.002.
