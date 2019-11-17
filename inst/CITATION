@@ -1,0 +1,24 @@
+bibentry(
+  header = "To cite hopit in publications use:",
+
+  textVersion =
+  paste("Dańko M. J., (2019).",
+        "hopit: An R Package for Analysis of Reporting Behavior Using Generalized Ordered Probit Models. ",
+        "Journal of Open Source Software,",
+        "x(xx), 1481, https://doi.org/10.21105/joss.01481"),
+
+  bibtype = "article",
+  title   = "{hopit}: An {R} package for Analysis of Reporting Behavior Using Generalized Ordered Probit Models",
+  author  = c(
+  person("Maciej J.", "Danko",
+          role = c("aut", "cre"),
+          email = "Danko@demogr.mpg.de",
+          comment = c(ORCID = "0000-0002-7924-9022"))),
+  journal = "Journal of Open Source Software",
+  year    = "2019",
+  volume  = "4",
+  number  = "43",
+  pages   = "1508",
+  doi     = "10.21105/joss.01508",
+)
+
