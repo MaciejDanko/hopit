@@ -1,7 +1,7 @@
 Package: hopit
 Type: Package
 Title: Hierarchical Ordered Probit Models with Application to Reporting Heterogeneity
-Version: 0.10.2
+Version: 0.10.3
 Depends: 
    R (>= 3.5.0), 
    survey (>= 3.35)

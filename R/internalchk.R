@@ -1,7 +1,7 @@
 #' @noRd
 #' @keywords internal
 check_decreasing.levels<-function(decreasing.levels, levels_y_i){
-  if (length(decreasing.levels) == 0) {
+  if (length(decreasing.levels) != 1) {
     message(paste(hopit_msg(24), toString(levels_y_i),hopit_msg(25)))
     message(hopit_msg(26))
     stop(hopit_msg(27),call.=FALSE)
@@ -46,7 +46,7 @@ check_latent_formula <- function(latent.formula, data){
 #' @noRd
 #' @keywords internal
 check_vcov<-function(vcov){
-  if (class(vcov) == 'try-error') {
+  if ('try-error' %in% class(vcov)) {
     warning(call. = FALSE, hopit_msg(32))
     vcov <- NA
   }

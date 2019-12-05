@@ -121,7 +121,7 @@ standardizeCoef <- function (model,
 
   cfm <- suppressMessages(summary(model)$coef[seq_len(model$parcount[1]),])
   oldnames<-rownames(cfm)
-  if (class(namesf)=='function') newnames <- namesf(oldnames) else {
+  if (class(namesf)[1]=='function') newnames <- namesf(oldnames) else {
     newnames <- namesf
   }
 
@@ -343,6 +343,7 @@ getLevels<-function(model,
                     sort.flag = FALSE){
 
   data <- model$na.action(data)
+  sort.flag <- sort.flag[1]
   if (model$control$transform.latent != 'none')
     data <- transform.data(model$latent.formula, data,
                            model$control$transform.latent)
@@ -350,7 +351,7 @@ getLevels<-function(model,
     data <- transform.data(model$thresh.formula, data,
                            model$control$transform.thresh)
 
-  if (class(formula)=='formula')
+  if (class(formula)[1]=='formula')
     inte_ <- formula2classes(formula, data, sep = sep,
                              return.matrix = TRUE) else
       stop(call.=NULL, hopit_msg(86))

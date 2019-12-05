@@ -139,7 +139,7 @@ boot_hopit<-function(model, func, data=model$frame, nboot = 500, unlist = TRUE,
   boots <- lapply(seq_len(nboot), function(k)
     func(model = update.latent(model,
                  bootsample[k,N],data = data), ...))
-  if (unlist) {
+  if (unlist[1]) {
     boots <- sapply(boots,'[')
     class(boots) <- 'hopit.boot'
   } else class(boots) <- c('hopit.boot', 'list')

@@ -75,7 +75,7 @@ my.grad <- function(fn, par, eps, ...){
 #' @noRd
 #' @keywords internal
 hopit_c_link<-function(model){
-  model$link <- tolower(model$link)
+  model$link <- tolower(model$link)[1]
   if (model$link %in% c('probit','logit')){
     if (model$link=='probit') link=0 else link=1
   } else stop(paste(hopit_msg(17),model$link),call. = NULL)
@@ -311,6 +311,7 @@ transform.data<-function(formula, data, type = 'min'){
   varlist <- varlist[ind]
   ind <- which(sapply(varlist, function(k) is.numeric(data[[k]])))
   varnumlist <- varlist[ind]
+  type <- type [1]
   for (k in seq_along(varnumlist)) {
     tmp <- data[[varnumlist[k]]]
     if (tolower(type) == 'min') {
@@ -342,7 +343,7 @@ analyse.formulas<-function(object, latent.formula, thresh.formula, data){
 
   response.name <- colnames(stats::model.frame(stats::update(latent.formula,
                                                              '.~1'), data))
-
+  if (length(response.name)>1) stop()
   thresh.list <- decomposeinteractions(thresh.terms)
   latent.list <- decomposeinteractions(latent.terms)
 

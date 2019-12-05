@@ -13,7 +13,7 @@
 #' @aliases coefficients.hopit
 #' @method coef hopit
 coef.hopit <- function(object, aslist = FALSE, ...)
-  if (aslist) object$coef.ls else object$coef
+  if (aslist[1]) object$coef.ls else object$coef
 
 
 #' Printing basic information about fitted \code{hopit} model
@@ -64,7 +64,7 @@ print.hopit<-function(x, ...){
 #' @method vcov hopit
 vcov.hopit<-function(object, robust.vcov, ...){
   z <- object$vcov
-  if (class(z) == "try-error") stop(paste(hopit_msg(37),
+  if ("try-error" %in% class(z)) stop(paste(hopit_msg(37),
                                         attr(z,"condition"),sep=''),call.=NULL)
   if (!length(z)) stop(hopit_msg(38),call.=NULL)
   if (length(object$design)){
@@ -207,7 +207,7 @@ summary.hopitDW<-function(object, ...){
 #' @method print summary.hopitDW
 #' @noRd
 print.summary.hopitDW <- function(x, digits=4, show.coef.names=TRUE, ...){
-  if (show.coef.names) {
+  if (show.coef.names[1]) {
     g <- data.frame('Coefficient name' = x[,2],
                   'Standardized coeficient'=
                     format(round(x[,1],digits),nsmall=digits, digits=digits,
@@ -253,7 +253,7 @@ plot.hopitDW <- function(x,
                          col = 'orange',
                          las = 3, ...){
   x <- summary.hopitDW(x)
-  if (ordered) {
+  if (ordered[1]) {
     oz <- order(x[,1], decreasing = TRUE)
     x <- x[oz,]
   }
@@ -264,7 +264,7 @@ plot.hopitDW <- function(x,
   }
   rr <- graphics::barplot(x[,1], las = las, names.arg = rownames(x), ylab = ylab,
                           angle=angle, col=col, density=density, ...)
-  if (show.signif) graphics::text(rr,x[,1],paste('',x[,4]),srt=90, xpd=NA, adj=0, col='darkred')
+  if (show.signif[1]) graphics::text(rr,x[,1],paste('',x[,4]),srt=90, xpd=NA, adj=0, col='darkred')
 }
 
 #' Plotting Latent Index
@@ -335,7 +335,7 @@ plot.hopitCP<-function(x,
                        border.lwd=1.5,
                        group.labels.type=c('middle','border','none'),
                        ...){
-  if (decreasing.levels) dorev <- rev else dorev <- identity
+  if (decreasing.levels[1]) dorev <- rev else dorev <- identity
   lv <- dorev(as.character(levels(attr(x,'y_i'))))
   Nm <- paste(lv[-length(lv)],lv[-1],sep=' | ')
   Nm <- sapply(Nm, function(k) bquote(bold(.(k))))
@@ -731,7 +731,7 @@ lrt.hopit <- function(full, nested){
 #' @seealso \code{\link{lrt.hopit}}, \code{\link{anova.hopit}},
 #' \code{\link{hopit}}.
 print.lrt.hopit <- function(x, short = FALSE, ...){
-  if (!short) {
+  if (!short[1]) {
     cat(hopit_msg(64))
     cat("--", hopit_msg(65), deparse(x$full$latent.formula), fill = TRUE)
     cat("--",hopit_msg(66), deparse(x$full$thresh.formula), fill = TRUE)
@@ -856,7 +856,7 @@ plot.profile.hopit<-function(x, ..., ylim = NULL, relative = FALSE,
   zx <- ceiling(z)
   spar <- graphics::par(c('mfrow','mar'))
   graphics::par(mfrow=c(zx,zy),mar=c(0,0,0,0))
-  if (relative) ylim <- range(x)
+  if (relative[1]) ylim <- range(x)
   for (j in seq_len(ncol(x))) {
     graphics::plot(x[,j],type='l',axes='F', ylim = ylim, ...)
     graphics::abline(v=floor(nrow(x)/2)+1,col=2,lty=2)
@@ -883,7 +883,7 @@ plot.profile.hopit<-function(x, ..., ylim = NULL, relative = FALSE,
 #' \code{\link{hopit}}
 print.profile.hopit<-function(x, ..., plotf = TRUE){
   test <- apply(x,2,which.max)==floor(nrow(x)/2)+1
-  if(plotf) plot.profile.hopit(x, ...)
+  if(plotf[1]) plot.profile.hopit(x, ...)
   if (any(!test)) {
     message(hopit_msg(60))
     message(paste(hopit_msg(61),paste(names(test)[!test],sep='',

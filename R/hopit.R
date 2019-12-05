@@ -304,8 +304,8 @@ hopit_fitter <- function(model, start = model$start, use_weights){
   fit
   #}, silent = TRUE)
   both <- length(z1) & length(z2)
-  err1 <- class(z1) == "try-error"
-  err2 <- class(z2) == "try-error"
+  err1 <- "try-error" %in% class(z1)
+  err2 <- "try-error" %in% class(z2)
   if ((both && err1 && err2) ||
       (!both && length(z1) && err1) ||
       (!both && length(z2) && err2) ||
