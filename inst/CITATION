@@ -5,7 +5,7 @@ bibentry(
   paste("Dańko M. J., (2019).",
         "hopit: An R Package for Analysis of Reporting Behavior Using Generalized Ordered Probit Models. ",
         "Journal of Open Source Software,",
-        "4(43), 1508, https://doi.org/10.21105/joss.01481"),
+        "4(43), 1508, https://doi.org/10.21105/joss.01508"),
 
   bibtype = "article",
   title   = "{hopit}: An {R} package for Analysis of Reporting Behavior Using Generalized Ordered Probit Models",
