@@ -338,7 +338,7 @@ getCutPoints <- function(model,
 #' # more examples can be found in the description of the boot_hopit() function.
 getLevels<-function (model, formula = model$thresh.formula, data = model$frame,
                      sep = "_", decreasing.levels = model$decreasing.levels, sort.flag = FALSE,
-                     weight_origin = TRUE){
+                     weight.origin = TRUE){
   data <- model$na.action(data)
   sort.flag <- sort.flag[1]
   has_design <- length(model$design) > 0
@@ -355,7 +355,7 @@ getLevels<-function (model, formula = model$thresh.formula, data = model$frame,
   cpall <- getCutPoints(model, decreasing.levels = decreasing.levels)
 
   Fy_i <- factor(model$y_i, levels = levels(cpall$adjusted.levels))
-  if (has_design && weight_origin){
+  if (has_design && weight.origin){
     TAB1 <- round(questionr::wtd.table( model$y_i, cpall$adjusted.levels, weights = 1/model$design$prob) *
                     100/sum(1/model$design$prob), 2)
     tmp <- untable(t(questionr::wtd.table(Fy_i, inte, weights = 1/model$design$prob)))

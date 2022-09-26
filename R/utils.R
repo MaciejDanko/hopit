@@ -1,29 +1,26 @@
 #' Not \%in\% function
 #'
-#' @param x,y numeric vectors
-#' @usage x \%notin\% y
-#' @author Maciej J. Danko
-#' @export
+#' @noRd
 '%notin%' <-function(x, y) match(x, y, nomatch = 0L) == 0L
 
 
 #' Check whether one set contains all elements of another set
 #'
 #' Check whether the y set contains all elements of set x
-#' @param x,y numeric vectors
-#' @usage x \%c\% y
-#' @author Maciej J. Danko
-#' @export
+# @param x,y numeric vectors
+# @usage x \%c\% y
+# @author Maciej J. Danko
+#' @noRd
 '%c%' <-function(x, y) all(match(x, y, nomatch = 0L))
 
 
 #' Not \%c\% function
 #'
 #' Check whether the y set contains none of elements of the x set
-#' @param x,y numeric vectors
-#' @usage x \%notc\% y
-#' @author Maciej J. Danko
-#' @export
+# @param x,y numeric vectors
+# @usage x \%notc\% y
+# @author Maciej J. Danko
+#' @noRd
 '%notc%' <- function(x, y) !all(match(x, y, nomatch = 0L))
 
 

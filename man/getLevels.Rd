@@ -11,7 +11,7 @@ getLevels(
   sep = "_",
   decreasing.levels = model$decreasing.levels,
   sort.flag = FALSE,
-  weight_origin = TRUE
+  weight.origin = TRUE
 )
 }
 \arguments{
