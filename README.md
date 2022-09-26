@@ -2,7 +2,6 @@
 [![CRAN\_Version](https://www.r-pkg.org/badges/version/hopit)](https://cran.r-project.org/package=hopit)
 [![Travis-CI Build
 Status](https://travis-ci.org/MaciejDanko/hopit.svg?branch=master)](https://travis-ci.org/MaciejDanko/hopit)
-[![AppVeyor Build
 [![status](https://joss.theoj.org/papers/10.21105/joss.01508/status.svg)](https://joss.theoj.org/papers/10.21105/joss.01508)
 [![CRAN\_Download\_Badge1](https://cranlogs.r-pkg.org/badges/grand-total/hopit)](https://r-pkg.org/pkg/hopit)
 [![CRAN\_Download\_Badge2](https://cranlogs.r-pkg.org/badges/hopit)](https://r-pkg.org/pkg/hopit)
