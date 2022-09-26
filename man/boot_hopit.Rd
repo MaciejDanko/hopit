@@ -4,8 +4,16 @@
 \alias{boot_hopit}
 \title{Bootstrapping hopit model}
 \usage{
-boot_hopit(model, func, data = model$frame, nboot = 500,
-  unlist = TRUE, boot.only.latent = TRUE, robust.vcov, ...)
+boot_hopit(
+  model,
+  func,
+  data = model$frame,
+  nboot = 500,
+  unlist = TRUE,
+  boot.only.latent = TRUE,
+  robust.vcov,
+  ...
+)
 }
 \arguments{
 \item{model}{a fitted \code{hopit} model.}

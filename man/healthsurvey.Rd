@@ -4,7 +4,8 @@
 \name{healthsurvey}
 \alias{healthsurvey}
 \title{Artificially generated health survey data}
-\format{A data frame with 10000 rows and 11 variables:
+\format{
+A data frame with 10000 rows and 11 variables:
 \describe{
 \item{ID}{ personal identification number. }
 \item{health}{ reported health, 5 levels. }
@@ -25,7 +26,8 @@
 \item{country}{ country: "X", "Y", or "Z".}
 \item{csw}{ cross-sectional survey weights.}
 \item{psu}{ primary statistical unit.}
-}}
+}
+}
 \source{
 \code{healthsurvey} is a completely artificial data set simulated using distributions of
 some major health and socio-demographic characteristics. The distributions and the data

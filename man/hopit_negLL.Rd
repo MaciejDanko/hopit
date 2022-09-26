@@ -4,8 +4,13 @@
 \alias{hopit_negLL}
 \title{INTERNAL: The log likelihood function}
 \usage{
-hopit_negLL(parameters = model$coef, model, collapse = TRUE,
-  use_weights, negative = TRUE)
+hopit_negLL(
+  parameters = model$coef,
+  model,
+  collapse = TRUE,
+  use_weights,
+  negative = TRUE
+)
 }
 \arguments{
 \item{parameters}{model parameters (optional). If the parameters are not delivered, they are taken from \code{model$coef}.}

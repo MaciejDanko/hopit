@@ -246,6 +246,7 @@ getCutPoints <- function(model,
 #' @param sep a separator for the level names.
 #' @param decreasing.levels a logical indicating whether self-reported health classes are ordered in increasing order.
 #' @param sort.flag a logical indicating whether to sort the levels.
+#' @param weight.origin use survey weights for origin.
 #' @return a list with the following components:
 #'  \item{original}{ frequencies of original response levels for selected groups/categories.}
 #'  \item{adjusted}{ frequencies of adjusted response levels (Jurges 2007 method) for selected groups/categories.}
@@ -335,61 +336,127 @@ getCutPoints <- function(model,
 #' # while men aged 50-59 greatly under-report good health.
 #'
 #' # more examples can be found in the description of the boot_hopit() function.
-getLevels<-function(model,
-                    formula=model$thresh.formula,
-                    data = model$frame,
-                    sep = '_',
-                    decreasing.levels = model$decreasing.levels,
-                    sort.flag = FALSE){
-
+getLevels<-function (model, formula = model$thresh.formula, data = model$frame,
+                     sep = "_", decreasing.levels = model$decreasing.levels, sort.flag = FALSE,
+                     weight_origin = TRUE){
   data <- model$na.action(data)
   sort.flag <- sort.flag[1]
-  if (model$control$transform.latent != 'none')
-    data <- transform.data(model$latent.formula, data,
-                           model$control$transform.latent)
-  if (model$control$transform.thresh != 'none')
-    data <- transform.data(model$thresh.formula, data,
-                           model$control$transform.thresh)
-
-  if (class(formula)[1]=='formula')
-    inte_ <- formula2classes(formula, data, sep = sep,
-                             return.matrix = TRUE) else
-      stop(call.=NULL, hopit_msg(86))
+  has_design <- length(model$design) > 0
+  if (model$control$transform.latent != "none")
+    data <- transform.data(model$latent.formula, data, model$control$transform.latent)
+  if (model$control$transform.thresh != "none")
+    data <- transform.data(model$thresh.formula, data, model$control$transform.thresh)
+  if (class(formula)[1] == "formula") {
+    inte_ <- formula2classes(formula, data, sep = sep, return.matrix = TRUE)
+  } else stop(call. = NULL, hopit_msg(86))
   inte <- inte_$x
   namind <- inte_$class.mat
   nam <- levels(inte)
-
   cpall <- getCutPoints(model, decreasing.levels = decreasing.levels)
-  TAB1 <- round(table(original = model$y_i,
-                      adjusted = cpall$adjusted.levels)*100/length(model$y_i),2)
-  tmp <- untable(t(table(factor(model$y_i,
-                            levels=levels(cpall$adjusted.levels)), inte)))
-  N1 <- tmp
-  tmp <-tmp/rowSums(tmp)
-  if (sort.flag) {
-    oD1 <- order(tmp[,NCOL(tmp)]+tmp[,NCOL(tmp)-1])
-    tmp <- tmp[oD1,]
-    orignalind <- namind[oD1,]
-  } else orignalind <- namind
+
+  Fy_i <- factor(model$y_i, levels = levels(cpall$adjusted.levels))
+  if (has_design && weight_origin){
+    TAB1 <- round(questionr::wtd.table( model$y_i, cpall$adjusted.levels, weights = 1/model$design$prob) *
+                    100/sum(1/model$design$prob), 2)
+    tmp <- untable(t(questionr::wtd.table(Fy_i, inte, weights = 1/model$design$prob)))
+    N1 <- tmp
+    tmp <- tmp/rowSums(tmp)
+    if (sort.flag) {
+      oD1 <- order(tmp[, NCOL(tmp)] + tmp[, NCOL(tmp) - 1])
+      tmp <- tmp[oD1, ]
+      orignalind <- namind[oD1, ]
+    }
+    else orignalind <- namind
+
+  } else {
+    TAB1 <- round(table(original = model$y_i, adjusted = cpall$adjusted.levels) *
+                    100/length(model$y_i), 2)
+    tmp <- untable(t(table(factor(model$y_i, levels = levels(cpall$adjusted.levels)),
+                                   inte)))
+
+    N1 <- tmp
+    tmp <- tmp/rowSums(tmp)
+    if (sort.flag) {
+      oD1 <- order(tmp[, NCOL(tmp)] + tmp[, NCOL(tmp) - 1])
+      tmp <- tmp[oD1, ]
+      orignalind <- namind[oD1, ]
+    }
+    else orignalind <- namind
+  }
 
   tmp2 <- untable(t(table(cpall$adjusted.levels, inte)))
   N2 <- tmp2
   tmp2 <- tmp2/rowSums(tmp2)
   if (sort.flag) {
-    oD2 <- order(tmp2[,NCOL(tmp2)]+tmp2[,NCOL(tmp2)-1])
-    tmp2 <- tmp2[oD2,]
-    adjustedind <- namind[oD2,]
-  } else adjustedind <- namind
-
-  res <- list(original= tmp,
-              adjusted= tmp2,
-              tab= TAB1,
-              N.original= N1,
-              N.adjusted= N2,
-              categories = orignalind, # = adjustedind
-              mat=as.data.frame(cbind(group=inte_$mat,
-                        original= model$y_i,
-                        adjusted= cpall$adjusted.levels)))
-  class(res) <- c('hopitLV','list')
+    oD2 <- order(tmp2[, NCOL(tmp2)] + tmp2[, NCOL(tmp2) -
+                                             1])
+    tmp2 <- tmp2[oD2, ]
+    adjustedind <- namind[oD2, ]
+  }
+  else adjustedind <- namind
+  res <- list(original = tmp, adjusted = tmp2, tab = TAB1,
+              N.original = N1, N.adjusted = N2, categories = orignalind,
+              mat = as.data.frame(cbind(group = inte_$mat, original = model$y_i,
+                                        adjusted = cpall$adjusted.levels)))
+  class(res) <- c("hopitLV", "list")
   res
 }
+
+# getLevels<-function(model,
+#                     formula=model$thresh.formula,
+#                     data = model$frame,
+#                     sep = '_',
+#                     decreasing.levels = model$decreasing.levels,
+#                     sort.flag = FALSE){
+#
+#   data <- model$na.action(data)
+#   sort.flag <- sort.flag[1]
+#   if (model$control$transform.latent != 'none')
+#     data <- transform.data(model$latent.formula, data,
+#                            model$control$transform.latent)
+#   if (model$control$transform.thresh != 'none')
+#     data <- transform.data(model$thresh.formula, data,
+#                            model$control$transform.thresh)
+#
+#   if (class(formula)[1]=='formula')
+#     inte_ <- formula2classes(formula, data, sep = sep,
+#                              return.matrix = TRUE) else
+#       stop(call.=NULL, hopit_msg(86))
+#   inte <- inte_$x
+#   namind <- inte_$class.mat
+#   nam <- levels(inte)
+#
+#   cpall <- getCutPoints(model, decreasing.levels = decreasing.levels)
+#   TAB1 <- round(table(original = model$y_i,
+#                       adjusted = cpall$adjusted.levels)*100/length(model$y_i),2)
+#   tmp <- untable(t(table(factor(model$y_i,
+#                             levels=levels(cpall$adjusted.levels)), inte)))
+#   N1 <- tmp
+#   tmp <-tmp/rowSums(tmp)
+#   if (sort.flag) {
+#     oD1 <- order(tmp[,NCOL(tmp)]+tmp[,NCOL(tmp)-1])
+#     tmp <- tmp[oD1,]
+#     orignalind <- namind[oD1,]
+#   } else orignalind <- namind
+#
+#   tmp2 <- untable(t(table(cpall$adjusted.levels, inte)))
+#   N2 <- tmp2
+#   tmp2 <- tmp2/rowSums(tmp2)
+#   if (sort.flag) {
+#     oD2 <- order(tmp2[,NCOL(tmp2)]+tmp2[,NCOL(tmp2)-1])
+#     tmp2 <- tmp2[oD2,]
+#     adjustedind <- namind[oD2,]
+#   } else adjustedind <- namind
+#
+#   res <- list(original= tmp,
+#               adjusted= tmp2,
+#               tab= TAB1,
+#               N.original= N1,
+#               N.adjusted= N2,
+#               categories = orignalind, # = adjustedind
+#               mat=as.data.frame(cbind(group=inte_$mat,
+#                         original= model$y_i,
+#                         adjusted= cpall$adjusted.levels)))
+#   class(res) <- c('hopitLV','list')
+#   res
+# }

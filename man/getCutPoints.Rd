@@ -4,8 +4,7 @@
 \alias{getCutPoints}
 \title{Calculate the threshold cut-points and individual adjusted responses using Jurges' method}
 \usage{
-getCutPoints(model, decreasing.levels = model$decreasing.levels,
-  subset = NULL)
+getCutPoints(model, decreasing.levels = model$decreasing.levels, subset = NULL)
 }
 \arguments{
 \item{model}{a fitted \code{hopit} model.}

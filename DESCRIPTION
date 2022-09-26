@@ -1,10 +1,10 @@
 Package: hopit
 Type: Package
 Title: Hierarchical Ordered Probit Models with Application to Reporting Heterogeneity
-Version: 0.10.4
+Version: 0.11.1
 Depends: 
    R (>= 3.5.0), 
-   survey (>= 3.35)
+   survey (>= 4.1-1)
 Imports: 
    MASS, 
    Rcpp, 
@@ -12,6 +12,7 @@ Imports:
    graphics, 
    stats, 
    grDevices,
+   questionr,
    Rdpack (>= 0.11.0)
 LinkingTo: 
    Rcpp, 
@@ -23,7 +24,7 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: TRUE
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 6.1.1
+RoxygenNote: 7.2.0
 SystemRequirements: C++11
 Suggests: 
     testthat (>= 2.1.0),
@@ -32,5 +33,5 @@ Suggests:
     knitr (>= 1.20),
     rmarkdown (>= 1.12),
     roxygen2 (>= 6.1.1)
-VignetteBuilder: R.rsp
+VignetteBuilder: knitr
 RdMacros: Rdpack

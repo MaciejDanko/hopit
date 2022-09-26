@@ -4,9 +4,15 @@
 \alias{getLevels}
 \title{Summarize the adjusted and the original self-rated response levels}
 \usage{
-getLevels(model, formula = model$thresh.formula, data = model$frame,
-  sep = "_", decreasing.levels = model$decreasing.levels,
-  sort.flag = FALSE)
+getLevels(
+  model,
+  formula = model$thresh.formula,
+  data = model$frame,
+  sep = "_",
+  decreasing.levels = model$decreasing.levels,
+  sort.flag = FALSE,
+  weight_origin = TRUE
+)
 }
 \arguments{
 \item{model}{a fitted \code{hopit} model.}
@@ -20,6 +26,8 @@ getLevels(model, formula = model$thresh.formula, data = model$frame,
 \item{decreasing.levels}{a logical indicating whether self-reported health classes are ordered in increasing order.}
 
 \item{sort.flag}{a logical indicating whether to sort the levels.}
+
+\item{weight.origin}{use survey weights for origin.}
 }
 \value{
 a list with the following components:

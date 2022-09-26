@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{\%notc\%}
 \alias{\%notc\%}
-\title{Not \%c\% function}
+\title{Not \\%c\\% function}
 \usage{
 x \%notc\% y
 }

@@ -4,11 +4,21 @@
 \alias{hopit.control}
 \title{Auxiliary for controlling the fitting of a \code{hopit} model}
 \usage{
-hopit.control(grad.eps = 3e-05, bgfs.maxit = 10000, cg.maxit = 10000,
-  nlm.maxit = 150, bgfs.reltol = 5e-10, cg.reltol = 5e-10,
-  nlm.gradtol = 1e-07, nlm.steptol = 1e-07, fit.methods = "BFGS",
-  nlm.fit = FALSE, trace = TRUE, transform.latent = "none",
-  transform.thresh = "none")
+hopit.control(
+  grad.eps = 3e-05,
+  bgfs.maxit = 10000,
+  cg.maxit = 10000,
+  nlm.maxit = 150,
+  bgfs.reltol = 5e-10,
+  cg.reltol = 5e-10,
+  nlm.gradtol = 1e-07,
+  nlm.steptol = 1e-07,
+  fit.methods = "BFGS",
+  nlm.fit = FALSE,
+  trace = TRUE,
+  transform.latent = "none",
+  transform.thresh = "none"
+)
 }
 \arguments{
 \item{grad.eps}{an epsilon parameter ("a very small number") used to calculate the Hessian from the gradient function.}

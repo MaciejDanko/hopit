@@ -489,7 +489,7 @@ hopit.control<-function(grad.eps = 3e-5,
 #' which models a standard deviation of the error term (e.g., the standard deviation of the cumulative normal distribution in the probit model).
 #' @param design an optional survey design. Use the \code{\link[survey]{svydesign}} function to specify the design.
 #' The design cannot be specified together with parameter \code{weights}.
-#' @param weights optional model weights. Use the design to construct survey weights.
+#' @param weights optional model weights. Use design parameter to construct survey weights.
 #' @param link a link function. The possible values are \code{"probit"} (default) and \code{"logit"}.
 #' @param start a vector with starting coefficient values in the form \code{c(latent_parameters, threshold_lambdas, threshold_gammas)} or
 #' \code{c(latent_parameters, threshold_lambdas, threshold_gammas, logSigma)} if the \code{fit.sigma == TRUE}.
@@ -805,26 +805,31 @@ hopit<- function(latent.formula,
   coefnames <-  c(model$latent.names, paste('(L)', interce, sep = '.'), tmp)
   if (model$hasdisp) coefnames <- c(coefnames, 'logSigma')
 
-  model$weights <- NULL
+  model$weights <- rep(1, model$N)
   check_design(weights, design, model$N)
   model$design <- design
+
   if (length(design)) {
-    model$weights <- design$prob
-  } else if (length(weights))
-    model$weights <- weights
-  if (!length(model$weights)) {
-    model$weights <- rep(1, model$N)
+    model$weights <- 1 / design$prob # was design$prob , mistake in previous version
+                                     # of the survey package which idea was copied from
+    #re- scaling survey weights
+    model$weights <- model$N * model$weights / sum(model$weights)
+  }
+
+  if (length(weights)){
+    model$weights <- model$weights * weights
+  }
+
+  if (!length(weights) && !length(design)) {
     model$use.weights <- FALSE
   } else model$use.weights <- TRUE
 
   model$weights <- as.vector(matrix(model$weights, 1L, model$N))
-  #scaling weights
-  model$weights <- model$N * model$weights / sum(model$weights)
 
   model$frame <- cbind.data.frame(stats::model.frame(latent.formula, data),
                                   stats::model.frame(thresh.formula, data))
 
-  #calculate special matrices for gradient calaculation
+  #calculate special matrices for gradient calculation
   model <- calcYYY(model)
 
   if (!length(start)) {

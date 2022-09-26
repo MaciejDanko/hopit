@@ -4,11 +4,21 @@
 \alias{plot.hopitCP}
 \title{Plotting Cut-Points}
 \usage{
-\method{plot}{hopitCP}(x, decreasing.levels = x$decreasing.levels,
-  mar = c(4, 4, 1, 1), oma = c(0, 0, 0, 0), XLab = "Health index",
-  XLab.cex = 1.1, YLab = "Counts", YLab.cex = 1.1, border.col = 2,
-  border.lty = 2, border.lwd = 1.5, group.labels.type = c("middle",
-  "border", "none"), ...)
+\method{plot}{hopitCP}(
+  x,
+  decreasing.levels = x$decreasing.levels,
+  mar = c(4, 4, 1, 1),
+  oma = c(0, 0, 0, 0),
+  XLab = "Health index",
+  XLab.cex = 1.1,
+  YLab = "Counts",
+  YLab.cex = 1.1,
+  border.col = 2,
+  border.lty = 2,
+  border.lwd = 1.5,
+  group.labels.type = c("middle", "border", "none"),
+  ...
+)
 }
 \arguments{
 \item{decreasing.levels}{a logical indicating whether self-reported health classes are ordered in decreasing order.}

@@ -4,9 +4,19 @@
 \alias{hopit}
 \title{Generalized hierarchical ordered threshold models.}
 \usage{
-hopit(latent.formula, thresh.formula = ~1, data, decreasing.levels,
-  start = NULL, fit.sigma = FALSE, design = list(), weights = NULL,
-  link = c("probit", "logit"), control = list(), na.action = na.fail)
+hopit(
+  latent.formula,
+  thresh.formula = ~1,
+  data,
+  decreasing.levels,
+  start = NULL,
+  fit.sigma = FALSE,
+  design = list(),
+  weights = NULL,
+  link = c("probit", "logit"),
+  control = list(),
+  na.action = na.fail
+)
 }
 \arguments{
 \item{latent.formula}{a formula used to model the latent variable. It should not contain any threshold variable.
@@ -29,7 +39,7 @@ which models a standard deviation of the error term (e.g., the standard deviatio
 \item{design}{an optional survey design. Use the \code{\link[survey]{svydesign}} function to specify the design.
 The design cannot be specified together with parameter \code{weights}.}
 
-\item{weights}{optional model weights. Use the design to construct survey weights.}
+\item{weights}{optional model weights. Use design parameter to construct survey weights.}
 
 \item{link}{a link function. The possible values are \code{"probit"} (default) and \code{"logit"}.}
 

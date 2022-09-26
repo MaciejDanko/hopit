@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{\%notin\%}
 \alias{\%notin\%}
-\title{Not \%in\% function}
+\title{Not \\%in\\% function}
 \usage{
 x \%notin\% y
 }
@@ -10,7 +10,7 @@ x \%notin\% y
 \item{x, y}{numeric vectors}
 }
 \description{
-Not \%in\% function
+Not \\%in\\% function
 }
 \author{
 Maciej J. Danko
