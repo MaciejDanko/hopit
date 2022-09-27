@@ -49,9 +49,14 @@ update.latent <- function(model, newregcoef, data){
 #' @param nboot a number of bootstrap replicates.
 #' @param unlist a logical indicating whether to unlist the boot object.
 #' @param boot.only.latent a logical indicating whether to perform the bootstrap on latent variables only.
+#' @param parallel.flag a logical if to use parallel computations.
+#' @param parallel.nb_cores number of cores (<= number of CPU cores on the current host).
+#' @param parallel.packages list of packages needed to run "func".
+#' @param parallel.variables list of global variables and functions needed to run "func".
 #' @param robust.vcov see \code{\link{vcov.hopit}}.
 #' @param ... other parameters passed to the \code{func}.
 #' @importFrom MASS mvrnorm
+#' @importFrom parallel parLapply clusterExport makeCluster stopCluster detectCores clusterEvalQ
 #' @author Maciej J. Danko
 #' @return a list with bootstrapped elements.
 #' @export
@@ -120,31 +125,78 @@ update.latent <- function(model, newregcoef, data){
 #' abline(h = 0); box(); par(mar = pmar)
 #' }
 boot_hopit<-function(model, func, data=model$frame, nboot = 500, unlist = TRUE,
-                     boot.only.latent = TRUE, robust.vcov, ...){
+                     boot.only.latent = TRUE, parallel.flag=TRUE, parallel.nb_cores=NULL,
+                     parallel.packages = NULL, parallel.variables = NULL,
+                     robust.vcov, ...){
+  if (parallel.flag && !length(parallel.nb_cores)){
+    chk <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")
+    if (nzchar(chk) && chk == "TRUE") {
+      parallel.nb_cores <- 2L
+    } else {
+      parallel.nb_cores <- parallel::detectCores()
+    }
+  }
   if (missing(robust.vcov)) {
     if (length(model$design)) robust.vcov <- FALSE else robust.vcov <- TRUE
   }
   data <- model$na.action(data)
   if (model$control$transform.latent != 'none')
     data <- transform.data(model$latent.formula, data,
-                           model$control$transform.latent)
+                                   model$control$transform.latent)
   if (model$control$transform.thresh != 'none')
     data <- transform.data(model$thresh.formula, data,
-                           model$control$transform.thresh)
+                                   model$control$transform.thresh)
 
   VCOV <- vcov.hopit(model, robust.vcov)
   if (boot.only.latent) N <- seq_len(model$parcount[1]) else N <- nrow(VCOV)
   if (length(VCOV) < 2) stop(call. = NULL, hopit_msg(23))
   bootsample <- MASS::mvrnorm(nboot, mu = model$coef[N], Sigma = VCOV[N,N])
-  boots <- lapply(seq_len(nboot), function(k)
-    func(model = update.latent(model,
-                 bootsample[k,N],data = data), ...))
+  if (parallel.flag){
+    cl<-parallel::makeCluster(parallel.nb_cores)
+    if (length(parallel.variables)) parallel::clusterExport(cl,parallel.variables, envir = .GlobalEnv)
+    parallel::clusterExport(cl, c("bootsample","nboot","N","model","data","func"), envir = environment())
+    parallel::clusterEvalQ(cl, {library("hopit")})
+    if (length(parallel.packages)) for (k in seq_along(length(parallel.packages)))
+      parallel::clusterEvalQ(cl, {eval(parse(text=paste0('library(',parallel.packages[k],')')))})
+    boots <- parallel::parLapply(cl, seq_len(nboot), function(k)
+      func(model = update.latent(model, bootsample[k,N],data = data), ...))
+    parallel::stopCluster(cl)
+  } else {
+    boots <- lapply(seq_len(nboot), function(k)
+      func(model = update.latent(model, bootsample[k,N],data = data), ...))
+  }
   if (unlist[1]) {
     boots <- sapply(boots,'[')
     class(boots) <- 'hopit.boot'
   } else class(boots) <- c('hopit.boot', 'list')
   boots
 }
+# boot_hopit<-function(model, func, data=model$frame, nboot = 500, unlist = TRUE,
+#                      boot.only.latent = TRUE, robust.vcov, ...){
+#   if (missing(robust.vcov)) {
+#     if (length(model$design)) robust.vcov <- FALSE else robust.vcov <- TRUE
+#   }
+#   data <- model$na.action(data)
+#   if (model$control$transform.latent != 'none')
+#     data <- transform.data(model$latent.formula, data,
+#                            model$control$transform.latent)
+#   if (model$control$transform.thresh != 'none')
+#     data <- transform.data(model$thresh.formula, data,
+#                            model$control$transform.thresh)
+#
+#   VCOV <- vcov.hopit(model, robust.vcov)
+#   if (boot.only.latent) N <- seq_len(model$parcount[1]) else N <- nrow(VCOV)
+#   if (length(VCOV) < 2) stop(call. = NULL, hopit_msg(23))
+#   bootsample <- MASS::mvrnorm(nboot, mu = model$coef[N], Sigma = VCOV[N,N])
+#   boots <- lapply(seq_len(nboot), function(k)
+#     func(model = update.latent(model,
+#                  bootsample[k,N],data = data), ...))
+#   if (unlist[1]) {
+#     boots <- sapply(boots,'[')
+#     class(boots) <- 'hopit.boot'
+#   } else class(boots) <- c('hopit.boot', 'list')
+#   boots
+# }
 
 #' Calculating the confidence intervals of the bootstrapped function using the percentile method
 #'

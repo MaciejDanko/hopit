@@ -246,7 +246,7 @@ getCutPoints <- function(model,
 #' @param sep a separator for the level names.
 #' @param decreasing.levels a logical indicating whether self-reported health classes are ordered in increasing order.
 #' @param sort.flag a logical indicating whether to sort the levels.
-#' @param weight.origin use survey weights for origin.
+#' @param weight.original a logical indicating if use survey weights for calcualtion of original responses.
 #' @return a list with the following components:
 #'  \item{original}{ frequencies of original response levels for selected groups/categories.}
 #'  \item{adjusted}{ frequencies of adjusted response levels (Jurges 2007 method) for selected groups/categories.}
@@ -338,7 +338,7 @@ getCutPoints <- function(model,
 #' # more examples can be found in the description of the boot_hopit() function.
 getLevels<-function (model, formula = model$thresh.formula, data = model$frame,
                      sep = "_", decreasing.levels = model$decreasing.levels, sort.flag = FALSE,
-                     weight.origin = TRUE){
+                     weight.original = TRUE){
   data <- model$na.action(data)
   sort.flag <- sort.flag[1]
   has_design <- length(model$design) > 0
@@ -355,7 +355,7 @@ getLevels<-function (model, formula = model$thresh.formula, data = model$frame,
   cpall <- getCutPoints(model, decreasing.levels = decreasing.levels)
 
   Fy_i <- factor(model$y_i, levels = levels(cpall$adjusted.levels))
-  if (has_design && weight.origin){
+  if (has_design && weight.original){
     TAB1 <- round(questionr::wtd.table( model$y_i, cpall$adjusted.levels, weights = 1/model$design$prob) *
                     100/sum(1/model$design$prob), 2)
     tmp <- untable(t(questionr::wtd.table(Fy_i, inte, weights = 1/model$design$prob)))

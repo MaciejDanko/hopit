@@ -11,7 +11,7 @@ getLevels(
   sep = "_",
   decreasing.levels = model$decreasing.levels,
   sort.flag = FALSE,
-  weight.origin = TRUE
+  weight.original = TRUE
 )
 }
 \arguments{
@@ -27,7 +27,7 @@ getLevels(
 
 \item{sort.flag}{a logical indicating whether to sort the levels.}
 
-\item{weight.origin}{use survey weights for origin.}
+\item{weight.original}{a logical indicating if use survey weights for calcualtion of original responses.}
 }
 \value{
 a list with the following components:

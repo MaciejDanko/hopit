@@ -11,6 +11,10 @@ boot_hopit(
   nboot = 500,
   unlist = TRUE,
   boot.only.latent = TRUE,
+  parallel.flag = TRUE,
+  parallel.nb_cores = NULL,
+  parallel.packages = NULL,
+  parallel.variables = NULL,
   robust.vcov,
   ...
 )
@@ -27,6 +31,14 @@ boot_hopit(
 \item{unlist}{a logical indicating whether to unlist the boot object.}
 
 \item{boot.only.latent}{a logical indicating whether to perform the bootstrap on latent variables only.}
+
+\item{parallel.flag}{a logical if to use parallel computations.}
+
+\item{parallel.nb_cores}{number of cores (<= number of CPU cores on the current host).}
+
+\item{parallel.packages}{list of packages needed to run "func".}
+
+\item{parallel.variables}{list of global variables and functions needed to run "func".}
 
 \item{robust.vcov}{see \code{\link{vcov.hopit}}.}
 

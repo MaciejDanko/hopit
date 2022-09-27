@@ -1,7 +1,7 @@
 Package: hopit
 Type: Package
 Title: Hierarchical Ordered Probit Models with Application to Reporting Heterogeneity
-Version: 0.11.3
+Version: 0.11.4
 Depends: 
    R (>= 3.5.0), 
    survey (>= 4.1-1)
@@ -13,6 +13,7 @@ Imports:
    stats, 
    grDevices,
    questionr,
+   parallel,
    Rdpack (>= 0.11.0)
 LinkingTo: 
    Rcpp, 
@@ -24,7 +25,7 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: TRUE
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.1
 SystemRequirements: C++11
 Suggests: 
     testthat (>= 3.0.0),
