@@ -4,7 +4,7 @@ Hopit v0.11.4 (Release date: 2022-09-27)
 Changes:
 
 * added parallel computing to boot_hopit() function.
-* getLevels() now accounts for survey design during calcualtion of "orginal".
+* getLevels() now accounts for survey design during when calculating frequencies of original response.
 
 Bug fixes:
 
