@@ -3,11 +3,17 @@ Hopit v0.11.4 (Release date: 2022-09-27)
 
 Changes:
 
-* added parallel computing to boot_hopit()
-* getLevels() now accounts for survey design during calcualtion of "orginal"
+* added parallel computing to boot_hopit() function.
+* getLevels() now accounts for survey design during calcualtion of "orginal".
 
 Bug fixes:
 
-* Survey weights are now properly accounted during calcualtion of likelihood
+* Survey weights are now properly included during calculation of likelihood.
 
 
+Hopit v0.10.3 (Release date: 2019-12-09)
+================
+
+Changes:
+
+* Hopit package submitted to CRAN
