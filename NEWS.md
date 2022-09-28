@@ -3,7 +3,7 @@
 Changes:
 
 -   added parallel computing to boot_hopit() function.
--   getLevels() now accounts for survey design during when calculating frequencies of original response.
+-   getLevels() now takes survey design into account when calculating the frequency of the original responses.
 -   updated vignette
 
 Bug fixes:
@@ -27,7 +27,7 @@ Changes:
 Changes:
 
 -   new vignette
--   the hopit paper is submitted to JOSS
+-   the hopit paper was submitted to JOSS [(DOI: 10.21105/joss.01508)](https://joss.theoj.org/papers/10.21105/joss.01508)
 
 # hopit v0.9.0 (Release date: 2019-04-05)
 
