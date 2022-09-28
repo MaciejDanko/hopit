@@ -64,16 +64,19 @@ print.hopit<-function(x, ...){
 #' @method vcov hopit
 vcov.hopit<-function(object, robust.vcov, ...){
   z <- object$vcov
+  mirv <- missing(robust.vcov)
   if ("try-error" %in% class(z)) stop(paste(hopit_msg(37),
                                         attr(z,"condition"),sep=''),call.=NULL)
   if (!length(z)) stop(hopit_msg(38),call.=NULL)
   if (length(object$design)){
-    if (!missing(robust.vcov) && (robust.vcov)) {
-      warning(call. = FALSE, hopit_msg(39))
-      robust.vcov <- FALSE
+    if (!mirv) {
+      if (robust.vcov) {
+        warning(call. = FALSE, hopit_msg(39))
+      }
     }
+    robust.vcov <- FALSE
   } else {
-    if (missing(robust.vcov)) robust.vcov <- TRUE
+    if (mirv) robust.vcov <- TRUE
     if (length(object$weights)) divw <- object$weights else divw <- 1
     #check how weights work here, they must be standardized.
     if (robust.vcov) z <- (z %*% t(object$estfun) %*%

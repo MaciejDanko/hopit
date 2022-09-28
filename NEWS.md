@@ -1,3 +1,11 @@
+# hopit v0.11.5 (Release date: 2022-09-28)
+
+Bug fixes:
+
+-   minor changes to vcov.hopit()
+
+vcov.hopit
+
 # hopit v0.11.4 (Release date: 2022-09-27)
 
 Changes:
