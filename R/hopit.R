@@ -810,8 +810,8 @@ hopit<- function(latent.formula,
   model$design <- design
 
   if (length(design)) {
-    model$weights <- 1 / design$prob # was design$prob , mistake in previous version
-                                     # of the survey package which idea was copied from
+    model$weights <- 1 / design$prob # was design$prob before 0.11.4
+
     #re- scaling survey weights
     model$weights <- model$N * model$weights / sum(model$weights)
   }
