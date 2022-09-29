@@ -1,9 +1,3 @@
----
-editor_options: 
-  markdown: 
-    wrap: 72
----
-
 [![CRAN_Version](https://www.r-pkg.org/badges/version/hopit)](https://cran.r-project.org/package=hopit)
 [![Travis-CI Build
 Status](https://travis-ci.org/MaciejDanko/hopit.svg?branch=master)](https://travis-ci.org/MaciejDanko/hopit)
