@@ -1,26 +1,31 @@
+---
+editor_options: 
+  markdown: 
+    wrap: 72
+---
 
-[![CRAN\_Version](https://www.r-pkg.org/badges/version/hopit)](https://cran.r-project.org/package=hopit)
+[![CRAN_Version](https://www.r-pkg.org/badges/version/hopit)](https://cran.r-project.org/package=hopit)
 [![Travis-CI Build
 Status](https://travis-ci.org/MaciejDanko/hopit.svg?branch=master)](https://travis-ci.org/MaciejDanko/hopit)
 [![status](https://joss.theoj.org/papers/10.21105/joss.01508/status.svg)](https://joss.theoj.org/papers/10.21105/joss.01508)
-[![CRAN\_Download\_Badge1](https://cranlogs.r-pkg.org/badges/grand-total/hopit)](https://r-pkg.org/pkg/hopit)
-[![CRAN\_Download\_Badge2](https://cranlogs.r-pkg.org/badges/hopit)](https://r-pkg.org/pkg/hopit)
+[![CRAN_Download_Badge1](https://cranlogs.r-pkg.org/badges/grand-total/hopit)](https://r-pkg.org/pkg/hopit)
+[![CRAN_Download_Badge2](https://cranlogs.r-pkg.org/badges/hopit)](https://r-pkg.org/pkg/hopit)
 [![license](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://github.com/MaciejDanko/hopit/blob/master/LICENSE)
 
 # R-package *hopit*: Hierarchical ordered probit models with application to reporting heterogeneity.
 
 Self-reported health, happiness, attitudes, and other statuses or
 perceptions are often the subject of biases that may come from different
-sources. For example, the evaluation of an individual’s own health may
+sources. For example, the evaluation of an individual's own health may
 depend on previous medical diagnoses, functional status, and symptoms
 and signs of illness; as on well as life-style behaviors, including
 contextual social, gender, age-specific, linguistic and other cultural
-factors (Oksuzyan et al. 2019). The **hopit** package offers versatile
+factors (Oksuzyan et al. 2019). The **hopit** package offers versatile
 functions for analyzing different self-reported ordinal variables, and
 for helping to estimate their biases. Specifically, the package provides
 the function to fit a generalized ordered probit model that regresses
 original self-reported status measures on two sets of independent
-variables (King et al. 2004; Jurges 2007; Oksuzyan et al. 2019). The
+variables (King et al. 2004; Jurges 2007; Oksuzyan et al. 2019). The
 first set of variables (e.g., health variables) included in the
 regression are individual statuses and characteristics that are directly
 related to the self-reported variable. In the case of self-reported
@@ -30,7 +35,7 @@ anthropometric measures, and lifestyle behaviors. The second set of
 independent variables (threshold variables) is used to model cut-points
 between adjacent self-reported response categories as functions of
 individual characteristics, such as gender, age group, education, and
-country (Oksuzyan et al. 2019). The model helps to adjust for specific
+country (Oksuzyan et al. 2019). The model helps to adjust for specific
 socio-demographic and cultural differences in how the continuous latent
 health is projected onto the ordinal self-rated measure. The fitted
 model can be used to calculate an individual predicted latent status
@@ -43,7 +48,7 @@ been adjusted for inter-individual differences in reporting behavior.
 1.  Make sure you have the most recent version of R
 
 2.  Run the following code in your R console
-    
+
     ``` r
     install.packages("hopit") 
     ```
@@ -57,17 +62,17 @@ You can track (and contribute to) the development of `hopit` at
     `install.packages("devtools")`.
 
 2.  Make sure you have a working development environment.
-    
-      - **Windows**: Install
+
+    -   **Windows**: Install
         [Rtools](https://CRAN.R-project.org/bin/windows/Rtools/).
-      - **Mac**: Install `Xcode` from the Mac App Store.
-      - **Linux**: Install a compiler and various development libraries
+    -   **Mac**: Install `Xcode` from the Mac App Store.
+    -   **Linux**: Install a compiler and various development libraries
         (details vary across different flavors of Linux).
 
 3.  To install the development version of `hopit` run:
-    
+
     ``` r
-    devtools::install_github("MaciejDanko/hopit")
+    devtools::install_github("MaciejDanko/hopit", build_vignettes = TRUE, force = TRUE)
     ```
 
 ### Introduction and packacke manual
@@ -132,7 +137,7 @@ The generalized ordered probit models can be fitted using the `hopit`
 function. The function takes two kinds of formulas: (1)
 `latent.formula`, which models the impact of the latent variables on
 categorical health; and (2) `thresh.formula`, which models the
-thresholds.  
+thresholds.\
 One of the crucial steps needed for the proper interpretation of the
 model results is determining the order of the dependent variable, which
 must be a `factor`.
@@ -223,8 +228,8 @@ summary(model1)
 `model1` contains 11 dichotomous health variables and two threshold
 variables. The fitted coefficient includes beta (`latent.params`, first
 11 coefficients in the summary), lambda (`thresh.lambda`, threshold
-intercepts, “(L)” prefix in the summary), and gamma (`thresh.gamma`,
-parameters related to threshold covariates, “(G)” prefix in the
+intercepts, "(L)" prefix in the summary), and gamma (`thresh.gamma`,
+parameters related to threshold covariates, "(G)" prefix in the
 summary). The model coefficients can be accessed directly by the generic
 `coef(model1, aslist = TRUE)` function, which has an option to group
 parameters into a list (`aslist = TRUE`); or simply by calling
@@ -233,7 +238,7 @@ reporting heterogeneity.
 
 The latent health variables can be directly accessed using
 `model1$coef.ls$latent.params`. We can, however, standardize these
-coefficients using Jürges’ approach (Jurges 2007) in order to obtain so
+coefficients using Jürges' approach (Jurges 2007) in order to obtain so
 called disability weights. The disability weights are the same for each
 individual in the modeled population. The standardization is done using
 the `standardizeCoef` function.
@@ -244,7 +249,7 @@ sc <- standardizeCoef(model1, namesf = txtfun)
 plot(sc)
 ```
 
-<img src="man/figures/README-fig1-1.png" width="65%" style="display: block; margin: auto;" />
+<img src="man/figures/README-fig1-1.png" width="65%" style="display: block; margin: auto;"/>
 
 **Figure 1.** Disability weights.
 
@@ -277,9 +282,9 @@ hi <- latentIndex(model1)
 plot(hi)
 ```
 
-<img src="man/figures/README-fig2-1.png" width="65%" style="display: block; margin: auto;" />
+<img src="man/figures/README-fig2-1.png" width="65%" style="display: block; margin: auto;"/>
 
-**Figure 2.** Health index vs. self-reported health.
+**Figure 2.** Health index vs. self-reported health.
 
 The main aim of the reporting heterogeneity analyses is to determine the
 cut-points used to calculate the adjusted health status for each
@@ -291,7 +296,7 @@ z <- getCutPoints(model1)
 plot(z)
 ```
 
-<img src="man/figures/README-fig3-1.png" width="65%" style="display: block; margin: auto;" />
+<img src="man/figures/README-fig3-1.png" width="65%" style="display: block; margin: auto;"/>
 
 **Figure 3.** Health index cut-points for adjusted health levels.
 
@@ -321,7 +326,7 @@ hl <- getLevels(model = model1, formula = ~ sex + ageclass, sep = ' ')
 plot(hl)
 ```
 
-<img src="man/figures/README-fig4-1.png" width="73%" style="display: block; margin: auto;" />
+<img src="man/figures/README-fig4-1.png" width="73%" style="display: block; margin: auto;"/>
 
 **Figure 4.** Adjusted and original health levels.
 
@@ -357,7 +362,7 @@ variance-covariance matrix. The drawn coefficients are then used to
 calculate the measure of interest via a user-defined function. In the
 example below, I calculate the confidence intervals of the difference
 between the original and the adjusted frequencies of bad health. The bad
-health is determined by the presence of “`Poor`” or “`Fair`” self-rated
+health is determined by the presence of "`Poor`" or "`Fair`" self-rated
 health categories.
 
 First, a function to be bootstrapped is defined, which is then used to
@@ -404,16 +409,16 @@ for (k in seq_along(pos))
 abline(h = 0); box(); par(mar = pmar)
 ```
 
-<img src="man/figures/README-fig5-1.png" width="55%" style="display: block; margin: auto;" />
+<img src="man/figures/README-fig5-1.png" width="55%" style="display: block; margin: auto;"/>
 
 **Figure 5.** Difference between the original and the adjusted
 prevalences of bad health. The confidence intervals were calculated
 using the percentile bootstrap method.
 
 The results (Fig. 5) show that men tend to over-report bad health at
-ages (50,60\] and (50,70\], whereas women tend to over-report bad health
-at ages \[70,80); and that both sexes tend to under-report bad health at
-ages (80, 120\]. See also Oksuzyan et al. (2019) for similar analyses
+ages (50,60] and (50,70], whereas women tend to over-report bad health
+at ages (70,80); and that both sexes tend to under-report bad health at
+ages (80, 120]. See also Oksuzyan et al. (2019) for similar analyses
 that were performed using real SHARE data.
 
 ### Contributing
@@ -444,30 +449,30 @@ CIT4-CT-2006-028812) and FP7 (SHARE-PREP: N°211909, SHARE-LEAP:
 N°227822, SHARE M4: N°261982). Additional funding from the German
 Ministry of Education and Research, the Max Planck Society for the
 Advancement of Science, the U.S. National Institute on Aging
-(U01\_AG09740-13S2, P01\_AG005842, P01\_AG08291, P30\_AG12815,
-R21\_AG025169, Y1-AG-4553-01, IAG\_BSR06-11, OGHA\_04-064,
-HHSN271-201300071C), and various national funding sources is gratefully
-acknowledged (see www. share-project.org).
+(U01_AG09740-13S2, P01_AG005842, P01_AG08291, P30_AG12815, R21_AG025169,
+Y1-AG-4553-01, IAG_BSR06-11, OGHA_04-064, HHSN271-201300071C), and
+various national funding sources is gratefully acknowledged (see www.
+share-project.org).
 
 ### References
 
 Borsch-Supan A, Brandt M, Hunkler C, Kneip T, Korbmacher J, Malter F,
-Schaan B, Stuck S, and Zuber S. (2013). “Data Resource Profile: The
-Survey of Health, Ageing and Retirement in Europe (Share).”
-International Journal of Epidemiology 42 (4): 992–1001. doi:
+Schaan B, Stuck S, and Zuber S. (2013). "Data Resource Profile: The
+Survey of Health, Ageing and Retirement in Europe (Share)."
+International Journal of Epidemiology 42 (4): 992--1001. doi:
 10.1093/ije/dyt088.
 
-Jurges H,. (2007). “True health vs response styles: exploring
-cross-country differences in self-reported health.” Health Economics,
-16(2), pp. 163-178. doi: 10.1002/hec.1134.
+Jurges H,. (2007). "True health vs response styles: exploring
+cross-country differences in self-reported health." Health Economics,
+16(2), pp. 163-178. doi: 10.1002/hec.1134.
 
-King GC, Murray JL, Salomon JA, and Tandon A. (2004). “Enhancing the
+King GC, Murray JL, Salomon JA, and Tandon A. (2004). "Enhancing the
 Validity and Cross-Cultural Comparability of Measurement in Survey
-Research.” American Political Science Review 98 (1). Cambridge
-University Press: 191–207. doi: 10.1017/S000305540400108X.
+Research." American Political Science Review 98 (1). Cambridge
+University Press: 191--207. doi: 10.1017/S000305540400108X.
 
 Oksuzyan A, Danko MJ, Caputo J, Jasilionis D, and Shkolnikov V. (2019).
-“Is the story about sensitive women and stoical men true? Gender
-differences in health after adjustment for reporting behavior.” Social
-Science & Medicine, 228, pp. 41-50. doi:
+"Is the story about sensitive women and stoical men true? Gender
+differences in health after adjustment for reporting behavior." Social
+Science & Medicine, 228, pp. 41-50. doi:
 10.1016/j.socscimed.2019.03.002.
