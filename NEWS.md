@@ -1,8 +1,14 @@
-# hopit v0.11.5 (Release date: 2022-09-28)
+# hopit v0.11.5 (Release date: 2022-10-01)
+
+Changes:
+
+-   parallel.flag in boot_hopit() is set now to FALSE by default.
+-   updated vignette.
 
 Minor bug fixes:
 
--   minor fixes to vcov.hopit()
+-   minor fixes to vcov.hopit().
+-   package Matrix is removed from the NAMESPACE
 
 # hopit v0.11.4 (Release date: 2022-09-27)
 
@@ -10,7 +16,7 @@ Changes:
 
 -   added parallel computing to boot_hopit() function.
 -   getLevels() now takes survey design into account when calculating the frequency of the original responses.
--   updated vignette
+-   updated vignette.
 
 Bug fixes:
 

@@ -56,7 +56,7 @@ update.latent <- function(model, newregcoef, data){
 #' @param robust.vcov see \code{\link{vcov.hopit}}.
 #' @param ... other parameters passed to the \code{func}.
 #' @importFrom MASS mvrnorm
-#' @importFrom parallel parLapply clusterExport makeCluster stopCluster detectCores clusterEvalQ
+#' @import parallel
 #' @author Maciej J. Danko
 #' @return a list with bootstrapped elements.
 #' @export
@@ -125,7 +125,7 @@ update.latent <- function(model, newregcoef, data){
 #' abline(h = 0); box(); par(mar = pmar)
 #' }
 boot_hopit<-function(model, func, data=model$frame, nboot = 500, unlist = TRUE,
-                     boot.only.latent = TRUE, parallel.flag=TRUE, parallel.nb_cores=NULL,
+                     boot.only.latent = TRUE, parallel.flag=FALSE, parallel.nb_cores=NULL,
                      parallel.packages = NULL, parallel.variables = NULL,
                      robust.vcov, ...){
   if (parallel.flag && !length(parallel.nb_cores)){

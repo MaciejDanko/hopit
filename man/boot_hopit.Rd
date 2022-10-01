@@ -11,7 +11,7 @@ boot_hopit(
   nboot = 500,
   unlist = TRUE,
   boot.only.latent = TRUE,
-  parallel.flag = TRUE,
+  parallel.flag = FALSE,
   parallel.nb_cores = NULL,
   parallel.packages = NULL,
   parallel.variables = NULL,
